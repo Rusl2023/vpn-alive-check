@@ -1,9 +1,9 @@
-name: Filter Alive VLESS Servers
+name: Filter Alive VLESS Servers (One per Country)
 
 on:
   schedule:
-    - cron: '*/9 * * * *'  # каждые 9 минут
-  workflow_dispatch:        # ручной запуск
+    - cron: '*/9 * * * *'
+  workflow_dispatch:
 
 jobs:
   filter-vless:
@@ -22,97 +22,113 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
           pip install requests
 
-      - name: Filter alive servers (<600ms, TCP/HTTP/HTTPS, 1 per country)
-        id: filter_alive
+      - name: Filter VLESS (strict country dedupe)
+        id: filter
         run: |
           python - <<'EOF'
-          import os, socket, time
-          from concurrent.futures import ThreadPoolExecutor, as_completed
+          import os, re, socket, time
           import requests
+          from concurrent.futures import ThreadPoolExecutor, as_completed
+
+          INPUT = "githubmirror/26_alive.txt"
+          OUTPUT = "githubmirror/26_alive_filtered.txt"
 
           TIMEOUT = 1.2
-          MAX_WORKERS = 80
-          INPUT_FILE = "githubmirror/26_alive.txt"
-          OUTPUT_FILE = "githubmirror/26_alive_filtered.txt"
+          MAX_PING = 600
+          WORKERS = 80
 
-          if not os.path.exists(INPUT_FILE):
-              print(f"{INPUT_FILE} not found. Exiting.")
+          if not os.path.exists(INPUT):
+              print("Input file not found")
               exit(1)
 
-          with open(INPUT_FILE) as f:
-              lines = [l.strip() for l in f if l.strip()]
+          with open(INPUT) as f:
+              links = [l.strip() for l in f if l.strip()]
 
-          print(f"Filtering {len(lines)} VLESS links...")
+          def normalize_country(link: str):
+              if '#' not in link:
+                  return None
+              tag = link.split('#', 1)[1]
 
-          def check_connection(link):
+              # убрать флаги
+              tag = re.sub(r'[\U0001F1E6-\U0001F1FF]', '', tag)
+
+              # убрать номера, CIDR, мусор
+              tag = re.sub(r'\[.*?\]', '', tag)
+              tag = re.sub(r'\|.*', '', tag)
+              tag = re.sub(r'—.*', '', tag)
+              tag = re.sub(r'#\d+', '', tag)
+
+              tag = tag.strip()
+              return tag if len(tag) >= 3 else None
+
+          def check(link):
               try:
-                  # host:port
                   hp = link.split('@')[1].split('?')[0]
                   host, port = hp.split(':')
                   port = int(port)
 
-                  # TCP ping
-                  start = time.time()
-                  sock = socket.create_connection((host, port), timeout=TIMEOUT)
-                  sock.close()
-                  ping = int((time.time() - start) * 1000)
-                  if ping > 600:
+                  country = normalize_country(link)
+                  if not country:
                       return None
 
-                  # HTTP/HTTPS HEAD
-                  stable = False
-                  urls = [f"http://{host}:{port}", f"https://{host}:{port}"]
-                  for url in urls:
+                  start = time.time()
+                  s = socket.create_connection((host, port), timeout=TIMEOUT)
+                  s.close()
+                  ping = int((time.time() - start) * 1000)
+                  if ping > MAX_PING:
+                      return None
+
+                  ok = False
+                  for proto in ("http", "https"):
                       try:
-                          r = requests.head(url, timeout=TIMEOUT, verify=False)
+                          r = requests.head(
+                              f"{proto}://{host}:{port}",
+                              timeout=TIMEOUT,
+                              verify=False
+                          )
                           if r.status_code < 500:
-                              stable = True
+                              ok = True
                               break
                       except:
-                          continue
-                  if not stable:
+                          pass
+
+                  if not ok:
                       return None
 
-                  # Страна из ссылки
-                  country = link.split('#')[-1] if '#' in link else 'unknown'
                   return country, ping, link
-              except Exception:
+              except:
                   return None
 
-          alive_by_country = {}
+          best = {}
 
-          with ThreadPoolExecutor(max_workers=MAX_WORKERS) as exe:
-              futures = [exe.submit(check_connection, l) for l in lines]
-              for f in as_completed(futures):
-                  res = f.result()
-                  if res:
-                      country, ping, link = res
-                      old = alive_by_country.get(country)
-                      if old is None or ping < old[0]:
-                          alive_by_country[country] = (ping, link)
-                          print(f"[OK] {country} {ping} ms")
+          with ThreadPoolExecutor(WORKERS) as pool:
+              for f in as_completed(pool.submit(check, l) for l in links):
+                  r = f.result()
+                  if not r:
+                      continue
+                  country, ping, link = r
+                  if country not in best or ping < best[country][0]:
+                      best[country] = (ping, link)
 
-          # Сортировка по пингу: минимальный сверху
-          sorted_alive = sorted(alive_by_country.values(), key=lambda x: x[0])
+          result = sorted(best.values(), key=lambda x: x[0])
 
           os.makedirs("githubmirror", exist_ok=True)
-          with open(OUTPUT_FILE, "w") as f:
-              for ping, link in sorted_alive:
+          with open(OUTPUT, "w") as f:
+              for _, link in result:
                   f.write(link + "\n")
 
-          print(f"Filtered servers saved: {len(sorted_alive)} -> {OUTPUT_FILE}")
-          with open(os.environ["GITHUB_OUTPUT"], "a") as out:
-              out.write(f"count_filtered={len(sorted_alive)}\n")
+          print(f"Saved {len(result)} unique countries")
+          with open(os.environ["GITHUB_OUTPUT"], "a") as o:
+              o.write(f"count={len(result)}\n")
           EOF
 
-      - name: Commit and push filtered servers
-        if: steps.filter_alive.outputs.count_filtered != '0'
+      - name: Commit & Push
+        if: steps.filter.outputs.count != '0'
         run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
+          git config user.name github-actions
+          git config user.email github-actions@github.com
           git add githubmirror/26_alive_filtered.txt
-          git diff --cached --quiet || git commit -m "Update filtered VLESS servers"
+          git commit -m "Update VLESS: one server per country"
           git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }} HEAD:main
