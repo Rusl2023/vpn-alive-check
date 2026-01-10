@@ -1,44 +1,46 @@
 name: Filter best VLESS per country (strict)
 
 on:
-  workflow_dispatch:
   schedule:
-    - cron: "*/30 * * * *"
+    - cron: "*/9 * * * *"
+  workflow_dispatch:
 
 jobs:
   filter:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false   # ❗ обязательно
 
       - name: Filter best VLESS per country
         run: |
           set -e
 
-          INPUT="26_alive.txt"
-          OUTPUT="26_alive_filtered.txt"
+          INPUT="githubmirror/26_alive.txt"
+          OUTPUT="githubmirror/26_alive_filtered.txt"
 
-          # Контрольная точка — Сургут, ХМАО
+          # Контрольная точка (Сургут, ХМАО)
           PING_TARGET="5.141.192.1"
+
+          if [ ! -f "$INPUT" ]; then
+            echo "❌ $INPUT not found"
+            exit 0
+          fi
 
           rm -f "$OUTPUT"
 
-          awk -v PING_TARGET="$PING_TARGET" '
-          function extract_flag(l, m) {
-            if (match(l, /#[^🇦-🇿]*([🇦-🇿]{2})/, m)) return m[1]
+          awk '
+          function get_flag(l, m) {
+            if (match(l, /#.*([🇦-🇿]{2})/, m)) return m[1]
             return ""
           }
 
-          function extract_ping(l, m) {
-            if (match(l, /ping[=: ]*([0-9]+)/, m)) return m[1]
+          function get_ping(l, m) {
+            if (match(l, /([0-9]+)[ ]*ms/, m)) return m[1]
             return 999999
-          }
-
-          function extract_stability(l, m) {
-            if (match(l, /stability[=: ]*([0-9]+)/, m)) return m[1]
-            return 0
           }
 
           function strict_ok(l) {
@@ -50,42 +52,39 @@ jobs:
           }
 
           {
-            flag = extract_flag($0)
+            if ($0 ~ /N\/A/) next
+
+            flag = get_flag($0)
             if (flag == "") next
 
-            ping = extract_ping($0)
-            stab = extract_stability($0)
-
+            ping = get_ping($0)
             if (ping >= 600) next
+
             if (!strict_ok($0)) next
 
-            key = flag
+            score = -ping
 
-            # Формула приоритета:
-            # стабильность важнее, потом ping
-            score = (stab * 1000000) - ping
-
-            if (!(key in best_score) || score > best_score[key]) {
-              best_score[key] = score
-              best_line[key] = $0
-              best_ping[key] = ping
+            if (!(flag in best) || score > best_score[flag]) {
+              best_score[flag] = score
+              best_ping[flag] = ping
+              best[flag] = $0
             }
           }
 
           END {
-            for (k in best_line) {
-              printf "%06d|%s\n", best_ping[k], best_line[k]
+            for (f in best) {
+              printf "%06d|%s\n", best_ping[f], best[f]
             }
           }
           ' "$INPUT" | sort -n | cut -d'|' -f2- > "$OUTPUT"
 
-          echo "===== RESULT ====="
+          echo "===== FILTERED RESULT ====="
           cat "$OUTPUT"
 
-      - name: Commit filtered file
+      - name: Commit and push filtered file
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add 26_alive_filtered.txt
-          git commit -m "Update best VLESS per country (strict, no N/A)" || echo "No changes"
-          git push
+          git add githubmirror/26_alive_filtered.txt
+          git diff --cached --quiet || git commit -m "Update best VLESS per country (strict)"
+          git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }} HEAD:main
