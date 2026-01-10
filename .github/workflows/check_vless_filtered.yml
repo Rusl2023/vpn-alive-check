@@ -1,0 +1,103 @@
+name: Filter Alive VLESS Servers
+
+on:
+  schedule:
+    - cron: '*/9 * * * *'  # каждые 9 минут
+  workflow_dispatch:        # ручной запуск
+
+jobs:
+  filter-vless:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: Filter alive servers (<600ms, TCP/HTTP/HTTPS)
+        id: filter_alive
+        run: |
+          python - <<'EOF'
+          import os, socket, time
+          from concurrent.futures import ThreadPoolExecutor, as_completed
+          import requests
+
+          TIMEOUT = 1.2
+          MAX_WORKERS = 80
+          INPUT_FILE = "githubmirror/26_alive.txt"
+          OUTPUT_FILE = "githubmirror/26_alive_filtered.txt"
+
+          if not os.path.exists(INPUT_FILE):
+              print(f"{INPUT_FILE} not found. Exiting.")
+              exit(1)
+
+          with open(INPUT_FILE) as f:
+              lines = [l.strip() for l in f if l.strip()]
+
+          print(f"Filtering {len(lines)} VLESS links...")
+
+          def check_connection(link):
+              try:
+                  hp = link.split('@')[1].split('?')[0]
+                  host, port = hp.split(':')
+                  port = int(port)
+                  start = time.time()
+                  sock = socket.create_connection((host, port), timeout=TIMEOUT)
+                  sock.close()
+                  ping = int((time.time() - start) * 1000)
+                  if ping > 600:
+                      return None
+                  # Проверка HTTP/HTTPS HEAD
+                  urls = [f"http://{host}:{port}", f"https://{host}:{port}"]
+                  for url in urls:
+                      try:
+                          r = requests.head(url, timeout=TIMEOUT, verify=False)
+                          if r.status_code < 500:
+                              return (ping, link)
+                      except:
+                          continue
+                  return None
+              except Exception:
+                  return None
+
+          filtered = []
+          with ThreadPoolExecutor(max_workers=MAX_WORKERS) as exe:
+              futures = [exe.submit(check_connection, l) for l in lines]
+              for f in as_completed(futures):
+                  res = f.result()
+                  if res:
+                      filtered.append(res)
+                      print(f"[OK] {res[1]} {res[0]} ms")
+
+          # Сортировка по пингу: минимальный сверху
+          filtered.sort(key=lambda x: x[0])
+
+          os.makedirs("githubmirror", exist_ok=True)
+          with open(OUTPUT_FILE, "w") as f:
+              for ping, link in filtered:
+                  f.write(link + "\n")
+
+          print(f"Filtered servers saved: {len(filtered)} -> {OUTPUT_FILE}")
+          with open(os.environ["GITHUB_OUTPUT"], "a") as out:
+              out.write(f"count_filtered={len(filtered)}\n")
+          EOF
+
+      - name: Commit and push filtered servers
+        if: steps.filter_alive.outputs.count_filtered != '0'
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add githubmirror/26_alive_filtered.txt
+          git diff --cached --quiet || git commit -m "Update filtered VLESS servers"
+          git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }} HEAD:main
