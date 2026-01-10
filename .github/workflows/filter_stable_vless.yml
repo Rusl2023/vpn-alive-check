@@ -1,113 +1,104 @@
 name: Filter Stable VLESS Servers
 
 on:
+  workflow_dispatch:
   schedule:
-    - cron: '*/9 * * * *'  # каждые 9 минут
-  workflow_dispatch:        # ручной запуск
+    - cron: '*/10 * * * *'  # каждые 10 минут, если нужен авто-запуск
 
 jobs:
-  filter-stable:
+  filter_stable:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          persist-credentials: false   # чтобы пуш через GH_PAT работал
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
+      - name: Install requirements
         run: |
-          python -m pip install --upgrade pip
-          pip install websocket-client requests
+          pip install -r source/requirements.txt
 
-      - name: Filter stable VLESS servers
-        id: filter_stable
+      - name: Filter stable servers
+        env:
+          INPUT_FILE: githubmirror/26_alive.txt
+          OUTPUT_FILE: githubmirror/26_stable.txt
+          MAX_PING: 600
         run: |
           python - <<'EOF'
-          import os, socket, time
-          from websocket import create_connection
+import os
+import socket
+from urllib.parse import urlparse
 
-          INPUT_FILE = "githubmirror/26_alive.txt"
-          OUTPUT_FILE = "githubmirror/26_stable.txt"
-          TIMEOUT = 1.5
-          MAX_PING = 400
+INPUT_FILE = os.environ["INPUT_FILE"]
+OUTPUT_FILE = os.environ["OUTPUT_FILE"]
+MAX_PING = int(os.environ["MAX_PING"])
 
-          alive_by_country = {}
+alive_by_country = {}
 
-          if not os.path.exists(INPUT_FILE):
-              print(f"{INPUT_FILE} not found")
-              exit(0)
+def check_tcp(host, port, timeout=3):
+    try:
+        with socket.create_connection((host, port), timeout=timeout):
+            return True
+    except:
+        return False
 
-          with open(INPUT_FILE) as f:
-              lines = [l.strip() for l in f if l.strip()]
+with open(INPUT_FILE, "r", encoding="utf-8") as f:
+    for line in f:
+        line = line.strip()
+        if not line:
+            continue
+        # пример строки vless://UUID@host:port?params#name
+        try:
+            url = urlparse(line)
+            host = url.hostname
+            port = url.port or 443
+            # читаем ping из строки, если есть "ping XXX"
+            if "ping" in line:
+                ping_str = line.split("ping")[-1].split()[0]
+                ping_val = int(ping_str)
+            else:
+                ping_val = 9999  # если нет, считаем плохим
+            # фильтруем по ping
+            if ping_val > MAX_PING:
+                continue
+            # проверка TCP соединения
+            if not check_tcp(host, port):
+                continue
+            # определяем страну из строки (первые 2 буквы после 🇺🇸 или RU)
+            country = "Unknown"
+            for part in line.split():
+                if part.startswith("🇦") or part.startswith("🇧") or part.startswith("🇨") or part.startswith("RU") or part.startswith("US") or part.startswith("NL") or part.startswith("FI") or part.startswith("PL") or part.startswith("DE"):
+                    country = part
+                    break
+            # сохраняем лучший сервер на страну
+            if country not in alive_by_country or ping_val < alive_by_country[country][1]:
+                alive_by_country[country] = (line, ping_val)
+        except Exception as e:
+            continue
 
-          print(f"Checking {len(lines)} servers for stability ...")
+# сохраняем файл
+os.makedirs(os.path.dirname(OUTPUT_FILE), exist_ok=True)
+with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
+    for link, ping in sorted(alive_by_country.values(), key=lambda x: x[1]):
+        f.write(link + "\n")
 
-          for link in lines:
-              try:
-                  country = link.split('#')[-1] if '#' in link else 'unknown'
-                  hp = link.split('@')[1].split('?')[0]
-                  host, port = hp.split(':')
-                  port = int(port)
+print(f"Stable servers saved: {len(alive_by_country)}")
 
-                  start = time.time()
-                  sock = socket.create_connection((host, port), timeout=TIMEOUT)
-                  sock.close()
-                  ping = int((time.time() - start) * 1000)
+# вывод для GitHub Actions
+with open(os.environ.get("GITHUB_OUTPUT", "/dev/null"), "a") as out:
+    out.write(f"count={len(alive_by_country)}\n")
+EOF
 
-                  if ping > MAX_PING:
-                      print(f"[SKIP] {country} ping {ping} > {MAX_PING}")
-                      continue
-
-                  # Проверка WebSocket
-                  try:
-                      ws = create_connection(f"ws://{host}:{port}", timeout=TIMEOUT)
-                      ws.close()
-                  except Exception:
-                      print(f"[SKIP] {country} WebSocket failed")
-                      continue
-
-                  old = alive_by_country.get(country)
-                  if old is None or ping < old[1]:
-                      alive_by_country[country] = (link, ping)
-                      print(f"[OK] {country} ping {ping} ms")
-
-              except Exception as e:
-                  print(f"[SKIP] {link} error: {e}")
-                  continue
-
-          # Сохраняем стабильные сервера
-          os.makedirs(os.path.dirname(OUTPUT_FILE), exist_ok=True)
-          with open(OUTPUT_FILE, "w") as f:
-              for link, ping in sorted(alive_by_country.values(), key=lambda x: x[1]):
-                  f.write(link + "\n")
-
-          print(f"Stable servers saved: {len(alive_by_country)}")
-          with open(os.environ["GITHUB_OUTPUT"], "a") as out:
-              out.write(f"count={len(alive_by_country)}\n")
-          EOF
-
-      - name: Commit stable servers
-        if: steps.filter_stable.outputs.count != '0'
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git add githubmirror/26_stable.txt
-          git diff --cached --quiet || git commit -m "Update stable VLESS servers"
-          git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }} HEAD:main
-
-      - name: Create/Update release
-        if: steps.filter_stable.outputs.count != '0'
+      - name: Create/Update GitHub Release
         uses: ncipollo/release-action@v1
         with:
-          token: ${{ secrets.GH_PAT }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           tag: stable-vless
           name: Stable VLESS Servers
           artifacts: githubmirror/26_stable.txt
           makeLatest: true
           generateReleaseNotes: false
+          updateOnlyUnreleased: true
