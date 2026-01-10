@@ -8,16 +8,17 @@ on:
 jobs:
   filter_stable:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Set up Python
+      - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
-      - name: Install requirements
+      - name: Install dependencies
         run: |
           pip install -r source/requirements.txt
 
@@ -26,9 +27,10 @@ jobs:
           INPUT_FILE: githubmirror/26_alive.txt
           OUTPUT_FILE: githubmirror/26_stable.txt
           MAX_PING: 600
-        run: python source/filter_stable.py
+        run: |
+          python source/filter_stable.py
 
-      - name: Upload artifact
+      - name: Upload stable servers artifact
         uses: actions/upload-artifact@v4
         with:
           name: stable-servers
@@ -37,7 +39,7 @@ jobs:
       - name: Create/Update GitHub Release
         uses: ncipollo/release-action@v1
         with:
-          token: ${{ secrets.PAT_TOKEN }}  # ваш PAT
+          token: ${{ secrets.PAT_TOKEN }}
           tag: stable-vless
           name: Stable VLESS Servers
           artifacts: githubmirror/26_stable.txt
