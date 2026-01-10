@@ -23,13 +23,18 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests
 
+      - name: Download server list
+        run: |
+          mkdir -p temp
+          curl -sSL -o temp/26.txt https://github.com/AvenCores/goida-vpn-configs/raw/refs/heads/main/githubmirror/26.txt
+
       - name: Check VLESS servers
         id: check_alive
         run: |
           import os
           import socket
 
-          input_file = 'servers_vless.txt'  # файл с серверами VLESS
+          input_file = 'temp/26.txt'
           output_file = 'githubmirror/26_alive.txt'
 
           alive_servers = []
@@ -41,10 +46,8 @@ jobs:
               for server in servers:
                   # Проверяем, что это VLESS
                   if not server.lower().startswith('vless://'):
-                      print(f"[SKIP] Not VLESS: {server}")
                       continue
 
-                  # Парсим host и port из VLESS
                   try:
                       # vless://UUID@host:port?params
                       after_scheme = server.split('://',1)[1]
@@ -53,7 +56,7 @@ jobs:
                       host, port = host_port.split(':')
                       port = int(port)
 
-                      # Проверка соединения TCP
+                      # Проверка TCP соединения
                       sock = socket.create_connection((host, port), timeout=5)
                       sock.close()
                       alive_servers.append(server)
@@ -61,14 +64,12 @@ jobs:
                   except Exception:
                       print(f"[DEAD] {server}")
 
-              # Создаём директорию, если её нет
               os.makedirs(os.path.dirname(output_file), exist_ok=True)
               with open(output_file, 'w') as f:
                   f.write('\n'.join(alive_servers))
           else:
               print(f"No input file '{input_file}' found.")
 
-          # Отправляем количество живых серверов в output
           print(f"::set-output name=count::{len(alive_servers)}")
 
       - name: Commit and push alive servers
