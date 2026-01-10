@@ -10,59 +10,75 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Клонируем репо
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      # 2. Скачиваем актуальный список серверов
+      - name: Download 26.txt
+        run: |
+          mkdir -p githubmirror
+          curl -sSL -o githubmirror/26.txt https://github.com/AvenCores/goida-vpn-configs/raw/refs/heads/main/githubmirror/26.txt
+
+      # 3. Устанавливаем Python
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: 3.11
 
+      # 4. Устанавливаем зависимости
       - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install requests
+        run: pip install --upgrade pip requests
 
+      # 5. Проверяем только VLESS серверы
       - name: Check VLESS servers
         id: check_alive
         run: |
-          python - << 'EOF'
           import os
-          import requests
           import socket
 
-          url = 'https://github.com/AvenCores/goida-vpn-configs/raw/refs/heads/main/githubmirror/26.txt'
-          resp = requests.get(url)
-          servers = [line.strip() for line in resp.text.splitlines() if line.startswith('vless://')]
+          input_file = 'githubmirror/26.txt'
+          output_file = 'githubmirror/26_alive.txt'
 
           alive_servers = []
 
-          for server in servers:
-              try:
-                  host_port = server.split('@')[1].split('?')[0]
-                  host, port = host_port.split(':')
-                  sock = socket.create_connection((host, int(port)), timeout=5)
-                  sock.close()
-                  alive_servers.append(server)
-                  print(f"[ALIVE] {server}")
-              except Exception:
-                  print(f"[DEAD] {server}")
+          if os.path.exists(input_file):
+              with open(input_file, 'r', encoding='utf-8') as f:
+                  servers = [line.strip() for line in f if line.strip()]
 
-          output_file = 'githubmirror/26_alive.txt'
-          os.makedirs(os.path.dirname(output_file), exist_ok=True)
-          with open(output_file, 'w') as f:
-              f.write('\n'.join(alive_servers))
+              for server in servers:
+                  # проверяем только VLESS
+                  if 'vless://' not in server:
+                      continue
+                  try:
+                      # Простейшая проверка: TCP соединение на порт, если указан (default 443)
+                      import re
+                      match = re.search(r'vless://.*@([^:/]+)(?::(\d+))?', server)
+                      if not match:
+                          continue
+                      host = match.group(1)
+                      port = int(match.group(2)) if match.group(2) else 443
+                      sock = socket.create_connection((host, port), timeout=5)
+                      sock.close()
+                      alive_servers.append(server)
+                      print(f"[ALIVE] {server}")
+                  except Exception:
+                      print(f"[DEAD] {server}")
+
+              os.makedirs(os.path.dirname(output_file), exist_ok=True)
+              with open(output_file, 'w', encoding='utf-8') as f:
+                  f.write('\n'.join(alive_servers))
+          else:
+              print(f"No input file '{input_file}' found.")
 
           print(f"::set-output name=count::{len(alive_servers)}")
-          EOF
 
+      # 6. Commit и push через GH_PAT
       - name: Commit and push alive servers
         if: steps.check_alive.outputs.count != '0'
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add githubmirror/26_alive.txt
-          git commit -m "Update alive VLESS servers" || echo "No changes to commit"
-          git push https://$GH_PAT@github.com/${{ github.repository }} HEAD:main
-        env:
-          GH_PAT: ${{ secrets.GH_PAT }}
+          git diff --cached --quiet || git commit -m "Update alive VLESS servers"
+          git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }} HEAD:main
