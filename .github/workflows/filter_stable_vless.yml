@@ -3,32 +3,35 @@ name: Filter Stable VLESS Servers
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/10 * * * *'  # каждые 10 минут
+    - cron: '*/10 * * * *'
 
 jobs:
-  filter_stable:
+  filter-stable:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Install requirements
+      - name: Install dependencies
         run: |
-          pip install -r source/requirements.txt
+          python -m pip install --upgrade pip
+          pip install requests pysocks
 
       - name: Filter stable servers
+        id: filter_stable
         env:
           INPUT_FILE: githubmirror/26_alive.txt
           OUTPUT_FILE: githubmirror/26_stable.txt
           MAX_PING: 600
         run: python - <<'EOF'
-import os
-import socket
+import os, socket
 from urllib.parse import urlparse
 
 INPUT_FILE = os.environ["INPUT_FILE"]
@@ -53,20 +56,25 @@ with open(INPUT_FILE, "r", encoding="utf-8") as f:
             url = urlparse(line)
             host = url.hostname
             port = url.port or 443
+
             ping_val = 9999
             if "ping" in line:
                 ping_str = line.split("ping")[-1].split()[0]
                 ping_val = int(ping_str)
+
             if ping_val > MAX_PING:
                 continue
             if not check_tcp(host, port):
                 continue
+
             country = "Unknown"
             for part in line.split():
                 if part.startswith(("🇦","🇧","🇨","RU","US","NL","FI","PL","DE")):
                     country = part
                     break
-            if country not in alive_by_country or ping_val < alive_by_country[country][1]:
+
+            old = alive_by_country.get(country)
+            if old is None or ping_val < old[1]:
                 alive_by_country[country] = (line, ping_val)
         except:
             continue
@@ -77,7 +85,8 @@ with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         f.write(link + "\n")
 
 print(f"Stable servers saved: {len(alive_by_country)}")
-with open(os.environ.get("GITHUB_OUTPUT", "/dev/null"), "a") as out:
+
+with open(os.environ["GITHUB_OUTPUT"], "a") as out:
     out.write(f"count={len(alive_by_country)}\n")
 EOF
 
