@@ -1,9 +1,9 @@
 name: Filter Stable VLESS Servers
 
 on:
-  workflow_dispatch: {}           # ручной запуск
+  workflow_dispatch:    # ручной запуск
   schedule:
-    - cron: '*/10 * * * *'       # авто каждые 10 минут
+    - cron: '*/10 * * * *'  # каждые 10 минут
 
 jobs:
   filter-stable:
@@ -13,7 +13,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          persist-credentials: false
+          persist-credentials: false  # важно для пуша через GH_PAT
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -87,12 +87,12 @@ with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         f.write(link + "\n")
 
 print(f"Stable servers saved: {len(alive_by_country)}")
+
 with open(os.environ["GITHUB_OUTPUT"], "a") as out:
     out.write(f"count={len(alive_by_country)}\n")
 EOF
 
       - name: Create/Update GitHub Release
-        if: ${{ secrets.GH_PAT != '' }}
         uses: ncipollo/release-action@v1
         with:
           token: ${{ secrets.GH_PAT }}
