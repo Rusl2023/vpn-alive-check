@@ -2,8 +2,8 @@ name: Check VLESS Servers
 
 on:
   schedule:
-    - cron: '*/9 * * * *'  # каждые 9 минут
-  workflow_dispatch:        # ручной запуск
+    - cron: '*/9 * * * *'
+  workflow_dispatch:
 
 jobs:
   check-vless:
@@ -25,55 +25,45 @@ jobs:
       - name: Check VLESS servers
         id: check_alive
         run: |
+          python - <<'EOF'
           import os, requests, socket, time
 
-          # Скачиваем список серверов
           url = 'https://github.com/AvenCores/goida-vpn-configs/raw/refs/heads/main/githubmirror/26.txt'
-          resp = requests.get(url)
-          lines = resp.text.strip().splitlines()
+          lines = requests.get(url).text.splitlines()
 
-          alive_by_country = {}  # словарь {страна: (vless, ping_ms)}
+          alive_by_country = {}
 
           for line in lines:
               line = line.strip()
               if not line.startswith('vless://'):
                   continue
 
-              # Получаем страну из #<country> в конце
-              if '#' in line:
-                  country = line.split('#')[-1].strip()
-              else:
-                  country = 'unknown'
+              country = line.split('#')[-1] if '#' in line else 'unknown'
 
-              # Парсим хост и порт (vless://uuid@host:port)
               try:
                   host_port = line.split('@')[1].split('?')[0]
                   host, port = host_port.split(':')
                   port = int(port)
-              except Exception:
-                  continue
 
-              # Измеряем простой TCP-пинг
-              start = time.time()
-              try:
+                  start = time.time()
                   sock = socket.create_connection((host, port), timeout=3)
                   sock.close()
-                  ping = int((time.time() - start) * 1000)  # мс
+                  ping = int((time.time() - start) * 1000)
               except Exception:
                   continue
 
-              # Выбираем сервер с минимальным ping для страны
               if country not in alive_by_country or ping < alive_by_country[country][1]:
                   alive_by_country[country] = (line, ping)
 
-          # Записываем живые сервера в файл
-          output_file = 'githubmirror/26_alive.txt'
-          os.makedirs(os.path.dirname(output_file), exist_ok=True)
-          with open(output_file, 'w') as f:
+          os.makedirs('githubmirror', exist_ok=True)
+          with open('githubmirror/26_alive.txt', 'w') as f:
               for vless, _ in alive_by_country.values():
                   f.write(vless + '\n')
 
-          print(f"::set-output name=count::{len(alive_by_country)}")
+          # Новый способ output
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
+              fh.write(f"count={len(alive_by_country)}\n")
+          EOF
 
       - name: Commit and push alive servers
         if: steps.check_alive.outputs.count != '0'
