@@ -1,112 +1,68 @@
-name: Filter best VLESS per country (python safe)
+import socket, time, os, ssl, re
 
-on:
-  schedule:
-    - cron: "*/9 * * * *"
-  workflow_dispatch:
+INPUT = "githubmirror/26_alive.txt"
+OUTPUT = "githubmirror/26_alive_filtered.txt"
 
-jobs:
-  filter:
-    runs-on: ubuntu-latest
+TIMEOUT = 1.5
+MAX_PING = 600
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          persist-credentials: false
+# строгий флаг страны (эмодзи)
+FLAG_RE = re.compile(r"#.*?([\U0001F1E6-\U0001F1FF]{2})")
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
+def tcp_ping(host, port):
+    start = time.time()
+    s = socket.create_connection((host, port), timeout=TIMEOUT)
+    s.close()
+    return int((time.time() - start) * 1000)
 
-      - name: Filter best VLESS per country
-        run: |
-          python <<'EOF'
-          import socket, time, os, ssl
-          from concurrent.futures import ThreadPoolExecutor, as_completed
+def tls_check(host, port):
+    ctx = ssl._create_unverified_context()
+    s = socket.create_connection((host, port), timeout=TIMEOUT)
+    s = ctx.wrap_socket(s, server_hostname=host)
+    s.close()
 
-          INPUT = "githubmirror/26_alive.txt"
-          OUTPUT = "githubmirror/26_alive_filtered.txt"
+best = {}
 
-          TIMEOUT = 1.0
-          MAX_PING = 600
-          MAX_WORKERS = 40
+with open(INPUT, encoding="utf-8", errors="ignore") as f:
+    for line in f:
+        line = line.strip()
 
-          if not os.path.exists(INPUT):
-              print("Input file not found")
-              exit(0)
+        if not line.startswith("vless://"):
+            continue
 
-          def tcp_ping(host, port):
-              start = time.time()
-              s = socket.socket()
-              s.settimeout(TIMEOUT)
-              s.connect((host, port))
-              s.close()
-              return int((time.time() - start) * 1000)
+        # ❌ жёстко режем мусор
+        if "Unknown" in line or "Cloudflare" in line:
+            continue
 
-          def https_ok(host, port):
-              try:
-                  ctx = ssl.create_default_context()
-                  s = socket.create_connection((host, port), timeout=TIMEOUT)
-                  ss = ctx.wrap_socket(s, server_hostname=host)
-                  ss.close()
-                  return True
-              except:
-                  return False
+        m = FLAG_RE.search(line)
+        if not m:
+            continue  # ❌ нет флага — в мусор
 
-          def check(line):
-              if not line.startswith("vless://"):
-                  return None
-              if "N/A" in line:
-                  return None
-              try:
-                  country = line.split("#",1)[1]
-                  netloc = line.split("@",1)[1].split("?",1)[0]
-                  host, port = netloc.split(":")
-                  port = int(port)
-              except:
-                  return None
+        country = m.group(1)
 
-              try:
-                  ping = tcp_ping(host, port)
-                  if ping >= MAX_PING:
-                      return None
-                  if not https_ok(host, port):
-                      return None
-                  return country, ping, line
-              except:
-                  return None
+        try:
+            netloc = line.split("@", 1)[1].split("?", 1)[0]
+            host, port = netloc.split(":")
+            port = int(port)
+        except:
+            continue
 
-          best = {}
+        try:
+            ping = tcp_ping(host, port)
+            if ping > MAX_PING:
+                continue
+            tls_check(host, port)
+        except:
+            continue
 
-          with open(INPUT) as f:
-              lines = [l.strip() for l in f if l.strip()]
+        if country not in best or ping < best[country][0]:
+            best[country] = (ping, line)
 
-          with ThreadPoolExecutor(max_workers=MAX_WORKERS) as exe:
-              futures = [exe.submit(check, l) for l in lines]
+os.makedirs("githubmirror", exist_ok=True)
 
-              for f in as_completed(futures):
-                  res = f.result()
-                  if not res:
-                      continue
-                  country, ping, line = res
-                  if country not in best or ping < best[country][0]:
-                      best[country] = (ping, line)
+with open(OUTPUT, "w", encoding="utf-8") as f:
+    for ping, line in sorted(best.values(), key=lambda x: x[0]):
+        f.write(line + "\n")
 
-          os.makedirs("githubmirror", exist_ok=True)
-          with open(OUTPUT, "w") as f:
-              for ping, line in sorted(best.values(), key=lambda x: x[0]):
-                  f.write(line + "\n")
-
-          print("===== FILTERED RESULT =====")
-          print(open(OUTPUT).read())
-          EOF
-
-      - name: Commit and push filtered file
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git add githubmirror/26_alive_filtered.txt
-          git diff --cached --quiet || git commit -m "Update best VLESS per country (safe python)"
-          git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }} HEAD:main
+print("===== FINAL FILTERED RESULT =====")
+print(open(OUTPUT, encoding="utf-8").read())
