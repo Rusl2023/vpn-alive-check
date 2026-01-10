@@ -24,25 +24,38 @@ with open(INPUT_FILE, "r", encoding="utf-8") as f:
             url = urlparse(line)
             host = url.hostname
             port = url.port or 443
+
+            # читаем ping из строки, если есть "ping XXX"
             if "ping" in line:
                 ping_str = line.split("ping")[-1].split()[0]
                 ping_val = int(ping_str)
             else:
                 ping_val = 9999
+
+            # фильтруем по ping
             if ping_val > MAX_PING:
                 continue
+
+            # проверка TCP соединения (WebSocket/HTTP/HTTPS)
             if not check_tcp(host, port):
                 continue
+
+            # определяем страну из строки
             country = "Unknown"
             for part in line.split():
-                if part.startswith("🇦") or part.startswith("🇧") or part.startswith("🇨") or part.startswith("RU") or part.startswith("US") or part.startswith("NL") or part.startswith("FI") or part.startswith("PL") or part.startswith("DE"):
+                if part.startswith("🇦") or part.startswith("🇧") or part.startswith("🇨") \
+                   or part.startswith("RU") or part.startswith("US") or part.startswith("NL") \
+                   or part.startswith("FI") or part.startswith("PL") or part.startswith("DE"):
                     country = part
                     break
+
+            # сохраняем лучший сервер на страну
             if country not in alive_by_country or ping_val < alive_by_country[country][1]:
                 alive_by_country[country] = (line, ping_val)
         except Exception:
             continue
 
+# сохраняем файл
 os.makedirs(os.path.dirname(OUTPUT_FILE), exist_ok=True)
 with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
     for link, ping in sorted(alive_by_country.values(), key=lambda x: x[1]):
@@ -50,5 +63,6 @@ with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
 
 print(f"Stable servers saved: {len(alive_by_country)}")
 
+# вывод для GitHub Actions
 with open(os.environ.get("GITHUB_OUTPUT", "/dev/null"), "a") as out:
     out.write(f"count={len(alive_by_country)}\n")
