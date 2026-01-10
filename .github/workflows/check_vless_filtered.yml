@@ -1,9 +1,9 @@
-name: Check VLESS Servers
+name: Check VLESS Servers for RU
 
 on:
   schedule:
     - cron: '*/9 * * * *'  # каждые 9 минут
-  workflow_dispatch:        # ручной запуск
+  workflow_dispatch: {}     # ручной запуск
 
 jobs:
   check-vless:
@@ -25,43 +25,51 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests
 
-      - name: Check VLESS servers (inline Python)
+      - name: Check VLESS servers (simulated for 178.208.224.122)
+        id: check_alive
         run: |
-          python - <<EOF
-          import os
-          import requests
-          from random import randint
+          python - <<'EOF'
+          import os, random
 
-          MY_IP = "178.208.224.122"
-          URL = "https://github.com/Rusl2023/vpn-alive-check/raw/main/githubmirror/26_alive.txt"
+          # Пример списка российских серверов (симуляция)
+          servers_ru = [
+              "vless://abcd@185.201.10.1:443?encryption=auto#RU",
+              "vless://efgh@185.201.10.2:443?encryption=auto#RU",
+              "vless://ijkl@185.201.10.3:443?encryption=auto#RU",
+              "vless://mnop@185.201.10.4:443?encryption=auto#RU",
+              "vless://qrst@185.201.10.5:443?encryption=auto#RU"
+          ]
 
-          print("Downloading 26_alive.txt ...")
-          lines = requests.get(URL, timeout=20).text.splitlines()
-          vless_list = [l.strip() for l in lines if l.strip().startswith("vless://")]
-
+          # Симулируем проверку ping/TCP/HTTP/HTTPS относительно IP 178.208.224.122
           alive_by_country = {}
+          for srv in servers_ru:
+              ping = random.randint(40, 120)  # симулированный ping
+              tcp = "OK" if random.random() > 0.05 else "Fail"
+              http = "OK" if random.random() > 0.1 else "Fail"
+              https = "OK" if random.random() > 0.1 else "Fail"
 
-          for link in vless_list:
-              country = "RU"  # оставляем только Россия
-              ping = randint(20, 150)  # симулируем пинг
-
+              # Сохраняем только лучший сервер по ping на страну
+              country = "RU"
               old = alive_by_country.get(country)
               if old is None or ping < old[1]:
-                  alive_by_country[country] = (link, ping)
-                  print(f"[OK] {country} {ping}ms {link}")
+                  alive_by_country[country] = (srv, ping, tcp, http, https)
 
+          # Создаём папку и сохраняем файл
           os.makedirs("githubmirror", exist_ok=True)
-          with open("githubmirror/26_alive_filtered.txt", "w") as f:
-              for link, ping in alive_by_country.values():
-                  f.write(f"{link}  # ping={ping}ms ip={MY_IP}\n")
+          with open("githubmirror/26_alive.txt", "w") as f:
+              for srv, ping, tcp, http, https in alive_by_country.values():
+                  f.write(f"{srv}  # ping={ping}ms TCP={tcp} HTTP={http} HTTPS={https}\n")
 
-          print(f"Saved {len(alive_by_country)} filtered alive servers to githubmirror/26_alive_filtered.txt")
+          # Для GitHub Actions output
+          with open(os.environ["GITHUB_OUTPUT"], "a") as out:
+              out.write(f"count={len(alive_by_country)}\n")
           EOF
 
       - name: Commit and push alive servers
+        if: steps.check_alive.outputs.count != '0'
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add githubmirror/26_alive_filtered.txt
-          git diff --cached --quiet || git commit -m "Update filtered alive VLESS servers"
+          git add githubmirror/26_alive.txt
+          git diff --cached --quiet || git commit -m "Update alive VLESS servers (simulated for 178.208.224.122)"
           git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }} HEAD:main
