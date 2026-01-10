@@ -1,4 +1,4 @@
-name: Filter Stable VLESS Servers
+name: Filter & Release Stable VLESS Servers
 
 on:
   workflow_dispatch: {}           # ручной запуск
@@ -6,7 +6,7 @@ on:
     - cron: '*/10 * * * *'       # каждые 10 минут
 
 jobs:
-  filter-stable:
+  filter-release:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,20 +25,21 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests pysocks
 
-      - name: Filter stable servers
+      - name: Download and Filter VLESS Servers
         id: filter_stable
         env:
-          INPUT_FILE: githubmirror/26_alive.txt
-          OUTPUT_FILE: githubmirror/26_stable.txt
           MAX_PING: 600
+          OUTPUT_FILE: githubmirror/26_stable.txt
         run: |
           python - <<'EOF'
-import os, socket
+import os, socket, requests
 from urllib.parse import urlparse
 
-INPUT_FILE = os.environ["INPUT_FILE"]
-OUTPUT_FILE = os.environ["OUTPUT_FILE"]
-MAX_PING = int(os.environ["MAX_PING"])
+URL = 'https://github.com/AvenCores/goida-vpn-configs/raw/refs/heads/main/githubmirror/26.txt'
+TIMEOUT = 1.0
+
+lines = requests.get(URL, timeout=15).text.splitlines()
+vless_list = [l.strip() for l in lines if l.strip().startswith("vless://")]
 
 alive_by_country = {}
 
@@ -49,44 +50,38 @@ def check_tcp(host, port, timeout=3):
     except:
         return False
 
-with open(INPUT_FILE, "r", encoding="utf-8") as f:
-    for line in f:
-        line = line.strip()
-        if not line:
+for line in vless_list:
+    try:
+        url = urlparse(line)
+        host = url.hostname
+        port = url.port or 443
+
+        ping_val = 9999
+        if "ping" in line:
+            ping_str = line.split("ping")[-1].split()[0]
+            ping_val = int(ping_str)
+
+        if ping_val > int(os.environ["MAX_PING"]):
             continue
-        try:
-            url = urlparse(line)
-            host = url.hostname
-            port = url.port or 443
-
-            ping_val = 9999
-            if "ping" in line:
-                ping_str = line.split("ping")[-1].split()[0]
-                ping_val = int(ping_str)
-
-            if ping_val > MAX_PING:
-                continue
-            if not check_tcp(host, port):
-                continue
-
-            country = "Unknown"
-            for part in line.split():
-                if part.startswith(("🇦","🇧","🇨","RU","US","NL","FI","PL","DE")):
-                    country = part
-                    break
-
-            old = alive_by_country.get(country)
-            if old is None or ping_val < old[1]:
-                alive_by_country[country] = (line, ping_val)
-        except:
+        if not check_tcp(host, port):
             continue
 
-os.makedirs(os.path.dirname(OUTPUT_FILE), exist_ok=True)
-with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
+        country = "Unknown"
+        for part in line.split():
+            if part.startswith(("🇦","🇧","🇨","RU","US","NL","FI","PL","DE")):
+                country = part
+                break
+
+        old = alive_by_country.get(country)
+        if old is None or ping_val < old[1]:
+            alive_by_country[country] = (line, ping_val)
+    except:
+        continue
+
+os.makedirs(os.path.dirname(os.environ["OUTPUT_FILE"]), exist_ok=True)
+with open(os.environ["OUTPUT_FILE"], "w", encoding="utf-8") as f:
     for link, ping in sorted(alive_by_country.values(), key=lambda x: x[1]):
         f.write(link + "\n")
-
-print(f"Stable servers saved: {len(alive_by_country)}")
 
 with open(os.environ["GITHUB_OUTPUT"], "a") as out:
     out.write(f"count={len(alive_by_country)}\n")
