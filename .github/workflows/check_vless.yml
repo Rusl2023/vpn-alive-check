@@ -23,47 +23,68 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests
 
-      # 🔽 ВОТ ТОТ САМЫЙ ИСПРАВЛЕННЫЙ ШАГ
-      - name: Check VLESS servers
+      - name: Check VLESS servers (parallel)
         id: check_alive
         run: |
           python - <<'EOF'
           import os, requests, socket, time
+          from concurrent.futures import ThreadPoolExecutor, as_completed
 
-          url = 'https://github.com/AvenCores/goida-vpn-configs/raw/refs/heads/main/githubmirror/26.txt'
-          lines = requests.get(url, timeout=15).text.splitlines()
+          URL = 'https://github.com/AvenCores/goida-vpn-configs/raw/refs/heads/main/githubmirror/26.txt'
+          TIMEOUT = 0.8
+          MAX_WORKERS = 120   # оптимально для GitHub Actions
 
-          alive_by_country = {}
+          print("Downloading 26.txt ...")
+          lines = requests.get(URL, timeout=20).text.splitlines()
 
-          for line in lines:
-              line = line.strip()
-              if not line.startswith('vless://'):
-                  continue
+          vless_list = [l.strip() for l in lines if l.strip().startswith("vless://")]
+          print(f"Total VLESS links: {len(vless_list)}")
 
-              country = line.split('#')[-1] if '#' in line else 'unknown'
-
+          def check_vless(link):
               try:
-                  host_port = line.split('@')[1].split('?')[0]
-                  host, port = host_port.split(':')
+                  country = link.split('#')[-1] if '#' in link else 'unknown'
+                  hp = link.split('@')[1].split('?')[0]
+                  host, port = hp.split(':')
                   port = int(port)
 
                   start = time.time()
-                  sock = socket.create_connection((host, port), timeout=3)
+                  sock = socket.create_connection((host, port), timeout=TIMEOUT)
                   sock.close()
                   ping = int((time.time() - start) * 1000)
+                  return country, link, ping
               except Exception:
-                  continue
+                  return None
 
-              if country not in alive_by_country or ping < alive_by_country[country][1]:
-                  alive_by_country[country] = (line, ping)
+          alive_by_country = {}
 
-          os.makedirs('githubmirror', exist_ok=True)
-          with open('githubmirror/26_alive.txt', 'w') as f:
-              for vless, _ in alive_by_country.values():
-                  f.write(vless + '\n')
+          start_all = time.time()
+          with ThreadPoolExecutor(max_workers=MAX_WORKERS) as exe:
+              futures = [exe.submit(check_vless, v) for v in vless_list]
 
-          with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
-              fh.write(f"count={len(alive_by_country)}\n")
+              for i, f in enumerate(as_completed(futures), 1):
+                  res = f.result()
+                  if not res:
+                      continue
+
+                  country, link, ping = res
+                  old = alive_by_country.get(country)
+                  if old is None or ping < old[1]:
+                      alive_by_country[country] = (link, ping)
+                      print(f"[OK] {country} {ping} ms")
+
+                  if i % 100 == 0:
+                      print(f"Checked {i}/{len(vless_list)}")
+
+          elapsed = int(time.time() - start_all)
+          print(f"DONE in {elapsed}s. Countries: {len(alive_by_country)}")
+
+          os.makedirs("githubmirror", exist_ok=True)
+          with open("githubmirror/26_alive.txt", "w") as f:
+              for link, ping in alive_by_country.values():
+                  f.write(link + "\n")
+
+          with open(os.environ["GITHUB_OUTPUT"], "a") as out:
+              out.write(f"count={len(alive_by_country)}\n")
           EOF
 
       - name: Commit and push alive servers
