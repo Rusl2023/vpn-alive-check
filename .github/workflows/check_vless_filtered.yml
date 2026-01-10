@@ -25,7 +25,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests
 
-      - name: Filter alive servers (<600ms, TCP/HTTP/HTTPS)
+      - name: Filter alive servers (<600ms, TCP/HTTP/HTTPS, 1 per country)
         id: filter_alive
         run: |
           python - <<'EOF'
@@ -49,48 +49,63 @@ jobs:
 
           def check_connection(link):
               try:
+                  # host:port
                   hp = link.split('@')[1].split('?')[0]
                   host, port = hp.split(':')
                   port = int(port)
+
+                  # TCP ping
                   start = time.time()
                   sock = socket.create_connection((host, port), timeout=TIMEOUT)
                   sock.close()
                   ping = int((time.time() - start) * 1000)
                   if ping > 600:
                       return None
-                  # Проверка HTTP/HTTPS HEAD
+
+                  # HTTP/HTTPS HEAD
+                  stable = False
                   urls = [f"http://{host}:{port}", f"https://{host}:{port}"]
                   for url in urls:
                       try:
                           r = requests.head(url, timeout=TIMEOUT, verify=False)
                           if r.status_code < 500:
-                              return (ping, link)
+                              stable = True
+                              break
                       except:
                           continue
-                  return None
+                  if not stable:
+                      return None
+
+                  # Страна из ссылки
+                  country = link.split('#')[-1] if '#' in link else 'unknown'
+                  return country, ping, link
               except Exception:
                   return None
 
-          filtered = []
+          alive_by_country = {}
+
           with ThreadPoolExecutor(max_workers=MAX_WORKERS) as exe:
               futures = [exe.submit(check_connection, l) for l in lines]
               for f in as_completed(futures):
                   res = f.result()
                   if res:
-                      filtered.append(res)
-                      print(f"[OK] {res[1]} {res[0]} ms")
+                      country, ping, link = res
+                      old = alive_by_country.get(country)
+                      if old is None or ping < old[0]:
+                          alive_by_country[country] = (ping, link)
+                          print(f"[OK] {country} {ping} ms")
 
           # Сортировка по пингу: минимальный сверху
-          filtered.sort(key=lambda x: x[0])
+          sorted_alive = sorted(alive_by_country.values(), key=lambda x: x[0])
 
           os.makedirs("githubmirror", exist_ok=True)
           with open(OUTPUT_FILE, "w") as f:
-              for ping, link in filtered:
+              for ping, link in sorted_alive:
                   f.write(link + "\n")
 
-          print(f"Filtered servers saved: {len(filtered)} -> {OUTPUT_FILE}")
+          print(f"Filtered servers saved: {len(sorted_alive)} -> {OUTPUT_FILE}")
           with open(os.environ["GITHUB_OUTPUT"], "a") as out:
-              out.write(f"count_filtered={len(filtered)}\n")
+              out.write(f"count_filtered={len(sorted_alive)}\n")
           EOF
 
       - name: Commit and push filtered servers
