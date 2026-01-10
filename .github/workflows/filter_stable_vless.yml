@@ -1,9 +1,9 @@
 name: Filter Stable VLESS Servers
 
 on:
-  workflow_dispatch: {}       # ручной запуск
+  workflow_dispatch: {}
   schedule:
-    - cron: '*/10 * * * *'   # авто каждые 10 минут
+    - cron: '*/10 * * * *'
 
 jobs:
   filter-stable:
@@ -93,7 +93,7 @@ with open(os.environ["GITHUB_OUTPUT"], "a") as out:
 EOF
 
       - name: Create/Update GitHub Release
-        if: secrets.GH_PAT != ''  # только если секрет настроен
+        if: ${{ secrets.GH_PAT != '' }}
         uses: ncipollo/release-action@v1
         with:
           token: ${{ secrets.GH_PAT }}
