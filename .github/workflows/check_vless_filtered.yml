@@ -1,134 +1,91 @@
-name: Filter Alive VLESS Servers (One per Country)
+name: Filter best VLESS per country (strict)
 
 on:
-  schedule:
-    - cron: '*/9 * * * *'
   workflow_dispatch:
+  schedule:
+    - cron: "*/30 * * * *"
 
 jobs:
-  filter-vless:
+  filter:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v4
-        with:
-          persist-credentials: false
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install dependencies
+      - name: Filter best VLESS per country
         run: |
-          pip install requests
+          set -e
 
-      - name: Filter VLESS (strict country dedupe)
-        id: filter
+          INPUT="26_alive.txt"
+          OUTPUT="26_alive_filtered.txt"
+
+          # Контрольная точка — Сургут, ХМАО
+          PING_TARGET="5.141.192.1"
+
+          rm -f "$OUTPUT"
+
+          awk -v PING_TARGET="$PING_TARGET" '
+          function extract_flag(l, m) {
+            if (match(l, /#[^🇦-🇿]*([🇦-🇿]{2})/, m)) return m[1]
+            return ""
+          }
+
+          function extract_ping(l, m) {
+            if (match(l, /ping[=: ]*([0-9]+)/, m)) return m[1]
+            return 999999
+          }
+
+          function extract_stability(l, m) {
+            if (match(l, /stability[=: ]*([0-9]+)/, m)) return m[1]
+            return 0
+          }
+
+          function strict_ok(l) {
+            return (
+              l ~ /TCP[:= ]*OK/ &&
+              l ~ /HTTP[:= ]*OK/ &&
+              l ~ /HTTPS[:= ]*OK/
+            )
+          }
+
+          {
+            flag = extract_flag($0)
+            if (flag == "") next
+
+            ping = extract_ping($0)
+            stab = extract_stability($0)
+
+            if (ping >= 600) next
+            if (!strict_ok($0)) next
+
+            key = flag
+
+            # Формула приоритета:
+            # стабильность важнее, потом ping
+            score = (stab * 1000000) - ping
+
+            if (!(key in best_score) || score > best_score[key]) {
+              best_score[key] = score
+              best_line[key] = $0
+              best_ping[key] = ping
+            }
+          }
+
+          END {
+            for (k in best_line) {
+              printf "%06d|%s\n", best_ping[k], best_line[k]
+            }
+          }
+          ' "$INPUT" | sort -n | cut -d'|' -f2- > "$OUTPUT"
+
+          echo "===== RESULT ====="
+          cat "$OUTPUT"
+
+      - name: Commit filtered file
         run: |
-          python - <<'EOF'
-          import os, re, socket, time
-          import requests
-          from concurrent.futures import ThreadPoolExecutor, as_completed
-
-          INPUT = "githubmirror/26_alive.txt"
-          OUTPUT = "githubmirror/26_alive_filtered.txt"
-
-          TIMEOUT = 1.2
-          MAX_PING = 600
-          WORKERS = 80
-
-          if not os.path.exists(INPUT):
-              print("Input file not found")
-              exit(1)
-
-          with open(INPUT) as f:
-              links = [l.strip() for l in f if l.strip()]
-
-          def normalize_country(link: str):
-              if '#' not in link:
-                  return None
-              tag = link.split('#', 1)[1]
-
-              # убрать флаги
-              tag = re.sub(r'[\U0001F1E6-\U0001F1FF]', '', tag)
-
-              # убрать номера, CIDR, мусор
-              tag = re.sub(r'\[.*?\]', '', tag)
-              tag = re.sub(r'\|.*', '', tag)
-              tag = re.sub(r'—.*', '', tag)
-              tag = re.sub(r'#\d+', '', tag)
-
-              tag = tag.strip()
-              return tag if len(tag) >= 3 else None
-
-          def check(link):
-              try:
-                  hp = link.split('@')[1].split('?')[0]
-                  host, port = hp.split(':')
-                  port = int(port)
-
-                  country = normalize_country(link)
-                  if not country:
-                      return None
-
-                  start = time.time()
-                  s = socket.create_connection((host, port), timeout=TIMEOUT)
-                  s.close()
-                  ping = int((time.time() - start) * 1000)
-                  if ping > MAX_PING:
-                      return None
-
-                  ok = False
-                  for proto in ("http", "https"):
-                      try:
-                          r = requests.head(
-                              f"{proto}://{host}:{port}",
-                              timeout=TIMEOUT,
-                              verify=False
-                          )
-                          if r.status_code < 500:
-                              ok = True
-                              break
-                      except:
-                          pass
-
-                  if not ok:
-                      return None
-
-                  return country, ping, link
-              except:
-                  return None
-
-          best = {}
-
-          with ThreadPoolExecutor(WORKERS) as pool:
-              for f in as_completed(pool.submit(check, l) for l in links):
-                  r = f.result()
-                  if not r:
-                      continue
-                  country, ping, link = r
-                  if country not in best or ping < best[country][0]:
-                      best[country] = (ping, link)
-
-          result = sorted(best.values(), key=lambda x: x[0])
-
-          os.makedirs("githubmirror", exist_ok=True)
-          with open(OUTPUT, "w") as f:
-              for _, link in result:
-                  f.write(link + "\n")
-
-          print(f"Saved {len(result)} unique countries")
-          with open(os.environ["GITHUB_OUTPUT"], "a") as o:
-              o.write(f"count={len(result)}\n")
-          EOF
-
-      - name: Commit & Push
-        if: steps.filter.outputs.count != '0'
-        run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git add githubmirror/26_alive_filtered.txt
-          git commit -m "Update VLESS: one server per country"
-          git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }} HEAD:main
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add 26_alive_filtered.txt
+          git commit -m "Update best VLESS per country (strict, no N/A)" || echo "No changes"
+          git push
