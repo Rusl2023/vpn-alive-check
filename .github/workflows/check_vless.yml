@@ -2,13 +2,12 @@ name: Check VLESS Servers
 
 on:
   schedule:
-    - cron: '*/9 * * * *'  # запуск каждые 9 минут
+    - cron: '*/9 * * * *'  # каждые 9 минут
   workflow_dispatch:        # можно запускать вручную
 
 jobs:
   check-vless:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -23,10 +22,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests
 
-      - name: Download server list
+      - name: Download 26.txt from goida-vpn-configs
         run: |
-          mkdir -p temp
-          curl -sSL -o temp/26.txt https://github.com/AvenCores/goida-vpn-configs/raw/refs/heads/main/githubmirror/26.txt
+          mkdir -p githubmirror
+          curl -sSL -o githubmirror/26.txt https://github.com/AvenCores/goida-vpn-configs/raw/refs/heads/main/githubmirror/26.txt
 
       - name: Check VLESS servers
         id: check_alive
@@ -34,29 +33,26 @@ jobs:
           import os
           import socket
 
-          input_file = 'temp/26.txt'
+          input_file = 'githubmirror/26.txt'
           output_file = 'githubmirror/26_alive.txt'
 
           alive_servers = []
 
           if os.path.exists(input_file):
               with open(input_file, 'r') as f:
-                  servers = [line.strip() for line in f if line.strip()]
+                  lines = [line.strip() for line in f if line.strip()]
 
-              for server in servers:
-                  # Проверяем, что это VLESS
-                  if not server.lower().startswith('vless://'):
-                      continue
+              # Проверяем только VLESS-сервера (строки начинаются с "vless://")
+              vless_servers = [line for line in lines if line.lower().startswith("vless://")]
 
+              for server in vless_servers:
                   try:
-                      # vless://UUID@host:port?params
-                      after_scheme = server.split('://',1)[1]
-                      user_host_port = after_scheme.split('@')[1]
-                      host_port = user_host_port.split('?')[0]
-                      host, port = host_port.split(':')
-                      port = int(port)
-
-                      # Проверка TCP соединения
+                      # Вытаскиваем хост и порт из URL vless://
+                      import re
+                      match = re.search(r'vless://[^@]+@([^:/]+):(\d+)', server)
+                      if not match:
+                          continue
+                      host, port = match.group(1), int(match.group(2))
                       sock = socket.create_connection((host, port), timeout=5)
                       sock.close()
                       alive_servers.append(server)
@@ -64,6 +60,7 @@ jobs:
                   except Exception:
                       print(f"[DEAD] {server}")
 
+              # Записываем живые сервера
               os.makedirs(os.path.dirname(output_file), exist_ok=True)
               with open(output_file, 'w') as f:
                   f.write('\n'.join(alive_servers))
@@ -74,11 +71,11 @@ jobs:
 
       - name: Commit and push alive servers
         if: steps.check_alive.outputs.count != '0'
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add githubmirror/26_alive.txt
-          git commit -m "Update alive VLESS servers" || echo "Nothing to commit"
+          git commit -m "Update alive VLESS servers" || echo "No changes to commit"
           git push https://$GH_PAT@github.com/${{ github.repository }} HEAD:main
-        env:
-          GH_PAT: ${{ secrets.GH_PAT }}
