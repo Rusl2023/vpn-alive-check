@@ -25,12 +25,11 @@ with open(INPUT_FILE, "r", encoding="utf-8") as f:
             host = url.hostname
             port = url.port or 443
 
-            # читаем ping из строки, если есть "ping XXX"
             if "ping" in line:
                 ping_str = line.split("ping")[-1].split()[0]
                 ping_val = int(ping_str)
             else:
-                ping_val = 9999  # если нет, считаем плохим
+                ping_val = 9999
 
             if ping_val > MAX_PING:
                 continue
@@ -38,7 +37,6 @@ with open(INPUT_FILE, "r", encoding="utf-8") as f:
             if not check_tcp(host, port):
                 continue
 
-            # определяем страну
             country = "Unknown"
             for part in line.split():
                 if part.startswith("🇦") or part.startswith("🇧") or part.startswith("🇨") \
@@ -52,7 +50,6 @@ with open(INPUT_FILE, "r", encoding="utf-8") as f:
         except:
             continue
 
-# сохраняем результат
 os.makedirs(os.path.dirname(OUTPUT_FILE), exist_ok=True)
 with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
     for link, ping in sorted(alive_by_country.values(), key=lambda x: x[1]):
