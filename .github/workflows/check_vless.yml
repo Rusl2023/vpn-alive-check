@@ -8,9 +8,12 @@ on:
 jobs:
   check-vless:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          persist-credentials: false   # 🔴 КРИТИЧЕСКИ ВАЖНО
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -29,7 +32,7 @@ jobs:
           import os, requests, socket, time
 
           url = 'https://github.com/AvenCores/goida-vpn-configs/raw/refs/heads/main/githubmirror/26.txt'
-          lines = requests.get(url).text.splitlines()
+          lines = requests.get(url, timeout=15).text.splitlines()
 
           alive_by_country = {}
 
@@ -60,16 +63,16 @@ jobs:
               for vless, _ in alive_by_country.values():
                   f.write(vless + '\n')
 
-          # Новый способ output
           with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
               fh.write(f"count={len(alive_by_country)}\n")
           EOF
 
       - name: Commit and push alive servers
-        if: steps.check_alive.outputs.count != '0'
         run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
+          git config user.name "Rusl2023"
+          git config user.email "rusl2023@users.noreply.github.com"
+
           git add githubmirror/26_alive.txt
           git diff --cached --quiet || git commit -m "Update alive VLESS servers"
+
           git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }} HEAD:main
