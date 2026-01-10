@@ -2,80 +2,64 @@ name: Check VLESS Servers
 
 on:
   schedule:
-    - cron: '*/9 * * * *'  # каждые 9 минут
-  workflow_dispatch:        # можно запускать вручную
+    - cron: "*/9 * * * *"  # каждые 9 минут
+  workflow_dispatch:       # можно запускать вручную
 
 jobs:
   check-vless:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Клонируем репо
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      # 2. Скачиваем актуальный список серверов
-      - name: Download 26.txt
-        run: |
-          mkdir -p githubmirror
-          curl -sSL -o githubmirror/26.txt https://github.com/AvenCores/goida-vpn-configs/raw/refs/heads/main/githubmirror/26.txt
-
-      # 3. Устанавливаем Python
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: 3.11
+          python-version: "3.11"
 
-      # 4. Устанавливаем зависимости
       - name: Install dependencies
-        run: pip install --upgrade pip requests
+        run: pip install requests
 
-      # 5. Проверяем только VLESS серверы
       - name: Check VLESS servers
-        id: check_alive
         run: |
+          python - <<'EOF'
           import os
           import socket
+          import urllib.request
 
-          input_file = 'githubmirror/26.txt'
-          output_file = 'githubmirror/26_alive.txt'
+          url = 'https://github.com/AvenCores/goida-vpn-configs/raw/refs/heads/main/githubmirror/26.txt'
+          content = urllib.request.urlopen(url).read().decode()
+          servers = [line.strip() for line in content.splitlines() if line.strip() and line.startswith('vless://')]
 
-          alive_servers = []
+          alive = {}  # страна -> server
+          for server in servers:
+              try:
+                  # Парсим хост и порт
+                  host_port = server.split('//')[1].split('@')[1].split(':')
+                  host, port = host_port[0], int(host_port[1])
 
-          if os.path.exists(input_file):
-              with open(input_file, 'r', encoding='utf-8') as f:
-                  servers = [line.strip() for line in f if line.strip()]
+                  sock = socket.create_connection((host, port), timeout=3)
+                  sock.close()
 
-              for server in servers:
-                  # проверяем только VLESS
-                  if 'vless://' not in server:
-                      continue
-                  try:
-                      # Простейшая проверка: TCP соединение на порт, если указан (default 443)
-                      import re
-                      match = re.search(r'vless://.*@([^:/]+)(?::(\d+))?', server)
-                      if not match:
-                          continue
-                      host = match.group(1)
-                      port = int(match.group(2)) if match.group(2) else 443
-                      sock = socket.create_connection((host, port), timeout=5)
-                      sock.close()
-                      alive_servers.append(server)
-                      print(f"[ALIVE] {server}")
-                  except Exception:
-                      print(f"[DEAD] {server}")
+                  country = server.split('#')[-1] if '#' in server else 'unknown'
 
-              os.makedirs(os.path.dirname(output_file), exist_ok=True)
-              with open(output_file, 'w', encoding='utf-8') as f:
-                  f.write('\n'.join(alive_servers))
-          else:
-              print(f"No input file '{input_file}' found.")
+                  # Оставляем только один сервер на страну
+                  if country not in alive:
+                      alive[country] = server
 
-          print(f"::set-output name=count::{len(alive_servers)}")
+              except Exception:
+                  continue
 
-      # 6. Commit и push через GH_PAT
+          os.makedirs('githubmirror', exist_ok=True)
+          with open('githubmirror/26_alive.txt', 'w') as f:
+              f.write('\n'.join(alive.values()))
+
+          print(f"Alive servers: {len(alive)}")
+          EOF
+
       - name: Commit and push alive servers
-        if: steps.check_alive.outputs.count != '0'
+        if: steps.check-vless.outputs.count != '0'
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
