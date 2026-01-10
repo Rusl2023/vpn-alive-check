@@ -3,7 +3,7 @@ name: Check VLESS Servers for RU
 on:
   schedule:
     - cron: '*/9 * * * *'  # каждые 9 минут
-  workflow_dispatch:        # ручной запуск
+  workflow_dispatch: {}     # ручной запуск
 
 jobs:
   check-vless:
