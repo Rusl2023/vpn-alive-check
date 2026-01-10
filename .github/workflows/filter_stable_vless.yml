@@ -3,7 +3,7 @@ name: Filter Stable VLESS Servers
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/10 * * * *'  # каждые 10 минут, если нужен авто-запуск
+    - cron: '*/10 * * * *'  # каждые 10 минут
 
 jobs:
   filter_stable:
@@ -29,13 +29,8 @@ jobs:
         run: |
           python source/filter_stable.py
 
-      - name: Create/Update GitHub Release
-        uses: ncipollo/release-action@v1
+      - name: Upload stable servers as artifact
+        uses: actions/upload-artifact@v3
         with:
-          token: ${{ secrets.PAT_GITHUB }}  # <-- твой персональный токен GitHub
-          tag: stable-vless
-          name: Stable VLESS Servers
-          artifacts: githubmirror/26_stable.txt
-          makeLatest: true
-          generateReleaseNotes: false
-          updateOnlyUnreleased: true
+          name: stable-vless-servers
+          path: githubmirror/26_stable.txt
