@@ -2,8 +2,8 @@ name: Check VLESS Servers
 
 on:
   schedule:
-    - cron: '*/9 * * * *'
-  workflow_dispatch:
+    - cron: '*/9 * * * *'  # каждые 9 минут
+  workflow_dispatch:        # ручной запуск
 
 jobs:
   check-vless:
@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false   # ⚠️ важно, чтобы пуш через GH_PAT работал
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -83,6 +85,7 @@ jobs:
               for link, ping in alive_by_country.values():
                   f.write(link + "\n")
 
+          # Новый способ output
           with open(os.environ["GITHUB_OUTPUT"], "a") as out:
               out.write(f"count={len(alive_by_country)}\n")
           EOF
