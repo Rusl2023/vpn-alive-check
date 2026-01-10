@@ -1,0 +1,128 @@
+name: Filter Stable VLESS Servers
+
+on:
+  schedule:
+    - cron: '*/9 * * * *'  # каждые 9 минут после первой проверки
+  workflow_dispatch:
+
+jobs:
+  filter-stable:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false  # ⚠️ для пуша через GH_PAT
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests websocket-client
+
+      - name: Filter stable VLESS servers
+        id: filter_stable
+        run: |
+          python - <<'EOF'
+          import os, time, socket, requests, websocket
+          from concurrent.futures import ThreadPoolExecutor, as_completed
+
+          TIMEOUT = 0.7
+          MAX_PING = 400
+          MAX_WORKERS = 80  # оптимально для GitHub Actions
+          INPUT_FILE = "githubmirror/26_alive.txt"
+          OUTPUT_FILE = "githubmirror/26_stable.txt"
+
+          if not os.path.exists(INPUT_FILE):
+              print("No alive file found, exiting")
+              exit(0)
+
+          lines = [l.strip() for l in open(INPUT_FILE) if l.strip()]
+          stable_servers = {}
+
+          def check_server(link):
+              try:
+                  country = link.split('#')[-1] if '#' in link else 'unknown'
+                  hp = link.split('@')[1].split('?')[0]
+                  host, port = hp.split(':')
+                  port = int(port)
+
+                  # TCP ping
+                  start = time.time()
+                  sock = socket.create_connection((host, port), timeout=TIMEOUT)
+                  sock.close()
+                  ping = int((time.time() - start) * 1000)
+                  if ping > MAX_PING:
+                      return None
+
+                  # WebSocket check
+                  try:
+                      ws_url = f"ws://{host}:{port}/"
+                      ws = websocket.create_connection(ws_url, timeout=TIMEOUT)
+                      ws.close()
+                  except:
+                      return None
+
+                  # HTTP/HTTPS HEAD check
+                  try:
+                      r = requests.head(f"http://{host}", timeout=TIMEOUT)
+                      r.raise_for_status()
+                  except:
+                      try:
+                          r = requests.head(f"https://{host}", timeout=TIMEOUT, verify=False)
+                          r.raise_for_status()
+                      except:
+                          return None
+
+                  return country, link, ping
+              except:
+                  return None
+
+          start_all = time.time()
+          with ThreadPoolExecutor(max_workers=MAX_WORKERS) as exe:
+              futures = [exe.submit(check_server, l) for l in lines]
+
+              for f in as_completed(futures):
+                  res = f.result()
+                  if not res:
+                      continue
+                  country, link, ping = res
+                  old = stable_servers.get(country)
+                  if old is None or ping < old[1]:
+                      stable_servers[country] = (link, ping)
+
+          # Сортировка по ping
+          sorted_links = sorted(stable_servers.values(), key=lambda x: x[1])
+
+          os.makedirs(os.path.dirname(OUTPUT_FILE), exist_ok=True)
+          with open(OUTPUT_FILE, "w") as f:
+              for link, ping in sorted_links:
+                  f.write(link + "\n")
+
+          print(f"Filtered {len(sorted_links)} stable servers")
+          with open(os.environ["GITHUB_OUTPUT"], "a") as out:
+              out.write(f"count={len(sorted_links)}\n")
+          EOF
+
+      - name: Commit stable servers
+        if: steps.filter_stable.outputs.count != '0'
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add githubmirror/26_stable.txt
+          git diff --cached --quiet || git commit -m "Update stable VLESS servers"
+          git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }} HEAD:main
+
+      - name: Create/Update GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          token: ${{ secrets.GH_PAT }}
+          tag: stable-vless
+          name: Stable VLESS Servers
+          files: githubmirror/26_stable.txt
+          overwrite: true
