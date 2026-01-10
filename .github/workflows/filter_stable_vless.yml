@@ -2,7 +2,7 @@ name: Filter Stable VLESS Servers
 
 on:
   schedule:
-    - cron: '*/9 * * * *'
+    - cron: '*/9 * * * *'  # каждые 9 минут
   workflow_dispatch:
 
 jobs:
@@ -13,7 +13,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          persist-credentials: false
+          persist-credentials: false  # чтобы пуш и релиз через GH_PAT работал
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -29,15 +29,24 @@ jobs:
         id: filter_stable
         run: |
           python - <<'EOF'
-          import os, socket, time, requests
+          import os, requests, socket, time
           from concurrent.futures import ThreadPoolExecutor, as_completed
           from websocket import create_connection
 
           INPUT_FILE = "githubmirror/26_alive.txt"
           OUTPUT_FILE = "githubmirror/26_stable.txt"
-          TIMEOUT = 1
-          MAX_WORKERS = 60
-          MAX_PING = 400  # все выше отсеиваются как n/a
+          MAX_PING = 400
+          TIMEOUT = 0.8
+          MAX_WORKERS = 80
+
+          if not os.path.exists(INPUT_FILE):
+              print(f"{INPUT_FILE} not found, exiting")
+              exit(0)
+
+          with open(INPUT_FILE, "r") as f:
+              vless_list = [l.strip() for l in f if l.strip()]
+
+          alive_by_country = {}
 
           def check_vless(link):
               try:
@@ -46,64 +55,49 @@ jobs:
                   host, port = hp.split(':')
                   port = int(port)
 
-                  # TCP проверка
                   start = time.time()
+                  # TCP check
                   sock = socket.create_connection((host, port), timeout=TIMEOUT)
                   sock.close()
                   tcp_ping = int((time.time() - start) * 1000)
-                  if tcp_ping >= MAX_PING:
-                      return None  # отсеиваем пинг >= MAX_PING
+                  if tcp_ping > MAX_PING:
+                      return None
 
-                  # WebSocket проверка
+                  # WebSocket check (optional)
                   try:
-                      ws_url = f"ws://{host}:{port}/"
-                      ws = create_connection(ws_url, timeout=TIMEOUT)
+                      ws = create_connection(f"ws://{host}:{port}", timeout=TIMEOUT)
                       ws.close()
-                  except:
-                      return None  # если WS не отвечает, отсеиваем
+                  except Exception:
+                      return None
 
                   return country, link, tcp_ping
-              except:
+              except Exception:
                   return None
 
-          # читаем все живые ссылки
-          alive_links = []
-          with open(INPUT_FILE, "r") as f:
-              alive_links = [l.strip() for l in f if l.strip()]
-
-          stable_by_country = {}
+          start_all = time.time()
           with ThreadPoolExecutor(max_workers=MAX_WORKERS) as exe:
-              futures = [exe.submit(check_vless, l) for l in alive_links]
+              futures = [exe.submit(check_vless, v) for v in vless_list]
               for f in as_completed(futures):
                   res = f.result()
                   if not res:
                       continue
                   country, link, ping = res
-                  # сохраняем только лучший пинг на страну
-                  old = stable_by_country.get(country)
-                  if old is None or ping < old[2]:
-                      stable_by_country[country] = (country, link, ping)
-                      print(f"[STABLE] {country} {ping} ms")
+                  old = alive_by_country.get(country)
+                  if old is None or ping < old[1]:
+                      alive_by_country[country] = (link, ping)
 
-          os.makedirs("githubmirror", exist_ok=True)
+          os.makedirs(os.path.dirname(OUTPUT_FILE), exist_ok=True)
           with open(OUTPUT_FILE, "w") as f:
-              for c, link, ping in stable_by_country.values():
+              for link, ping in sorted(alive_by_country.values(), key=lambda x: x[1]):
                   f.write(link + "\n")
 
+          print(f"Stable servers saved: {len(alive_by_country)}")
           with open(os.environ["GITHUB_OUTPUT"], "a") as out:
-              out.write(f"count={len(stable_by_country)}\n")
+              out.write(f"count={len(alive_by_country)}\n")
           EOF
 
-      - name: Commit and push stable servers
-        if: steps.filter_stable.outputs.count != '0'
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git add githubmirror/26_stable.txt
-          git diff --cached --quiet || git commit -m "Update stable VLESS servers"
-          git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }} HEAD:main
-
       - name: Create or update stable release
+        if: steps.filter_stable.outputs.count != '0'
         uses: ncipollo/release-action@v1
         with:
           token: ${{ secrets.GH_PAT }}
