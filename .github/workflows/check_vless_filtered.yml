@@ -1,4 +1,4 @@
-name: Filter best VLESS per country (python strict)
+name: Filter best VLESS per country (python safe)
 
 on:
   schedule:
@@ -23,13 +23,15 @@ jobs:
       - name: Filter best VLESS per country
         run: |
           python <<'EOF'
-          import socket, time, os, re, ssl, urllib.parse
-          from collections import defaultdict
+          import socket, time, os, ssl
+          from concurrent.futures import ThreadPoolExecutor, as_completed
 
           INPUT = "githubmirror/26_alive.txt"
           OUTPUT = "githubmirror/26_alive_filtered.txt"
-          TIMEOUT = 1.5
+
+          TIMEOUT = 1.0
           MAX_PING = 600
+          MAX_WORKERS = 40
 
           if not os.path.exists(INPUT):
               print("Input file not found")
@@ -37,56 +39,58 @@ jobs:
 
           def tcp_ping(host, port):
               start = time.time()
-              s = socket.create_connection((host, port), timeout=TIMEOUT)
+              s = socket.socket()
+              s.settimeout(TIMEOUT)
+              s.connect((host, port))
               s.close()
               return int((time.time() - start) * 1000)
 
-          def http_check(host, port, https=False):
+          def https_ok(host, port):
               try:
-                  proto = "https" if https else "http"
-                  ctx = ssl._create_unverified_context() if https else None
-                  conn = socket.create_connection((host, port), timeout=TIMEOUT)
-                  if https:
-                      conn = ctx.wrap_socket(conn, server_hostname=host)
-                  conn.sendall(b"HEAD / HTTP/1.1\r\nHost: %b\r\n\r\n" % host.encode())
-                  conn.close()
+                  ctx = ssl.create_default_context()
+                  s = socket.create_connection((host, port), timeout=TIMEOUT)
+                  ss = ctx.wrap_socket(s, server_hostname=host)
+                  ss.close()
                   return True
               except:
                   return False
 
+          def check(line):
+              if not line.startswith("vless://"):
+                  return None
+              if "N/A" in line:
+                  return None
+              try:
+                  country = line.split("#",1)[1]
+                  netloc = line.split("@",1)[1].split("?",1)[0]
+                  host, port = netloc.split(":")
+                  port = int(port)
+              except:
+                  return None
+
+              try:
+                  ping = tcp_ping(host, port)
+                  if ping >= MAX_PING:
+                      return None
+                  if not https_ok(host, port):
+                      return None
+                  return country, ping, line
+              except:
+                  return None
+
           best = {}
 
           with open(INPUT) as f:
-              for line in f:
-                  line = line.strip()
-                  if not line.startswith("vless://"):
-                      continue
-                  if "N/A" in line:
-                      continue
+              lines = [l.strip() for l in f if l.strip()]
 
-                  try:
-                      country = line.split("#", 1)[1]
-                  except:
-                      continue
+          with ThreadPoolExecutor(max_workers=MAX_WORKERS) as exe:
+              futures = [exe.submit(check, l) for l in lines]
 
-                  try:
-                      netloc = line.split("@",1)[1].split("?",1)[0]
-                      host, port = netloc.split(":")
-                      port = int(port)
-                  except:
+              for f in as_completed(futures):
+                  res = f.result()
+                  if not res:
                       continue
-
-                  try:
-                      ping = tcp_ping(host, port)
-                      if ping >= MAX_PING:
-                          continue
-                      if not http_check(host, port, False):
-                          continue
-                      if not http_check(host, port, True):
-                          continue
-                  except:
-                      continue
-
+                  country, ping, line = res
                   if country not in best or ping < best[country][0]:
                       best[country] = (ping, line)
 
@@ -104,5 +108,5 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add githubmirror/26_alive_filtered.txt
-          git diff --cached --quiet || git commit -m "Update best VLESS per country (python strict)"
+          git diff --cached --quiet || git commit -m "Update best VLESS per country (safe python)"
           git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }} HEAD:main
