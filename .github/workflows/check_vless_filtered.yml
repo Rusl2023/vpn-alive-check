@@ -13,46 +13,34 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          persist-credentials: false   # ❗ обязательно
+          persist-credentials: false
 
       - name: Filter best VLESS per country
         run: |
-          set -e
-
           INPUT="githubmirror/26_alive.txt"
           OUTPUT="githubmirror/26_alive_filtered.txt"
-
-          # Контрольная точка (Сургут, ХМАО)
-          PING_TARGET="5.141.192.1"
 
           if [ ! -f "$INPUT" ]; then
             echo "❌ $INPUT not found"
             exit 0
           fi
 
-          rm -f "$OUTPUT"
-
           awk '
-          function get_flag(l, m) {
+          function get_flag(l) {
             if (match(l, /#.*([🇦-🇿]{2})/, m)) return m[1]
             return ""
           }
 
-          function get_ping(l, m) {
+          function get_ping(l) {
             if (match(l, /([0-9]+)[ ]*ms/, m)) return m[1]
             return 999999
           }
 
-          function strict_ok(l) {
-            return (
-              l ~ /TCP[:= ]*OK/ &&
-              l ~ /HTTP[:= ]*OK/ &&
-              l ~ /HTTPS[:= ]*OK/
-            )
-          }
-
           {
             if ($0 ~ /N\/A/) next
+            if ($0 !~ /TCP[:= ]*OK/) next
+            if ($0 !~ /HTTP[:= ]*OK/) next
+            if ($0 !~ /HTTPS[:= ]*OK/) next
 
             flag = get_flag($0)
             if (flag == "") next
@@ -60,14 +48,9 @@ jobs:
             ping = get_ping($0)
             if (ping >= 600) next
 
-            if (!strict_ok($0)) next
-
-            score = -ping
-
-            if (!(flag in best) || score > best_score[flag]) {
-              best_score[flag] = score
-              best_ping[flag] = ping
+            if (!(flag in best) || ping < best_ping[flag]) {
               best[flag] = $0
+              best_ping[flag] = ping
             }
           }
 
@@ -76,7 +59,7 @@ jobs:
               printf "%06d|%s\n", best_ping[f], best[f]
             }
           }
-          ' "$INPUT" | sort -n | cut -d'|' -f2- > "$OUTPUT"
+          ' "$INPUT" | sort -n | cut -d"|" -f2- > "$OUTPUT"
 
           echo "===== FILTERED RESULT ====="
           cat "$OUTPUT"
