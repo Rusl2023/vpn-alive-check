@@ -3,12 +3,11 @@ name: Filter Stable VLESS Servers
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/10 * * * *'  # каждые 10 минут
+    - cron: '*/10 * * * *'  # каждые 10 минут, если нужен авто-запуск
 
 jobs:
   filter_stable:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -27,12 +26,13 @@ jobs:
           INPUT_FILE: githubmirror/26_alive.txt
           OUTPUT_FILE: githubmirror/26_stable.txt
           MAX_PING: 600
-        run: python source/filter_stable.py
+        run: |
+          python source/filter_stable.py
 
       - name: Create/Update GitHub Release
         uses: ncipollo/release-action@v1
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT_GITHUB }}  # <-- твой персональный токен GitHub
           tag: stable-vless
           name: Stable VLESS Servers
           artifacts: githubmirror/26_stable.txt
