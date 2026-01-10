@@ -3,11 +3,12 @@ name: Filter Stable VLESS Servers
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/10 * * * *'
+    - cron: '*/10 * * * *'  # каждые 10 минут
 
 jobs:
   filter_stable:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
