@@ -1,12 +1,12 @@
-name: Check VLESS Servers for RU
+name: Filter best VLESS per country (python safe)
 
 on:
   schedule:
-    - cron: '*/9 * * * *'  # каждые 9 минут
-  workflow_dispatch: {}     # ручной запуск
+    - cron: "*/9 * * * *"
+  workflow_dispatch:
 
 jobs:
-  check-vless:
+  filter:
     runs-on: ubuntu-latest
 
     steps:
@@ -18,58 +18,95 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
-      - name: Install dependencies
+      - name: Filter best VLESS per country
         run: |
-          python -m pip install --upgrade pip
-          pip install requests
+          python <<'EOF'
+          import socket, time, os, ssl
+          from concurrent.futures import ThreadPoolExecutor, as_completed
 
-      - name: Check VLESS servers (simulated for 178.208.224.122)
-        id: check_alive
-        run: |
-          python - <<'EOF'
-          import os, random
+          INPUT = "githubmirror/26_alive.txt"
+          OUTPUT = "githubmirror/26_alive_filtered.txt"
 
-          # Пример списка российских серверов (симуляция)
-          servers_ru = [
-              "vless://abcd@185.201.10.1:443?encryption=auto#RU",
-              "vless://efgh@185.201.10.2:443?encryption=auto#RU",
-              "vless://ijkl@185.201.10.3:443?encryption=auto#RU",
-              "vless://mnop@185.201.10.4:443?encryption=auto#RU",
-              "vless://qrst@185.201.10.5:443?encryption=auto#RU"
-          ]
+          TIMEOUT = 1.0
+          MAX_PING = 600
+          MAX_WORKERS = 40
 
-          # Симулируем проверку ping/TCP/HTTP/HTTPS относительно IP 178.208.224.122
-          alive_by_country = {}
-          for srv in servers_ru:
-              ping = random.randint(40, 120)  # симулированный ping
-              tcp = "OK" if random.random() > 0.05 else "Fail"
-              http = "OK" if random.random() > 0.1 else "Fail"
-              https = "OK" if random.random() > 0.1 else "Fail"
+          if not os.path.exists(INPUT):
+              print("Input file not found")
+              exit(0)
 
-              # Сохраняем только лучший сервер по ping на страну
-              country = "RU"
-              old = alive_by_country.get(country)
-              if old is None or ping < old[1]:
-                  alive_by_country[country] = (srv, ping, tcp, http, https)
+          def tcp_ping(host, port):
+              start = time.time()
+              s = socket.socket()
+              s.settimeout(TIMEOUT)
+              s.connect((host, port))
+              s.close()
+              return int((time.time() - start) * 1000)
 
-          # Создаём папку и сохраняем файл
+          def https_ok(host, port):
+              try:
+                  ctx = ssl.create_default_context()
+                  s = socket.create_connection((host, port), timeout=TIMEOUT)
+                  ss = ctx.wrap_socket(s, server_hostname=host)
+                  ss.close()
+                  return True
+              except:
+                  return False
+
+          def check(line):
+              if not line.startswith("vless://"):
+                  return None
+              if "N/A" in line:
+                  return None
+              try:
+                  country = line.split("#",1)[1]
+                  netloc = line.split("@",1)[1].split("?",1)[0]
+                  host, port = netloc.split(":")
+                  port = int(port)
+              except:
+                  return None
+
+              try:
+                  ping = tcp_ping(host, port)
+                  if ping >= MAX_PING:
+                      return None
+                  if not https_ok(host, port):
+                      return None
+                  return country, ping, line
+              except:
+                  return None
+
+          best = {}
+
+          with open(INPUT) as f:
+              lines = [l.strip() for l in f if l.strip()]
+
+          with ThreadPoolExecutor(max_workers=MAX_WORKERS) as exe:
+              futures = [exe.submit(check, l) for l in lines]
+
+              for f in as_completed(futures):
+                  res = f.result()
+                  if not res:
+                      continue
+                  country, ping, line = res
+                  if country not in best or ping < best[country][0]:
+                      best[country] = (ping, line)
+
           os.makedirs("githubmirror", exist_ok=True)
-          with open("githubmirror/26_alive.txt", "w") as f:
-              for srv, ping, tcp, http, https in alive_by_country.values():
-                  f.write(f"{srv}  # ping={ping}ms TCP={tcp} HTTP={http} HTTPS={https}\n")
+          with open(OUTPUT, "w") as f:
+              for ping, line in sorted(best.values(), key=lambda x: x[0]):
+                  f.write(line + "\n")
 
-          # Для GitHub Actions output
-          with open(os.environ["GITHUB_OUTPUT"], "a") as out:
-              out.write(f"count={len(alive_by_country)}\n")
+          print("===== FILTERED RESULT =====")
+          print(open(OUTPUT).read())
           EOF
 
-      - name: Commit and push alive servers
-        if: steps.check_alive.outputs.count != '0'
+      - name: Commit and push filtered file
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add githubmirror/26_alive.txt
-          git diff --cached --quiet || git commit -m "Update alive VLESS servers (simulated for 178.208.224.122)"
+          git add githubmirror/26_alive_filtered.txt
+          git diff --cached --quiet || git commit -m "Update best VLESS per country (safe python)"
           git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }} HEAD:main
