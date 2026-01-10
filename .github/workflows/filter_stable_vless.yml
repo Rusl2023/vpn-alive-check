@@ -8,6 +8,7 @@ on:
 jobs:
   filter-stable:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -30,7 +31,8 @@ jobs:
           INPUT_FILE: githubmirror/26_alive.txt
           OUTPUT_FILE: githubmirror/26_stable.txt
           MAX_PING: 600
-        run: python - <<'EOF'
+        run: |
+          python - <<'EOF'
 import os, socket
 from urllib.parse import urlparse
 
