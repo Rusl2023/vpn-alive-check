@@ -13,7 +13,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          persist-credentials: false  # чтобы пуш через GH_PAT работал
+          persist-credentials: false
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -37,7 +37,7 @@ jobs:
           OUTPUT_FILE = "githubmirror/26_stable.txt"
           TIMEOUT = 1
           MAX_WORKERS = 60
-          MAX_PING = 400
+          MAX_PING = 400  # все выше отсеиваются как n/a
 
           def check_vless(link):
               try:
@@ -46,26 +46,27 @@ jobs:
                   host, port = hp.split(':')
                   port = int(port)
 
+                  # TCP проверка
                   start = time.time()
-                  # TCP check
                   sock = socket.create_connection((host, port), timeout=TIMEOUT)
                   sock.close()
                   tcp_ping = int((time.time() - start) * 1000)
-                  if tcp_ping > MAX_PING:
-                      return None
+                  if tcp_ping >= MAX_PING:
+                      return None  # отсеиваем пинг >= MAX_PING
 
-                  # WebSocket check (simple connect)
+                  # WebSocket проверка
                   try:
                       ws_url = f"ws://{host}:{port}/"
                       ws = create_connection(ws_url, timeout=TIMEOUT)
                       ws.close()
                   except:
-                      return None
+                      return None  # если WS не отвечает, отсеиваем
 
                   return country, link, tcp_ping
               except:
                   return None
 
+          # читаем все живые ссылки
           alive_links = []
           with open(INPUT_FILE, "r") as f:
               alive_links = [l.strip() for l in f if l.strip()]
@@ -78,6 +79,7 @@ jobs:
                   if not res:
                       continue
                   country, link, ping = res
+                  # сохраняем только лучший пинг на страну
                   old = stable_by_country.get(country)
                   if old is None or ping < old[2]:
                       stable_by_country[country] = (country, link, ping)
