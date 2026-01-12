@@ -24,7 +24,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip requests
 
-      - name: Check VLESS servers (TCP avg latency ≤ 450ms)
+      - name: Check VLESS servers (TCP avg latency ≤ 300ms)
         id: check_alive
         run: |
           python - <<'EOF'
@@ -37,7 +37,7 @@ jobs:
           URL = "https://github.com/AvenCores/goida-vpn-configs/raw/refs/heads/main/githubmirror/26.txt"
 
           TIMEOUT = 0.8
-          MAX_LATENCY = 450
+          MAX_LATENCY = 300
           CHECK_COUNT = 3
           MAX_WORKERS = 120
 
