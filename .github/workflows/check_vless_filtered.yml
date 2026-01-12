@@ -10,36 +10,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Скачиваем репозиторий
+      # 1️⃣ Checkout репозитория
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           persist-credentials: false
 
-      # 2️⃣ Настройка Python
+      # 2️⃣ Setup Python
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      # 3️⃣ Установка зависимостей
+      # 3️⃣ Install dependencies
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip requests geoip2
 
-      # 4️⃣ Скачивание GeoLite2 базы без регистрации (публичный mirror)
-      - name: Download GeoLite2 Database (public mirror)
-        run: |
-          mkdir -p geoip
-          if [ ! -f geoip/GeoLite2-Country.mmdb ]; then
-            echo "Downloading GeoLite2-Country from public mirror..."
-            wget -O geoip/GeoLite2-Country.mmdb "https://github.com/P3TERX/GeoLite2-Country/raw/master/GeoLite2-Country.mmdb"
-          else
-            echo "GeoLite2-Country.mmdb already exists"
-          fi
-
-      # 5️⃣ Проверка VLESS серверов
-      - name: Check VLESS servers (median latency ≤ 200ms + stable country)
+      # 4️⃣ Проверка VLESS серверов
+      - name: Check VLESS servers (median latency ≤ 600ms + stable country)
         id: check_alive
         run: |
           python - <<'EOF'
@@ -54,7 +43,7 @@ jobs:
           URL = "https://github.com/AvenCores/goida-vpn-configs/raw/refs/heads/main/githubmirror/26.txt"
 
           TIMEOUT = 0.5      # ускорение проверки
-          MAX_LATENCY = 200
+          MAX_LATENCY = 600  # увеличили до 600 мс
           CHECK_COUNT = 3
           STABILITY_CHECKS = 3
           MAX_WORKERS = 120
@@ -162,7 +151,7 @@ jobs:
               out.write(f"count={len(results)}\n")
           EOF
 
-      # 6️⃣ Commit и push результата
+      # 5️⃣ Commit и push результата
       - name: Commit and push result
         if: steps.check_alive.outputs.count != '0'
         run: |
