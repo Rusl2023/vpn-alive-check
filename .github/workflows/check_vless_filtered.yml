@@ -1,4 +1,4 @@
-name: Check VLESS Servers (Reality + GeoIP, One per Country)
+name: Check VLESS Servers (Reality + GeoIP + #Country, One per Country)
 
 on:
   schedule:
@@ -10,25 +10,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           persist-credentials: false
 
-      # 2️⃣ Setup Python
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      # 3️⃣ Install dependencies
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip requests geoip2
 
-      # 4️⃣ Check VLESS servers with GeoIP
-      - name: Check VLESS servers (security=reality, double TCP, 1 per GeoIP country)
+      - name: Check VLESS servers (security=reality, double TCP, 1 per GeoIP + #Country)
         id: check_alive
         run: |
           python - <<'EOF'
@@ -77,14 +73,15 @@ jobs:
                   security = query.get('security', [''])[0]
                   sni = query.get('sni', [u.hostname])[0]
                   if security != "reality" or not sni:
-                      return None, None, None
+                      return None, None, None, None
                   host = u.hostname
                   port = u.port or 443
-                  return host, port, link
+                  tag_country = link.split('#')[-1] if '#' in link else 'unknown'
+                  return host, port, link, tag_country
               except Exception:
-                  return None, None, None
+                  return None, None, None, None
 
-          def get_country(host):
+          def get_geoip_country(host):
               try:
                   ip = socket.gethostbyname(host)
                   country_info = reader.country(ip)
@@ -102,15 +99,18 @@ jobs:
               return median(pings)
 
           def check_vless(link):
-              host, port, full_link = parse_vless(link)
+              host, port, full_link, tag_country = parse_vless(link)
               if not host:
                   return None
               for _ in range(DOUBLE_CHECKS):
                   med = check_vless_pass(host, port)
                   if med is None:
                       return None
-              country = get_country(host)
-              return med, full_link, country
+              geo_country = get_geoip_country(host)
+              # Фильтр по совпадению GeoIP + #Country
+              if geo_country != tag_country:
+                  return None
+              return med, full_link, geo_country
 
           alive_by_country = {}
           start = time.time()
@@ -128,7 +128,6 @@ jobs:
                   if i % 50 == 0:
                       print(f"Checked {i}/{len(vless_list)}")
 
-          # Сортировка по медиане
           results = sorted(alive_by_country.values(), key=lambda x: x[0])
 
           elapsed = int(time.time() - start)
@@ -149,5 +148,5 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add githubmirror/26_alive.txt
-          git diff --cached --quiet || git commit -m "Update alive VLESS servers (security=reality, 1 per GeoIP country)"
+          git diff --cached --quiet || git commit -m "Update alive VLESS servers (security=reality, GeoIP + #Country)"
           git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }} HEAD:main
