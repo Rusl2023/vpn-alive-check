@@ -24,7 +24,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip requests
 
-      - name: Check VLESS servers (TCP median latency ≤ 200ms)
+      - name: Check VLESS servers (median latency ≤ 200ms + SNI filter)
         id: check_alive
         run: |
           python - <<'EOF'
@@ -32,6 +32,7 @@ jobs:
           import time
           import socket
           import requests
+          import urllib.parse
           from concurrent.futures import ThreadPoolExecutor, as_completed
 
           URL = "https://github.com/AvenCores/goida-vpn-configs/raw/refs/heads/main/githubmirror/26.txt"
@@ -57,22 +58,44 @@ jobs:
               s = sorted(lst)
               return s[len(s)//2]
 
-          def check_vless(link):
+          def parse_vless(link):
               try:
-                  hp = link.split('@', 1)[1].split('?', 1)[0]
-                  host, port = hp.split(':', 1)
-                  port = int(port)
+                  url = urllib.parse.urlparse(link)
+                  host = url.hostname
+                  port = url.port or 443
+                  query = urllib.parse.parse_qs(url.query)
+                  sni = query.get('sni', [host])[0]
+                  security = query.get('security', [''])[0]
 
+                  if not sni:
+                      return None
+
+                  return {
+                      'link': link,
+                      'host': host,
+                      'port': port,
+                      'sni': sni,
+                      'security': security
+                  }
+              except Exception:
+                  return None
+
+          def check_vless(link):
+              data = parse_vless(link)
+              if not data:
+                  return None
+
+              try:
                   pings = []
                   for _ in range(CHECK_COUNT):
-                      ping = tcp_ping(host, port)
+                      ping = tcp_ping(data['host'], data['port'])
                       if ping > MAX_LATENCY:
                           return None
                       pings.append(ping)
 
                   med_ping = median(pings)
                   if med_ping <= MAX_LATENCY:
-                      return med_ping, link
+                      return med_ping, data['link']
 
               except Exception:
                   return None
