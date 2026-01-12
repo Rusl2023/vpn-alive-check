@@ -1,12 +1,12 @@
-name: Filter best VLESS per country (python safe)
+name: Check VLESS Servers
 
 on:
   schedule:
-    - cron: "*/9 * * * *"
+    - cron: '*/9 * * * *'   # каждые 9 минут
   workflow_dispatch:
 
 jobs:
-  filter:
+  check:
     runs-on: ubuntu-latest
 
     steps:
@@ -15,98 +15,84 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: '3.11'
 
-      - name: Filter best VLESS per country
+      - name: Install dependencies
         run: |
-          python <<'EOF'
-          import socket, time, os, ssl
+          python -m pip install --upgrade pip requests
+
+      - name: Check VLESS servers (TCP + latency)
+        id: check_alive
+        run: |
+          python - <<'EOF'
+          import os
+          import time
+          import socket
+          import requests
           from concurrent.futures import ThreadPoolExecutor, as_completed
 
-          INPUT = "githubmirror/26_alive.txt"
-          OUTPUT = "githubmirror/26_alive_filtered.txt"
+          URL = "https://github.com/AvenCores/goida-vpn-configs/raw/refs/heads/main/githubmirror/26.txt"
+          TIMEOUT = 0.8
+          MAX_LATENCY = 800
+          MAX_WORKERS = 120
 
-          TIMEOUT = 1.0
-          MAX_PING = 600
-          MAX_WORKERS = 40
+          print("Downloading 26.txt ...")
+          lines = requests.get(URL, timeout=20).text.splitlines()
 
-          if not os.path.exists(INPUT):
-              print("Input file not found")
-              exit(0)
+          vless_list = [l.strip() for l in lines if l.strip().startswith("vless://")]
+          print(f"Total VLESS links: {len(vless_list)}")
 
-          def tcp_ping(host, port):
-              start = time.time()
-              s = socket.socket()
-              s.settimeout(TIMEOUT)
-              s.connect((host, port))
-              s.close()
-              return int((time.time() - start) * 1000)
-
-          def https_ok(host, port):
+          def check_vless(link):
               try:
-                  ctx = ssl.create_default_context()
-                  s = socket.create_connection((host, port), timeout=TIMEOUT)
-                  ss = ctx.wrap_socket(s, server_hostname=host)
-                  ss.close()
-                  return True
-              except:
-                  return False
-
-          def check(line):
-              if not line.startswith("vless://"):
-                  return None
-              if "N/A" in line:
-                  return None
-              try:
-                  country = line.split("#",1)[1]
-                  netloc = line.split("@",1)[1].split("?",1)[0]
-                  host, port = netloc.split(":")
+                  hp = link.split('@', 1)[1].split('?', 1)[0]
+                  host, port = hp.split(':', 1)
                   port = int(port)
-              except:
+
+                  start = time.time()
+                  sock = socket.create_connection((host, port), timeout=TIMEOUT)
+                  sock.close()
+
+                  latency = int((time.time() - start) * 1000)
+                  if latency <= MAX_LATENCY:
+                      return link, latency
+              except Exception:
                   return None
 
-              try:
-                  ping = tcp_ping(host, port)
-                  if ping >= MAX_PING:
-                      return None
-                  if not https_ok(host, port):
-                      return None
-                  return country, ping, line
-              except:
-                  return None
-
-          best = {}
-
-          with open(INPUT) as f:
-              lines = [l.strip() for l in f if l.strip()]
+          alive = []
+          start_all = time.time()
 
           with ThreadPoolExecutor(max_workers=MAX_WORKERS) as exe:
-              futures = [exe.submit(check, l) for l in lines]
-
-              for f in as_completed(futures):
+              futures = [exe.submit(check_vless, v) for v in vless_list]
+              for i, f in enumerate(as_completed(futures), 1):
                   res = f.result()
-                  if not res:
-                      continue
-                  country, ping, line = res
-                  if country not in best or ping < best[country][0]:
-                      best[country] = (ping, line)
+                  if res:
+                      link, latency = res
+                      alive.append(link)
+                      print(f"[OK] {latency} ms")
+
+                  if i % 100 == 0:
+                      print(f"Checked {i}/{len(vless_list)}")
+
+          elapsed = int(time.time() - start_all)
+          print(f"Finished in {elapsed} sec. Alive: {len(alive)}")
 
           os.makedirs("githubmirror", exist_ok=True)
-          with open(OUTPUT, "w") as f:
-              for ping, line in sorted(best.values(), key=lambda x: x[0]):
-                  f.write(line + "\n")
+          with open("githubmirror/26_alive.txt", "w") as f:
+              for link in alive:
+                  f.write(link + "\n")
 
-          print("===== FILTERED RESULT =====")
-          print(open(OUTPUT).read())
+          with open(os.environ["GITHUB_OUTPUT"], "a") as out:
+              out.write(f"count={len(alive)}\n")
           EOF
 
-      - name: Commit and push filtered file
+      - name: Commit and push result
+        if: steps.check_alive.outputs.count != '0'
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add githubmirror/26_alive_filtered.txt
-          git diff --cached --quiet || git commit -m "Update best VLESS per country (safe python)"
+          git add githubmirror/26_alive.txt
+          git diff --cached --quiet || git commit -m "Update alive VLESS servers"
           git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }} HEAD:main
