@@ -2,7 +2,7 @@ name: Check VLESS Servers
 
 on:
   schedule:
-    - cron: '*/9 * * * *'   # каждые 9 минут
+    - cron: '*/9 * * * *'
   workflow_dispatch:
 
 jobs:
@@ -24,7 +24,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip requests
 
-      - name: Check VLESS servers (TCP + latency)
+      - name: Check VLESS servers (TCP avg latency ≤ 600ms)
         id: check_alive
         run: |
           python - <<'EOF'
@@ -35,15 +35,23 @@ jobs:
           from concurrent.futures import ThreadPoolExecutor, as_completed
 
           URL = "https://github.com/AvenCores/goida-vpn-configs/raw/refs/heads/main/githubmirror/26.txt"
+
           TIMEOUT = 0.8
-          MAX_LATENCY = 800
+          MAX_LATENCY = 600
+          CHECK_COUNT = 3
           MAX_WORKERS = 120
 
           print("Downloading 26.txt ...")
           lines = requests.get(URL, timeout=20).text.splitlines()
-
           vless_list = [l.strip() for l in lines if l.strip().startswith("vless://")]
+
           print(f"Total VLESS links: {len(vless_list)}")
+
+          def tcp_ping(host, port):
+              start = time.time()
+              sock = socket.create_connection((host, port), timeout=TIMEOUT)
+              sock.close()
+              return int((time.time() - start) * 1000)
 
           def check_vless(link):
               try:
@@ -51,17 +59,21 @@ jobs:
                   host, port = hp.split(':', 1)
                   port = int(port)
 
-                  start = time.time()
-                  sock = socket.create_connection((host, port), timeout=TIMEOUT)
-                  sock.close()
+                  pings = []
+                  for _ in range(CHECK_COUNT):
+                      ping = tcp_ping(host, port)
+                      if ping > MAX_LATENCY:
+                          return None
+                      pings.append(ping)
 
-                  latency = int((time.time() - start) * 1000)
-                  if latency <= MAX_LATENCY:
-                      return link, latency
+                  avg_ping = sum(pings) // len(pings)
+                  if avg_ping <= MAX_LATENCY:
+                      return avg_ping, link
+
               except Exception:
                   return None
 
-          alive = []
+          results = []
           start_all = time.time()
 
           with ThreadPoolExecutor(max_workers=MAX_WORKERS) as exe:
@@ -69,23 +81,25 @@ jobs:
               for i, f in enumerate(as_completed(futures), 1):
                   res = f.result()
                   if res:
-                      link, latency = res
-                      alive.append(link)
-                      print(f"[OK] {latency} ms")
+                      avg_ping, link = res
+                      results.append((avg_ping, link))
+                      print(f"[OK] {avg_ping} ms")
 
                   if i % 100 == 0:
                       print(f"Checked {i}/{len(vless_list)}")
 
+          results.sort(key=lambda x: x[0])
+
           elapsed = int(time.time() - start_all)
-          print(f"Finished in {elapsed} sec. Alive: {len(alive)}")
+          print(f"Finished in {elapsed} sec. Alive: {len(results)}")
 
           os.makedirs("githubmirror", exist_ok=True)
           with open("githubmirror/26_alive.txt", "w") as f:
-              for link in alive:
+              for avg_ping, link in results:
                   f.write(link + "\n")
 
           with open(os.environ["GITHUB_OUTPUT"], "a") as out:
-              out.write(f"count={len(alive)}\n")
+              out.write(f"count={len(results)}\n")
           EOF
 
       - name: Commit and push result
