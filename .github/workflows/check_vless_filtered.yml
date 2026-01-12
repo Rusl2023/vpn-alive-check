@@ -24,7 +24,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip requests
 
-      - name: Check VLESS servers (TCP avg latency ≤ 300ms)
+      - name: Check VLESS servers (TCP median latency ≤ 200ms)
         id: check_alive
         run: |
           python - <<'EOF'
@@ -37,7 +37,7 @@ jobs:
           URL = "https://github.com/AvenCores/goida-vpn-configs/raw/refs/heads/main/githubmirror/26.txt"
 
           TIMEOUT = 0.8
-          MAX_LATENCY = 300
+          MAX_LATENCY = 200
           CHECK_COUNT = 3
           MAX_WORKERS = 120
 
@@ -53,6 +53,10 @@ jobs:
               sock.close()
               return int((time.time() - start) * 1000)
 
+          def median(lst):
+              s = sorted(lst)
+              return s[len(s)//2]
+
           def check_vless(link):
               try:
                   hp = link.split('@', 1)[1].split('?', 1)[0]
@@ -66,9 +70,9 @@ jobs:
                           return None
                       pings.append(ping)
 
-                  avg_ping = sum(pings) // len(pings)
-                  if avg_ping <= MAX_LATENCY:
-                      return avg_ping, link
+                  med_ping = median(pings)
+                  if med_ping <= MAX_LATENCY:
+                      return med_ping, link
 
               except Exception:
                   return None
@@ -81,9 +85,9 @@ jobs:
               for i, f in enumerate(as_completed(futures), 1):
                   res = f.result()
                   if res:
-                      avg_ping, link = res
-                      results.append((avg_ping, link))
-                      print(f"[OK] {avg_ping} ms")
+                      med_ping, link = res
+                      results.append((med_ping, link))
+                      print(f"[OK] {med_ping} ms")
 
                   if i % 100 == 0:
                       print(f"Checked {i}/{len(vless_list)}")
@@ -95,7 +99,7 @@ jobs:
 
           os.makedirs("githubmirror", exist_ok=True)
           with open("githubmirror/26_alive.txt", "w") as f:
-              for avg_ping, link in results:
+              for med_ping, link in results:
                   f.write(link + "\n")
 
           with open(os.environ["GITHUB_OUTPUT"], "a") as out:
