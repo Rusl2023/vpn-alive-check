@@ -1,4 +1,4 @@
-name: Check VLESS Servers
+name: Check VLESS Servers by Country
 
 on:
   schedule:
@@ -24,7 +24,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip requests
 
-      - name: Check VLESS servers (median latency ≤ 200ms + SNI filter)
+      - name: Check VLESS servers (median latency ≤ 200ms + SNI + country)
         id: check_alive
         run: |
           python - <<'EOF'
@@ -66,6 +66,7 @@ jobs:
                   query = urllib.parse.parse_qs(url.query)
                   sni = query.get('sni', [host])[0]
                   security = query.get('security', [''])[0]
+                  country = link.split('#')[-1] if '#' in link else 'unknown'
 
                   if not sni:
                       return None
@@ -75,7 +76,8 @@ jobs:
                       'host': host,
                       'port': port,
                       'sni': sni,
-                      'security': security
+                      'security': security,
+                      'country': country
                   }
               except Exception:
                   return None
@@ -95,12 +97,12 @@ jobs:
 
                   med_ping = median(pings)
                   if med_ping <= MAX_LATENCY:
-                      return med_ping, data['link']
+                      return med_ping, data['link'], data['country']
 
               except Exception:
                   return None
 
-          results = []
+          alive_by_country = {}
           start_all = time.time()
 
           with ThreadPoolExecutor(max_workers=MAX_WORKERS) as exe:
@@ -108,17 +110,19 @@ jobs:
               for i, f in enumerate(as_completed(futures), 1):
                   res = f.result()
                   if res:
-                      med_ping, link = res
-                      results.append((med_ping, link))
-                      print(f"[OK] {med_ping} ms")
+                      med_ping, link, country = res
+                      old = alive_by_country.get(country)
+                      if not old or med_ping < old[0]:
+                          alive_by_country[country] = (med_ping, link)
+                          print(f"[OK] {country} {med_ping} ms")
 
                   if i % 100 == 0:
                       print(f"Checked {i}/{len(vless_list)}")
 
-          results.sort(key=lambda x: x[0])
+          results = sorted(alive_by_country.values(), key=lambda x: x[0])
 
           elapsed = int(time.time() - start_all)
-          print(f"Finished in {elapsed} sec. Alive: {len(results)}")
+          print(f"Finished in {elapsed} sec. Alive countries: {len(results)}")
 
           os.makedirs("githubmirror", exist_ok=True)
           with open("githubmirror/26_alive.txt", "w") as f:
@@ -135,5 +139,5 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add githubmirror/26_alive.txt
-          git diff --cached --quiet || git commit -m "Update alive VLESS servers"
+          git diff --cached --quiet || git commit -m "Update alive VLESS servers by country"
           git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }} HEAD:main
