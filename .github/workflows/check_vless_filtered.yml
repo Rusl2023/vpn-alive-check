@@ -1,4 +1,4 @@
-name: Check VLESS Servers (Reality, Optimized TCP)
+name: Check VLESS Servers (Reality, One per Country, Optimized TCP)
 
 on:
   schedule:
@@ -10,25 +10,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           persist-credentials: false
 
-      # 2️⃣ Setup Python
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      # 3️⃣ Install dependencies
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip requests
 
-      # 4️⃣ Optimized check
-      - name: Check VLESS servers (security=reality, double TCP check)
+      - name: Check VLESS servers (security=reality, double TCP, 1 per country)
         id: check_alive
         run: |
           python - <<'EOF'
@@ -59,7 +55,7 @@ jobs:
                   sock.close()
                   return int((time.time() - start) * 1000)
               except Exception:
-                  return None  # пропускаем сервер, если TCP недоступен
+                  return None
 
           def median(values):
               s = sorted(values)
@@ -72,10 +68,13 @@ jobs:
                   security = query.get('security', [''])[0]
                   sni = query.get('sni', [u.hostname])[0]
                   if security != "reality" or not sni:
-                      return None, None, None
-                  return u.hostname, u.port or 443, link
+                      return None, None, None, None
+                  host = u.hostname
+                  port = u.port or 443
+                  country = link.split('#')[-1] if '#' in link else 'unknown'
+                  return host, port, link, country
               except Exception:
-                  return None, None, None
+                  return None, None, None, None
 
           def check_vless_pass(host, port):
               pings = []
@@ -87,16 +86,16 @@ jobs:
               return median(pings)
 
           def check_vless(link):
-              host, port, full_link = parse_vless(link)
+              host, port, full_link, country = parse_vless(link)
               if not host:
                   return None
               for _ in range(DOUBLE_CHECKS):
                   med = check_vless_pass(host, port)
                   if med is None:
                       return None
-              return med, full_link
+              return med, full_link, country
 
-          results = []
+          alive_by_country = {}
           start = time.time()
 
           with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
@@ -104,14 +103,19 @@ jobs:
               for i, f in enumerate(as_completed(futures), 1):
                   r = f.result()
                   if r:
-                      results.append(r)
-                      print(f"[OK] {r[0]} ms")
+                      med, link, country = r
+                      old = alive_by_country.get(country)
+                      if not old or med < old[0]:
+                          alive_by_country[country] = (med, link)
+                      print(f"[OK] {country} {med} ms")
                   if i % 50 == 0:
                       print(f"Checked {i}/{len(vless_list)}")
 
-          results.sort(key=lambda x: x[0])
+          # Сортировка по медиане
+          results = sorted(alive_by_country.values(), key=lambda x: x[0])
 
-          print(f"Finished in {int(time.time()-start)} sec. Alive: {len(results)}")
+          elapsed = int(time.time() - start)
+          print(f"Finished in {elapsed} sec. Alive countries: {len(results)}")
 
           os.makedirs("githubmirror", exist_ok=True)
           with open("githubmirror/26_alive.txt", "w") as f:
@@ -122,12 +126,11 @@ jobs:
               out.write(f"count={len(results)}\n")
           EOF
 
-      # 5️⃣ Commit and push
       - name: Commit and push result
         if: steps.check_alive.outputs.count != '0'
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add githubmirror/26_alive.txt
-          git diff --cached --quiet || git commit -m "Update alive VLESS servers (security=reality, optimized)"
+          git diff --cached --quiet || git commit -m "Update alive VLESS servers (security=reality, 1 per country, optimized)"
           git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }} HEAD:main
