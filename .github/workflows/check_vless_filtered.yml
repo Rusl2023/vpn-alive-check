@@ -1,0 +1,112 @@
+name: Filter best VLESS per country (python safe)
+
+on:
+  schedule:
+    - cron: "*/9 * * * *"
+  workflow_dispatch:
+
+jobs:
+  filter:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Filter best VLESS per country
+        run: |
+          python <<'EOF'
+          import socket, time, os, ssl
+          from concurrent.futures import ThreadPoolExecutor, as_completed
+
+          INPUT = "githubmirror/26_alive.txt"
+          OUTPUT = "githubmirror/26_alive_filtered.txt"
+
+          TIMEOUT = 1.0
+          MAX_PING = 600
+          MAX_WORKERS = 40
+
+          if not os.path.exists(INPUT):
+              print("Input file not found")
+              exit(0)
+
+          def tcp_ping(host, port):
+              start = time.time()
+              s = socket.socket()
+              s.settimeout(TIMEOUT)
+              s.connect((host, port))
+              s.close()
+              return int((time.time() - start) * 1000)
+
+          def https_ok(host, port):
+              try:
+                  ctx = ssl.create_default_context()
+                  s = socket.create_connection((host, port), timeout=TIMEOUT)
+                  ss = ctx.wrap_socket(s, server_hostname=host)
+                  ss.close()
+                  return True
+              except:
+                  return False
+
+          def check(line):
+              if not line.startswith("vless://"):
+                  return None
+              if "N/A" in line:
+                  return None
+              try:
+                  country = line.split("#",1)[1]
+                  netloc = line.split("@",1)[1].split("?",1)[0]
+                  host, port = netloc.split(":")
+                  port = int(port)
+              except:
+                  return None
+
+              try:
+                  ping = tcp_ping(host, port)
+                  if ping >= MAX_PING:
+                      return None
+                  if not https_ok(host, port):
+                      return None
+                  return country, ping, line
+              except:
+                  return None
+
+          best = {}
+
+          with open(INPUT) as f:
+              lines = [l.strip() for l in f if l.strip()]
+
+          with ThreadPoolExecutor(max_workers=MAX_WORKERS) as exe:
+              futures = [exe.submit(check, l) for l in lines]
+
+              for f in as_completed(futures):
+                  res = f.result()
+                  if not res:
+                      continue
+                  country, ping, line = res
+                  if country not in best or ping < best[country][0]:
+                      best[country] = (ping, line)
+
+          os.makedirs("githubmirror", exist_ok=True)
+          with open(OUTPUT, "w") as f:
+              for ping, line in sorted(best.values(), key=lambda x: x[0]):
+                  f.write(line + "\n")
+
+          print("===== FILTERED RESULT =====")
+          print(open(OUTPUT).read())
+          EOF
+
+      - name: Commit and push filtered file
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add githubmirror/26_alive_filtered.txt
+          git diff --cached --quiet || git commit -m "Update best VLESS per country (safe python)"
+          git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }} HEAD:main
