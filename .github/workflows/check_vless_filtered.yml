@@ -1,4 +1,4 @@
-name: Check VLESS Servers by Country Stability
+name: Check VLESS Servers by Stable Country (GeoIP)
 
 on:
   schedule:
@@ -22,7 +22,13 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip requests ip2geotools
+          python -m pip install --upgrade pip requests geoip2
+
+      - name: Download GeoLite2 Database (if not in repo)
+        run: |
+          mkdir -p geoip
+          # сюда можно скачать GeoLite2-Country.mmdb если нет в репозитории
+          # wget -O geoip/GeoLite2-Country.mmdb "https://example.com/GeoLite2-Country.mmdb"
 
       - name: Check VLESS servers (median latency ≤ 200ms + stable country)
         id: check_alive
@@ -34,15 +40,18 @@ jobs:
           import requests
           import urllib.parse
           from concurrent.futures import ThreadPoolExecutor, as_completed
-          from ip2geotools.databases.noncommercial import DbIpCity
+          import geoip2.database
 
           URL = "https://github.com/AvenCores/goida-vpn-configs/raw/refs/heads/main/githubmirror/26.txt"
 
-          TIMEOUT = 0.8
+          TIMEOUT = 0.5      # ускорение проверки
           MAX_LATENCY = 200
           CHECK_COUNT = 3
           STABILITY_CHECKS = 3
           MAX_WORKERS = 120
+
+          GEOIP_DB_PATH = "geoip/GeoLite2-Country.mmdb"
+          reader = geoip2.database.Reader(GEOIP_DB_PATH)
 
           print("Downloading 26.txt ...")
           lines = requests.get(URL, timeout=20).text.splitlines()
@@ -58,6 +67,11 @@ jobs:
           def median(lst):
               s = sorted(lst)
               return s[len(s)//2]
+
+          def get_country(host):
+              ip = socket.gethostbyname(host)
+              response = reader.country(ip)
+              return response.country.iso_code
 
           def parse_vless(link):
               try:
@@ -81,12 +95,11 @@ jobs:
               except Exception:
                   return None
 
-          def check_stable_country(host, expected_country, attempts=STABILITY_CHECKS):
+          def is_stable_country(host, expected_country, attempts=STABILITY_CHECKS):
               try:
                   for _ in range(attempts):
-                      ip = socket.gethostbyname(host)
-                      country_info = DbIpCity.get(ip, api_key='free')
-                      if country_info.country != expected_country:
+                      country = get_country(host)
+                      if country != expected_country:
                           return False
                   return True
               except Exception:
@@ -96,7 +109,7 @@ jobs:
               data = parse_vless(link)
               if not data:
                   return None
-              if not check_stable_country(data['host'], data['country']):
+              if not is_stable_country(data['host'], data['country']):
                   return None
               try:
                   pings = []
