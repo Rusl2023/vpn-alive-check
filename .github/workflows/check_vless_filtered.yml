@@ -53,10 +53,13 @@ jobs:
           print(f"Total VLESS links: {len(vless_list)}")
 
           def tcp_ping(host, port):
-              start = time.time()
-              sock = socket.create_connection((host, port), timeout=TIMEOUT)
-              sock.close()
-              return int((time.time() - start) * 1000)
+              try:
+                  start = time.time()
+                  sock = socket.create_connection((host, port), timeout=TIMEOUT)
+                  sock.close()
+                  return int((time.time() - start) * 1000)
+              except Exception:
+                  return None  # пропускаем сервер, если TCP недоступен
 
           def median(values):
               s = sorted(values)
@@ -78,7 +81,7 @@ jobs:
               pings = []
               for _ in range(CHECK_COUNT):
                   ping = tcp_ping(host, port)
-                  if ping > MAX_LATENCY:
+                  if ping is None or ping > MAX_LATENCY:
                       return None
                   pings.append(ping)
               return median(pings)
