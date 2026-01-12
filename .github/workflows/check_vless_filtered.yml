@@ -1,4 +1,4 @@
-name: Check VLESS Servers (Reality, One per Country, Optimized TCP)
+name: Check VLESS Servers (Reality + GeoIP, One per Country)
 
 on:
   schedule:
@@ -10,21 +10,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           persist-credentials: false
 
+      # 2️⃣ Setup Python
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
+      # 3️⃣ Install dependencies
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip requests
+          python -m pip install --upgrade pip requests geoip2
 
-      - name: Check VLESS servers (security=reality, double TCP, 1 per country)
+      # 4️⃣ Check VLESS servers with GeoIP
+      - name: Check VLESS servers (security=reality, double TCP, 1 per GeoIP country)
         id: check_alive
         run: |
           python - <<'EOF'
@@ -34,6 +38,7 @@ jobs:
           import requests
           import urllib.parse
           from concurrent.futures import ThreadPoolExecutor, as_completed
+          import geoip2.database
 
           URL = "https://github.com/AvenCores/goida-vpn-configs/raw/refs/heads/main/githubmirror/26.txt"
 
@@ -42,6 +47,10 @@ jobs:
           CHECK_COUNT = 3
           DOUBLE_CHECKS = 2
           MAX_WORKERS = 150
+          GEOIP_DB = "geoip/GeoLite2-Country.mmdb"
+
+          print("Loading GeoIP database...")
+          reader = geoip2.database.Reader(GEOIP_DB)
 
           print("Downloading 26.txt ...")
           lines = requests.get(URL, timeout=20).text.splitlines()
@@ -68,13 +77,20 @@ jobs:
                   security = query.get('security', [''])[0]
                   sni = query.get('sni', [u.hostname])[0]
                   if security != "reality" or not sni:
-                      return None, None, None, None
+                      return None, None, None
                   host = u.hostname
                   port = u.port or 443
-                  country = link.split('#')[-1] if '#' in link else 'unknown'
-                  return host, port, link, country
+                  return host, port, link
               except Exception:
-                  return None, None, None, None
+                  return None, None, None
+
+          def get_country(host):
+              try:
+                  ip = socket.gethostbyname(host)
+                  country_info = reader.country(ip)
+                  return country_info.country.iso_code or "unknown"
+              except Exception:
+                  return "unknown"
 
           def check_vless_pass(host, port):
               pings = []
@@ -86,13 +102,14 @@ jobs:
               return median(pings)
 
           def check_vless(link):
-              host, port, full_link, country = parse_vless(link)
+              host, port, full_link = parse_vless(link)
               if not host:
                   return None
               for _ in range(DOUBLE_CHECKS):
                   med = check_vless_pass(host, port)
                   if med is None:
                       return None
+              country = get_country(host)
               return med, full_link, country
 
           alive_by_country = {}
@@ -132,5 +149,5 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add githubmirror/26_alive.txt
-          git diff --cached --quiet || git commit -m "Update alive VLESS servers (security=reality, 1 per country, optimized)"
+          git diff --cached --quiet || git commit -m "Update alive VLESS servers (security=reality, 1 per GeoIP country)"
           git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }} HEAD:main
