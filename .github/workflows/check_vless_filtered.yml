@@ -42,10 +42,10 @@ jobs:
 
           URL = "https://github.com/AvenCores/goida-vpn-configs/raw/refs/heads/main/githubmirror/26.txt"
 
-          TIMEOUT = 0.5      # ускорение проверки
-          MAX_LATENCY = 600  # увеличили до 600 мс
+          TIMEOUT = 1.0          # увеличенный таймаут для TCP
+          MAX_LATENCY = 600      # медиана до 600 мс
           CHECK_COUNT = 3
-          STABILITY_CHECKS = 3
+          STABILITY_CHECKS = 2   # меньше строгая проверка страны
           MAX_WORKERS = 120
 
           GEOIP_DB_PATH = "geoip/GeoLite2-Country.mmdb"
@@ -68,8 +68,11 @@ jobs:
 
           def get_country(host):
               ip = socket.gethostbyname(host)
-              response = reader.country(ip)
-              return response.country.iso_code
+              try:
+                  response = reader.country(ip)
+                  return response.country.iso_code
+              except Exception:
+                  return "unknown"
 
           def parse_vless(link):
               try:
