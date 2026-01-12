@@ -1,4 +1,4 @@
-name: Check VLESS Servers by Stable Country (GeoIP)
+name: Check VLESS Servers (Reality, TCP + Median Latency)
 
 on:
   schedule:
@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout репозитория
+      # 1️⃣ Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
@@ -25,10 +25,10 @@ jobs:
       # 3️⃣ Install dependencies
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip requests geoip2
+          python -m pip install --upgrade pip requests
 
-      # 4️⃣ Проверка VLESS серверов
-      - name: Check VLESS servers (median latency ≤ 600ms + stable country)
+      # 4️⃣ Check VLESS servers with security=reality
+      - name: Check VLESS servers (security=reality, median latency ≤ 600ms)
         id: check_alive
         run: |
           python - <<'EOF'
@@ -38,18 +38,13 @@ jobs:
           import requests
           import urllib.parse
           from concurrent.futures import ThreadPoolExecutor, as_completed
-          import geoip2.database
 
           URL = "https://github.com/AvenCores/goida-vpn-configs/raw/refs/heads/main/githubmirror/26.txt"
 
-          TIMEOUT = 1.0          # увеличенный таймаут для TCP
-          MAX_LATENCY = 600      # медиана до 600 мс
+          TIMEOUT = 1.0
+          MAX_LATENCY = 600
           CHECK_COUNT = 3
-          STABILITY_CHECKS = 2   # меньше строгая проверка страны
-          MAX_WORKERS = 120
-
-          GEOIP_DB_PATH = "geoip/GeoLite2-Country.mmdb"
-          reader = geoip2.database.Reader(GEOIP_DB_PATH)
+          MAX_WORKERS = 150
 
           print("Downloading 26.txt ...")
           lines = requests.get(URL, timeout=20).text.splitlines()
@@ -62,92 +57,58 @@ jobs:
               sock.close()
               return int((time.time() - start) * 1000)
 
-          def median(lst):
-              s = sorted(lst)
-              return s[len(s)//2]
-
-          def get_country(host):
-              ip = socket.gethostbyname(host)
-              try:
-                  response = reader.country(ip)
-                  return response.country.iso_code
-              except Exception:
-                  return "unknown"
+          def median(values):
+              values = sorted(values)
+              return values[len(values)//2]
 
           def parse_vless(link):
               try:
-                  url = urllib.parse.urlparse(link)
-                  host = url.hostname
-                  port = url.port or 443
-                  query = urllib.parse.parse_qs(url.query)
-                  sni = query.get('sni', [host])[0]
+                  u = urllib.parse.urlparse(link)
+                  query = urllib.parse.parse_qs(u.query)
                   security = query.get('security', [''])[0]
-                  country = link.split('#')[-1] if '#' in link else 'unknown'
-                  if not sni:
-                      return None
-                  return {
-                      'link': link,
-                      'host': host,
-                      'port': port,
-                      'sni': sni,
-                      'security': security,
-                      'country': country
-                  }
+                  if security != "reality":
+                      return None, None, None
+                  return u.hostname, u.port or 443, link
               except Exception:
-                  return None
-
-          def is_stable_country(host, expected_country, attempts=STABILITY_CHECKS):
-              try:
-                  for _ in range(attempts):
-                      country = get_country(host)
-                      if country != expected_country:
-                          return False
-                  return True
-              except Exception:
-                  return False
+                  return None, None, None
 
           def check_vless(link):
-              data = parse_vless(link)
-              if not data:
-                  return None
-              if not is_stable_country(data['host'], data['country']):
+              host, port, full_link = parse_vless(link)
+              if not host:
                   return None
               try:
                   pings = []
                   for _ in range(CHECK_COUNT):
-                      ping = tcp_ping(data['host'], data['port'])
+                      ping = tcp_ping(host, port)
                       if ping > MAX_LATENCY:
                           return None
                       pings.append(ping)
-                  med_ping = median(pings)
-                  if med_ping <= MAX_LATENCY:
-                      return med_ping, data['link'], data['country']
+                  med = median(pings)
+                  if med <= MAX_LATENCY:
+                      return med, full_link
               except Exception:
                   return None
 
-          alive_by_country = {}
-          start_all = time.time()
+          results = []
+          start = time.time()
 
-          with ThreadPoolExecutor(max_workers=MAX_WORKERS) as exe:
-              futures = [exe.submit(check_vless, v) for v in vless_list]
+          with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
+              futures = [ex.submit(check_vless, v) for v in vless_list]
               for i, f in enumerate(as_completed(futures), 1):
-                  res = f.result()
-                  if res:
-                      med_ping, link, country = res
-                      old = alive_by_country.get(country)
-                      if not old or med_ping < old[0]:
-                          alive_by_country[country] = (med_ping, link)
-                          print(f"[OK] {country} {med_ping} ms")
+                  r = f.result()
+                  if r:
+                      results.append(r)
+                      print(f"[OK] {r[0]} ms")
                   if i % 50 == 0:
                       print(f"Checked {i}/{len(vless_list)}")
 
-          results = sorted(alive_by_country.values(), key=lambda x: x[0])
-          elapsed = int(time.time() - start_all)
-          print(f"Finished in {elapsed} sec. Alive countries: {len(results)}")
+          results.sort(key=lambda x: x[0])
+
+          print(f"Finished in {int(time.time()-start)} sec. Alive: {len(results)}")
 
           os.makedirs("githubmirror", exist_ok=True)
           with open("githubmirror/26_alive.txt", "w") as f:
-              for med_ping, link in results:
+              for _, link in results:
                   f.write(link + "\n")
 
           with open(os.environ["GITHUB_OUTPUT"], "a") as out:
@@ -161,5 +122,5 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add githubmirror/26_alive.txt
-          git diff --cached --quiet || git commit -m "Update alive VLESS servers by stable country"
+          git diff --cached --quiet || git commit -m "Update alive VLESS servers (security=reality)"
           git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }} HEAD:main
