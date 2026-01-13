@@ -15,10 +15,10 @@ https://github.com/MatsuriDayo/NekoBoxForAndroid/releases
 - IOS скачать c App Store (V2Ray Client+App
 https://apps.apple.com/us/app/v2ray-client/id6747379524
 
--Windows Happ:
+- Windows Happ:
 https://github.com/Happ-proxy/happ-desktop/releases
 
--ОpenWRT V2rayA:
+- ОpenWRT V2rayA:
 https://github.com/v2rayA/v2raya-openwrt/releases
 
 ______________________________________________________________________________________
