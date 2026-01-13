@@ -36,7 +36,7 @@ jobs:
           URL = "https://github.com/AvenCores/goida-vpn-configs/raw/refs/heads/main/githubmirror/26.txt"
 
           TIMEOUT = 0.6
-          CHECK_COUNT = 3
+          CHECK_COUNT = 20
           TCP_PASSES = 2
           MAX_LATENCY = 600
           MAX_WORKERS = 120
@@ -94,6 +94,7 @@ jobs:
                   ip = socket.gethostbyname(host)
                   country = reader_country.country(ip).country.iso_code
                   asn = reader_asn.asn(ip).autonomous_system_number
+                  # Исключаем Россию
                   if country == "RU":
                       return None
                   return country
@@ -129,6 +130,7 @@ jobs:
               d = parse_vless(link)
               if not d:
                   return None
+              # фильтры
               if d["security"] != "reality":
                   return None
               if not d["sni"] or d["sni"] not in RU_SNI_WHITELIST:
@@ -139,12 +141,11 @@ jobs:
               if not country:
                   return None
               try:
-                  for _ in range(TCP_PASSES):
-                      socket.create_connection((d["host"], d["port"]), timeout=TIMEOUT).close()
-                  pings = [tcp_ping(d["host"], d["port"]) for _ in range(CHECK_COUNT)]
-                  if any(p > MAX_LATENCY for p in pings):
-                      return None
-                  return median(pings), d["link"], country
+                  for _ in range(CHECK_COUNT):
+                      ping = tcp_ping(d["host"], d["port"])
+                      if ping > MAX_LATENCY:
+                          return None
+                  return median([tcp_ping(d["host"], d["port"]) for _ in range(CHECK_COUNT)]), d["link"], country
               except:
                   return None
 
@@ -166,7 +167,8 @@ jobs:
           os.makedirs("githubmirror", exist_ok=True)
           with open("githubmirror/26_ru_whitelist.txt", "w") as f:
               for _, link in results:
-                  f.write(link + "\n")
+                  # пометка, что Россия исключена
+                  f.write(link + " #country Russia\n")
 
           with open(os.environ["GITHUB_OUTPUT"], "a") as out:
               out.write(f"count={len(results)}\n")
