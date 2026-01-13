@@ -20,7 +20,8 @@ https://github.com/Happ-proxy/happ-desktop/releases
 
 - ОpenWRT V2rayA:
 https://github.com/v2rayA/v2raya-openwrt/releases
-
+- immortalwrt
+https://immortalwrt.kyarucloud.moe/releases/
 ______________________________________________________________________________________
 Мая подписка:
 https://cdn.jsdelivr.net/gh/Rusl2023/vpn-alive-check@main/githubmirror/26_alive.txt
