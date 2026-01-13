@@ -29,7 +29,11 @@ jobs:
         id: check_alive
         run: |
           python - <<'EOF'
-          import os, time, socket, requests, urllib.parse
+          import os
+          import time
+          import socket
+          import requests
+          import urllib.parse
           from concurrent.futures import ThreadPoolExecutor, as_completed
           import geoip2.database
 
@@ -43,15 +47,17 @@ jobs:
 
           ALLOWED_COUNTRIES = {"PL", "FI", "NL", "LV"}
 
-          GEOIP_DB = "geoip/GeoLite2-Country.mmdb"
-          reader = geoip2.database.Reader(GEOIP_DB)
-
           RU_SNI_WHITELIST = {
               "vk.com","ok.ru","yandex.ru","ozone.ru","www.ozon.ru",
-              "st.ozone.ru","ir.ozone.ru","api.mts.ru","login.vk.com",
-              "online.sberbank.ru","alfabank.ru","www.wildberries.ru",
-              "cdn.gpb.ru","www.raiffeisen.ru","www.tinkoff.ru"
+              "st.ozone.ru","ir.ozone.ru","vt-1.ozone.ru",
+              "online.sberbank.ru","alfabank.ru",
+              "www.wildberries.ru","login.vk.com",
+              "cdn.gpb.ru","www.raiffeisen.ru",
+              "www.tinkoff.ru"
           }
+
+          GEOIP_DB = "geoip/GeoLite2-Country.mmdb"
+          reader = geoip2.database.Reader(GEOIP_DB)
 
           print("Downloading 26.txt ...")
           lines = requests.get(URL, timeout=20).text.splitlines()
@@ -106,7 +112,10 @@ jobs:
 
               try:
                   for _ in range(TCP_PASSES):
-                      socket.create_connection((d["host"], d["port"]), timeout=TIMEOUT).close()
+                      socket.create_connection(
+                          (d["host"], d["port"]),
+                          timeout=TIMEOUT
+                      ).close()
 
                   pings = []
                   for _ in range(CHECK_COUNT):
@@ -115,11 +124,11 @@ jobs:
                           return None
                       pings.append(p)
 
-                  return country, median(pings), d["link"]
+                  return median(pings), d["link"], country
               except:
                   return None
 
-          best_by_country = {}
+          results = []
 
           with ThreadPoolExecutor(max_workers=MAX_WORKERS) as exe:
               futures = [exe.submit(check_vless, v) for v in vless_links]
@@ -127,13 +136,11 @@ jobs:
                   r = f.result()
                   if not r:
                       continue
-                  country, ping, link = r
-                  old = best_by_country.get(country)
-                  if not old or ping < old[0]:
-                      best_by_country[country] = (ping, link)
-                      print(f"[OK] {country} {ping} ms")
+                  ping, link, country = r
+                  results.append((ping, link))
+                  print(f"[OK] {country} {ping} ms")
 
-          results = sorted(best_by_country.values(), key=lambda x: x[0])
+          results.sort(key=lambda x: x[0])
 
           os.makedirs("githubmirror", exist_ok=True)
           with open("githubmirror/26_ru_whitelist.txt", "w") as f:
@@ -143,7 +150,7 @@ jobs:
           with open(os.environ["GITHUB_OUTPUT"], "a") as out:
               out.write(f"count={len(results)}\n")
 
-          print("Final countries:", len(results))
+          print("Final alive:", len(results))
           EOF
 
       - name: Commit and push result
@@ -152,5 +159,5 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add githubmirror/26_ru_whitelist.txt
-          git diff --cached --quiet || git commit -m "Update RU whitelist VLESS (GeoIP filtered)"
+          git diff --cached --quiet || git commit -m "Update RU whitelist VLESS (GeoIP + reality)"
           git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }} HEAD:main
