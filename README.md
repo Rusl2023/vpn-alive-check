@@ -1,4 +1,5 @@
-# vpn-alive-check
+# репо
+Создал для своей семьи, своих родственников и друзей 
 
 - База конфигов VPN:
 https://github.com/AvenCores/goida-vpn-configs/tree/refs/heads/main
