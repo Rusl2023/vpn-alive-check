@@ -14,3 +14,6 @@ https://github.com/MatsuriDayo/NekoBoxForAndroid/releases
 
 - Android подписка:
 https://cdn.jsdelivr.net/gh/Rusl2023/vpn-alive-check@main/githubmirror/26_alive.txt
+
+-Windows Happ:
+https://github.com/Happ-proxy/happ-desktop/releases
