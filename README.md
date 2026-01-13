@@ -1,5 +1,8 @@
 # vpn-alive-check
 
+- База конфигов VPN:
+https://github.com/AvenCores/goida-vpn-configs/tree/refs/heads/main
+  
 - geolite2 (ASN,city,country):
 https://github.com/P3TERX/GeoLite.mmdb/releases
 
