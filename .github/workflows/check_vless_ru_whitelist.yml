@@ -1,4 +1,4 @@
-name: Check VLESS RU Whitelist + GeoIP
+name: Check VLESS RU Whitelist + Reality Vision
 
 on:
   schedule:
@@ -25,15 +25,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests geoip2
 
-      - name: Check VLESS servers (RU SNI + GeoIP)
+      - name: Check VLESS servers (Reality + Vision + RU SNI)
         id: check_alive
         run: |
           python - <<'EOF'
-          import os
-          import time
-          import socket
-          import requests
-          import urllib.parse
+          import os, time, socket, requests, urllib.parse
           from concurrent.futures import ThreadPoolExecutor, as_completed
           import geoip2.database
 
@@ -45,110 +41,126 @@ jobs:
           TCP_PASSES = 2
           MAX_WORKERS = 120
 
-          ALLOWED_COUNTRIES = {"PL", "FI", "NL", "LV"}
-
           RU_SNI_WHITELIST = {
-              "vk.com","ok.ru","yandex.ru","ozone.ru","www.ozon.ru",
-              "st.ozone.ru","ir.ozone.ru","vt-1.ozone.ru",
-              "online.sberbank.ru","alfabank.ru",
-              "www.wildberries.ru","login.vk.com",
-              "cdn.gpb.ru","www.raiffeisen.ru",
-              "www.tinkoff.ru"
+          "stats.vk-portal.net","sun6-21.userapi.com","sun6-20.userapi.com",
+          "avatars.mds.yandex.net","queuev4.vk.com","sun6-22.userapi.com",
+          "sync.browser.yandex.net","top-fwz1.mail.ru","ad.mail.ru","eh.vk.com",
+          "akashi.vk-portal.net","sun9-38.userapi.com","st.ozone.ru",
+          "ir.ozone.ru","vt-1.ozone.ru","io.ozone.ru","ozone.ru","xapi.ozon.ru",
+          "strm-rad-23.strm.yandex.net","online.sberbank.ru",
+          "esa-res.online.sberbank.ru","egress.yandex.net","st.okcdn.ru",
+          "rs.mail.ru","counter.yadro.ru","742231.ms.ok.ru",
+          "splitter.wb.ru","a.wb.ru","user-geo-data.wildberries.ru",
+          "banners-website.wildberries.ru","chat-prod.wildberries.ru",
+          "servicepipe.ru","alfabank.ru","statad.ru",
+          "alfabank.servicecdn.ru","alfabank.st","ad.adriver.ru",
+          "privacy-cs.mail.ru","imgproxy.cdn-tinkoff.ru","mddc.tinkoff.ru",
+          "le.tbank.ru","hrc.tbank.ru","id.tbank.ru","rap.skcrtxr.com",
+          "eye.targetads.io","px.adhigh.net","nspk.ru","sba.yandex.net",
+          "identitystatic.mts.ru","tag.a.mts.ru","login.mts.ru",
+          "serving.a.mts.ru","cm.a.mts.ru","login.vk.com","api.a.mts.ru",
+          "mtscdn.ru","d5de4k0ri8jba7ucdbt6.apigw.yandexcloud.net",
+          "moscow.megafon.ru","api.mindbox.ru","web-static.mindbox.ru",
+          "storage.yandexcloud.net","personalization-web-stable.mindbox.ru",
+          "www.t2.ru","beeline.api.flocktory.com","static.beeline.ru",
+          "moskva.beeline.ru","wcm.weborama-tech.ru",
+          "1013a--ma--8935--cp199.stbid.ru","msk.t2.ru","s3.t2.ru",
+          "get4click.ru","dzen.ru","yastatic.net","csp.yandex.net",
+          "sntr.avito.ru","yabro-wbplugin.edadeal.yandex.ru",
+          "cdn.uxfeedback.ru","goya.rutube.ru","api.expf.ru",
+          "fb-cdn.premier.one","www.kinopoisk.ru",
+          "widgets.kinopoisk.ru","payment-widget.plus.kinopoisk.ru",
+          "api.events.plus.yandex.net","tns-counter.ru","speller.yandex.net",
+          "widgets.cbonds.ru","www.magnit.com",
+          "magnit-ru.injector.3ebra.net","jsons.injector.3ebra.net",
+          "2gis.ru","d-assets.2gis.ru","s1.bss.2gis.com","www.tbank.ru",
+          "strm-spbmiran-08.strm.yandex.net","tmsg.tbank.ru","vk.com",
+          "www.wildberries.ru","www.ozon.ru","ok.ru","yandex.ru",
+          "www.unicreditbank.ru","www.gazprombank.ru","cdn.gpb.ru",
+          "mkb.ru","www.open.ru","cobrowsing.tbank.ru",
+          "cdn.rosbank.ru","www.psbank.ru","www.raiffeisen.ru","www.rzd.ru",
+          "st.gismeteo.st","stat-api.gismeteo.net","c.dns-shop.ru",
+          "restapi.dns-shop.ru","www.pochta.ru","passport.pochta.ru",
+          "chat-ct.pochta.ru","www.x5.ru","www.ivi.ru","api2.ivi.ru",
+          "hh.ru","i.hh.ru","hhcdn.ru","sentry.hh.ru","cpa.hh.ru",
+          "www.kp.ru","cdnn21.img.ria.ru","lenta.ru","sync.rambler.ru",
+          "s.rbk.ru","www.rbc.ru","target.smi2.net",
+          "hb-bidder.skcrtxr.com","strm-spbmiran-07.strm.yandex.net",
+          "pikabu.ru","www.tutu.ru","cdn1.tu-tu.ru","api.apteka.ru",
+          "static.apteka.ru","images.apteka.ru","scitylana.apteka.ru",
+          "www.drom.ru","c.rdrom.ru","www.farpost.ru",
+          "s11.auto.drom.ru","i.rdrom.ru","yummy.drom.ru",
+          "www.drive2.ru","lemanapro.ru"
           }
 
-          GEOIP_DB = "geoip/GeoLite2-Country.mmdb"
-          reader = geoip2.database.Reader(GEOIP_DB)
+          reader = geoip2.database.Reader("geoip/GeoLite2-Country.mmdb")
 
-          print("Downloading 26.txt ...")
           lines = requests.get(URL, timeout=20).text.splitlines()
           vless_links = [l for l in lines if l.startswith("vless://")]
-          print("Total VLESS:", len(vless_links))
 
-          def tcp_ping(host, port):
-              start = time.time()
-              s = socket.create_connection((host, port), timeout=TIMEOUT)
-              s.close()
-              return int((time.time() - start) * 1000)
+          def tcp_ping(h, p):
+              s = time.time()
+              socket.create_connection((h, p), timeout=TIMEOUT).close()
+              return int((time.time() - s) * 1000)
 
-          def median(lst):
-              lst = sorted(lst)
-              return lst[len(lst)//2]
+          def parse(link):
+              u = urllib.parse.urlparse(link)
+              q = urllib.parse.parse_qs(u.query)
+              return {
+                  "link": link,
+                  "host": u.hostname,
+                  "port": u.port or 443,
+                  "security": q.get("security", [""])[0],
+                  "sni": q.get("sni", [""])[0],
+                  "flow": q.get("flow", [""])[0],
+                  "type": q.get("type", [""])[0],
+                  "network": q.get("network", [""])[0],
+              }
 
-          def geo_country(host):
-              ip = socket.gethostbyname(host)
-              return reader.country(ip).country.iso_code
-
-          def parse_vless(link):
-              try:
-                  u = urllib.parse.urlparse(link)
-                  q = urllib.parse.parse_qs(u.query)
-                  return {
-                      "link": link,
-                      "host": u.hostname,
-                      "port": u.port or 443,
-                      "security": q.get("security", [""])[0],
-                      "sni": q.get("sni", [""])[0]
-                  }
-              except:
-                  return None
-
-          def check_vless(link):
-              d = parse_vless(link)
-              if not d:
-                  return None
+          def check(link):
+              d = parse(link)
 
               if d["security"] != "reality":
                   return None
-
-              if not d["sni"] or d["sni"] not in RU_SNI_WHITELIST:
+              if d["flow"] != "xtls-rprx-vision":
                   return None
-
-              try:
-                  country = geo_country(d["host"])
-                  if country not in ALLOWED_COUNTRIES:
-                      return None
-              except:
+              if "xhttp" in (d["type"], d["network"]):
+                  return None
+              if d["sni"] not in RU_SNI_WHITELIST:
                   return None
 
               try:
                   for _ in range(TCP_PASSES):
-                      socket.create_connection(
-                          (d["host"], d["port"]),
-                          timeout=TIMEOUT
-                      ).close()
+                      socket.create_connection((d["host"], d["port"]), timeout=TIMEOUT).close()
 
-                  pings = []
-                  for _ in range(CHECK_COUNT):
-                      p = tcp_ping(d["host"], d["port"])
-                      if p > MAX_LATENCY:
-                          return None
-                      pings.append(p)
+                  pings = [tcp_ping(d["host"], d["port"]) for _ in range(CHECK_COUNT)]
+                  if max(pings) > MAX_LATENCY:
+                      return None
 
-                  return median(pings), d["link"], country
+                  ip = socket.gethostbyname(d["host"])
+                  country = reader.country(ip).country.iso_code or "NA"
+                  return (sum(pings)//len(pings), country, d["link"])
               except:
                   return None
 
           results = []
 
-          with ThreadPoolExecutor(max_workers=MAX_WORKERS) as exe:
-              futures = [exe.submit(check_vless, v) for v in vless_links]
-              for f in as_completed(futures):
+          with ThreadPoolExecutor(MAX_WORKERS) as ex:
+              for f in as_completed([ex.submit(check, v) for v in vless_links]):
                   r = f.result()
-                  if not r:
-                      continue
-                  ping, link, country = r
-                  results.append((ping, link))
-                  print(f"[OK] {country} {ping} ms")
+                  if r:
+                      results.append(r)
+                      print(f"[OK] {r[1]} {r[0]} ms")
 
           results.sort(key=lambda x: x[0])
 
           os.makedirs("githubmirror", exist_ok=True)
           with open("githubmirror/26_ru_whitelist.txt", "w") as f:
-              for _, link in results:
+              for _, _, link in results:
                   f.write(link + "\n")
 
-          with open(os.environ["GITHUB_OUTPUT"], "a") as out:
-              out.write(f"count={len(results)}\n")
+          with open(os.environ["GITHUB_OUTPUT"], "a") as o:
+              o.write(f"count={len(results)}\n")
 
           print("Final alive:", len(results))
           EOF
@@ -159,5 +171,5 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add githubmirror/26_ru_whitelist.txt
-          git diff --cached --quiet || git commit -m "Update RU whitelist VLESS (GeoIP + reality)"
+          git diff --cached --quiet || git commit -m "Update RU Reality Vision whitelist"
           git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }} HEAD:main
