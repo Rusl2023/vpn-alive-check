@@ -49,23 +49,129 @@ jobs:
 
           # SNI whitelist
           RU_SNI_WHITELIST = {
-              "stats.vk-portal.net","sun6-21.userapi.com","sun6-20.userapi.com",
-              "avatars.mds.yandex.net","queuev4.vk.com","sun6-22.userapi.com",
-              "sync.browser.yandex.net","top-fwz1.mail.ru","ad.mail.ru","eh.vk.com",
-              "akashi.vk-portal.net","sun9-38.userapi.com","st.ozone.ru",
-              "ir.ozone.ru","vt-1.ozone.ru","io.ozone.ru","ozone.ru","xapi.ozon.ru",
-              "strm-rad-23.strm.yandex.net","online.sberbank.ru","esa-res.online.sberbank.ru",
-              "egress.yandex.net","st.okcdn.ru","rs.mail.ru","counter.yadro.ru",
-              "742231.ms.ok.ru","splitter.wb.ru","a.wb.ru","user-geo-data.wildberries.ru",
-              "banners-website.wildberries.ru","chat-prod.wildberries.ru","servicepipe.ru",
-              "alfabank.ru","statad.ru","alfabank.servicecdn.ru","alfabank.st",
-              "ad.adriver.ru","privacy-cs.mail.ru","imgproxy.cdn-tinkoff.ru",
-              "mddc.tinkoff.ru","le.tbank.ru","hrc.tbank.ru","id.tbank.ru","rap.skcrtxr.com",
-              "eye.targetads.io","px.adhigh.net","nspk.ru","sba.yandex.net",
-              "identitystatic.mts.ru","tag.a.mts.ru","login.mts.ru","serving.a.mts.ru",
-              "cm.a.mts.ru","login.vk.com","api.a.mts.ru","mtscdn.ru",
-              "d5de4k0ri8jba7ucdbt6.apigw.yandexcloud.net","moscow.megafon.ru",
-              "api.mindbox.ru","web-static.mindbox.ru","storage.yandexcloud.net",
-              "personalization-web-stable.mindbox.ru","www.t2.ru","beeline.api.flocktory.com",
-              "static.beeline.ru","moskva.beeline.ru","wcm.weborama-tech.ru",
-              "1013a--ma--8935--cp199.stbid.ru","msk.
+              "stats.vk-portal.net", "sun6-21.userapi.com", "sun6-20.userapi.com",
+              "avatars.mds.yandex.net", "queuev4.vk.com", "sun6-22.userapi.com",
+              "sync.browser.yandex.net", "top-fwz1.mail.ru", "ad.mail.ru", "eh.vk.com",
+              "akashi.vk-portal.net", "sun9-38.userapi.com", "st.ozone.ru",
+              "ir.ozone.ru", "vt-1.ozone.ru", "io.ozone.ru", "ozone.ru", "xapi.ozon.ru",
+              "strm-rad-23.strm.yandex.net", "online.sberbank.ru", "esa-res.online.sberbank.ru",
+              "egress.yandex.net", "st.okcdn.ru", "rs.mail.ru", "counter.yadro.ru",
+              "742231.ms.ok.ru", "splitter.wb.ru", "a.wb.ru", "user-geo-data.wildberries.ru",
+              "banners-website.wildberries.ru", "chat-prod.wildberries.ru", "servicepipe.ru",
+              "alfabank.ru", "statad.ru", "alfabank.servicecdn.ru", "alfabank.st",
+              "ad.adriver.ru", "privacy-cs.mail.ru", "imgproxy.cdn-tinkoff.ru",
+              "mddc.tinkoff.ru", "le.tbank.ru", "hrc.tbank.ru", "id.tbank.ru", "rap.skcrtxr.com",
+              "eye.targetads.io", "px.adhigh.net", "nspk.ru", "sba.yandex.net",
+              "identitystatic.mts.ru", "tag.a.mts.ru", "login.mts.ru", "serving.a.mts.ru",
+              "cm.a.mts.ru", "login.vk.com", "api.a.mts.ru", "mtscdn.ru",
+              "d5de4k0ri8jba7ucdbt6.apigw.yandexcloud.net", "moscow.megafon.ru",
+              "api.mindbox.ru", "web-static.mindbox.ru", "storage.yandexcloud.net",
+              "personalization-web-stable.mindbox.ru", "www.t2.ru", "beeline.api.flocktory.com",
+              "static.beeline.ru", "moskva.beeline.ru", "wcm.weborama-tech.ru",
+              "1013a--ma--8935--cp199.stbid.ru", "msk.t2.ru", "s3.t2.ru", "get4click.ru",
+              "dzen.ru", "yastatic.net", "csp.yandex.net", "sntr.avito.ru",
+              "yabro-wbplugin.edadeal.yandex.ru", "cdn.uxfeedback.ru", "goya.rutube.ru",
+              "api.expf.ru", "fb-cdn.premier.one", "www.kinopoisk.ru",
+              "widgets.kinopoisk.ru", "payment-widget.plus.kinopoisk.ru",
+              "api.events.plus.yandex.net", "tns-counter.ru", "speller.yandex.net",
+              "widgets.cbonds.ru", "www.magnit.com", "vk.com", "www.wildberries.ru",
+              "www.ozon.ru", "ok.ru", "yandex.ru", "www.unicreditbank.ru",
+              "www.gazprombank.ru", "cdn.gpb.ru", "mkb.ru", "www.open.ru", "cobrowsing.tbank.ru",
+              "cdn.rosbank.ru", "www.psbank.ru", "www.raiffeisen.ru", "www.rzd.ru"
+          }
+
+          def is_valid_flow(link):
+              u = urllib.parse.urlparse(link)
+              q = urllib.parse.parse_qs(u.query)
+              flow = q.get("flow", [""])[0]
+              return flow == "xtls-rprx-vision" and "xhttp" not in flow
+
+          def geo_country(host):
+              try:
+                  ip = socket.gethostbyname(host)
+                  country = reader_country.country(ip).country.iso_code
+                  if country == "RU":  # Россия исключается
+                      return None
+                  return country
+              except:
+                  return None
+
+          def tcp_ping(host, port):
+              start = time.time()
+              s = socket.create_connection((host, port), timeout=TIMEOUT)
+              s.close()
+              return int((time.time() - start) * 1000)
+
+          def median(lst):
+              lst = sorted(lst)
+              return lst[len(lst)//2]
+
+          def parse_vless(link):
+              try:
+                  u = urllib.parse.urlparse(link)
+                  q = urllib.parse.parse_qs(u.query)
+                  return {
+                      "link": link,
+                      "host": u.hostname,
+                      "port": u.port or 443,
+                      "security": q.get("security", [""])[0],
+                      "sni": q.get("sni", [""])[0],
+                      "flow": q.get("flow", [""])[0]
+                  }
+              except:
+                  return None
+
+          def check_vless(link):
+              d = parse_vless(link)
+              if not d:
+                  return None
+              if d["security"] != "reality":
+                  return None
+              if not d["sni"] or d["sni"] not in RU_SNI_WHITELIST:
+                  return None
+              if not is_valid_flow(d["link"]):
+                  return None
+              country = geo_country(d["host"])
+              if not country:
+                  return None
+              try:
+                  for _ in range(CHECK_COUNT):
+                      ping = tcp_ping(d["host"], d["port"])
+                      if ping > MAX_LATENCY:
+                          return None
+                  return median([tcp_ping(d["host"], d["port"]) for _ in range(CHECK_COUNT)]), d["link"], country
+              except:
+                  return None
+
+          lines = requests.get(URL, timeout=20).text.splitlines()
+          vless_links = [l for l in lines if l.startswith("vless://")]
+          results = []
+          with ThreadPoolExecutor(max_workers=MAX_WORKERS) as exe:
+              futures = [exe.submit(check_vless, v) for v in vless_links]
+              for f in as_completed(futures):
+                  r = f.result()
+                  if r:
+                      ping, link, country = r
+                      results.append((ping, link))
+                      print(f"[OK] {country} {ping} ms")
+
+          results.sort(key=lambda x: x[0])
+          os.makedirs("githubmirror", exist_ok=True)
+          with open("githubmirror/26_ru_whitelist.txt", "w") as f:
+              for _, link in results:
+                  f.write(link + "\n")  # Россия полностью исключена
+
+          with open(os.environ["GITHUB_OUTPUT"], "a") as out:
+              out.write(f"count={len(results)}\n")
+
+          print("Final alive:", len(results))
+          EOF
+
+      - name: Commit and push result
+        if: steps.check_alive.outputs.count != '0'
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add githubmirror/26_ru_whitelist.txt
+          git diff --cached --quiet || git commit -m "Update RU whitelist VLESS (GeoIP only, no Russia IPs)"
+          git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }} HEAD:main
