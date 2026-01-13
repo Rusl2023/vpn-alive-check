@@ -1,112 +1,154 @@
-name: Build VLESS RU SNI whitelist
+name: Check VLESS RU whitelist (reality + double TCP)
 
 on:
-  workflow_dispatch:
   schedule:
-    - cron: "0 */6 * * *"
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
 
 jobs:
-  build:
+  check:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: true
 
-      - name: Build RU SNI whitelist
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install requests
+
+      - name: Check VLESS (reality + double TCP + anti n/a)
+        id: check_alive
         run: |
           python - <<'EOF'
-          import urllib.request
+          import socket
+          import time
+          import requests
           import urllib.parse
+          from concurrent.futures import ThreadPoolExecutor, as_completed
           import os
 
-          SOURCE_URL = "https://github.com/AvenCores/goida-vpn-configs/raw/refs/heads/main/githubmirror/26.txt"
+          SOURCE_URL = "https://github.com/AvenCores/goida-vpn-configs/raw/main/githubmirror/26.txt"
+          OUTPUT_FILE = "githubmirror/26_ru_whitelist.txt"
 
-          RU_SNI_WHITELIST = {
-              "stats.vk-portal.net",
-              "sun6-21.userapi.com",
-              "sun6-20.userapi.com",
-              "avatars.mds.yandex.net",
-              "queuev4.vk.com",
-              "sun6-22.userapi.com",
-              "sync.browser.yandex.net",
-              "top-fwz1.mail.ru",
-              "ad.mail.ru",
-              "eh.vk.com",
-              "akashi.vk-portal.net",
-              "sun9-38.userapi.com",
-              "st.ozone.ru",
-              "ir.ozone.ru",
-              "vt-1.ozone.ru",
-              "io.ozone.ru",
-              "ozone.ru",
-              "xapi.ozon.ru",
+          TIMEOUT = 0.7
+          MAX_LATENCY = 600
+          CHECKS_PER_PASS = 3
+          PASSES = 2
+          MAX_WORKERS = 120
+
+          RU_SNI = {
+              "st.ozone.ru","ozone.ru","www.ozon.ru",
+              "vk.com","login.vk.com",
+              "ok.ru","st.okcdn.ru",
+              "yandex.ru","yastatic.net","dzen.ru",
+              "www.wildberries.ru","a.wb.ru",
               "online.sberbank.ru",
-              "egress.yandex.net",
-              "st.okcdn.ru",
-              "rs.mail.ru",
-              "splitter.wb.ru",
-              "a.wb.ru",
-              "servicepipe.ru",
-              "alfabank.ru",
-              "privacy-cs.mail.ru",
-              "imgproxy.cdn-tinkoff.ru",
-              "mddc.tinkoff.ru",
-              "id.tbank.ru",
-              "nspk.ru",
-              "login.vk.com",
-              "mtscdn.ru",
-              "storage.yandexcloud.net",
-              "vk.com",
-              "www.wildberries.ru",
-              "www.ozon.ru",
-              "ok.ru",
-              "yandex.ru",
-              "www.gazprombank.ru",
-              "cdn.gpb.ru",
-              "www.rzd.ru",
-              "www.pochta.ru",
-              "www.ivi.ru",
-              "hh.ru",
-              "www.rbc.ru",
-              "pikabu.ru",
-              "www.drom.ru",
-              "www.drive2.ru",
-              "lemanapro.ru"
+              "www.tbank.ru","id.tbank.ru"
           }
 
-          print("Downloading VLESS list...")
-          with urllib.request.urlopen(SOURCE_URL, timeout=30) as r:
-              lines = r.read().decode("utf-8", errors="ignore").splitlines()
+          def median(lst):
+              s = sorted(lst)
+              return s[len(s)//2]
 
-          result = []
-          seen = set()
+          def tcp_ping(host, port):
+              start = time.time()
+              sock = socket.create_connection((host, port), timeout=TIMEOUT)
+              sock.close()
+              return int((time.time() - start) * 1000)
 
-          for line in lines:
-              if not line.startswith("vless://"):
-                  continue
+          def parse_vless(link):
               try:
-                  u = urllib.parse.urlparse(line)
-                  q = urllib.parse.parse_qs(u.query)
-                  sni = q.get("sni", [""])[0].lower()
-                  if sni in RU_SNI_WHITELIST and line not in seen:
-                      result.append(line)
-                      seen.add(line)
-              except Exception:
-                  continue
+                  if "security=reality" not in link:
+                      return None
 
-          print(f"Filtered {len(result)} VLESS links")
+                  u = urllib.parse.urlparse(link)
+                  q = urllib.parse.parse_qs(u.query)
+
+                  sni = q.get("sni", [""])[0].lower()
+                  if not sni or sni not in RU_SNI:
+                      return None
+
+                  return {
+                      "link": link,
+                      "host": u.hostname,
+                      "port": u.port or 443
+                  }
+              except:
+                  return None
+
+          def tcp_pass(data):
+              lat = []
+              for _ in range(CHECKS_PER_PASS):
+                  try:
+                      t = tcp_ping(data["host"], data["port"])
+                      if t > MAX_LATENCY:
+                          return None
+                      lat.append(t)
+                  except:
+                      return None
+              return median(lat)
+
+          def check_vless(link):
+              data = parse_vless(link)
+              if not data:
+                  return None
+
+              results = []
+              for _ in range(PASSES):
+                  r = tcp_pass(data)
+                  if r is None:
+                      return None
+                  results.append(r)
+
+              return median(results), data["link"]
+
+          print("Downloading source list...")
+          links = [
+              l.strip() for l in
+              requests.get(SOURCE_URL, timeout=20).text.splitlines()
+              if l.startswith("vless://")
+          ]
+          print(f"Total links: {len(links)}")
+
+          alive = []
+
+          with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
+              futures = [ex.submit(check_vless, l) for l in links]
+              for i, f in enumerate(as_completed(futures), 1):
+                  r = f.result()
+                  if r:
+                      alive.append(r)
+                      print(f"[OK] {r[0]} ms")
+                  if i % 100 == 0:
+                      print(f"Checked {i}/{len(links)}")
+
+          alive.sort(key=lambda x: x[0])
 
           os.makedirs("githubmirror", exist_ok=True)
-          with open("githubmirror/26_ru_whitelist.txt", "w") as f:
-              for v in result:
-                  f.write(v + "\n")
+          with open(OUTPUT_FILE, "w") as f:
+              for _, link in alive:
+                  f.write(link + "\n")
+
+          print(f"Saved {len(alive)} keys")
+
+          with open(os.environ["GITHUB_OUTPUT"], "a") as out:
+              out.write(f"count={len(alive)}\n")
           EOF
 
-      - name: Commit & push
+      - name: Commit and push result
+        if: steps.check_alive.outputs.count != '0'
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add githubmirror/26_ru_whitelist.txt
-          git commit -m "Update RU SNI whitelist" || exit 0
+          git diff --cached --quiet || git commit -m "Update RU VLESS reality whitelist (double TCP)"
           git push
