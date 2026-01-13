@@ -1,8 +1,8 @@
-name: Check VLESS RU whitelist (reality + double TCP)
+name: Check VLESS RU Whitelist + GeoIP
 
 on:
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '*/9 * * * *'
   workflow_dispatch:
 
 jobs:
@@ -13,7 +13,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          persist-credentials: true
+          persist-credentials: false
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -23,125 +23,127 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install requests
+          pip install requests geoip2
 
-      - name: Check VLESS (reality + double TCP + anti n/a)
+      - name: Check VLESS servers (RU SNI + GeoIP)
         id: check_alive
         run: |
           python - <<'EOF'
-          import socket
-          import time
-          import requests
-          import urllib.parse
+          import os, time, socket, requests, urllib.parse
           from concurrent.futures import ThreadPoolExecutor, as_completed
-          import os
+          import geoip2.database
 
-          SOURCE_URL = "https://github.com/AvenCores/goida-vpn-configs/raw/main/githubmirror/26.txt"
-          OUTPUT_FILE = "githubmirror/26_ru_whitelist.txt"
+          URL = "https://github.com/AvenCores/goida-vpn-configs/raw/refs/heads/main/githubmirror/26.txt"
 
-          TIMEOUT = 0.7
+          TIMEOUT = 0.6
           MAX_LATENCY = 600
-          CHECKS_PER_PASS = 3
-          PASSES = 2
+          CHECK_COUNT = 3
+          TCP_PASSES = 2
           MAX_WORKERS = 120
 
-          RU_SNI = {
-              "st.ozone.ru","ozone.ru","www.ozon.ru",
-              "vk.com","login.vk.com",
-              "ok.ru","st.okcdn.ru",
-              "yandex.ru","yastatic.net","dzen.ru",
-              "www.wildberries.ru","a.wb.ru",
-              "online.sberbank.ru",
-              "www.tbank.ru","id.tbank.ru"
+          ALLOWED_COUNTRIES = {"PL", "FI", "NL", "LV"}
+
+          GEOIP_DB = "geoip/GeoLite2-Country.mmdb"
+          reader = geoip2.database.Reader(GEOIP_DB)
+
+          RU_SNI_WHITELIST = {
+              "vk.com","ok.ru","yandex.ru","ozone.ru","www.ozon.ru",
+              "st.ozone.ru","ir.ozone.ru","api.mts.ru","login.vk.com",
+              "online.sberbank.ru","alfabank.ru","www.wildberries.ru",
+              "cdn.gpb.ru","www.raiffeisen.ru","www.tinkoff.ru"
           }
 
-          def median(lst):
-              s = sorted(lst)
-              return s[len(s)//2]
+          print("Downloading 26.txt ...")
+          lines = requests.get(URL, timeout=20).text.splitlines()
+          vless_links = [l for l in lines if l.startswith("vless://")]
+          print("Total VLESS:", len(vless_links))
 
           def tcp_ping(host, port):
               start = time.time()
-              sock = socket.create_connection((host, port), timeout=TIMEOUT)
-              sock.close()
+              s = socket.create_connection((host, port), timeout=TIMEOUT)
+              s.close()
               return int((time.time() - start) * 1000)
+
+          def median(lst):
+              lst = sorted(lst)
+              return lst[len(lst)//2]
+
+          def geo_country(host):
+              ip = socket.gethostbyname(host)
+              return reader.country(ip).country.iso_code
 
           def parse_vless(link):
               try:
-                  if "security=reality" not in link:
-                      return None
-
                   u = urllib.parse.urlparse(link)
                   q = urllib.parse.parse_qs(u.query)
-
-                  sni = q.get("sni", [""])[0].lower()
-                  if not sni or sni not in RU_SNI:
-                      return None
-
                   return {
                       "link": link,
                       "host": u.hostname,
-                      "port": u.port or 443
+                      "port": u.port or 443,
+                      "security": q.get("security", [""])[0],
+                      "sni": q.get("sni", [""])[0]
                   }
               except:
                   return None
 
-          def tcp_pass(data):
-              lat = []
-              for _ in range(CHECKS_PER_PASS):
-                  try:
-                      t = tcp_ping(data["host"], data["port"])
-                      if t > MAX_LATENCY:
-                          return None
-                      lat.append(t)
-                  except:
-                      return None
-              return median(lat)
-
           def check_vless(link):
-              data = parse_vless(link)
-              if not data:
+              d = parse_vless(link)
+              if not d:
                   return None
 
-              results = []
-              for _ in range(PASSES):
-                  r = tcp_pass(data)
-                  if r is None:
+              if d["security"] != "reality":
+                  return None
+
+              if not d["sni"] or d["sni"] not in RU_SNI_WHITELIST:
+                  return None
+
+              try:
+                  country = geo_country(d["host"])
+                  if country not in ALLOWED_COUNTRIES:
                       return None
-                  results.append(r)
+              except:
+                  return None
 
-              return median(results), data["link"]
+              try:
+                  for _ in range(TCP_PASSES):
+                      socket.create_connection((d["host"], d["port"]), timeout=TIMEOUT).close()
 
-          print("Downloading source list...")
-          links = [
-              l.strip() for l in
-              requests.get(SOURCE_URL, timeout=20).text.splitlines()
-              if l.startswith("vless://")
-          ]
-          print(f"Total links: {len(links)}")
+                  pings = []
+                  for _ in range(CHECK_COUNT):
+                      p = tcp_ping(d["host"], d["port"])
+                      if p > MAX_LATENCY:
+                          return None
+                      pings.append(p)
 
-          alive = []
+                  return country, median(pings), d["link"]
+              except:
+                  return None
 
-          with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
-              futures = [ex.submit(check_vless, l) for l in links]
-              for i, f in enumerate(as_completed(futures), 1):
+          best_by_country = {}
+
+          with ThreadPoolExecutor(max_workers=MAX_WORKERS) as exe:
+              futures = [exe.submit(check_vless, v) for v in vless_links]
+              for f in as_completed(futures):
                   r = f.result()
-                  if r:
-                      alive.append(r)
-                      print(f"[OK] {r[0]} ms")
-                  if i % 100 == 0:
-                      print(f"Checked {i}/{len(links)}")
+                  if not r:
+                      continue
+                  country, ping, link = r
+                  old = best_by_country.get(country)
+                  if not old or ping < old[0]:
+                      best_by_country[country] = (ping, link)
+                      print(f"[OK] {country} {ping} ms")
 
-          alive.sort(key=lambda x: x[0])
+          results = sorted(best_by_country.values(), key=lambda x: x[0])
 
           os.makedirs("githubmirror", exist_ok=True)
-          with open(OUTPUT_FILE, "w") as f:
-              for _, link in alive:
+          with open("githubmirror/26_ru_whitelist.txt", "w") as f:
+              for _, link in results:
                   f.write(link + "\n")
 
-          print(f"Saved {len(alive)} keys")
-
           with open(os.environ["GITHUB_OUTPUT"], "a") as out:
-              out.write(f"count={len(alive)}\n")
+              out.write(f"count={len(results)}\n")
+
+          print("Final countries:", len(results))
           EOF
 
       - name: Commit and push result
@@ -150,5 +152,5 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add githubmirror/26_ru_whitelist.txt
-          git diff --cached --quiet || git commit -m "Update RU VLESS reality whitelist (double TCP)"
-          git push
+          git diff --cached --quiet || git commit -m "Update RU whitelist VLESS (GeoIP filtered)"
+          git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }} HEAD:main
