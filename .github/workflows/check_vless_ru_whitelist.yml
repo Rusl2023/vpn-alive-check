@@ -1,12 +1,26 @@
+name: Build VLESS RU SNI whitelist
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 */6 * * *"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Build RU SNI whitelist
-        id: build_list
         run: |
           python - <<'EOF'
           import urllib.request
           import urllib.parse
           import os
 
-          URL = "https://github.com/AvenCores/goida-vpn-configs/raw/refs/heads/main/githubmirror/26.txt"
+          SOURCE_URL = "https://github.com/AvenCores/goida-vpn-configs/raw/refs/heads/main/githubmirror/26.txt"
 
           RU_SNI_WHITELIST = {
               "stats.vk-portal.net",
@@ -61,8 +75,8 @@
               "lemanapro.ru"
           }
 
-          print("Downloading 26.txt ...")
-          with urllib.request.urlopen(URL, timeout=30) as r:
+          print("Downloading VLESS list...")
+          with urllib.request.urlopen(SOURCE_URL, timeout=30) as r:
               lines = r.read().decode("utf-8", errors="ignore").splitlines()
 
           result = []
@@ -81,13 +95,18 @@
               except Exception:
                   continue
 
-          print(f"Found {len(result)} VLESS links with RU SNI whitelist")
+          print(f"Filtered {len(result)} VLESS links")
 
           os.makedirs("githubmirror", exist_ok=True)
           with open("githubmirror/26_ru_whitelist.txt", "w") as f:
               for v in result:
                   f.write(v + "\n")
-
-          with open(os.environ["GITHUB_OUTPUT"], "a") as out:
-              out.write(f"count={len(result)}\n")
           EOF
+
+      - name: Commit & push
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add githubmirror/26_ru_whitelist.txt
+          git commit -m "Update RU SNI whitelist" || exit 0
+          git push
