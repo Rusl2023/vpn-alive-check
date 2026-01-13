@@ -30,6 +30,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests geoip2
 
+      # 🔒 ВАЖНО: rebase ДО генерации файлов
+      - name: Sync with main
+        run: |
+          git fetch origin main
+          git rebase origin/main
+
       - name: Check VLESS servers (Reality + Vision + RU SNI)
         id: check_alive
         run: |
@@ -142,9 +148,7 @@ jobs:
                   if max(pings) > MAX_LATENCY:
                       return None
 
-                  ip = socket.gethostbyname(d["host"])
-                  country = reader.country(ip).country.iso_code or "NA"
-                  return (sum(pings)//len(pings), country, d["link"])
+                  return (sum(pings)//len(pings), d["link"])
               except:
                   return None
 
@@ -155,13 +159,13 @@ jobs:
                   r = f.result()
                   if r:
                       results.append(r)
-                      print(f"[OK] {r[1]} {r[0]} ms")
+                      print(f"[OK] {r[0]} ms")
 
           results.sort(key=lambda x: x[0])
 
           os.makedirs("githubmirror", exist_ok=True)
           with open("githubmirror/26_ru_whitelist.txt", "w") as f:
-              for _, _, link in results:
+              for _, link in results:
                   f.write(link + "\n")
 
           with open(os.environ["GITHUB_OUTPUT"], "a") as o:
@@ -175,9 +179,6 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-
-          git fetch origin main
-          git rebase origin/main || git rebase --abort
 
           git add githubmirror/26_ru_whitelist.txt
           git diff --cached --quiet || git commit -m "Update RU Reality Vision whitelist"
