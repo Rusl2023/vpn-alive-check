@@ -5,6 +5,10 @@ on:
     - cron: '*/9 * * * *'
   workflow_dispatch:
 
+concurrency:
+  group: vless-ru-whitelist
+  cancel-in-progress: true
+
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -14,6 +18,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           persist-credentials: false
+          fetch-depth: 0
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -99,9 +104,9 @@ jobs:
           vless_links = [l for l in lines if l.startswith("vless://")]
 
           def tcp_ping(h, p):
-              s = time.time()
+              t = time.time()
               socket.create_connection((h, p), timeout=TIMEOUT).close()
-              return int((time.time() - s) * 1000)
+              return int((time.time() - t) * 1000)
 
           def parse(link):
               u = urllib.parse.urlparse(link)
@@ -170,6 +175,11 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
+
+          git fetch origin main
+          git rebase origin/main || git rebase --abort
+
           git add githubmirror/26_ru_whitelist.txt
           git diff --cached --quiet || git commit -m "Update RU Reality Vision whitelist"
+
           git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }} HEAD:main
