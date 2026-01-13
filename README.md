@@ -24,3 +24,5 @@ https://github.com/v2rayA/v2raya-openwrt/releases
 ______________________________________________________________________________________
 Мая подписка:
 https://cdn.jsdelivr.net/gh/Rusl2023/vpn-alive-check@main/githubmirror/26_alive.txt
+whitelist:
+https://cdn.jsdelivr.net/gh/Rusl2023/vpn-alive-check@main/githubmirror/26_ru_whitelist.txt
