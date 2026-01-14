@@ -39,12 +39,12 @@ jobs:
           curl -L -o geoip/GeoLite2-Country.mmdb https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-Country.mmdb
           curl -L -o geoip/GeoLite2-ASN.mmdb https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-ASN.mmdb
 
-      - name: Check VLESS servers (FULL Reality + Cloudflare HTTPS + Speed)
+      - name: Check VLESS servers (Reality + Cloudflare HTTPS + Speed)
         run: |
           python - <<'EOF'
           import os, time, socket, urllib.parse, requests, re, subprocess, json, threading
           from concurrent.futures import ThreadPoolExecutor, as_completed
-          import geoip2.database
+          import geoip2.database, geoip2.errors
 
           URL = "https://github.com/AvenCores/goida-vpn-configs/raw/refs/heads/main/githubmirror/26.txt"
           MIN_SPEED = 50_000
@@ -128,8 +128,10 @@ jobs:
                   q = urllib.parse.parse_qs(u.query)
 
                   if q.get("security",[""])[0] != "reality":
+                      print(f"[SKIP] Not reality: {link}")
                       return None
                   if q.get("flow",[""])[0] != "xtls-rprx-vision":
+                      print(f"[SKIP] Not xtls-rprx-vision: {link}")
                       return None
 
                   sni = q.get("sni",[""])[0]
@@ -138,25 +140,30 @@ jobs:
                   fp  = q.get("fp",["chrome"])[0]
 
                   if not sni or sni not in RU_SNI_WHITELIST:
+                      print(f"[SKIP] SNI not in whitelist: {link}")
                       return None
                   if not pbk or not UUID_RE.match(u.username):
+                      print(f"[SKIP] Invalid UUID: {link}")
                       return None
 
                   try:
                       ip = socket.gethostbyname(u.hostname)
                   except socket.gaierror:
+                      print(f"[SKIP] DNS failed: {link}")
                       return None
 
-                  # Игнорируем недействительные IP (0.0.0.0 или локальные)
                   if not ip or ip.startswith("0.") or ip.startswith("127.") or ip.startswith("169.254."):
+                      print(f"[SKIP] Invalid IP: {link}")
                       return None
 
                   try:
                       country = reader_country.country(ip).country.iso_code
                   except geoip2.errors.AddressNotFoundError:
+                      print(f"[SKIP] IP not in GeoIP DB: {link}")
                       return None
 
                   if country == "RU":
+                      print(f"[SKIP] RU IP: {link}")
                       return None
 
                   cfg = {
@@ -202,7 +209,7 @@ jobs:
                   r = f.result()
                   if r:
                       alive.append(r)
-                      print("[OK]")
+                      print(f"[OK] {r}")
 
           os.makedirs("githubmirror",exist_ok=True)
           with open("githubmirror/26_ru_whitelist.txt","w") as f:
