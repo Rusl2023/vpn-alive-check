@@ -1,160 +1,111 @@
-name: Check VLESS proxy availability via Xray
-on:
-  workflow_dispatch:
-
-jobs:
-  check:
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y curl jq unzip python3
-
-      - name: Download Xray (non-interactive)
-        run: |
-          XRAY_VER=$(curl -s https://api.github.com/repos/XTLS/Xray-core/releases/latest | jq -r .tag_name)
-          curl -L -o xray.zip https://github.com/XTLS/Xray-core/releases/download/${XRAY_VER}/Xray-linux-64.zip
-          unzip -o xray.zip xray geoip.dat geosite.dat
-          chmod +x xray
-
-      - name: Prepare result files
-        run: |
-          : > githubmirror/26_proxy_alive.txt
-          : > githubmirror/26_proxy_ru_exit.txt
-          : > githubmirror/26_proxy_blocked_azure.txt
-
-      - name: Get runner IP
-        run: |
-          echo "RUNNER_IP=$(curl -s https://api.ipify.org)" >> $GITHUB_ENV
-
       - name: Check VLESS via SOCKS + GeoIP + HTTP/HTTPS
         run: |
-         python3 - <<'EOF'
-import subprocess, time, json, urllib.parse, os
+          python3 - <<'EOF'
+            import subprocess, time, json, urllib.parse, os
 
-INPUT = "githubmirror/26_ru_whitelist.txt"
-RUNNER_IP = os.environ["RUNNER_IP"]
+            INPUT = "githubmirror/26_ru_whitelist.txt"
+            RUNNER_IP = os.environ["RUNNER_IP"]
 
-def exit_ip():
-    try:
-        return subprocess.check_output(
-            ["curl","-s","--max-time","8",
-             "-x","socks5h://127.0.0.1:1080",
-             "https://api.ipify.org"],
-            text=True
-        ).strip()
-    except:
-        return None
+            TEST_URLS = [
+                "https://api.ipify.org",        # для проверки выхода через прокси
+                "http://cp.cloudflare.com",     # HTTP тест
+                "https://www.instagram.com/"    # HTTPS тест
+            ]
 
-def http_check(url):
-    try:
-        result = subprocess.check_output(
-            ["curl","-s","--max-time","8",
-             "-x","socks5h://127.0.0.1:1080",
-             "-o","/dev/null","-w","%{http_code}",
-             url],
-            text=True
-        ).strip()
-        return result == "200"
-    except:
-        return False
+            def exit_ip():
+                for url in TEST_URLS:
+                    try:
+                        ip = subprocess.check_output(
+                            ["curl", "-s", "--max-time", "8",
+                             "-x", "socks5h://127.0.0.1:1080", url],
+                            text=True
+                        ).strip()
+                        if ip:
+                            return ip
+                    except:
+                        continue
+                return None
 
-with open(INPUT) as f:
-    links = [l.strip() for l in f if l.strip().startswith("vless://")]
+            with open(INPUT) as f:
+                links = [l.strip() for l in f if l.strip().startswith("vless://")]
 
-for link in links:
-    print("Checking:", link[:80])
+            for link in links:
+                print("Checking:", link[:80])
 
-    u = urllib.parse.urlparse(link)
-    q = urllib.parse.parse_qs(u.query)
+                u = urllib.parse.urlparse(link)
+                q = urllib.parse.parse_qs(u.query)
 
-    stream = {"network": q.get("type",["tcp"])[0]}
-    sec = q.get("security",["none"])[0]
-    sni = q.get("sni",[""])[0]
+                stream = {"network": q.get("type",["tcp"])[0]}
+                sec = q.get("security",["none"])[0]
+                sni = q.get("sni",[""])[0]
 
-    if sec.lower() == "tls" and sni:
-        stream["security"] = "tls"
-        stream["tlsSettings"] = {"serverName": sni}
+                if sec == "tls" and sni:
+                    stream["security"] = "tls"
+                    stream["tlsSettings"] = {"serverName": sni}
 
-    if sec.lower() == "reality" and "pbk" in q:
-        stream["security"] = "reality"
-        stream["realitySettings"] = {
-            "serverName": sni,
-            "publicKey": q["pbk"][0],
-            "shortId": q.get("sid",[""])[0]
-        }
+                if sec == "reality" and "pbk" in q:
+                    stream["security"] = "reality"
+                    stream["realitySettings"] = {
+                        "serverName": sni,
+                        "publicKey": q["pbk"][0],
+                        "shortId": q.get("sid",[""])[0]
+                    }
 
-    cfg = {
-        "inbounds": [{
-            "port": 1080,
-            "listen": "127.0.0.1",
-            "protocol": "socks",
-            "settings": {"udp": False}
-        }],
-        "outbounds": [{
-            "protocol": "vless",
-            "settings": {
-                "vnext": [{
-                    "address": u.hostname,
-                    "port": u.port,
-                    "users": [{
-                        "id": u.username,
-                        "encryption": "none",
-                        "flow": q.get("flow",[""])[0]
+                cfg = {
+                    "inbounds": [{
+                        "port": 1080,
+                        "listen": "127.0.0.1",
+                        "protocol": "socks",
+                        "settings": {"udp": False}
+                    }],
+                    "outbounds": [{
+                        "protocol": "vless",
+                        "settings": {
+                            "vnext": [{
+                                "address": u.hostname,
+                                "port": u.port,
+                                "users": [{
+                                    "id": u.username,
+                                    "encryption": "none",
+                                    "flow": q.get("flow",[""])[0]
+                                }]
+                            }]
+                        },
+                        "streamSettings": stream
                     }]
-                }]
-            },
-            "streamSettings": stream
-        }]
-    }
+                }
 
-    open("cfg.json","w").write(json.dumps(cfg))
+                open("cfg.json","w").write(json.dumps(cfg))
 
-    p = subprocess.Popen(
-        ["./xray","run","-c","cfg.json"],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL
-    )
+                p = subprocess.Popen(
+                    ["./xray","run","-c","cfg.json"],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL
+                )
 
-    time.sleep(3)
-    ip = exit_ip()
-    http_ok = http_check("http://cp.cloudflare.com")
-    https_ok = http_check("https://www.instagram.com")
-    p.terminate()
-    time.sleep(1)
+                time.sleep(3)
+                ip = exit_ip()
+                p.terminate()
+                time.sleep(1)
 
-    if not ip or ip == RUNNER_IP:
-        print("⚠️ Azure / no exit")
-        open("githubmirror/26_proxy_blocked_azure.txt","a").write(link+"\n")
-        continue
+                if not ip or ip == RUNNER_IP:
+                    print("⚠️ Azure / no exit")
+                    open("githubmirror/26_proxy_blocked_azure.txt","a").write(link+"\n")
+                    continue
 
-    if not http_ok:
-        print("⚠️ HTTP check failed")
-        open("githubmirror/26_proxy_blocked_azure.txt","a").write(link+"\n")
-        continue
+                country = subprocess.getoutput(f"curl -s https://ipapi.co/{ip}/country/")
 
-    if not https_ok:
-        print("⚠️ HTTPS check failed")
-        open("githubmirror/26_proxy_blocked_azure.txt","a").write(link+"\n")
-        continue
+                if country == "RU":
+                    print("🇷🇺 RU exit", ip)
+                    open("githubmirror/26_proxy_ru_exit.txt","a").write(link+"\n")
+                else:
+                    print("✅ Alive", ip)
+                    open("githubmirror/26_proxy_alive.txt","a").write(link+"\n")
 
-    country = subprocess.getoutput(f"curl -s https://ipapi.co/{ip}/country/")
-
-    if country.upper() == "RU":
-        print("🇷🇺 RU exit", ip)
-        open("githubmirror/26_proxy_ru_exit.txt","a").write(link+"\n")
-    else:
-        print("✅ Alive", ip)
-        open("githubmirror/26_proxy_alive.txt","a").write(link+"\n")
-
-print("Done")
-EOF
+            print("Done")
+          EOF
+        env:
+          RUNNER_IP: ${{ steps.get_runner_ip.outputs.RUNNER_IP }}
 
       - name: Commit and push results
         env:
