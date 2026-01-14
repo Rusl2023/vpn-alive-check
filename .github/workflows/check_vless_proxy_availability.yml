@@ -1,3 +1,39 @@
+name: Check VLESS proxy availability via Xray
+
+on:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl jq unzip python3
+
+      - name: Download Xray (non-interactive)
+        run: |
+          XRAY_VER=$(curl -s https://api.github.com/repos/XTLS/Xray-core/releases/latest | jq -r .tag_name)
+          curl -L -o xray.zip https://github.com/XTLS/Xray-core/releases/download/${XRAY_VER}/Xray-linux-64.zip
+          unzip -o xray.zip xray geoip.dat geosite.dat
+          chmod +x xray
+
+      - name: Prepare result files
+        run: |
+          : > githubmirror/26_proxy_alive.txt
+          : > githubmirror/26_proxy_ru_exit.txt
+          : > githubmirror/26_proxy_blocked_azure.txt
+
+      - name: Get runner IP
+        id: get_runner_ip
+        run: echo "RUNNER_IP=$(curl -s https://api.ipify.org)" >> $GITHUB_ENV
+
       - name: Check VLESS via SOCKS + GeoIP + HTTP/HTTPS
         run: |
           python3 - <<'EOF'
@@ -7,9 +43,9 @@
             RUNNER_IP = os.environ["RUNNER_IP"]
 
             TEST_URLS = [
-                "https://api.ipify.org",        # для проверки выхода через прокси
-                "http://cp.cloudflare.com",     # HTTP тест
-                "https://www.instagram.com/"    # HTTPS тест
+                "https://api.ipify.org",
+                "http://cp.cloudflare.com",
+                "https://www.instagram.com/"
             ]
 
             def exit_ip():
@@ -105,7 +141,7 @@
             print("Done")
           EOF
         env:
-          RUNNER_IP: ${{ steps.get_runner_ip.outputs.RUNNER_IP }}
+          RUNNER_IP: ${{ env.RUNNER_IP }}
 
       - name: Commit and push results
         env:
@@ -119,6 +155,6 @@
             githubmirror/26_proxy_ru_exit.txt \
             githubmirror/26_proxy_blocked_azure.txt
 
-          git diff --cached --quiet || git commit -m "Proxy availability check via Xray (SOCKS + GeoIP + HTTP/HTTPS)"
+          git diff --cached --quiet || git commit -m "Proxy availability check via Xray (SOCKS + GeoIP)"
 
           git push https://x-access-token:${GH_PAT}@github.com/${{ github.repository }} HEAD:main
