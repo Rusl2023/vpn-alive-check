@@ -26,6 +26,7 @@ jobs:
 
       - name: Prepare result files
         run: |
+          mkdir -p githubmirror
           : > githubmirror/26_proxy_alive.txt
           : > githubmirror/26_proxy_ru_exit.txt
           : > githubmirror/26_proxy_blocked_azure.txt
@@ -37,7 +38,7 @@ jobs:
       - name: Check VLESS via SOCKS + GeoIP + HTTP/HTTPS
         run: |
           python3 - <<'EOF'
-          import subprocess, time, json, urllib.parse, os
+          import subprocess, time, json, urllib.parse, os, urllib.request
 
           INPUT = "githubmirror/26_ru_whitelist.txt"
           RUNNER_IP = os.environ["RUNNER_IP"]
@@ -61,6 +62,13 @@ jobs:
                   except:
                       continue
               return None
+
+          def get_country(ip):
+              try:
+                  with urllib.request.urlopen(f"https://ipapi.co/{ip}/country/") as resp:
+                      return resp.read().decode().strip()
+              except:
+                  return "Unknown"
 
           with open(INPUT) as f:
               links = [l.strip() for l in f if l.strip().startswith("vless://")]
@@ -111,7 +119,8 @@ jobs:
                   }]
               }
 
-              open("cfg.json","w").write(json.dumps(cfg))
+              with open("cfg.json","w") as cfg_file:
+                  cfg_file.write(json.dumps(cfg))
 
               p = subprocess.Popen(
                   ["./xray","run","-c","cfg.json"],
@@ -126,17 +135,20 @@ jobs:
 
               if not ip or ip == RUNNER_IP:
                   print("⚠️ Azure / no exit")
-                  open("githubmirror/26_proxy_blocked_azure.txt","a").write(link+"\n")
+                  with open("githubmirror/26_proxy_blocked_azure.txt","a") as f:
+                      f.write(link + "\n")
                   continue
 
-              country = subprocess.getoutput(f"curl -s https://ipapi.co/{ip}/country/")
+              country = get_country(ip)
 
               if country == "RU":
                   print("🇷🇺 RU exit", ip)
-                  open("githubmirror/26_proxy_ru_exit.txt","a").write(link+"\n")
+                  with open("githubmirror/26_proxy_ru_exit.txt","a") as f:
+                      f.write(link + "\n")
               else:
                   print("✅ Alive", ip)
-                  open("githubmirror/26_proxy_alive.txt","a").write(link+"\n")
+                  with open("githubmirror/26_proxy_alive.txt","a") as f:
+                      f.write(link + "\n")
 
           print("Done")
           EOF
@@ -148,10 +160,9 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
-          git add \
-            githubmirror/26_proxy_alive.txt \
-            githubmirror/26_proxy_ru_exit.txt \
-            githubmirror/26_proxy_blocked_azure.txt
+          git add githubmirror/26_proxy_alive.txt \
+                  githubmirror/26_proxy_ru_exit.txt \
+                  githubmirror/26_proxy_blocked_azure.txt
 
           git diff --cached --quiet || git commit -m "Proxy availability check via Xray (SOCKS + GeoIP + HTTP/HTTPS)"
 
