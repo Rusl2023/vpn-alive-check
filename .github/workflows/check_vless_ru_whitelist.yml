@@ -39,8 +39,7 @@ jobs:
           curl -L -o geoip/GeoLite2-Country.mmdb https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-Country.mmdb
           curl -L -o geoip/GeoLite2-ASN.mmdb https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-ASN.mmdb
 
-      - name: Check VLESS servers (FULL SNI + Reality + HTTPS + Speed)
-        id: check_alive
+      - name: Check VLESS servers (FULL Reality + Cloudflare HTTPS + Speed)
         run: |
           python - <<'EOF'
           import os, time, socket, urllib.parse, requests, re, subprocess, json
@@ -49,16 +48,12 @@ jobs:
 
           URL = "https://github.com/AvenCores/goida-vpn-configs/raw/refs/heads/main/githubmirror/26.txt"
 
-          TIMEOUT = 0.6
-          CHECK_COUNT = 5
-          MAX_LATENCY = 600
           MIN_SPEED = 50_000
           MAX_WORKERS = 120
 
           reader_country = geoip2.database.Reader("geoip/GeoLite2-Country.mmdb")
           reader_asn = geoip2.database.Reader("geoip/GeoLite2-ASN.mmdb")
 
-          # 🔴 ВЕСЬ ТВОЙ SNI СПИСОК — БЕЗ ИЗМЕНЕНИЙ
           RU_SNI_WHITELIST = {
               "stats.vk-portal.net","sun6-21.userapi.com","sun6-20.userapi.com",
               "avatars.mds.yandex.net","queuev4.vk.com","sun6-22.userapi.com",
@@ -94,14 +89,13 @@ jobs:
 
           def https_ok():
               try:
-                  r = subprocess.check_output(
-                      ["curl","-s","-o","/dev/null","-w","%{http_code}",
+                  out = subprocess.check_output(
+                      ["curl","-s","--max-time","3",
                        "-x","socks5h://127.0.0.1:1080",
-                       "--connect-timeout","3","--max-time","3",
-                       "https://www.google.com/generate_204"],
+                       "https://cloudflare.com/cdn-cgi/trace"],
                       text=True
-                  ).strip()
-                  return r == "204"
+                  )
+                  return "ip=" in out
               except:
                   return False
 
@@ -113,7 +107,7 @@ jobs:
                        "--range","0-200000","--max-time","5",
                        "https://speed.cloudflare.com/__down"],
                       text=True
-                  ).strip()
+                  )
                   return int(float(r)) >= MIN_SPEED
               except:
                   return False
@@ -127,10 +121,15 @@ jobs:
                       return None
                   if q.get("flow",[""])[0] != "xtls-rprx-vision":
                       return None
+
                   sni = q.get("sni",[""])[0]
+                  pbk = q.get("pbk",[""])[0]
+                  sid = q.get("sid",[""])[0]
+                  fp  = q.get("fp",["chrome"])[0]
+
                   if not sni or sni not in RU_SNI_WHITELIST:
                       return None
-                  if not UUID_RE.match(u.username):
+                  if not pbk or not UUID_RE.match(u.username):
                       return None
 
                   ip = socket.gethostbyname(u.hostname)
@@ -148,7 +147,12 @@ jobs:
                           }]},
                           "streamSettings":{
                               "security":"reality",
-                              "realitySettings":{"serverName":sni}
+                              "realitySettings":{
+                                  "serverName":sni,
+                                  "publicKey":pbk,
+                                  "shortId":sid,
+                                  "fingerprint":fp
+                              }
                           }
                       }]
                   }
@@ -164,9 +168,10 @@ jobs:
               except:
                   return None
 
-          links = [l for l in requests.get(URL,timeout=20).text.splitlines() if l.startswith("vless://")]
-          alive = []
+          links = [l for l in requests.get(URL,timeout=20).text.splitlines()
+                   if l.startswith("vless://")]
 
+          alive = []
           with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
               for f in as_completed([ex.submit(check,l) for l in links]):
                   r = f.result()
@@ -187,5 +192,5 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add githubmirror/26_ru_whitelist.txt
-          git commit -m "Update RU whitelist (Reality Vision + HTTPS + Speed)" || true
+          git commit -m "Update RU whitelist (Reality + Cloudflare HTTPS + Speed)" || true
           git push -f https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }} HEAD:main
