@@ -1,0 +1,169 @@
+name: Check VLESS Proxy Availability (Xray + SOCKS + GeoIP)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 */3 * * *'
+
+jobs:
+  proxy-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl jq unzip
+          python -m pip install --upgrade pip
+          pip install geoip2
+
+      - name: Download Xray
+        run: |
+          XRAY_VER=$(curl -s https://api.github.com/repos/XTLS/Xray-core/releases/latest | jq -r .tag_name)
+          curl -L -o xray.zip https://github.com/XTLS/Xray-core/releases/download/${XRAY_VER}/Xray-linux-64.zip
+          unzip xray.zip
+          chmod +x xray
+          sudo mv xray /usr/bin/xray
+
+      - name: Proxy availability check
+        run: |
+          python - <<'EOF'
+          import subprocess, time, socket, urllib.parse, os
+          import geoip2.database
+
+          INPUT_FILE = "githubmirror/26_ru_whitelist.txt"
+
+          OUT_ALIVE = "githubmirror/26_proxy_alive.txt"
+          OUT_RU = "githubmirror/26_proxy_ru_exit.txt"
+          OUT_BLOCKED = "githubmirror/26_proxy_blocked_azure.txt"
+
+          COUNTRY_DB = "geoip/GeoLite2-Country.mmdb"
+          reader = geoip2.database.Reader(COUNTRY_DB)
+
+          os.makedirs("githubmirror", exist_ok=True)
+          open(OUT_ALIVE, "w").close()
+          open(OUT_RU, "w").close()
+          open(OUT_BLOCKED, "w").close()
+
+          def get_runner_ip():
+              try:
+                  return subprocess.check_output(
+                      ["curl", "-s", "https://api.ipify.org"],
+                      timeout=10
+                  ).decode().strip()
+              except:
+                  return None
+
+          RUNNER_IP = get_runner_ip()
+          print("Runner IP:", RUNNER_IP)
+
+          def geo_country(ip):
+              try:
+                  return reader.country(ip).country.iso_code
+              except:
+                  return None
+
+          def build_xray_config(vless):
+              u = urllib.parse.urlparse(vless)
+              q = urllib.parse.parse_qs(u.query)
+
+              return {
+                  "log": {"loglevel": "warning"},
+                  "inbounds": [{
+                      "port": 1080,
+                      "listen": "127.0.0.1",
+                      "protocol": "socks",
+                      "settings": {"udp": False}
+                  }],
+                  "outbounds": [{
+                      "protocol": "vless",
+                      "settings": {
+                          "vnext": [{
+                              "address": u.hostname,
+                              "port": u.port or 443,
+                              "users": [{
+                                  "id": u.username,
+                                  "encryption": "none",
+                                  "flow": q.get("flow", [""])[0]
+                              }]
+                          }]
+                      },
+                      "streamSettings": {
+                          "network": "tcp",
+                          "security": "reality",
+                          "realitySettings": {
+                              "serverName": q.get("sni", [""])[0],
+                              "publicKey": q.get("pbk", [""])[0],
+                              "shortId": q.get("sid", [""])[0],
+                              "fingerprint": "chrome"
+                          }
+                      }
+                  }]
+              }
+
+          import json, tempfile
+
+          with open(INPUT_FILE) as f:
+              links = [l.strip() for l in f if l.strip().startswith("vless://")]
+
+          for link in links:
+              print("Checking:", link[:60], "...")
+              cfg = build_xray_config(link)
+
+              with tempfile.NamedTemporaryFile("w", delete=False) as tf:
+                  json.dump(cfg, tf)
+                  cfg_path = tf.name
+
+              proc = subprocess.Popen(
+                  ["xray", "run", "-c", cfg_path],
+                  stdout=subprocess.DEVNULL,
+                  stderr=subprocess.DEVNULL
+              )
+
+              time.sleep(2)
+
+              try:
+                  ip = subprocess.check_output(
+                      ["curl", "-s", "-x", "socks5h://127.0.0.1:1080", "--max-time", "15", "https://api.ipify.org"],
+                      timeout=20
+                  ).decode().strip()
+
+                  if not ip or ip == RUNNER_IP:
+                      raise Exception("No proxy")
+
+                  country = geo_country(ip)
+
+                  if country == "RU":
+                      with open(OUT_RU, "a") as f:
+                          f.write(link + "\n")
+                      print("❌ RU exit:", ip)
+                  else:
+                      with open(OUT_ALIVE, "a") as f:
+                          f.write(link + "\n")
+                      print("✅ OK:", ip, country)
+
+              except Exception:
+                  with open(OUT_BLOCKED, "a") as f:
+                      f.write(link + "\n")
+                  print("⚠️ Blocked / Azure / no exit")
+
+              finally:
+                  proc.terminate()
+                  proc.wait(timeout=5)
+                  os.unlink(cfg_path)
+
+          print("Done")
+          EOF
+
+      - name: Commit results
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add githubmirror/26_proxy_alive.txt githubmirror/26_proxy_ru_exit.txt githubmirror/26_proxy_blocked_azure.txt
+          git diff --cached --quiet || git commit -m "Proxy availability check via Xray (SOCKS + GeoIP)"
+          git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }} HEAD:main
