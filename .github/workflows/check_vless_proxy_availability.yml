@@ -1,5 +1,4 @@
-name:Check VLESS proxy availability via Xray
-
+name: Check VLESS proxy availability via Xray
 on:
   workflow_dispatch:
 
@@ -36,7 +35,7 @@ jobs:
 
       - name: Check VLESS via SOCKS + GeoIP + HTTP/HTTPS
         run: |
-          python3-<<'EOF'
+         python3 - <<'EOF'
 import subprocess, time, json, urllib.parse, os
 
 INPUT = "githubmirror/26_ru_whitelist.txt"
