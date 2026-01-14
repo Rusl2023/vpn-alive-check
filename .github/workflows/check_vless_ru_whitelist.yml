@@ -35,9 +35,9 @@ jobs:
 
           URL = "https://github.com/AvenCores/goida-vpn-configs/raw/refs/heads/main/githubmirror/26.txt"
 
-          TIMEOUT = 0.6            # TCP connect timeout
-          CHECK_COUNT = 5           # Количество попыток таймаута для ключа
-          MAX_LATENCY = 600         # Максимальная средняя задержка
+          TIMEOUT = 0.6
+          CHECK_COUNT = 5
+          MAX_LATENCY = 600
           MAX_WORKERS = 120
 
           COUNTRY_DB = "geoip/GeoLite2-Country.mmdb"
@@ -154,7 +154,6 @@ jobs:
               if not UUID_RE.match(d["uuid"]):
                   return None
 
-              # Проверка хоста и порта с таймаутом несколько раз
               for _ in range(CHECK_COUNT):
                   if not check_host_port(d["host"], d["port"]):
                       return None
@@ -185,6 +184,7 @@ jobs:
 
           results.sort(key=lambda x: x[0])
           os.makedirs("githubmirror", exist_ok=True)
+          # Перезаписываем файл каждый раз
           with open("githubmirror/26_ru_whitelist.txt", "w") as f:
               for _, link in results:
                   f.write(link + "\n")
@@ -195,13 +195,10 @@ jobs:
           print("Final alive:", len(results))
           EOF
 
-      - name: Commit and push result safely
-        if: steps.check_alive.outputs.count != '0'
+      - name: Commit and push result forcibly
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git fetch origin main
-          git reset --hard origin/main
           git add githubmirror/26_ru_whitelist.txt
-          git commit -m "Update RU whitelist VLESS (GeoIP only, no Russia IPs + Timeout)" || echo "No changes"
+          git commit -m "Update RU whitelist VLESS (GeoIP only, no Russia IPs + Timeout)" || echo "No changes, but file overwritten"
           git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }} HEAD:main
