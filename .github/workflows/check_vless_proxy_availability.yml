@@ -1,4 +1,4 @@
-name: Check VLESS proxy availability
+name: Check VLESS proxy availability via Xray
 
 on:
   workflow_dispatch:
@@ -12,7 +12,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install deps
+      - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y curl jq unzip python3
@@ -24,33 +24,36 @@ jobs:
           unzip -o xray.zip xray geoip.dat geosite.dat
           chmod +x xray
 
-      - name: Prepare files
+      - name: Prepare result files
         run: |
-          : > alive.txt
-          : > ru_exit.txt
-          : > blocked_by_azure.txt
+          : > githubmirror/26_proxy_alive.txt
+          : > githubmirror/26_proxy_ru_exit.txt
+          : > githubmirror/26_proxy_blocked_azure.txt
 
       - name: Get runner IP
         run: |
           echo "RUNNER_IP=$(curl -s https://api.ipify.org)" >> $GITHUB_ENV
 
-      - name: Check VLESS keys
+      - name: Check VLESS via SOCKS + GeoIP
         run: |
           python3 - <<'EOF'
-          import subprocess, time, json, socket, urllib.parse, os
+          import subprocess, time, json, urllib.parse, os
 
+          INPUT = "githubmirror/26_ru_whitelist.txt"
           RUNNER_IP = os.environ["RUNNER_IP"]
 
-          def get_exit_ip():
+          def exit_ip():
               try:
                   return subprocess.check_output(
-                      ["curl","-s","--max-time","8","-x","socks5h://127.0.0.1:1080","https://api.ipify.org"],
+                      ["curl","-s","--max-time","8",
+                       "-x","socks5h://127.0.0.1:1080",
+                       "https://api.ipify.org"],
                       text=True
                   ).strip()
               except:
                   return None
 
-          with open("26_ru_whitelist.txt") as f:
+          with open(INPUT) as f:
               links = [l.strip() for l in f if l.strip().startswith("vless://")]
 
           for link in links:
@@ -59,85 +62,88 @@ jobs:
               u = urllib.parse.urlparse(link)
               q = urllib.parse.parse_qs(u.query)
 
-              net = q.get("type", ["tcp"])[0]
-              security = q.get("security", ["none"])[0]
-              sni = q.get("sni", [""])[0]
+              stream = {"network": q.get("type",["tcp"])[0]}
+              sec = q.get("security",["none"])[0]
+              sni = q.get("sni",[""])[0]
 
-              stream = {"network": net}
-
-              if security == "tls" and sni:
+              if sec == "tls" and sni:
                   stream["security"] = "tls"
                   stream["tlsSettings"] = {"serverName": sni}
-              elif security == "reality" and "pbk" in q:
+
+              if sec == "reality" and "pbk" in q:
                   stream["security"] = "reality"
                   stream["realitySettings"] = {
                       "serverName": sni,
-                      "publicKey": q.get("pbk", [""])[0],
-                      "shortId": q.get("sid", [""])[0]
+                      "publicKey": q["pbk"][0],
+                      "shortId": q.get("sid",[""])[0]
                   }
 
-              outbound = {
-                  "protocol": "vless",
-                  "settings": {
-                      "vnext": [{
-                          "address": u.hostname,
-                          "port": u.port,
-                          "users": [{
-                              "id": u.username,
-                              "encryption": "none",
-                              "flow": q.get("flow", [""])[0]
-                          }]
-                      }]
-                  },
-                  "streamSettings": stream
-              }
-
-              config = {
+              cfg = {
                   "inbounds": [{
                       "port": 1080,
                       "listen": "127.0.0.1",
                       "protocol": "socks",
                       "settings": {"udp": False}
                   }],
-                  "outbounds": [outbound]
+                  "outbounds": [{
+                      "protocol": "vless",
+                      "settings": {
+                          "vnext": [{
+                              "address": u.hostname,
+                              "port": u.port,
+                              "users": [{
+                                  "id": u.username,
+                                  "encryption": "none",
+                                  "flow": q.get("flow",[""])[0]
+                              }]
+                          }]
+                      },
+                      "streamSettings": stream
+                  }]
               }
 
-              with open("cfg.json","w") as f:
-                  json.dump(config,f)
+              open("cfg.json","w").write(json.dumps(cfg))
 
-              p = subprocess.Popen(["./xray","run","-c","cfg.json"],
-                                   stdout=subprocess.DEVNULL,
-                                   stderr=subprocess.DEVNULL)
+              p = subprocess.Popen(
+                  ["./xray","run","-c","cfg.json"],
+                  stdout=subprocess.DEVNULL,
+                  stderr=subprocess.DEVNULL
+              )
 
               time.sleep(3)
-              exit_ip = get_exit_ip()
+              ip = exit_ip()
               p.terminate()
               time.sleep(1)
 
-              if not exit_ip or exit_ip == RUNNER_IP:
-                  print("⚠️ Blocked / no exit")
-                  with open("blocked_by_azure.txt","a") as f:
-                      f.write(link+"\n")
+              if not ip or ip == RUNNER_IP:
+                  print("⚠️ Azure / no exit")
+                  open("githubmirror/26_proxy_blocked_azure.txt","a").write(link+"\n")
                   continue
 
-              country = subprocess.getoutput(f"curl -s https://ipapi.co/{exit_ip}/country/")
+              country = subprocess.getoutput(f"curl -s https://ipapi.co/{ip}/country/")
 
               if country == "RU":
-                  print("🇷🇺 RU exit")
-                  with open("ru_exit.txt","a") as f:
-                      f.write(link+"\n")
+                  print("🇷🇺 RU exit", ip)
+                  open("githubmirror/26_proxy_ru_exit.txt","a").write(link+"\n")
               else:
-                  print("✅ Alive", exit_ip)
-                  with open("alive.txt","a") as f:
-                      f.write(link+"\n")
+                  print("✅ Alive", ip)
+                  open("githubmirror/26_proxy_alive.txt","a").write(link+"\n")
 
           print("Done")
           EOF
 
-      - name: Commit results
+      - name: Commit and push results
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
         run: |
           git config user.name "github-actions"
-          git config user.email "actions@github.com"
-          git add alive.txt ru_exit.txt blocked_by_azure.txt
-          git commit -m "Check VLESS proxy availability" || true
-          git push
+          git config user.email "github-actions@github.com"
+
+          git add \
+            githubmirror/26_proxy_alive.txt \
+            githubmirror/26_proxy_ru_exit.txt \
+            githubmirror/26_proxy_blocked_azure.txt
+
+          git diff --cached --quiet || git commit -m "Proxy availability check via Xray (SOCKS + GeoIP)"
+
+          git push https://x-access-token:${GH_PAT}@github.com/${{ github.repository }} HEAD:main
