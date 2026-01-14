@@ -22,18 +22,25 @@ jobs:
           python -m pip install --upgrade pip
           pip install geoip2
 
+      # ===============================
+      # FIXED XRAY DOWNLOAD (NO PROMPTS)
+      # ===============================
       - name: Download Xray
         run: |
+          set -e
           XRAY_VER=$(curl -s https://api.github.com/repos/XTLS/Xray-core/releases/latest | jq -r .tag_name)
+          echo "Latest Xray: $XRAY_VER"
+
           curl -L -o xray.zip https://github.com/XTLS/Xray-core/releases/download/${XRAY_VER}/Xray-linux-64.zip
-          unzip xray.zip
+          unzip -o xray.zip xray
           chmod +x xray
           sudo mv xray /usr/bin/xray
+          rm -f xray.zip
 
       - name: Proxy availability check
         run: |
           python - <<'EOF'
-          import subprocess, time, socket, urllib.parse, os
+          import subprocess, time, urllib.parse, os, json, tempfile
           import geoip2.database
 
           INPUT_FILE = "githubmirror/26_ru_whitelist.txt"
@@ -106,15 +113,13 @@ jobs:
                   }]
               }
 
-          import json, tempfile
-
           with open(INPUT_FILE) as f:
               links = [l.strip() for l in f if l.strip().startswith("vless://")]
 
           for link in links:
-              print("Checking:", link[:60], "...")
-              cfg = build_xray_config(link)
+              print("Checking:", link[:70])
 
+              cfg = build_xray_config(link)
               with tempfile.NamedTemporaryFile("w", delete=False) as tf:
                   json.dump(cfg, tf)
                   cfg_path = tf.name
@@ -134,7 +139,7 @@ jobs:
                   ).decode().strip()
 
                   if not ip or ip == RUNNER_IP:
-                      raise Exception("No proxy")
+                      raise Exception("Proxy not working")
 
                   country = geo_country(ip)
 
