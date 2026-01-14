@@ -1,6 +1,6 @@
 # репо
-Создал для своей семьи, своих родственников и друзей 
-
+Создал для своей семьи, своих родственников и друзей. Ниже полезные ссылки.
+______________________________________________________________________________
 - База конфигов VPN:
 https://github.com/AvenCores/goida-vpn-configs/tree/refs/heads/main
   
@@ -26,5 +26,5 @@ https://immortalwrt.kyarucloud.moe/releases/
 ______________________________________________________________________________________
 Мая подписка:
 https://cdn.jsdelivr.net/gh/Rusl2023/vpn-alive-check@main/githubmirror/26_alive.txt
-whitelist:
-https://cdn.jsdelivr.net/gh/Rusl2023/vpn-alive-check@main/githubmirror/26_ru_whitelist.txt
+Whitelist:
+https://cdn.jsdelivr.net/gh/Rusl2023/vpn-alive-check@main/githubmirror/26_proxy_alive.txt
