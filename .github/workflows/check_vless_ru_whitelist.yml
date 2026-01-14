@@ -42,17 +42,17 @@ jobs:
       - name: Check VLESS servers (FULL Reality + Cloudflare HTTPS + Speed)
         run: |
           python - <<'EOF'
-          import os, time, socket, urllib.parse, requests, re, subprocess, json
+          import os, time, socket, urllib.parse, requests, re, subprocess, json, threading
           from concurrent.futures import ThreadPoolExecutor, as_completed
           import geoip2.database
 
           URL = "https://github.com/AvenCores/goida-vpn-configs/raw/refs/heads/main/githubmirror/26.txt"
 
           MIN_SPEED = 50_000
-          MAX_WORKERS = 120
+          MAX_WORKERS = 30
+          PORT_BASE = 10800
 
           reader_country = geoip2.database.Reader("geoip/GeoLite2-Country.mmdb")
-          reader_asn = geoip2.database.Reader("geoip/GeoLite2-ASN.mmdb")
 
           RU_SNI_WHITELIST = {
               "stats.vk-portal.net","sun6-21.userapi.com","sun6-20.userapi.com",
@@ -87,11 +87,21 @@ jobs:
 
           UUID_RE = re.compile(r"^[0-9a-fA-F\-]{36}$")
 
-          def https_ok():
+          port_lock = threading.Lock()
+          port_counter = 0
+
+          def alloc_port():
+              global port_counter
+              with port_lock:
+                  p = PORT_BASE + port_counter
+                  port_counter += 1
+                  return p
+
+          def https_ok(port):
               try:
                   out = subprocess.check_output(
                       ["curl","-s","--max-time","3",
-                       "-x","socks5h://127.0.0.1:1080",
+                       "-x",f"socks5h://127.0.0.1:{port}",
                        "https://cloudflare.com/cdn-cgi/trace"],
                       text=True
                   )
@@ -99,11 +109,11 @@ jobs:
               except:
                   return False
 
-          def speed_ok():
+          def speed_ok(port):
               try:
                   r = subprocess.check_output(
                       ["curl","-s","-L","-o","/dev/null","-w","%{speed_download}",
-                       "-x","socks5h://127.0.0.1:1080",
+                       "-x",f"socks5h://127.0.0.1:{port}",
                        "--range","0-200000","--max-time","5",
                        "https://speed.cloudflare.com/__down"],
                       text=True
@@ -113,6 +123,7 @@ jobs:
                   return False
 
           def check(link):
+              port = alloc_port()
               try:
                   u = urllib.parse.urlparse(link)
                   q = urllib.parse.parse_qs(u.query)
@@ -137,7 +148,7 @@ jobs:
                       return None
 
                   cfg = {
-                      "inbounds":[{"port":1080,"listen":"127.0.0.1","protocol":"socks"}],
+                      "inbounds":[{"port":port,"listen":"127.0.0.1","protocol":"socks"}],
                       "outbounds":[{
                           "protocol":"vless",
                           "settings":{"vnext":[{
@@ -157,12 +168,13 @@ jobs:
                       }]
                   }
 
-                  open("cfg.json","w").write(json.dumps(cfg))
-                  p = subprocess.Popen(["./xray","run","-c","cfg.json"],
+                  cfg_path = f"cfg_{port}.json"
+                  open(cfg_path,"w").write(json.dumps(cfg))
+                  p = subprocess.Popen(["./xray","run","-c",cfg_path],
                                         stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
-                  time.sleep(3)
+                  time.sleep(2)
 
-                  ok = https_ok() and speed_ok()
+                  ok = https_ok(port) and speed_ok(port)
                   p.terminate()
                   return link if ok else None
               except:
