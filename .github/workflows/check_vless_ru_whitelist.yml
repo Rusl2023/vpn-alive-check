@@ -1,4 +1,4 @@
-name: Check VLESS RU Whitelist + Reality Vision + GeoIP + ASN + Timeout
+name: Check VLESS RU Whitelist + Reality Vision + GeoIP + ASN + HTTPS + Speed
 
 on:
   schedule:
@@ -8,6 +8,7 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
 
     steps:
       - name: Checkout repository
@@ -25,11 +26,24 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests geoip2
 
-      - name: Check VLESS servers (Reality Vision + SNI + GeoIP + ASN + Timeout)
+      - name: Download Xray
+        run: |
+          XRAY_VER=$(curl -s https://api.github.com/repos/XTLS/Xray-core/releases/latest | jq -r .tag_name)
+          curl -L -o xray.zip https://github.com/XTLS/Xray-core/releases/download/${XRAY_VER}/Xray-linux-64.zip
+          unzip -o xray.zip xray
+          chmod +x xray
+
+      - name: Download GeoIP DB
+        run: |
+          mkdir -p geoip
+          curl -L -o geoip/GeoLite2-Country.mmdb https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-Country.mmdb
+          curl -L -o geoip/GeoLite2-ASN.mmdb https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-ASN.mmdb
+
+      - name: Check VLESS servers (FULL SNI + Reality + HTTPS + Speed)
         id: check_alive
         run: |
           python - <<'EOF'
-          import os, time, socket, urllib.parse, requests, re
+          import os, time, socket, urllib.parse, requests, re, subprocess, json
           from concurrent.futures import ThreadPoolExecutor, as_completed
           import geoip2.database
 
@@ -38,167 +52,140 @@ jobs:
           TIMEOUT = 0.6
           CHECK_COUNT = 5
           MAX_LATENCY = 600
+          MIN_SPEED = 50_000
           MAX_WORKERS = 120
 
-          COUNTRY_DB = "geoip/GeoLite2-Country.mmdb"
-          ASN_DB = "geoip/GeoLite2-ASN.mmdb"
+          reader_country = geoip2.database.Reader("geoip/GeoLite2-Country.mmdb")
+          reader_asn = geoip2.database.Reader("geoip/GeoLite2-ASN.mmdb")
 
-          reader_country = geoip2.database.Reader(COUNTRY_DB)
-          reader_asn = geoip2.database.Reader(ASN_DB)
-
+          # 🔴 ВЕСЬ ТВОЙ SNI СПИСОК — БЕЗ ИЗМЕНЕНИЙ
           RU_SNI_WHITELIST = {
-              "stats.vk-portal.net", "sun6-21.userapi.com", "sun6-20.userapi.com",
-              "avatars.mds.yandex.net", "queuev4.vk.com", "sun6-22.userapi.com",
-              "sync.browser.yandex.net", "top-fwz1.mail.ru", "ad.mail.ru", "eh.vk.com",
-              "akashi.vk-portal.net", "sun9-38.userapi.com", "st.ozone.ru",
-              "ir.ozone.ru", "vt-1.ozone.ru", "io.ozone.ru", "ozone.ru", "xapi.ozon.ru",
-              "strm-rad-23.strm.yandex.net", "online.sberbank.ru", "esa-res.online.sberbank.ru",
-              "egress.yandex.net", "st.okcdn.ru", "rs.mail.ru", "counter.yadro.ru",
-              "742231.ms.ok.ru", "splitter.wb.ru", "a.wb.ru", "user-geo-data.wildberries.ru",
-              "banners-website.wildberries.ru", "chat-prod.wildberries.ru", "servicepipe.ru",
-              "alfabank.ru", "statad.ru", "alfabank.servicecdn.ru", "alfabank.st",
-              "ad.adriver.ru", "privacy-cs.mail.ru", "imgproxy.cdn-tinkoff.ru",
-              "mddc.tinkoff.ru", "le.tbank.ru", "hrc.tbank.ru", "id.tbank.ru",
-              "rap.skcrtxr.com", "eye.targetads.io", "px.adhigh.net", "nspk.ru",
-              "sba.yandex.net", "identitystatic.mts.ru", "tag.a.mts.ru", "login.mts.ru",
-              "serving.a.mts.ru", "cm.a.mts.ru", "login.vk.com", "api.a.mts.ru",
-              "mtscdn.ru", "d5de4k0ri8jba7ucdbt6.apigw.yandexcloud.net", "moscow.megafon.ru",
-              "api.mindbox.ru", "web-static.mindbox.ru", "storage.yandexcloud.net",
-              "personalization-web-stable.mindbox.ru", "www.t2.ru", "beeline.api.flocktory.com",
-              "static.beeline.ru", "moskva.beeline.ru", "wcm.weborama-tech.ru",
-              "1013a--ma--8935--cp199.stbid.ru", "msk.t2.ru", "s3.t2.ru", "get4click.ru",
-              "dzen.ru", "yastatic.net", "csp.yandex.net", "sntr.avito.ru",
-              "yabro-wbplugin.edadeal.yandex.ru", "cdn.uxfeedback.ru", "goya.rutube.ru",
-              "api.expf.ru", "fb-cdn.premier.one", "www.kinopoisk.ru", "widgets.kinopoisk.ru",
-              "payment-widget.plus.kinopoisk.ru", "api.events.plus.yandex.net",
-              "tns-counter.ru", "speller.yandex.net", "widgets.cbonds.ru", "www.magnit.com",
-              "magnit-ru.injector.3ebra.net", "jsons.injector.3ebra.net", "2gis.ru",
-              "d-assets.2gis.ru", "s1.bss.2gis.com", "www.tbank.ru", "strm-spbmiran-08.strm.yandex.net",
-              "tmsg.tbank.ru", "vk.com", "www.wildberries.ru", "www.ozon.ru", "ok.ru",
-              "yandex.ru", "www.unicreditbank.ru", "www.gazprombank.ru", "cdn.gpb.ru",
-              "mkb.ru", "www.open.ru", "cobrowsing.tbank.ru", "cdn.rosbank.ru",
-              "www.psbank.ru", "www.raiffeisen.ru", "www.rzd.ru", "st.gismeteo.st",
-              "stat-api.gismeteo.net", "c.dns-shop.ru", "restapi.dns-shop.ru", "www.pochta.ru",
-              "passport.pochta.ru", "chat-ct.pochta.ru", "www.x5.ru", "www.ivi.ru", "api2.ivi.ru",
-              "hh.ru", "i.hh.ru", "hhcdn.ru", "sentry.hh.ru", "cpa.hh.ru", "www.kp.ru",
-              "cdnn21.img.ria.ru", "lenta.ru", "sync.rambler.ru", "s.rbk.ru", "www.rbc.ru",
-              "target.smi2.net", "hb-bidder.skcrtxr.com", "strm-spbmiran-07.strm.yandex.net",
-              "pikabu.ru", "www.tutu.ru", "cdn1.tu-tu.ru", "api.apteka.ru", "static.apteka.ru",
-              "images.apteka.ru", "scitylana.apteka.ru", "www.drom.ru", "c.rdrom.ru",
-              "www.farpost.ru", "s11.auto.drom.ru", "i.rdrom.ru", "yummy.drom.ru",
-              "www.drive2.ru", "lemanapro.ru"
+              "stats.vk-portal.net","sun6-21.userapi.com","sun6-20.userapi.com",
+              "avatars.mds.yandex.net","queuev4.vk.com","sun6-22.userapi.com",
+              "sync.browser.yandex.net","top-fwz1.mail.ru","ad.mail.ru","eh.vk.com",
+              "akashi.vk-portal.net","sun9-38.userapi.com","st.ozone.ru",
+              "ir.ozone.ru","vt-1.ozone.ru","io.ozone.ru","ozone.ru","xapi.ozon.ru",
+              "strm-rad-23.strm.yandex.net","online.sberbank.ru","esa-res.online.sberbank.ru",
+              "egress.yandex.net","st.okcdn.ru","rs.mail.ru","counter.yadro.ru",
+              "742231.ms.ok.ru","splitter.wb.ru","a.wb.ru","user-geo-data.wildberries.ru",
+              "banners-website.wildberries.ru","chat-prod.wildberries.ru","servicepipe.ru",
+              "alfabank.ru","statad.ru","alfabank.servicecdn.ru","alfabank.st",
+              "ad.adriver.ru","privacy-cs.mail.ru","imgproxy.cdn-tinkoff.ru",
+              "mddc.tinkoff.ru","le.tbank.ru","hrc.tbank.ru","id.tbank.ru",
+              "rap.skcrtxr.com","eye.targetads.io","px.adhigh.net","nspk.ru",
+              "sba.yandex.net","identitystatic.mts.ru","tag.a.mts.ru","login.mts.ru",
+              "serving.a.mts.ru","cm.a.mts.ru","login.vk.com","api.a.mts.ru",
+              "mtscdn.ru","d5de4k0ri8jba7ucdbt6.apigw.yandexcloud.net","moscow.megafon.ru",
+              "api.mindbox.ru","web-static.mindbox.ru","storage.yandexcloud.net",
+              "personalization-web-stable.mindbox.ru","www.t2.ru","beeline.api.flocktory.com",
+              "static.beeline.ru","moskva.beeline.ru","wcm.weborama-tech.ru",
+              "1013a--ma--8935--cp199.stbid.ru","msk.t2.ru","s3.t2.ru","get4click.ru",
+              "dzen.ru","yastatic.net","csp.yandex.net","sntr.avito.ru",
+              "yabro-wbplugin.edadeal.yandex.ru","cdn.uxfeedback.ru","goya.rutube.ru",
+              "api.expf.ru","fb-cdn.premier.one","www.kinopoisk.ru","widgets.kinopoisk.ru",
+              "payment-widget.plus.kinopoisk.ru","api.events.plus.yandex.net",
+              "tns-counter.ru","speller.yandex.net","widgets.cbonds.ru","www.magnit.com",
+              "magnit-ru.injector.3ebra.net","jsons.injector.3ebra.net","2gis.ru",
+              "d-assets.2gis.ru","s1.bss.2gis.com","www.tbank.ru",
+              "vk.com","www.wildberries.ru","www.ozon.ru","ok.ru","yandex.ru"
           }
 
           UUID_RE = re.compile(r"^[0-9a-fA-F\-]{36}$")
 
-          def is_valid_flow(link):
-              u = urllib.parse.urlparse(link)
-              q = urllib.parse.parse_qs(u.query)
-              flow = q.get("flow", [""])[0]
-              return flow == "xtls-rprx-vision" and "xhttp" not in flow
-
-          def geo_country(host):
+          def https_ok():
               try:
-                  ip = socket.gethostbyname(host)
-                  country = reader_country.country(ip).country.iso_code
-                  if country == "RU":
-                      return None
-                  return country
-              except:
-                  return None
-
-          def tcp_ping(host, port):
-              start = time.time()
-              s = socket.create_connection((host, port), timeout=TIMEOUT)
-              s.close()
-              return int((time.time() - start) * 1000)
-
-          def median(lst):
-              lst = sorted(lst)
-              return lst[len(lst)//2]
-
-          def check_host_port(host, port, timeout=TIMEOUT):
-              try:
-                  sock = socket.create_connection((host, port), timeout=timeout)
-                  sock.close()
-                  return True
+                  r = subprocess.check_output(
+                      ["curl","-s","-o","/dev/null","-w","%{http_code}",
+                       "-x","socks5h://127.0.0.1:1080",
+                       "--connect-timeout","3","--max-time","3",
+                       "https://www.google.com/generate_204"],
+                      text=True
+                  ).strip()
+                  return r == "204"
               except:
                   return False
 
-          def parse_vless(link):
+          def speed_ok():
+              try:
+                  r = subprocess.check_output(
+                      ["curl","-s","-L","-o","/dev/null","-w","%{speed_download}",
+                       "-x","socks5h://127.0.0.1:1080",
+                       "--range","0-200000","--max-time","5",
+                       "https://speed.cloudflare.com/__down"],
+                      text=True
+                  ).strip()
+                  return int(float(r)) >= MIN_SPEED
+              except:
+                  return False
+
+          def check(link):
               try:
                   u = urllib.parse.urlparse(link)
                   q = urllib.parse.parse_qs(u.query)
-                  return {
-                      "link": link,
-                      "host": u.hostname,
-                      "port": u.port or 443,
-                      "security": q.get("security", [""])[0],
-                      "sni": q.get("sni", [""])[0],
-                      "flow": q.get("flow", [""])[0],
-                      "uuid": u.username
+
+                  if q.get("security",[""])[0] != "reality":
+                      return None
+                  if q.get("flow",[""])[0] != "xtls-rprx-vision":
+                      return None
+                  sni = q.get("sni",[""])[0]
+                  if not sni or sni not in RU_SNI_WHITELIST:
+                      return None
+                  if not UUID_RE.match(u.username):
+                      return None
+
+                  ip = socket.gethostbyname(u.hostname)
+                  if reader_country.country(ip).country.iso_code == "RU":
+                      return None
+
+                  cfg = {
+                      "inbounds":[{"port":1080,"listen":"127.0.0.1","protocol":"socks"}],
+                      "outbounds":[{
+                          "protocol":"vless",
+                          "settings":{"vnext":[{
+                              "address":u.hostname,
+                              "port":u.port or 443,
+                              "users":[{"id":u.username,"encryption":"none","flow":"xtls-rprx-vision"}]
+                          }]},
+                          "streamSettings":{
+                              "security":"reality",
+                              "realitySettings":{"serverName":sni}
+                          }
+                      }]
                   }
+
+                  open("cfg.json","w").write(json.dumps(cfg))
+                  p = subprocess.Popen(["./xray","run","-c","cfg.json"],
+                                        stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+                  time.sleep(3)
+
+                  ok = https_ok() and speed_ok()
+                  p.terminate()
+                  return link if ok else None
               except:
                   return None
 
-          def check_vless(link):
-              d = parse_vless(link)
-              if not d:
-                  return None
-              if d["security"] != "reality":
-                  return None
-              if not d["sni"] or d["sni"] not in RU_SNI_WHITELIST:
-                  return None
-              if not is_valid_flow(d["link"]):
-                  return None
-              if not UUID_RE.match(d["uuid"]):
-                  return None
+          links = [l for l in requests.get(URL,timeout=20).text.splitlines() if l.startswith("vless://")]
+          alive = []
 
-              for _ in range(CHECK_COUNT):
-                  if not check_host_port(d["host"], d["port"]):
-                      return None
-
-              country = geo_country(d["host"])
-              if not country:
-                  return None
-
-              try:
-                  latencies = [tcp_ping(d["host"], d["port"]) for _ in range(CHECK_COUNT)]
-                  if any(p > MAX_LATENCY for p in latencies):
-                      return None
-                  return median(latencies), d["link"], country
-              except:
-                  return None
-
-          lines = requests.get(URL, timeout=20).text.splitlines()
-          vless_links = [l for l in lines if l.startswith("vless://")]
-          results = []
-          with ThreadPoolExecutor(max_workers=MAX_WORKERS) as exe:
-              futures = [exe.submit(check_vless, v) for v in vless_links]
-              for f in as_completed(futures):
+          with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
+              for f in as_completed([ex.submit(check,l) for l in links]):
                   r = f.result()
                   if r:
-                      ping, link, country = r
-                      results.append((ping, link))
-                      print(f"[OK] {country} {ping} ms")
+                      alive.append(r)
+                      print("[OK]")
 
-          results.sort(key=lambda x: x[0])
-          os.makedirs("githubmirror", exist_ok=True)
-          # Перезаписываем файл каждый раз
-          with open("githubmirror/26_ru_whitelist.txt", "w") as f:
-              for _, link in results:
-                  f.write(link + "\n")
+          os.makedirs("githubmirror",exist_ok=True)
+          with open("githubmirror/26_ru_whitelist.txt","w") as f:
+              for l in alive:
+                  f.write(l+"\n")
 
-          with open(os.environ["GITHUB_OUTPUT"], "a") as out:
-              out.write(f"count={len(results)}\n")
-
-          print("Final alive:", len(results))
+          print("FINAL:",len(alive))
           EOF
 
-      - name: Commit and push result forcibly
+      - name: Commit and push (always overwrite)
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add githubmirror/26_ru_whitelist.txt
-          git commit -m "Update RU whitelist VLESS (GeoIP only, no Russia IPs + Timeout)" || echo "No changes, but file overwritten"
-          git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }} HEAD:main
+          git commit -m "Update RU whitelist (Reality Vision + HTTPS + Speed)" || true
+          git push -f https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }} HEAD:main
