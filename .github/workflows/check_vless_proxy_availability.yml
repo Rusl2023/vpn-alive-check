@@ -44,7 +44,6 @@ jobs:
 
           INPUT = "githubmirror/26_ru_whitelist.txt"
           RUNNER_IP = os.environ["RUNNER_IP"]
-          MIN_SPEED = 50_000  # минимальная скорость в байтах/сек
 
           TEST_URLS = [
               "https://api.ipify.org",
@@ -52,44 +51,35 @@ jobs:
               "https://www.instagram.com/"
           ]
 
+          MIN_SPEED = 50_000  # B/s
+          TIMEOUT = 5  # curl timeout
+
           def exit_ip(port=1080):
               for url in TEST_URLS:
                   try:
-                      ip = subprocess.check_output(
-                          ["curl", "-s", "--max-time", "8",
+                      r = subprocess.check_output(
+                          ["curl", "-s", "-L", "--max-time", str(TIMEOUT),
                            "-x", f"socks5h://127.0.0.1:{port}", url],
                           text=True
                       ).strip()
-                      if ip:
-                          return ip
+                      if r:
+                          return r
                   except:
                       pass
               return None
 
-          def https_ok(port=1080):
-              try:
-                  out = subprocess.check_output(
-                      ["curl","-s","--max-time","5",
-                       "-x", f"socks5h://127.0.0.1:{port}",
-                       "https://cloudflare.com/cdn-cgi/trace"],
-                      text=True
-                  )
-                  return "ip=" in out
-              except:
-                  return False
-
-          def speed_ok(port=1080):
+          def check_speed(port=1080):
               try:
                   r = subprocess.check_output(
                       ["curl","-s","-L","-o","/dev/null","-w","%{speed_download}",
-                       "-x", f"socks5h://127.0.0.1:{port}",
+                       "-x",f"socks5h://127.0.0.1:{port}",
                        "--range","0-200000","--max-time","5",
                        "https://speed.cloudflare.com/__down"],
                       text=True
                   )
-                  return int(float(r)) >= MIN_SPEED
+                  return int(float(r))
               except:
-                  return False
+                  return 0
 
           def get_country(ip):
               try:
@@ -158,12 +148,11 @@ jobs:
 
               time.sleep(3)
               ip = exit_ip()
-              https_ok_res = https_ok()
-              speed_ok_res = speed_ok()
+              speed = check_speed()
               p.terminate()
               time.sleep(1)
 
-              if not ip or ip == RUNNER_IP or not https_ok_res or not speed_ok_res:
+              if not ip or ip == RUNNER_IP or speed < MIN_SPEED:
                   with open("githubmirror/26_proxy_blocked_azure.txt", "a") as f:
                       f.write(link + "\n")
                   continue
@@ -186,6 +175,9 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
+
+          git fetch origin main
+          git reset --hard origin/main
 
           git add githubmirror/26_proxy_alive.txt \
                   githubmirror/26_proxy_ru_exit.txt \
