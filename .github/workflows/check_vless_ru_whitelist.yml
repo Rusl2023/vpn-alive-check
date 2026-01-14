@@ -147,7 +147,16 @@ jobs:
                   except socket.gaierror:
                       return None
 
-                  if reader_country.country(ip).country.iso_code == "RU":
+                  # Игнорируем недействительные IP (0.0.0.0 или локальные)
+                  if not ip or ip.startswith("0.") or ip.startswith("127.") or ip.startswith("169.254."):
+                      return None
+
+                  try:
+                      country = reader_country.country(ip).country.iso_code
+                  except geoip2.errors.AddressNotFoundError:
+                      return None
+
+                  if country == "RU":
                       return None
 
                   cfg = {
