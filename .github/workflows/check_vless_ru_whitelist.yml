@@ -29,7 +29,7 @@ jobs:
         id: check_alive
         run: |
           python - <<'EOF'
-          import os, time, socket, urllib.parse, requests
+          import os, time, socket, urllib.parse, requests, re
           from concurrent.futures import ThreadPoolExecutor, as_completed
           import geoip2.database
 
@@ -40,45 +40,21 @@ jobs:
           MAX_LATENCY = 600
           MAX_WORKERS = 120
 
-          # GeoIP databases
           COUNTRY_DB = "geoip/GeoLite2-Country.mmdb"
           ASN_DB = "geoip/GeoLite2-ASN.mmdb"
 
           reader_country = geoip2.database.Reader(COUNTRY_DB)
           reader_asn = geoip2.database.Reader(ASN_DB)
 
-          # SNI whitelist
           RU_SNI_WHITELIST = {
               "stats.vk-portal.net", "sun6-21.userapi.com", "sun6-20.userapi.com",
               "avatars.mds.yandex.net", "queuev4.vk.com", "sun6-22.userapi.com",
               "sync.browser.yandex.net", "top-fwz1.mail.ru", "ad.mail.ru", "eh.vk.com",
               "akashi.vk-portal.net", "sun9-38.userapi.com", "st.ozone.ru",
-              "ir.ozone.ru", "vt-1.ozone.ru", "io.ozone.ru", "ozone.ru", "xapi.ozon.ru",
-              "strm-rad-23.strm.yandex.net", "online.sberbank.ru", "esa-res.online.sberbank.ru",
-              "egress.yandex.net", "st.okcdn.ru", "rs.mail.ru", "counter.yadro.ru",
-              "742231.ms.ok.ru", "splitter.wb.ru", "a.wb.ru", "user-geo-data.wildberries.ru",
-              "banners-website.wildberries.ru", "chat-prod.wildberries.ru", "servicepipe.ru",
-              "alfabank.ru", "statad.ru", "alfabank.servicecdn.ru", "alfabank.st",
-              "ad.adriver.ru", "privacy-cs.mail.ru", "imgproxy.cdn-tinkoff.ru",
-              "mddc.tinkoff.ru", "le.tbank.ru", "hrc.tbank.ru", "id.tbank.ru", "rap.skcrtxr.com",
-              "eye.targetads.io", "px.adhigh.net", "nspk.ru", "sba.yandex.net",
-              "identitystatic.mts.ru", "tag.a.mts.ru", "login.mts.ru", "serving.a.mts.ru",
-              "cm.a.mts.ru", "login.vk.com", "api.a.mts.ru", "mtscdn.ru",
-              "d5de4k0ri8jba7ucdbt6.apigw.yandexcloud.net", "moscow.megafon.ru",
-              "api.mindbox.ru", "web-static.mindbox.ru", "storage.yandexcloud.net",
-              "personalization-web-stable.mindbox.ru", "www.t2.ru", "beeline.api.flocktory.com",
-              "static.beeline.ru", "moskva.beeline.ru", "wcm.weborama-tech.ru",
-              "1013a--ma--8935--cp199.stbid.ru", "msk.t2.ru", "s3.t2.ru", "get4click.ru",
-              "dzen.ru", "yastatic.net", "csp.yandex.net", "sntr.avito.ru",
-              "yabro-wbplugin.edadeal.yandex.ru", "cdn.uxfeedback.ru", "goya.rutube.ru",
-              "api.expf.ru", "fb-cdn.premier.one", "www.kinopoisk.ru",
-              "widgets.kinopoisk.ru", "payment-widget.plus.kinopoisk.ru",
-              "api.events.plus.yandex.net", "tns-counter.ru", "speller.yandex.net",
-              "widgets.cbonds.ru", "www.magnit.com", "vk.com", "www.wildberries.ru",
-              "www.ozon.ru", "ok.ru", "yandex.ru", "www.unicreditbank.ru",
-              "www.gazprombank.ru", "cdn.gpb.ru", "mkb.ru", "www.open.ru", "cobrowsing.tbank.ru",
-              "cdn.rosbank.ru", "www.psbank.ru", "www.raiffeisen.ru", "www.rzd.ru"
+              "ir.ozone.ru", "vt-1.ozone.ru", "io.ozone.ru", "ozone.ru", "xapi.ozon.ru"
           }
+
+          UUID_RE = re.compile(r"^[0-9a-fA-F\-]{36}$")
 
           def is_valid_flow(link):
               u = urllib.parse.urlparse(link)
@@ -90,7 +66,7 @@ jobs:
               try:
                   ip = socket.gethostbyname(host)
                   country = reader_country.country(ip).country.iso_code
-                  if country == "RU":  # Россия исключается
+                  if country == "RU":
                       return None
                   return country
               except:
@@ -106,6 +82,14 @@ jobs:
               lst = sorted(lst)
               return lst[len(lst)//2]
 
+          def check_host_port(host, port, timeout=TIMEOUT):
+              try:
+                  sock = socket.create_connection((host, port), timeout=timeout)
+                  sock.close()
+                  return True
+              except:
+                  return False
+
           def parse_vless(link):
               try:
                   u = urllib.parse.urlparse(link)
@@ -116,7 +100,8 @@ jobs:
                       "port": u.port or 443,
                       "security": q.get("security", [""])[0],
                       "sni": q.get("sni", [""])[0],
-                      "flow": q.get("flow", [""])[0]
+                      "flow": q.get("flow", [""])[0],
+                      "uuid": u.username
                   }
               except:
                   return None
@@ -131,15 +116,18 @@ jobs:
                   return None
               if not is_valid_flow(d["link"]):
                   return None
+              if not UUID_RE.match(d["uuid"]):
+                  return None
+              if not check_host_port(d["host"], d["port"]):
+                  return None
               country = geo_country(d["host"])
               if not country:
                   return None
               try:
-                  for _ in range(CHECK_COUNT):
-                      ping = tcp_ping(d["host"], d["port"])
-                      if ping > MAX_LATENCY:
-                          return None
-                  return median([tcp_ping(d["host"], d["port"]) for _ in range(CHECK_COUNT)]), d["link"], country
+                  latencies = [tcp_ping(d["host"], d["port"]) for _ in range(CHECK_COUNT)]
+                  if any(p > MAX_LATENCY for p in latencies):
+                      return None
+                  return median(latencies), d["link"], country
               except:
                   return None
 
