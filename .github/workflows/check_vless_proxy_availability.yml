@@ -166,4 +166,5 @@ jobs:
 
           git diff --cached --quiet || git commit -m "Proxy availability check via Xray (SOCKS + GeoIP + HTTP/HTTPS)"
 
-          git push https://x-access-token:${GH_PAT}@github.com/${{ github.repository }} HEAD:main
+          git push -f https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY} HEAD:main
+
