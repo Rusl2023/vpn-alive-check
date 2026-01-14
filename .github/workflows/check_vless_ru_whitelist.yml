@@ -1,4 +1,4 @@
-name: Check VLESS RU Whitelist + Reality Vision + GeoIP + HTTPS + Speed
+name: Check VLESS RU Whitelist + Reality Vision + GeoIP + ASN
 
 on:
   schedule:
@@ -8,7 +8,6 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
 
     steps:
       - name: Checkout repository
@@ -26,203 +25,153 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests geoip2
 
-      - name: Download Xray
-        run: |
-          XRAY_VER=$(curl -s https://api.github.com/repos/XTLS/Xray-core/releases/latest | jq -r .tag_name)
-          curl -L -o xray.zip https://github.com/XTLS/Xray-core/releases/download/${XRAY_VER}/Xray-linux-64.zip
-          unzip -o xray.zip xray
-          chmod +x xray
-
-      - name: Download GeoIP DB
-        run: |
-          mkdir -p geoip
-          curl -L -o geoip/GeoLite2-Country.mmdb https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-Country.mmdb
-          curl -L -o geoip/GeoLite2-ASN.mmdb https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-ASN.mmdb
-
-      - name: Check VLESS servers (Reality + Cloudflare HTTPS + Speed)
+      - name: Check VLESS servers (Reality Vision + SNI + GeoIP + ASN)
+        id: check_alive
         run: |
           python - <<'EOF'
-          import os, time, socket, urllib.parse, requests, re, subprocess, json, threading
+          import os, time, socket, urllib.parse, requests
           from concurrent.futures import ThreadPoolExecutor, as_completed
-          import geoip2.database, geoip2.errors
+          import geoip2.database
 
           URL = "https://github.com/AvenCores/goida-vpn-configs/raw/refs/heads/main/githubmirror/26.txt"
-          MIN_SPEED = 50_000
-          MAX_WORKERS = 30
-          PORT_BASE = 10800
 
-          reader_country = geoip2.database.Reader("geoip/GeoLite2-Country.mmdb")
+          TIMEOUT = 0.6
+          CHECK_COUNT = 20
+          MAX_LATENCY = 600
+          MAX_WORKERS = 120
 
+          # GeoIP databases
+          COUNTRY_DB = "geoip/GeoLite2-Country.mmdb"
+          ASN_DB = "geoip/GeoLite2-ASN.mmdb"
+
+          reader_country = geoip2.database.Reader(COUNTRY_DB)
+          reader_asn = geoip2.database.Reader(ASN_DB)
+
+          # SNI whitelist
           RU_SNI_WHITELIST = {
-              "stats.vk-portal.net","sun6-21.userapi.com","sun6-20.userapi.com",
-              "avatars.mds.yandex.net","queuev4.vk.com","sun6-22.userapi.com",
-              "sync.browser.yandex.net","top-fwz1.mail.ru","ad.mail.ru","eh.vk.com",
-              "akashi.vk-portal.net","sun9-38.userapi.com","st.ozone.ru",
-              "ir.ozone.ru","vt-1.ozone.ru","io.ozone.ru","ozone.ru","xapi.ozon.ru",
-              "strm-rad-23.strm.yandex.net","online.sberbank.ru","esa-res.online.sberbank.ru",
-              "egress.yandex.net","st.okcdn.ru","rs.mail.ru","counter.yadro.ru",
-              "742231.ms.ok.ru","splitter.wb.ru","a.wb.ru","user-geo-data.wildberries.ru",
-              "banners-website.wildberries.ru","chat-prod.wildberries.ru","servicepipe.ru",
-              "alfabank.ru","statad.ru","alfabank.servicecdn.ru","alfabank.st",
-              "ad.adriver.ru","privacy-cs.mail.ru","imgproxy.cdn-tinkoff.ru",
-              "mddc.tinkoff.ru","le.tbank.ru","hrc.tbank.ru","id.tbank.ru",
-              "rap.skcrtxr.com","eye.targetads.io","px.adhigh.net","nspk.ru",
-              "sba.yandex.net","identitystatic.mts.ru","tag.a.mts.ru","login.mts.ru",
-              "serving.a.mts.ru","cm.a.mts.ru","login.vk.com","api.a.mts.ru",
-              "mtscdn.ru","d5de4k0ri8jba7ucdbt6.apigw.yandexcloud.net","moscow.megafon.ru",
-              "api.mindbox.ru","web-static.mindbox.ru","storage.yandexcloud.net",
-              "personalization-web-stable.mindbox.ru","www.t2.ru","beeline.api.flocktory.com",
-              "static.beeline.ru","moskva.beeline.ru","wcm.weborama-tech.ru",
-              "1013a--ma--8935--cp199.stbid.ru","msk.t2.ru","s3.t2.ru","get4click.ru",
-              "dzen.ru","yastatic.net","csp.yandex.net","sntr.avito.ru",
-              "yabro-wbplugin.edadeal.yandex.ru","cdn.uxfeedback.ru","goya.rutube.ru",
-              "api.expf.ru","fb-cdn.premier.one","www.kinopoisk.ru","widgets.kinopoisk.ru",
-              "payment-widget.plus.kinopoisk.ru","api.events.plus.yandex.net",
-              "tns-counter.ru","speller.yandex.net","widgets.cbonds.ru","www.magnit.com",
-              "magnit-ru.injector.3ebra.net","jsons.injector.3ebra.net","2gis.ru",
-              "d-assets.2gis.ru","s1.bss.2gis.com","www.tbank.ru",
-              "vk.com","www.wildberries.ru","www.ozon.ru","ok.ru","yandex.ru"
+              "stats.vk-portal.net", "sun6-21.userapi.com", "sun6-20.userapi.com",
+              "avatars.mds.yandex.net", "queuev4.vk.com", "sun6-22.userapi.com",
+              "sync.browser.yandex.net", "top-fwz1.mail.ru", "ad.mail.ru", "eh.vk.com",
+              "akashi.vk-portal.net", "sun9-38.userapi.com", "st.ozone.ru",
+              "ir.ozone.ru", "vt-1.ozone.ru", "io.ozone.ru", "ozone.ru", "xapi.ozon.ru",
+              "strm-rad-23.strm.yandex.net", "online.sberbank.ru", "esa-res.online.sberbank.ru",
+              "egress.yandex.net", "st.okcdn.ru", "rs.mail.ru", "counter.yadro.ru",
+              "742231.ms.ok.ru", "splitter.wb.ru", "a.wb.ru", "user-geo-data.wildberries.ru",
+              "banners-website.wildberries.ru", "chat-prod.wildberries.ru", "servicepipe.ru",
+              "alfabank.ru", "statad.ru", "alfabank.servicecdn.ru", "alfabank.st",
+              "ad.adriver.ru", "privacy-cs.mail.ru", "imgproxy.cdn-tinkoff.ru",
+              "mddc.tinkoff.ru", "le.tbank.ru", "hrc.tbank.ru", "id.tbank.ru", "rap.skcrtxr.com",
+              "eye.targetads.io", "px.adhigh.net", "nspk.ru", "sba.yandex.net",
+              "identitystatic.mts.ru", "tag.a.mts.ru", "login.mts.ru", "serving.a.mts.ru",
+              "cm.a.mts.ru", "login.vk.com", "api.a.mts.ru", "mtscdn.ru",
+              "d5de4k0ri8jba7ucdbt6.apigw.yandexcloud.net", "moscow.megafon.ru",
+              "api.mindbox.ru", "web-static.mindbox.ru", "storage.yandexcloud.net",
+              "personalization-web-stable.mindbox.ru", "www.t2.ru", "beeline.api.flocktory.com",
+              "static.beeline.ru", "moskva.beeline.ru", "wcm.weborama-tech.ru",
+              "1013a--ma--8935--cp199.stbid.ru", "msk.t2.ru", "s3.t2.ru", "get4click.ru",
+              "dzen.ru", "yastatic.net", "csp.yandex.net", "sntr.avito.ru",
+              "yabro-wbplugin.edadeal.yandex.ru", "cdn.uxfeedback.ru", "goya.rutube.ru",
+              "api.expf.ru", "fb-cdn.premier.one", "www.kinopoisk.ru",
+              "widgets.kinopoisk.ru", "payment-widget.plus.kinopoisk.ru",
+              "api.events.plus.yandex.net", "tns-counter.ru", "speller.yandex.net",
+              "widgets.cbonds.ru", "www.magnit.com", "vk.com", "www.wildberries.ru",
+              "www.ozon.ru", "ok.ru", "yandex.ru", "www.unicreditbank.ru",
+              "www.gazprombank.ru", "cdn.gpb.ru", "mkb.ru", "www.open.ru", "cobrowsing.tbank.ru",
+              "cdn.rosbank.ru", "www.psbank.ru", "www.raiffeisen.ru", "www.rzd.ru"
           }
 
-          UUID_RE = re.compile(r"^[0-9a-fA-F\-]{36}$")
-          port_lock = threading.Lock()
-          port_counter = 0
+          def is_valid_flow(link):
+              u = urllib.parse.urlparse(link)
+              q = urllib.parse.parse_qs(u.query)
+              flow = q.get("flow", [""])[0]
+              return flow == "xtls-rprx-vision" and "xhttp" not in flow
 
-          def alloc_port():
-              global port_counter
-              with port_lock:
-                  p = PORT_BASE + port_counter
-                  port_counter += 1
-                  return p
-
-          def https_ok(port):
+          def geo_country(host):
               try:
-                  out = subprocess.check_output(
-                      ["curl","-s","--max-time","5",
-                       "-x",f"socks5h://127.0.0.1:{port}",
-                       "https://cloudflare.com/cdn-cgi/trace"],
-                      text=True
-                  )
-                  return "ip=" in out
+                  ip = socket.gethostbyname(host)
+                  country = reader_country.country(ip).country.iso_code
+                  if country == "RU":  # Россия исключается
+                      return None
+                  return country
               except:
-                  return False
+                  return None
 
-          def speed_ok(port):
-              try:
-                  r = subprocess.check_output(
-                      ["curl","-s","-L","-o","/dev/null","-w","%{speed_download}",
-                       "-x",f"socks5h://127.0.0.1:{port}",
-                       "--range","0-200000","--max-time","5",
-                       "https://speed.cloudflare.com/__down"],
-                      text=True
-                  )
-                  return int(float(r)) >= MIN_SPEED
-              except:
-                  return False
+          def tcp_ping(host, port):
+              start = time.time()
+              s = socket.create_connection((host, port), timeout=TIMEOUT)
+              s.close()
+              return int((time.time() - start) * 1000)
 
-          def check(link):
-              port = alloc_port()
-              p = None
+          def median(lst):
+              lst = sorted(lst)
+              return lst[len(lst)//2]
+
+          def parse_vless(link):
               try:
                   u = urllib.parse.urlparse(link)
                   q = urllib.parse.parse_qs(u.query)
-
-                  if q.get("security",[""])[0] != "reality":
-                      print(f"[SKIP] Not reality: {link}")
-                      return None
-                  if q.get("flow",[""])[0] != "xtls-rprx-vision":
-                      print(f"[SKIP] Not xtls-rprx-vision: {link}")
-                      return None
-
-                  sni = q.get("sni",[""])[0]
-                  pbk = q.get("pbk",[""])[0]
-                  sid = q.get("sid",[""])[0]
-                  fp  = q.get("fp",["chrome"])[0]
-
-                  if not sni or sni not in RU_SNI_WHITELIST:
-                      print(f"[SKIP] SNI not in whitelist: {link}")
-                      return None
-                  if not pbk or not UUID_RE.match(u.username):
-                      print(f"[SKIP] Invalid UUID: {link}")
-                      return None
-
-                  try:
-                      ip = socket.gethostbyname(u.hostname)
-                  except socket.gaierror:
-                      print(f"[SKIP] DNS failed: {link}")
-                      return None
-
-                  if not ip or ip.startswith("0.") or ip.startswith("127.") or ip.startswith("169.254."):
-                      print(f"[SKIP] Invalid IP: {link}")
-                      return None
-
-                  try:
-                      country = reader_country.country(ip).country.iso_code
-                  except geoip2.errors.AddressNotFoundError:
-                      print(f"[SKIP] IP not in GeoIP DB: {link}")
-                      return None
-
-                  if country == "RU":
-                      print(f"[SKIP] RU IP: {link}")
-                      return None
-
-                  cfg = {
-                      "inbounds":[{"port":port,"listen":"127.0.0.1","protocol":"socks"}],
-                      "outbounds":[{
-                          "protocol":"vless",
-                          "settings":{"vnext":[{
-                              "address":u.hostname,
-                              "port":u.port or 443,
-                              "users":[{"id":u.username,"encryption":"none","flow":"xtls-rprx-vision"}]
-                          }]},
-                          "streamSettings":{
-                              "security":"reality",
-                              "realitySettings":{
-                                  "serverName":sni,
-                                  "publicKey":pbk,
-                                  "shortId":sid,
-                                  "fingerprint":fp
-                              }
-                          }
-                      }]
+                  return {
+                      "link": link,
+                      "host": u.hostname,
+                      "port": u.port or 443,
+                      "security": q.get("security", [""])[0],
+                      "sni": q.get("sni", [""])[0],
+                      "flow": q.get("flow", [""])[0]
                   }
+              except:
+                  return None
 
-                  cfg_path = f"cfg_{port}.json"
-                  open(cfg_path,"w").write(json.dumps(cfg))
-                  p = subprocess.Popen(["./xray","run","-c",cfg_path],
-                                        stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
-                  time.sleep(4)
+          def check_vless(link):
+              d = parse_vless(link)
+              if not d:
+                  return None
+              if d["security"] != "reality":
+                  return None
+              if not d["sni"] or d["sni"] not in RU_SNI_WHITELIST:
+                  return None
+              if not is_valid_flow(d["link"]):
+                  return None
+              country = geo_country(d["host"])
+              if not country:
+                  return None
+              try:
+                  for _ in range(CHECK_COUNT):
+                      ping = tcp_ping(d["host"], d["port"])
+                      if ping > MAX_LATENCY:
+                          return None
+                  return median([tcp_ping(d["host"], d["port"]) for _ in range(CHECK_COUNT)]), d["link"], country
+              except:
+                  return None
 
-                  ok = https_ok(port) and speed_ok(port)
-                  return link if ok else None
-              finally:
-                  if p:
-                      p.terminate()
-                      time.sleep(0.5)
-
-          links = [l for l in requests.get(URL,timeout=20).text.splitlines()
-                   if l.startswith("vless://")]
-
-          alive = []
-          with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
-              for f in as_completed([ex.submit(check,l) for l in links]):
+          lines = requests.get(URL, timeout=20).text.splitlines()
+          vless_links = [l for l in lines if l.startswith("vless://")]
+          results = []
+          with ThreadPoolExecutor(max_workers=MAX_WORKERS) as exe:
+              futures = [exe.submit(check_vless, v) for v in vless_links]
+              for f in as_completed(futures):
                   r = f.result()
                   if r:
-                      alive.append(r)
-                      print(f"[OK] {r}")
+                      ping, link, country = r
+                      results.append((ping, link))
+                      print(f"[OK] {country} {ping} ms")
 
-          os.makedirs("githubmirror",exist_ok=True)
-          with open("githubmirror/26_ru_whitelist.txt","w") as f:
-              for l in alive:
-                  f.write(l+"\n")
+          results.sort(key=lambda x: x[0])
+          os.makedirs("githubmirror", exist_ok=True)
+          with open("githubmirror/26_ru_whitelist.txt", "w") as f:
+              for _, link in results:
+                  f.write(link + "\n")  # Россия полностью исключена
 
-          print("FINAL:",len(alive))
+          with open(os.environ["GITHUB_OUTPUT"], "a") as out:
+              out.write(f"count={len(results)}\n")
+
+          print("Final alive:", len(results))
           EOF
 
-      - name: Commit and push (always overwrite)
+      - name: Commit and push result
+        if: steps.check_alive.outputs.count != '0'
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add githubmirror/26_ru_whitelist.txt
-          git commit -m "Update RU whitelist (Reality + Cloudflare HTTPS + Speed)" || true
-          git push -f https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }} HEAD:main
+          git diff --cached --quiet || git commit -m "Update RU whitelist VLESS (GeoIP only, no Russia IPs)"
+          git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }} HEAD:main
