@@ -47,7 +47,6 @@ jobs:
           import geoip2.database
 
           URL = "https://github.com/AvenCores/goida-vpn-configs/raw/refs/heads/main/githubmirror/26.txt"
-
           MIN_SPEED = 50_000
           MAX_WORKERS = 30
           PORT_BASE = 10800
@@ -143,7 +142,11 @@ jobs:
                   if not pbk or not UUID_RE.match(u.username):
                       return None
 
-                  ip = socket.gethostbyname(u.hostname)
+                  try:
+                      ip = socket.gethostbyname(u.hostname)
+                  except socket.gaierror:
+                      return None
+
                   if reader_country.country(ip).country.iso_code == "RU":
                       return None
 
