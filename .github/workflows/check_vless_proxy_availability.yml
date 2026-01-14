@@ -35,7 +35,8 @@ jobs:
           echo "RUNNER_IP=$(curl -s https://api.ipify.org)" >> $GITHUB_ENV
 
       - name: Check VLESS via SOCKS + GeoIP + HTTP/HTTPS
-        run: python3 - <<'EOF'
+        run: |
+          python3 - <<'EOF'
 import subprocess, time, json, urllib.parse, os
 
 INPUT = "githubmirror/26_ru_whitelist.txt"
