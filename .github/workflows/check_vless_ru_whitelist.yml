@@ -1,4 +1,4 @@
-name: Check VLESS RU Whitelist + Reality Vision + GeoIP + ASN
+name: Check VLESS RU Whitelist + Reality Vision + GeoIP + ASN + Timeout
 
 on:
   schedule:
@@ -25,7 +25,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests geoip2
 
-      - name: Check VLESS servers (Reality Vision + SNI + GeoIP + ASN)
+      - name: Check VLESS servers (Reality Vision + SNI + GeoIP + ASN + Timeout)
         id: check_alive
         run: |
           python - <<'EOF'
@@ -35,9 +35,9 @@ jobs:
 
           URL = "https://github.com/AvenCores/goida-vpn-configs/raw/refs/heads/main/githubmirror/26.txt"
 
-          TIMEOUT = 0.6
-          CHECK_COUNT = 20
-          MAX_LATENCY = 600
+          TIMEOUT = 0.6            # TCP connect timeout
+          CHECK_COUNT = 5           # Количество попыток таймаута для ключа
+          MAX_LATENCY = 600         # Максимальная средняя задержка
           MAX_WORKERS = 120
 
           COUNTRY_DB = "geoip/GeoLite2-Country.mmdb"
@@ -51,7 +51,42 @@ jobs:
               "avatars.mds.yandex.net", "queuev4.vk.com", "sun6-22.userapi.com",
               "sync.browser.yandex.net", "top-fwz1.mail.ru", "ad.mail.ru", "eh.vk.com",
               "akashi.vk-portal.net", "sun9-38.userapi.com", "st.ozone.ru",
-              "ir.ozone.ru", "vt-1.ozone.ru", "io.ozone.ru", "ozone.ru", "xapi.ozon.ru"
+              "ir.ozone.ru", "vt-1.ozone.ru", "io.ozone.ru", "ozone.ru", "xapi.ozon.ru",
+              "strm-rad-23.strm.yandex.net", "online.sberbank.ru", "esa-res.online.sberbank.ru",
+              "egress.yandex.net", "st.okcdn.ru", "rs.mail.ru", "counter.yadro.ru",
+              "742231.ms.ok.ru", "splitter.wb.ru", "a.wb.ru", "user-geo-data.wildberries.ru",
+              "banners-website.wildberries.ru", "chat-prod.wildberries.ru", "servicepipe.ru",
+              "alfabank.ru", "statad.ru", "alfabank.servicecdn.ru", "alfabank.st",
+              "ad.adriver.ru", "privacy-cs.mail.ru", "imgproxy.cdn-tinkoff.ru",
+              "mddc.tinkoff.ru", "le.tbank.ru", "hrc.tbank.ru", "id.tbank.ru",
+              "rap.skcrtxr.com", "eye.targetads.io", "px.adhigh.net", "nspk.ru",
+              "sba.yandex.net", "identitystatic.mts.ru", "tag.a.mts.ru", "login.mts.ru",
+              "serving.a.mts.ru", "cm.a.mts.ru", "login.vk.com", "api.a.mts.ru",
+              "mtscdn.ru", "d5de4k0ri8jba7ucdbt6.apigw.yandexcloud.net", "moscow.megafon.ru",
+              "api.mindbox.ru", "web-static.mindbox.ru", "storage.yandexcloud.net",
+              "personalization-web-stable.mindbox.ru", "www.t2.ru", "beeline.api.flocktory.com",
+              "static.beeline.ru", "moskva.beeline.ru", "wcm.weborama-tech.ru",
+              "1013a--ma--8935--cp199.stbid.ru", "msk.t2.ru", "s3.t2.ru", "get4click.ru",
+              "dzen.ru", "yastatic.net", "csp.yandex.net", "sntr.avito.ru",
+              "yabro-wbplugin.edadeal.yandex.ru", "cdn.uxfeedback.ru", "goya.rutube.ru",
+              "api.expf.ru", "fb-cdn.premier.one", "www.kinopoisk.ru", "widgets.kinopoisk.ru",
+              "payment-widget.plus.kinopoisk.ru", "api.events.plus.yandex.net",
+              "tns-counter.ru", "speller.yandex.net", "widgets.cbonds.ru", "www.magnit.com",
+              "magnit-ru.injector.3ebra.net", "jsons.injector.3ebra.net", "2gis.ru",
+              "d-assets.2gis.ru", "s1.bss.2gis.com", "www.tbank.ru", "strm-spbmiran-08.strm.yandex.net",
+              "tmsg.tbank.ru", "vk.com", "www.wildberries.ru", "www.ozon.ru", "ok.ru",
+              "yandex.ru", "www.unicreditbank.ru", "www.gazprombank.ru", "cdn.gpb.ru",
+              "mkb.ru", "www.open.ru", "cobrowsing.tbank.ru", "cdn.rosbank.ru",
+              "www.psbank.ru", "www.raiffeisen.ru", "www.rzd.ru", "st.gismeteo.st",
+              "stat-api.gismeteo.net", "c.dns-shop.ru", "restapi.dns-shop.ru", "www.pochta.ru",
+              "passport.pochta.ru", "chat-ct.pochta.ru", "www.x5.ru", "www.ivi.ru", "api2.ivi.ru",
+              "hh.ru", "i.hh.ru", "hhcdn.ru", "sentry.hh.ru", "cpa.hh.ru", "www.kp.ru",
+              "cdnn21.img.ria.ru", "lenta.ru", "sync.rambler.ru", "s.rbk.ru", "www.rbc.ru",
+              "target.smi2.net", "hb-bidder.skcrtxr.com", "strm-spbmiran-07.strm.yandex.net",
+              "pikabu.ru", "www.tutu.ru", "cdn1.tu-tu.ru", "api.apteka.ru", "static.apteka.ru",
+              "images.apteka.ru", "scitylana.apteka.ru", "www.drom.ru", "c.rdrom.ru",
+              "www.farpost.ru", "s11.auto.drom.ru", "i.rdrom.ru", "yummy.drom.ru",
+              "www.drive2.ru", "lemanapro.ru"
           }
 
           UUID_RE = re.compile(r"^[0-9a-fA-F\-]{36}$")
@@ -118,11 +153,16 @@ jobs:
                   return None
               if not UUID_RE.match(d["uuid"]):
                   return None
-              if not check_host_port(d["host"], d["port"]):
-                  return None
+
+              # Проверка хоста и порта с таймаутом несколько раз
+              for _ in range(CHECK_COUNT):
+                  if not check_host_port(d["host"], d["port"]):
+                      return None
+
               country = geo_country(d["host"])
               if not country:
                   return None
+
               try:
                   latencies = [tcp_ping(d["host"], d["port"]) for _ in range(CHECK_COUNT)]
                   if any(p > MAX_LATENCY for p in latencies):
@@ -147,7 +187,7 @@ jobs:
           os.makedirs("githubmirror", exist_ok=True)
           with open("githubmirror/26_ru_whitelist.txt", "w") as f:
               for _, link in results:
-                  f.write(link + "\n")  # Россия полностью исключена
+                  f.write(link + "\n")
 
           with open(os.environ["GITHUB_OUTPUT"], "a") as out:
               out.write(f"count={len(results)}\n")
@@ -155,11 +195,13 @@ jobs:
           print("Final alive:", len(results))
           EOF
 
-      - name: Commit and push result
+      - name: Commit and push result safely
         if: steps.check_alive.outputs.count != '0'
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
+          git fetch origin main
+          git reset --hard origin/main
           git add githubmirror/26_ru_whitelist.txt
-          git diff --cached --quiet || git commit -m "Update RU whitelist VLESS (GeoIP only, no Russia IPs)"
+          git commit -m "Update RU whitelist VLESS (GeoIP only, no Russia IPs + Timeout)" || echo "No changes"
           git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }} HEAD:main
