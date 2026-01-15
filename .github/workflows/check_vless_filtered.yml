@@ -37,8 +37,10 @@ jobs:
           from concurrent.futures import ThreadPoolExecutor, as_completed
           import geoip2.database
 
-          URL = "https://github.com/igareck/vpn-configs-for-russia/blob/main/WHITE-CIDR-RU-all.txt"
-
+          URLS = [ 
+          "https://github.com/igareck/vpn-configs-for-russia/blob/main/WHITE-CIDR-RU-all.txt",
+          "https://github.com/barry-far/V2ray-Config/blob/main/All_Configs_base64_Sub.txt"
+          ]
           TIMEOUT = 1.0
           MAX_LATENCY = 600
           CHECK_COUNT = 3
