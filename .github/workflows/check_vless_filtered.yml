@@ -37,9 +37,9 @@ jobs:
           from concurrent.futures import ThreadPoolExecutor, as_completed
           import geoip2.database
 
-          URL = [ 
-          "https://github.com/igareck/vpn-configs-for-russia/blob/main/WHITE-CIDR-RU-all.txt",
-          "https://github.com/barry-far/V2ray-Config/blob/main/All_Configs_base64_Sub.txt"
+          URLS = [
+          "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/main/WHITE-CIDR-RU-all.txt",
+          "https://raw.githubusercontent.com/barry-far/V2ray-Config/main/All_Configs_base64_Sub.txt"
           ]
           TIMEOUT = 1.0
           MAX_LATENCY = 600
@@ -51,9 +51,30 @@ jobs:
           reader = geoip2.database.Reader(GEOIP_DB)
 
           lines = requests.get(URL, timeout=20).text.splitlines()
-          vless_list = [l for l in lines if l.startswith("vless://")]
+          decoded_lines = []
 
-          def tcp_ping(host, port):
+           for l in lines:
+           l = l.strip()
+           if not l:
+           continue
+
+            # если это vless:// — берём сразу
+          if l.startswith("vless://"):
+          decoded_lines.append(l)
+          continue
+
+            # если похоже на base64 — пробуем декодировать
+            try:
+           decoded = base64.b64decode(l).decode(errors="ignore")
+           for dl in decoded.splitlines():
+            if dl.startswith("vless://"):
+                decoded_lines.append(dl)
+            except:
+            pass
+
+            vless_list = decoded_lines
+
+            def tcp_ping(host, port):
               try:
                   t = time.time()
                   s = socket.create_connection((host, port), timeout=TIMEOUT)
