@@ -28,8 +28,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests geoip2
 
-      # 4️⃣ Check VLESS servers with GeoIP
-      - name: Check VLESS servers (security=reality, double TCP, 1 per GeoIP country)
+      # 4️⃣ Check VLESS servers
+      - name: Check VLESS servers (Reality, TCP latency, 1 per country)
         id: check_alive
         run: |
           python - <<'EOF'
@@ -38,9 +38,10 @@ jobs:
           import geoip2.database
 
           URLS = [
-          "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/main/WHITE-CIDR-RU-all.txt",
-          "https://raw.githubusercontent.com/barry-far/V2ray-Config/main/All_Configs_base64_Sub.txt"
+              "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/main/WHITE-CIDR-RU-all.txt",
+              "https://raw.githubusercontent.com/barry-far/V2ray-Config/main/All_Configs_base64_Sub.txt"
           ]
+
           TIMEOUT = 1.0
           MAX_LATENCY = 600
           CHECK_COUNT = 3
@@ -50,31 +51,42 @@ jobs:
 
           reader = geoip2.database.Reader(GEOIP_DB)
 
-          lines = requests.get(URL, timeout=20).text.splitlines()
-          decoded_lines = []
+          # ---------- load sources ----------
+          lines = []
 
-           for l in lines:
-           l = l.strip()
-           if not l:
-           continue
+          for url in URLS:
+              try:
+                  r = requests.get(url, timeout=20)
+                  r.raise_for_status()
+                  lines.extend(r.text.splitlines())
+                  print(f"[LOAD] {url}")
+              except Exception as e:
+                  print(f"[ERR] {url}: {e}")
 
-            # если это vless:// — берём сразу
-          if l.startswith("vless://"):
-          decoded_lines.append(l)
-          continue
+          # ---------- decode base64 + collect vless ----------
+          vless_list = []
 
-            # если похоже на base64 — пробуем декодировать
-            try:
-           decoded = base64.b64decode(l).decode(errors="ignore")
-           for dl in decoded.splitlines():
-            if dl.startswith("vless://"):
-                decoded_lines.append(dl)
-            except:
-            pass
+          for l in lines:
+              l = l.strip()
+              if not l:
+                  continue
 
-            vless_list = decoded_lines
+              if l.startswith("vless://"):
+                  vless_list.append(l)
+                  continue
 
-            def tcp_ping(host, port):
+              try:
+                  decoded = base64.b64decode(l).decode(errors="ignore")
+                  for dl in decoded.splitlines():
+                      if dl.startswith("vless://"):
+                          vless_list.append(dl)
+              except:
+                  pass
+
+          print(f"[INFO] total vless links: {len(vless_list)}")
+
+          # ---------- helpers ----------
+          def tcp_ping(host, port):
               try:
                   t = time.time()
                   s = socket.create_connection((host, port), timeout=TIMEOUT)
@@ -108,6 +120,7 @@ jobs:
               host, port = parse_vless(link)
               if not host:
                   return None
+
               for _ in range(DOUBLE_CHECKS):
                   pings = []
                   for _ in range(CHECK_COUNT):
@@ -115,12 +128,15 @@ jobs:
                       if p is None or p > MAX_LATENCY:
                           return None
                       pings.append(p)
+
               return median(pings), link, country_of(host)
 
+          # ---------- check servers ----------
           best = {}
 
           with ThreadPoolExecutor(MAX_WORKERS) as ex:
-              for f in as_completed([ex.submit(check, v) for v in vless_list]):
+              futures = [ex.submit(check, v) for v in vless_list]
+              for f in as_completed(futures):
                   r = f.result()
                   if r:
                       med, link, country = r
@@ -130,6 +146,7 @@ jobs:
 
           results = sorted(best.values(), key=lambda x: x[0])
 
+          # ---------- save ----------
           os.makedirs("githubmirror", exist_ok=True)
 
           plain = "githubmirror/26_alive.txt"
@@ -147,6 +164,8 @@ jobs:
 
           with open(os.environ["GITHUB_OUTPUT"], "a") as out:
               out.write(f"count={len(results)}\n")
+
+          print(f"[DONE] alive servers: {len(results)}")
           EOF
 
       # 5️⃣ Commit & push
@@ -156,8 +175,6 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
-          git add githubmirror/26_alive.txt \
-                  githubmirror/26_alive_base64.txt
-
-          git commit --allow-empty -m "Update alive VLESS (Reality, 1 per country) + base64 subscription"
+          git add githubmirror/26_alive.txt githubmirror/26_alive_base64.txt
+          git commit --allow-empty -m "Update alive VLESS (Reality, 1 per country)"
           git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }} HEAD:main
