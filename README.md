@@ -26,6 +26,6 @@ https://github.com/v2rayA/v2raya-openwrt/releases
 https://immortalwrt.kyarucloud.moe/releases/
 ______________________________________________________________________________________
 Мая подписка:
-https://cdn.jsdelivr.net/gh/Rusl2023/vpn-alive-check@main/githubmirror/26_alive.txt
+https://raw.githubusercontent.com/Rusl2023/vpn-alive-check/main/githubmirror/26_alive_base64.txt
 Whitelist:
 https://raw.githubusercontent.com/Rusl2023/vpn-alive-check/main/githubmirror/26_proxy_subscription_base64.txt
