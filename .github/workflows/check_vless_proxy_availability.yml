@@ -40,7 +40,7 @@ jobs:
       - name: Check VLESS servers via Xray + HTTPS + Speed
         run: |
           python3 - <<'EOF'
-          import subprocess, time, json, urllib.parse, urllib.request, os, socket, threading
+          import subprocess, time, json, urllib.parse, urllib.request, os, threading
           from concurrent.futures import ThreadPoolExecutor, as_completed
 
           INPUT = "githubmirror/26_ru_whitelist.txt"
@@ -93,13 +93,13 @@ jobs:
                   json.dump(cfg, f)
 
               p = subprocess.Popen(["./xray", "run", "-c", cfg_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-              time.sleep(5)
+              time.sleep(8)  # увеличиваем ожидание старта Xray
 
               def get_exit_ip():
                   for url in TEST_URLS:
                       try:
                           ip = subprocess.check_output(
-                              ["curl","-s","--max-time","8","-x",f"socks5h://127.0.0.1:{port}",url],
+                              ["curl","-4","-s","--max-time","8","-x",f"socks5h://127.0.0.1:{port}",url],
                               text=True
                           ).strip()
                           if ip:
@@ -111,7 +111,7 @@ jobs:
               def https_ok():
                   try:
                       out = subprocess.check_output(
-                          ["curl","-s","--max-time","5","-x",f"socks5h://127.0.0.1:{port}","https://cloudflare.com/cdn-cgi/trace"],
+                          ["curl","-4","-s","--max-time","5","-x",f"socks5h://127.0.0.1:{port}","https://cloudflare.com/cdn-cgi/trace"],
                           text=True
                       )
                       return "ip=" in out
@@ -121,11 +121,11 @@ jobs:
               def speed_ok():
                   try:
                       r = subprocess.check_output(
-                          ["curl","-s","-L","-o","/dev/null","-w","%{speed_download}",
-                           "-x",f"socks5h://127.0.0.1:{port}","--range","0-200000","--max-time","5",
+                          ["curl","-4","-s","-L","-o","/dev/null","-w","%{speed_download}",
+                           "-x",f"socks5h://127.0.0.1:{port}","--range","0-200000","--max-time","7",
                            "https://speed.cloudflare.com/__down"], text=True
                       )
-                      return int(float(r)) >= 50_000
+                      return int(float(r)) >= 20_000  # порог снижен для CI/CD
                   except:
                       return False
 
