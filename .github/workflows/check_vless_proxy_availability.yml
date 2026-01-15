@@ -1,4 +1,4 @@
-name: Check VLESS proxy availability via Xray (final subscription)
+name: Check VLESS proxy availability via Xray (base64 subscription)
 
 on:
   workflow_dispatch:
@@ -26,22 +26,23 @@ jobs:
           unzip -o xray.zip xray geoip.dat geosite.dat
           chmod +x xray
 
-      - name: Prepare subscription file (always overwrite)
+      - name: Prepare files (always overwrite)
         run: |
           mkdir -p githubmirror
-          : > githubmirror/26_proxy_subscription.txt
+          : > githubmirror/26_proxy_subscription_raw.txt
+          : > githubmirror/26_proxy_subscription_base64.txt
 
       - name: Get runner IP
         run: |
           echo "RUNNER_IP=$(curl -s https://api.ipify.org)" >> $GITHUB_ENV
 
-      - name: Check VLESS via Xray and build subscription
+      - name: Check VLESS via Xray and build raw subscription
         run: |
           python3 - <<'EOF'
           import subprocess, time, json, urllib.parse, os, urllib.request
 
           INPUT = "githubmirror/26_ru_whitelist.txt"
-          OUTPUT = "githubmirror/26_proxy_subscription.txt"
+          OUTPUT = "githubmirror/26_proxy_subscription_raw.txt"
           RUNNER_IP = os.environ["RUNNER_IP"]
 
           TEST_URLS = [
@@ -134,15 +135,19 @@ jobs:
 
               if not ip or ip == RUNNER_IP:
                   continue
-
               if country(ip) == "RU":
                   continue
 
               with open(OUTPUT,"a") as f:
                   f.write(link + "\n")
 
-          print("Subscription build finished")
+          print("Raw subscription ready")
           EOF
+
+      - name: Encode subscription to Base64
+        run: |
+          base64 -w 0 githubmirror/26_proxy_subscription_raw.txt \
+            > githubmirror/26_proxy_subscription_base64.txt
 
       - name: Commit and force-push subscription
         env:
@@ -151,6 +156,8 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
-          git add githubmirror/26_proxy_subscription.txt
-          git commit --allow-empty -m "Update VLESS subscription (Xray verified, non-RU)"
+          git add githubmirror/26_proxy_subscription_raw.txt \
+                  githubmirror/26_proxy_subscription_base64.txt
+
+          git commit --allow-empty -m "Update VLESS base64 subscription (Xray verified)"
           git push -f https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY} HEAD:main
