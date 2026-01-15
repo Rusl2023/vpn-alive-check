@@ -13,8 +13,8 @@ https://github.com/1andrevich/Re-filter-lists/releases
 - Android nekobox:
 https://github.com/MatsuriDayo/NekoBoxForAndroid/releases
 
-- IOS скачать c App Store (V2Ray Client+App
-https://apps.apple.com/us/app/v2ray-client/id6747379524
+- IOS скачать c App Store
+Streisand https://apps.apple.com/us/app/streisand/id6450534064
 
 - Windows Happ:
 https://github.com/Happ-proxy/happ-desktop/releases
