@@ -3,6 +3,7 @@
 ______________________________________________________________________________
 - База конфигов VPN:
 https://github.com/AvenCores/goida-vpn-configs/tree/refs/heads/main
+https://github.com/igareck/vpn-configs-for-russia?tab=readme-ov-file
   
 - geolite2 (ASN,city,country):
 https://github.com/P3TERX/GeoLite.mmdb/releases
