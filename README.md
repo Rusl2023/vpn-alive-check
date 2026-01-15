@@ -17,8 +17,8 @@ https://github.com/MatsuriDayo/NekoBoxForAndroid/releases
 - IOS скачать c App Store
 Streisand https://apps.apple.com/us/app/streisand/id6450534064
 
-- Windows Happ:
-https://github.com/Happ-proxy/happ-desktop/releases
+- Windows karing:
+https://github.com/KaringX/karing/releases
 
 - ОpenWRT V2rayA:
 https://github.com/v2rayA/v2raya-openwrt/releases
