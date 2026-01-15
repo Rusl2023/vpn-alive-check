@@ -40,7 +40,7 @@ jobs:
       - name: Check VLESS servers via Xray + HTTPS + Speed
         run: |
           python3 - <<'EOF'
-          import subprocess, time, json, urllib.parse, os, socket, threading
+          import subprocess, time, json, urllib.parse, urllib.request, os, socket, threading
           from concurrent.futures import ThreadPoolExecutor, as_completed
 
           INPUT = "githubmirror/26_ru_whitelist.txt"
@@ -136,7 +136,6 @@ jobs:
               if not ip or ip == RUNNER_IP:
                   return "blocked", link
               try:
-                  import urllib.request
                   with urllib.request.urlopen(f"https://ipapi.co/{ip}/country/") as r:
                       country = r.read().decode().strip()
               except:
