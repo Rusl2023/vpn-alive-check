@@ -1,70 +1,36 @@
-      - name: Build Clash YAML from VLESS/REALITY
-        run: |
-          python3 <<EOF
-import os, subprocess, json, urllib.parse
+- name: Build Clash YAML from VLESS/REALITY
+  run: |
+    python3 <<EOF
+import os
 
 INPUT = "githubmirror/26_ru_whitelist.txt"
-YAML_OUT = "githubmirror/26_proxy_subscription_clash.yaml"
+OUTPUT = "githubmirror/26_proxy_subscription_clash.yaml"
 RUNNER_IP = os.environ["RUNNER_IP"]
 
-PROXIES_YAML = ""
-
 with open(INPUT) as f:
-    for line in f:
-        line = line.strip()
-        if not line or not (line.startswith("vless://") or line.startswith("reality://")):
-            continue
+    links = [l.strip() for l in f if l.strip().startswith("vless://") or l.strip().startswith("reality://")]
 
-        u = urllib.parse.urlparse(line)
-        q = urllib.parse.parse_qs(u.query)
-        name = urllib.parse.unquote(u.fragment) or f"{u.hostname}:{u.port}"
+proxies_yaml = ""
+for l in links:
+    proxies_yaml += f"- name: '{l}'\n  type: vless\n  server: example.com\n  port: 443\n"
 
-        if line.startswith("vless://"):
-            sni = q.get("sni", [""])[0]
-            PROXIES_YAML += f"- name: {name}\n  type: vless\n  server: {u.hostname}\n  port: {u.port}\n  uuid: {u.username}\n  tls: true\n  sni: {sni}\n"
-        elif line.startswith("reality://"):
-            sni = q.get("sni", [""])[0]
-            pubkey = q.get("pbk", [""])[0]
-            sid = q.get("sid", [""])[0]
-            PROXIES_YAML += f"- name: {name}\n  type: reality\n  server: {u.hostname}\n  port: {u.port}\n  pubkey: {pubkey}\n  sni: {sni}\n  short-id: {sid}\n"
-
-clash_template = f"""
+template = f"""
 port: 7890
 socks-port: 7891
-redir-port: 7892
-mixed-port: 7893
 allow-lan: true
-bind-address: "0.0.0.0"
-mode: Rule
-log-level: info
-external-controller: 0.0.0.0:9090
-
-dns:
-  enable: true
-  listen: 0.0.0.0:53
-  default-nameserver:
-    - 1.1.1.1
-    - 8.8.8.8
-  enhanced-mode: redir-host
-  fake-ip-range: 198.18.0.1/16
-  use-hosts: true
-  geoip: true
-  geosite: true
 
 proxies:
-{PROXIES_YAML}
+{proxies_yaml}
 
 proxy-groups:
   - name: Auto
-    type: url-test
+    type: select
     proxies:
-{PROXIES_YAML.replace('- name: ','      - ')}
-    url: http://www.gstatic.com/generate_204
-    interval: 300
+{''.join(['      - ' + l.split()[0] + '\n' for l in links])}
   - name: Proxy
     type: select
     proxies:
-{PROXIES_YAML.replace('- name: ','      - ')}
+{''.join(['      - ' + l.split()[0] + '\n' for l in links])}
   - name: DIRECT
     type: select
     proxies:
@@ -75,8 +41,8 @@ rules:
   - MATCH,Auto
 """
 
-with open(YAML_OUT,"w") as f:
-    f.write(clash_template)
+with open(OUTPUT, "w") as f:
+    f.write(template)
 
 print("Clash YAML subscription ready")
 EOF
