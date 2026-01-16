@@ -1,84 +1,34 @@
-name: Check VLESS proxy availability (Clash YAML)
-
-on:
-  workflow_dispatch:
-
-jobs:
-  check:
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y curl jq python3 unzip
-
-      - name: Download Xray
-        run: |
-          XRAY_VER=$(curl -s https://api.github.com/repos/XTLS/Xray-core/releases/latest | jq -r .tag_name)
-          curl -L -o xray.zip https://github.com/XTLS/Xray-core/releases/download/${XRAY_VER}/Xray-linux-64.zip
-          unzip -o xray.zip xray geoip.dat geosite.dat
-          chmod +x xray
-
-      - name: Prepare Clash YAML output
-        run: |
-          mkdir -p githubmirror
-          : > githubmirror/26_proxy_subscription_clash.yaml
-
-      - name: Get runner IP
-        run: echo "RUNNER_IP=$(curl -s https://api.ipify.org)" >> $GITHUB_ENV
-
       - name: Build Clash YAML from VLESS/REALITY
         run: |
-          python3 - <<'EOF'
-          import os, subprocess, json, urllib.parse
+          python3 <<EOF
+import os, subprocess, json, urllib.parse
 
-          INPUT = "githubmirror/26_ru_whitelist.txt"
-          YAML_OUT = "githubmirror/26_proxy_subscription_clash.yaml"
-          RUNNER_IP = os.environ["RUNNER_IP"]
+INPUT = "githubmirror/26_ru_whitelist.txt"
+YAML_OUT = "githubmirror/26_proxy_subscription_clash.yaml"
+RUNNER_IP = os.environ["RUNNER_IP"]
 
-          PROXIES_YAML = ""
+PROXIES_YAML = ""
 
-          def check_proxy(cfg_json):
-              with open("cfg.json","w") as f:
-                  json.dump(cfg_json,f)
-              p = subprocess.Popen(["./xray","run","-c","cfg.json"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-              try:
-                  out = subprocess.check_output(["curl","-s","--max-time","8","--socks5h","127.0.0.1:1080","https://api.ipify.org"], text=True).strip()
-                  return out != RUNNER_IP
-              except:
-                  return False
-              finally:
-                  p.terminate()
+with open(INPUT) as f:
+    for line in f:
+        line = line.strip()
+        if not line or not (line.startswith("vless://") or line.startswith("reality://")):
+            continue
 
-          with open(INPUT) as f:
-              for line in f:
-                  line = line.strip()
-                  if not line or not (line.startswith("vless://") or line.startswith("reality://")):
-                      continue
+        u = urllib.parse.urlparse(line)
+        q = urllib.parse.parse_qs(u.query)
+        name = urllib.parse.unquote(u.fragment) or f"{u.hostname}:{u.port}"
 
-                  u = urllib.parse.urlparse(line)
-                  q = urllib.parse.parse_qs(u.query)
-                  name = urllib.parse.unquote(u.fragment) or f"{u.hostname}:{u.port}"
+        if line.startswith("vless://"):
+            sni = q.get("sni", [""])[0]
+            PROXIES_YAML += f"- name: {name}\n  type: vless\n  server: {u.hostname}\n  port: {u.port}\n  uuid: {u.username}\n  tls: true\n  sni: {sni}\n"
+        elif line.startswith("reality://"):
+            sni = q.get("sni", [""])[0]
+            pubkey = q.get("pbk", [""])[0]
+            sid = q.get("sid", [""])[0]
+            PROXIES_YAML += f"- name: {name}\n  type: reality\n  server: {u.hostname}\n  port: {u.port}\n  pubkey: {pubkey}\n  sni: {sni}\n  short-id: {sid}\n"
 
-                  # создаём yaml-блок
-                  if line.startswith("vless://"):
-                      sni = q.get("sni", [""])[0]
-                      PROXIES_YAML += f"- name: {name}\n  type: vless\n  server: {u.hostname}\n  port: {u.port}\n  uuid: {u.username}\n  tls: true\n  sni: {sni}\n"
-                  elif line.startswith("reality://"):
-                      sni = q.get("sni", [""])[0]
-                      pubkey = q.get("pbk", [""])[0]
-                      sid = q.get("sid", [""])[0]
-                      PROXIES_YAML += f"- name: {name}\n  type: reality\n  server: {u.hostname}\n  port: {u.port}\n  pubkey: {pubkey}\n  sni: {sni}\n  short-id: {sid}\n"
-
-          # шаблон Clash YAML
-          clash_template = f"""
+clash_template = f"""
 port: 7890
 socks-port: 7891
 redir-port: 7892
@@ -124,8 +74,9 @@ rules:
   - GEOIP,CN,DIRECT
   - MATCH,Auto
 """
-          with open(YAML_OUT,"w") as f:
-              f.write(clash_template)
 
-          print("Clash YAML subscription ready")
-          EOF
+with open(YAML_OUT,"w") as f:
+    f.write(clash_template)
+
+print("Clash YAML subscription ready")
+EOF
