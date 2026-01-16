@@ -44,7 +44,6 @@ jobs:
           INPUT = "githubmirror/26_ru_whitelist.txt"
           OUTPUT = "githubmirror/26_proxy_subscription_raw.txt"
           RUNNER_IP = os.environ["RUNNER_IP"]
-
           TEST_URLS = [
               "https://api.ipify.org",
               "http://cp.cloudflare.com",
@@ -55,8 +54,7 @@ jobs:
               for url in TEST_URLS:
                   try:
                       out = subprocess.check_output(
-                          ["curl","-s","--max-time","8",
-                           "-x","socks5h://127.0.0.1:1080",url],
+                          ["curl","-s","--max-time","8","-x","socks5h://127.0.0.1:1080",url],
                           text=True
                       ).strip()
                       if out:
@@ -78,7 +76,6 @@ jobs:
           for link in links:
               u = urllib.parse.urlparse(link)
               q = urllib.parse.parse_qs(u.query)
-
               stream = {"network": q.get("type", ["tcp"])[0]}
               sec = q.get("security", ["none"])[0]
               sni = q.get("sni", [""])[0]
@@ -86,7 +83,6 @@ jobs:
               if sec == "tls" and sni:
                   stream["security"] = "tls"
                   stream["tlsSettings"] = {"serverName": sni}
-
               if sec == "reality" and "pbk" in q:
                   stream["security"] = "reality"
                   stream["realitySettings"] = {
@@ -127,7 +123,6 @@ jobs:
                   stdout=subprocess.DEVNULL,
                   stderr=subprocess.DEVNULL
               )
-
               time.sleep(3)
               ip = exit_ip()
               p.terminate()
@@ -146,8 +141,7 @@ jobs:
 
       - name: Encode subscription to Base64
         run: |
-          base64 -w 0 githubmirror/26_proxy_subscription_raw.txt \
-            > githubmirror/26_proxy_subscription_base64.txt
+          base64 -w 0 githubmirror/26_proxy_subscription_raw.txt > githubmirror/26_proxy_subscription_base64.txt
 
       - name: Commit and force-push subscription
         env:
@@ -155,9 +149,6 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-
-          git add githubmirror/26_proxy_subscription_raw.txt \
-                  githubmirror/26_proxy_subscription_base64.txt
-
+          git add githubmirror/26_proxy_subscription_raw.txt githubmirror/26_proxy_subscription_base64.txt
           git commit --allow-empty -m "Update VLESS base64 subscription (Xray verified)"
           git push -f https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY} HEAD:main
