@@ -34,11 +34,11 @@ jobs:
           import geoip2.database
 
           URLS = [
-           "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/v2ray/all_sub.txt",
-           "https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt",
-           "https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list/refs/heads/main/vless_configs.txt",
-           "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/WHITE-SNI-RU-all.txt",
-           "https://raw.githubusercontent.com/hamedcode/port-based-v2ray-configs/main/sub/vless.txt"
+            "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/v2ray/all_sub.txt",
+            "https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt",
+            "https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list/refs/heads/main/vless_configs.txt",
+            "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/WHITE-SNI-RU-all.txt",
+            "https://raw.githubusercontent.com/hamedcode/port-based-v2ray-configs/main/sub/vless.txt"
           ]
 
           TIMEOUT = 0.6
@@ -109,44 +109,62 @@ jobs:
               lst = sorted(lst)
               return lst[len(lst)//2]
 
+          # 🔧 ИСПРАВЛЕННЫЙ ПАРСЕР (устойчив к мусору и пробелам)
           def parse_vless(link):
-              u = urllib.parse.urlparse(link)
-              q = urllib.parse.parse_qs(u.query)
-              return {
-                  "link": link,
-                  "host": u.hostname,
-                  "port": u.port or 443,
-                  "security": q.get("security", [""])[0],
-                  "sni": q.get("sni", [""])[0],
-                  "flow": q.get("flow", [""])[0]
-              }
-
-          def check_vless(link):
-              d = parse_vless(link)
-              if not d or d["security"] != "reality":
-                  return None
-              if not d["sni"] or d["sni"] not in RU_SNI_WHITELIST:
-                  return None
-              if not is_valid_flow(d["link"]):
-                  return None
-              if not geo_country(d["host"]):
-                  return None
               try:
+                  u = urllib.parse.urlparse(link.strip())
+                  q = urllib.parse.parse_qs(u.query)
+
+                  port = 443
+                  if u.netloc and ":" in u.netloc:
+                      try:
+                          port = int(u.netloc.rsplit(":", 1)[1].strip())
+                      except:
+                          port = 443
+
+                  return {
+                      "link": link,
+                      "host": u.hostname,
+                      "port": port,
+                      "security": q.get("security", [""])[0],
+                      "sni": q.get("sni", [""])[0],
+                      "flow": q.get("flow", [""])[0]
+                  }
+              except:
+                  return None
+
+          # 🔧 ПОЛНАЯ ЗАЩИТА ПОТОКА
+          def check_vless(link):
+              try:
+                  d = parse_vless(link)
+                  if not d or d["security"] != "reality":
+                      return None
+                  if not d["sni"] or d["sni"] not in RU_SNI_WHITELIST:
+                      return None
+                  if not is_valid_flow(d["link"]):
+                      return None
+                  if not geo_country(d["host"]):
+                      return None
+
                   pings = []
                   for _ in range(CHECK_COUNT):
                       p = tcp_ping(d["host"], d["port"])
                       if p > MAX_LATENCY:
                           return None
                       pings.append(p)
+
                   return median(pings), d["link"]
               except:
                   return None
 
           lines = []
           for url in URLS:
-              lines.extend(requests.get(url, timeout=20).text.splitlines())
+              try:
+                  lines.extend(requests.get(url, timeout=20).text.splitlines())
+              except:
+                  pass
 
-          vless_links = [l for l in lines if l.startswith("vless://")]
+          vless_links = [l.strip() for l in lines if l.strip().startswith("vless://")]
 
           results = []
           with ThreadPoolExecutor(max_workers=MAX_WORKERS) as exe:
@@ -156,6 +174,7 @@ jobs:
                       results.append(r)
 
           results.sort(key=lambda x: x[0])
+
           os.makedirs("githubmirror", exist_ok=True)
           with open("githubmirror/26_ru_whitelist.txt", "w") as f:
               for _, link in results:
@@ -163,6 +182,8 @@ jobs:
 
           with open(os.environ["GITHUB_OUTPUT"], "a") as out:
               out.write(f"count={len(results)}\n")
+
+          print(f"[DONE] alive servers: {len(results)}")
           EOF
 
       - name: Commit and push result
