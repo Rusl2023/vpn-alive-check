@@ -154,7 +154,7 @@ jobs:
 
           results.sort(key=lambda x: x[0])
           os.makedirs("githubmirror", exist_ok=True)
-          with open("githubmirror/26_ru_whitelist.txt", "w") as f:
+          with open("githubmirror/whitelist.txt", "w") as f:
               for _, link in results:
                   f.write(link + "\n")
 
