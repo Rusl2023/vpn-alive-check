@@ -1,6 +1,8 @@
 name: Check VLESS proxy availability via Xray (base64 subscription)
 
 on:
+  schedule:
+    - cron: '*/30 * * * *'
   workflow_dispatch:
 
 jobs:
