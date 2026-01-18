@@ -11,10 +11,10 @@ https://github.com/P3TERX/GeoLite.mmdb/releases
 - geoip geosite:
 https://github.com/1andrevich/Re-filter-lists/releases
 
-- Android nekobox:
-https://github.com/MatsuriDayo/NekoBoxForAndroid/releases
+- Android karing:
+https://github.com/KaringX/karing/releases
 
-- IOS скачать c App Store
+- IOS скачать c App Store karing
 Streisand https://apps.apple.com/us/app/streisand/id6450534064
 
 - Windows karing:
