@@ -55,7 +55,7 @@
 https://github.com/v2rayA/v2raya-openwrt/releases
 - immortalwrt
 https://immortalwrt.kyarucloud.moe/releases/
-База ключей:
+## База ключей:
 - https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/v2ray/all_sub.txt
 - https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt
 - https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list/refs/heads/main/vless_configs.txt
