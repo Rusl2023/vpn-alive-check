@@ -56,11 +56,11 @@ https://github.com/v2rayA/v2raya-openwrt/releases
 - immortalwrt
 https://immortalwrt.kyarucloud.moe/releases/
 ## База ключей:
-- https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/v2ray/all_sub.txt
-- https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt
-- https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list/refs/heads/main/vless_configs.txt
-- https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/WHITE-SNI-RU-all.txt
-- https://raw.githubusercontent.com/hamedcode/port-based-v2ray-configs/main/sub/vless.txt
+[`База 1`](https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/v2ray/all_sub.txt)
+[`База 2`](https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt)
+[`База 3`](https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list/refs/heads/main/vless_configs.txt)
+[`База 4`](https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/WHITE-SNI-RU-all.txt)
+[`База 5`](https://raw.githubusercontent.com/hamedcode/port-based-v2ray-configs/main/sub/vless.txt)
           
 ______________________________________________________________________________________
 
