@@ -109,7 +109,6 @@ jobs:
               lst = sorted(lst)
               return lst[len(lst)//2]
 
-          # 🔧 ИСПРАВЛЕННЫЙ ПАРСЕР (устойчив к мусору и пробелам)
           def parse_vless(link):
               try:
                   u = urllib.parse.urlparse(link.strip())
@@ -123,7 +122,7 @@ jobs:
                           port = 443
 
                   return {
-                      "link": link,
+                      "link": link.strip(),
                       "host": u.hostname,
                       "port": port,
                       "security": q.get("security", [""])[0],
@@ -133,7 +132,6 @@ jobs:
               except:
                   return None
 
-          # 🔧 ПОЛНАЯ ЗАЩИТА ПОТОКА
           def check_vless(link):
               try:
                   d = parse_vless(link)
@@ -153,7 +151,7 @@ jobs:
                           return None
                       pings.append(p)
 
-                  return median(pings), d["link"]
+                  return median(pings), d
               except:
                   return None
 
@@ -167,11 +165,22 @@ jobs:
           vless_links = [l.strip() for l in lines if l.strip().startswith("vless://")]
 
           results = []
+          seen = set()  # 🔥 АНТИ-ДУБЛИ
+
           with ThreadPoolExecutor(max_workers=MAX_WORKERS) as exe:
               for f in as_completed([exe.submit(check_vless, v) for v in vless_links]):
                   r = f.result()
-                  if r:
-                      results.append(r)
+                  if not r:
+                      continue
+
+                  latency, d = r
+                  key = (d["host"], d["port"], d["sni"], d["flow"])
+
+                  if key in seen:
+                      continue  # ❌ дубликат
+
+                  seen.add(key)
+                  results.append((latency, d["link"]))
 
           results.sort(key=lambda x: x[0])
 
@@ -183,7 +192,7 @@ jobs:
           with open(os.environ["GITHUB_OUTPUT"], "a") as out:
               out.write(f"count={len(results)}\n")
 
-          print(f"[DONE] alive servers: {len(results)}")
+          print(f"[DONE] unique alive servers: {len(results)}")
           EOF
 
       - name: Commit and push result
@@ -192,5 +201,5 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add githubmirror/26_ru_whitelist.txt
-          git diff --cached --quiet || git commit -m "Update RU whitelist VLESS (GeoIP only, no Russia IPs)"
+          git diff --cached --quiet || git commit -m "Update RU whitelist VLESS (deduplicated)"
           git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }} HEAD:main
