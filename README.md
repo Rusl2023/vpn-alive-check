@@ -1,13 +1,10 @@
-# Мая подписка бесплатных ключей.
-Создал для своей семьи, своих родственников и друзей. Ниже полезные ссылки.
-______________________________________________________________________________
-- База конфигов VPN:
-https://github.com/AvenCores/goida-vpn-configs/tree/refs/heads/main
-https://github.com/igareck/vpn-configs-for-russia?tab=readme-ov-file
-# 🔐 VPN Alive Check
+# 🔐 Free VPN "Белые списки" 2026г.
 
 ![Karing Android Version](https://img.shields.io/badge/Karing-Android_KARING_ANDROID_VERSION-blue?style=flat-square)
 ![Karing Windows Version](https://img.shields.io/badge/Karing-Windows_KARING_WINDOWS_VERSION-blue?style=flat-square)
+
+## 📱 IOS скачать c App Store программу karing
+https://apps.apple.com/us/app/karing/id6472431552
 
 ## 📱 Karing (Android)
 
@@ -18,9 +15,6 @@ https://github.com/igareck/vpn-configs-for-russia?tab=readme-ov-file
 ### 🔹 armeabi-v7a (старые устройства)
 👉 [Скачать APK](https://github.com/Rusl2023/vpn-alive-check/raw/main/apk/karing_android_armeabi-v7a.apk)
 
-
-### 🧾 Контроль целостности Android
-[`apk/SHA256SUMS`](apk/SHA256SUMS)
 
 ## 💻 Karing (Windows)
 
@@ -53,7 +47,7 @@ https://github.com/igareck/vpn-configs-for-russia?tab=readme-ov-file
 
 ### 🔹 Geosite
 [`geosite.dat`](geoip/geosite.dat)  
-SHA256:
+
 
 ### 🧾 Контроль целостности GeoIP / Geosite
 [`geoip/SHA256SUMS`](geoip/SHA256SUMS)
@@ -64,18 +58,12 @@ SHA256:
 - **Android / Windows / Karing:** https://github.com/KaringX/karing  
 - **GeoLite2 (P3TERX):** https://github.com/P3TERX/GeoLite.mmdb  
 - **GeoIP / Geosite:** https://github.com/1andrevich/Re-filter-lists
-
-
-- IOS скачать c App Store karing
-Streisand https://apps.apple.com/us/app/streisand/id6450534064
-
-
 - ОpenWRT V2rayA:
 https://github.com/v2rayA/v2raya-openwrt/releases
 - immortalwrt
 https://immortalwrt.kyarucloud.moe/releases/
 ______________________________________________________________________________________
-Мая подписка:
-https://raw.githubusercontent.com/Rusl2023/vpn-alive-check/main/githubmirror/26_alive_base64.txt
-Whitelist:
+
+## ℹ️ Мая подписка бесплатных ключей ℹ️
+Создал для своей семьи, своих родственников и друзей. Копируем ссылку в подписку:
 https://raw.githubusercontent.com/Rusl2023/vpn-alive-check/refs/heads/main/githubmirror/26_proxy_subscription_base64.txt
