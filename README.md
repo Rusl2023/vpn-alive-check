@@ -4,7 +4,7 @@
 ![Karing Windows Version](https://img.shields.io/badge/Karing-Windows_KARING_WINDOWS_VERSION-blue?style=flat-square)
 
 ## 📱 IOS скачать c App Store программу karing
-https://apps.apple.com/us/app/karing/id6472431552
+👉 [Ссылка на программу karing](https://apps.apple.com/us/app/karing/id6472431552)
 
 ## 📱 Karing (Android)
 
