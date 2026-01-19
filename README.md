@@ -11,8 +11,25 @@ https://github.com/P3TERX/GeoLite.mmdb/releases
 - geoip geosite:
 https://github.com/1andrevich/Re-filter-lists/releases
 
-- Android karing:
-https://github.com/KaringX/karing/releases
+## 📱 Karing (Android)
+
+Рекомендуемый клиент для **VLESS / Reality / XTLS Vision**
+
+### 📦 Версия
+**{{KARING_VERSION}}**
+
+### 🔹 Скачать APK (прямые ссылки из репозитория)
+
+- **ARM64-v8a (современные устройства)**  
+  👉 [Скачать APK](apk/karing_android_arm64-v8a.apk)  
+  SHA256: `{{ARM64_SHA}}`
+
+- **armeabi-v7a (старые устройства)**  
+  👉 [Скачать APK](apk/karing_android_armeabi-v7a.apk)  
+  SHA256: `{{ARMV7_SHA}}`
+
+🔁 APK и хеши обновляются автоматически при выходе нового релиза Karing.
+
 
 - IOS скачать c App Store karing
 Streisand https://apps.apple.com/us/app/streisand/id6450534064
