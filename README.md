@@ -36,9 +36,6 @@ https://apps.apple.com/us/app/karing/id6472431552
 [`GeoLite2-Country.mmdb`](geolite2/GeoLite2-Country.mmdb)  
 
 
-### 🧾 Контроль целостности GeoLite2
-[`geolite2/SHA256SUMS`](geolite2/SHA256SUMS)
-
 ## 🌐 GeoIP / Geosite
 
 ### 🔹 GeoIP
@@ -47,10 +44,6 @@ https://apps.apple.com/us/app/karing/id6472431552
 
 ### 🔹 Geosite
 [`geosite.dat`](geoip/geosite.dat)  
-
-
-### 🧾 Контроль целостности GeoIP / Geosite
-[`geoip/SHA256SUMS`](geoip/SHA256SUMS)
 
 
 ## ℹ️ Источник
