@@ -28,7 +28,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests geoip2
 
-      # 4️⃣ Check VLESS servers
+      # 4️⃣ Download GeoLite2 Country DB
+      - name: Download GeoLite2 Country database
+        run: |
+          mkdir -p geoip
+          curl -L -o geoip/GeoLite2-Country.mmdb https://github.com/P3TERX/GeoLite.mmdb/releases/latest/download/GeoLite2-Country.mmdb
+
+      # 5️⃣ Check VLESS servers
       - name: Check VLESS servers (Reality, TCP latency, 1 per country)
         id: check_alive
         run: |
@@ -171,13 +177,14 @@ jobs:
           print(f"[DONE] alive servers: {len(results)}")
           EOF
 
-      # 5️⃣ Commit & push
+      # 6️⃣ Commit & push
       - name: Commit and push result
         if: steps.check_alive.outputs.count != '0'
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-
           git add githubmirror/26_alive.txt githubmirror/26_alive_base64.txt
-          git commit --allow-empty -m "Update alive VLESS (Reality, 1 per country)"
-          git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }} HEAD:main
+          git diff --cached --quiet || git commit -m "Update alive VLESS (Reality, 1 per country)"
+          git push https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY} HEAD:main
