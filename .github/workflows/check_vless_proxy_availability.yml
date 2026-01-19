@@ -125,15 +125,8 @@ jobs:
           # Добавляем только файлы данных
           git add githubmirror/26_proxy_subscription_raw.txt githubmirror/26_proxy_subscription_base64.txt
 
-          # Очистка индекса для безопасного rebase
-          git reset --mixed
-
-          # Синхронизируем с удалённой веткой, чтобы избежать ошибок push
-          git fetch origin main
-          git rebase origin/main || git rebase --abort
-
           # Коммитим только если есть изменения
           git diff --cached --quiet || git commit -m "Update VLESS base64 subscription (Xray verified)"
 
-          # Пушим изменения
-          git push https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY} HEAD:main
+          # Force push только добавленных файлов, чтобы не было конфликтов с main
+          git push --force https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY} HEAD:main
