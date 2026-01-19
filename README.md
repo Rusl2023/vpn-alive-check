@@ -31,13 +31,12 @@ APK автоматически синхронизируются **при вых�
 ## 📦 Скачать APK
 
 ### 🔹 ARM64-v8a (большинство современных устройств)
-👉 [Скачать APK](apk/karing_android_arm64-v8a.apk)
+👉 [Скачать APK](https://github.com/Rusl2023/vpn-alive-check/raw/main/apk/karing_android_arm64-v8a.apk)
 
 SHA256:
 
 ### 🔹 armeabi-v7a (старые устройства)
-👉 [Скачать APK](apk/karing_android_armeabi-v7a.apk)
-
+👉 [Скачать APK](https://github.com/Rusl2023/vpn-alive-check/raw/main/apk/karing_android_armeabi-v7a.apk)
 SHA256:
 
 ---
