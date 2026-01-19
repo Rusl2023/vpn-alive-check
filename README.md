@@ -28,4 +28,4 @@ ________________________________________________________________________________
 Мая подписка:
 https://raw.githubusercontent.com/Rusl2023/vpn-alive-check/main/githubmirror/26_alive_base64.txt
 Whitelist:
-https://raw.githubusercontent.com/Rusl2023/vpn-alive-check/main/githubmirror/26_proxy_subscription_base64.txt
+https://raw.githubusercontent.com/Rusl2023/vpn-alive-check/refs/heads/main/githubmirror/26_proxy_subscription_base64.txt
