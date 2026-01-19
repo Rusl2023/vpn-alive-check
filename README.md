@@ -16,17 +16,17 @@ https://github.com/1andrevich/Re-filter-lists/releases
 Рекомендуемый клиент для **VLESS / Reality / XTLS Vision**
 
 ### 📦 Версия
-**{{KARING_VERSION}}**
+**v1.2.11.1406**
 
 ### 🔹 Скачать APK (прямые ссылки из репозитория)
 
 - **ARM64-v8a (современные устройства)**  
   👉 [Скачать APK](apk/karing_android_arm64-v8a.apk)  
-  SHA256: `{{ARM64_SHA}}`
+  SHA256: `c84e52dcf576656c09d96d7f2563386fa9a8bec5743ff16a6a0b9de0cd5e66ed`
 
 - **armeabi-v7a (старые устройства)**  
   👉 [Скачать APK](apk/karing_android_armeabi-v7a.apk)  
-  SHA256: `{{ARMV7_SHA}}`
+  SHA256: `7be1d0204b6d1b1d2bd050a558b681e73710f11b5a770b5dfc6ba5bc41164a49`
 
 🔁 APK и хеши обновляются автоматически при выходе нового релиза Karing.
 
