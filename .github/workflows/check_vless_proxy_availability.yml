@@ -45,12 +45,8 @@ jobs:
 
           INPUT = "githubmirror/26_ru_whitelist.txt"
           OUTPUT = "githubmirror/26_proxy_subscription_raw.txt"
-          RUNNER_IP = os.environ["RUNNER_IP"]
-          TEST_URLS = [
-              "https://api.ipify.org",
-              "http://cp.cloudflare.com",
-              "https://www.instagram.com/"
-          ]
+          RUNNER_IP = os.environ.get("RUNNER_IP", "")
+          TEST_URLS = ["https://api.ipify.org","http://cp.cloudflare.com","https://www.instagram.com/"]
 
           def exit_ip():
               for url in TEST_URLS:
@@ -87,57 +83,27 @@ jobs:
                   stream["tlsSettings"] = {"serverName": sni}
               if sec == "reality" and "pbk" in q:
                   stream["security"] = "reality"
-                  stream["realitySettings"] = {
-                      "serverName": sni,
-                      "publicKey": q["pbk"][0],
-                      "shortId": q.get("sid", [""])[0]
-                  }
+                  stream["realitySettings"] = {"serverName": sni,"publicKey": q["pbk"][0],"shortId": q.get("sid", [""])[0]}
 
               cfg = {
-                  "inbounds": [{
-                      "listen": "127.0.0.1",
-                      "port": 1080,
-                      "protocol": "socks",
-                      "settings": {"udp": False}
-                  }],
-                  "outbounds": [{
-                      "protocol": "vless",
-                      "settings": {
-                          "vnext": [{
-                              "address": u.hostname,
-                              "port": u.port or 443,
-                              "users": [{
-                                  "id": u.username,
-                                  "encryption": "none",
-                                  "flow": q.get("flow", [""])[0]
-                              }]
-                          }]
-                      },
-                      "streamSettings": stream
-                  }]
+                  "inbounds":[{"listen":"127.0.0.1","port":1080,"protocol":"socks","settings":{"udp":False}}],
+                  "outbounds":[{"protocol":"vless","settings":{"vnext":[{"address":u.hostname,"port":u.port or 443,"users":[{"id":u.username,"encryption":"none","flow":q.get("flow", [""])[0]}]}]},"streamSettings":stream}]
               }
 
               with open("cfg.json","w") as f:
                   json.dump(cfg,f)
 
-              p = subprocess.Popen(
-                  ["./xray","run","-c","cfg.json"],
-                  stdout=subprocess.DEVNULL,
-                  stderr=subprocess.DEVNULL
-              )
+              p = subprocess.Popen(["./xray","run","-c","cfg.json"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
               time.sleep(3)
               ip = exit_ip()
               p.terminate()
               time.sleep(1)
-
               if not ip or ip == RUNNER_IP:
                   continue
               if country(ip) == "RU":
                   continue
-
               with open(OUTPUT,"a") as f:
                   f.write(link + "\n")
-
           print("Raw subscription ready")
           EOF
 
@@ -145,12 +111,12 @@ jobs:
         run: |
           base64 -w 0 githubmirror/26_proxy_subscription_raw.txt > githubmirror/26_proxy_subscription_base64.txt
 
-      - name: Commit and force-push subscription
+      - name: Commit and push subscription (data files only)
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add githubmirror/26_proxy_subscription_raw.txt githubmirror/26_proxy_subscription_base64.txt
-          git commit --allow-empty -m "Update VLESS base64 subscription (Xray verified)"
-          git push -f https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY} HEAD:main
+          git diff --cached --quiet || git commit -m "Update VLESS base64 subscription (Xray verified)"
+          git push https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY} HEAD:main
