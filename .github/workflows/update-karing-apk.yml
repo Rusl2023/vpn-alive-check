@@ -36,16 +36,18 @@ jobs:
 
       - name: Download Android APKs
         run: |
-          [ -n "$ARM64_URL" ] && curl -L "$ARM64_URL" -o apk/karing_android_arm64-v8a.apk
-          [ -n "$ARMV7_URL" ] && curl -L "$ARMV7_URL" -o apk/karing_android_armeabi-v7a.apk
+          [ -n "$ARM64_URL" ] && curl -L "$ARM64_URL" -o apk/karing_android_arm64-v8a.apk || echo "ARM64 APK skipped"
+          [ -n "$ARMV7_URL" ] && curl -L "$ARMV7_URL" -o apk/karing_android_armeabi-v7a.apk || echo "ARMV7 APK skipped"
 
       - name: Generate Android SHA256SUMS
         run: |
-          sha256sum apk/*.apk > apk/SHA256SUMS
-          ARM64_SHA=$(grep arm64 apk/SHA256SUMS | awk '{print $1}')
-          ARMV7_SHA=$(grep armeabi apk/SHA256SUMS | awk '{print $1}')
-          echo "ARM64_SHA=$ARM64_SHA" >> $GITHUB_ENV
-          echo "ARMV7_SHA=$ARMV7_SHA" >> $GITHUB_ENV
+          if [ -d apk ] && [ "$(ls -A apk/*.apk 2>/dev/null)" ]; then
+            sha256sum apk/*.apk > apk/SHA256SUMS
+            ARM64_SHA=$(grep arm64 apk/SHA256SUMS | awk '{print $1}' || echo "")
+            ARMV7_SHA=$(grep armeabi apk/SHA256SUMS | awk '{print $1}' || echo "")
+            echo "ARM64_SHA=$ARM64_SHA" >> $GITHUB_ENV
+            echo "ARMV7_SHA=$ARMV7_SHA" >> $GITHUB_ENV
+          fi
 
       # ---------------- Windows ----------------
       - name: Fetch latest Karing Windows release
@@ -68,16 +70,18 @@ jobs:
 
       - name: Download Windows EXEs
         run: |
-          [ -n "$X64_URL" ] && curl -L "$X64_URL" -o windows/karing_windows_x64.exe
-          [ -n "$X86_URL" ] && curl -L "$X86_URL" -o windows/karing_windows_x86.exe
+          [ -n "$X64_URL" ] && curl -L "$X64_URL" -o windows/karing_windows_x64.exe || echo "X64 EXE skipped"
+          [ -n "$X86_URL" ] && curl -L "$X86_URL" -o windows/karing_windows_x86.exe || echo "X86 EXE skipped"
 
       - name: Generate Windows SHA256SUMS
         run: |
-          [ -d windows ] && sha256sum windows/*.exe > windows/SHA256SUMS
-          [ -f windows/SHA256SUMS ] && X64_SHA=$(grep x64 windows/SHA256SUMS | awk '{print $1}') || X64_SHA=""
-          [ -f windows/SHA256SUMS ] && X86_SHA=$(grep x86 windows/SHA256SUMS | awk '{print $1}') || X86_SHA=""
-          echo "X64_SHA=$X64_SHA" >> $GITHUB_ENV
-          echo "X86_SHA=$X86_SHA" >> $GITHUB_ENV
+          if [ -d windows ] && [ "$(ls -A windows/*.exe 2>/dev/null)" ]; then
+            sha256sum windows/*.exe > windows/SHA256SUMS
+            X64_SHA=$(grep x64 windows/SHA256SUMS | awk '{print $1}' || echo "")
+            X86_SHA=$(grep x86 windows/SHA256SUMS | awk '{print $1}' || echo "")
+            echo "X64_SHA=$X64_SHA" >> $GITHUB_ENV
+            echo "X86_SHA=$X86_SHA" >> $GITHUB_ENV
+          fi
 
       # ---------------- GeoLite2 ----------------
       - name: Fetch latest GeoLite2 release
@@ -100,21 +104,23 @@ jobs:
 
       - name: Download GeoLite2
         run: |
-          [ -n "$ASN_URL" ] && curl -L "$ASN_URL" -o geolite2/GeoLite2-ASN.mmdb
-          [ -n "$CITY_URL" ] && curl -L "$CITY_URL" -o geolite2/GeoLite2-City.mmdb
-          [ -n "$COUNTRY_URL" ] && curl -L "$COUNTRY_URL" -o geolite2/GeoLite2-Country.mmdb
+          [ -n "$ASN_URL" ] && curl -L "$ASN_URL" -o geolite2/GeoLite2-ASN.mmdb || echo "ASN skipped"
+          [ -n "$CITY_URL" ] && curl -L "$CITY_URL" -o geolite2/GeoLite2-City.mmdb || echo "City skipped"
+          [ -n "$COUNTRY_URL" ] && curl -L "$COUNTRY_URL" -o geolite2/GeoLite2-Country.mmdb || echo "Country skipped"
 
       - name: Generate GeoLite2 SHA256SUMS
         run: |
-          [ -d geolite2 ] && sha256sum geolite2/*.mmdb > geolite2/SHA256SUMS
-          [ -f geolite2/SHA256SUMS ] && ASN_SHA=$(grep ASN geolite2/SHA256SUMS | awk '{print $1}') || ASN_SHA=""
-          [ -f geolite2/SHA256SUMS ] && CITY_SHA=$(grep City geolite2/SHA256SUMS | awk '{print $1}') || CITY_SHA=""
-          [ -f geolite2/SHA256SUMS ] && COUNTRY_SHA=$(grep Country geolite2/SHA256SUMS | awk '{print $1}') || COUNTRY_SHA=""
-          echo "ASN_SHA=$ASN_SHA" >> $GITHUB_ENV
-          echo "CITY_SHA=$CITY_SHA" >> $GITHUB_ENV
-          echo "COUNTRY_SHA=$COUNTRY_SHA" >> $GITHUB_ENV
+          if [ -d geolite2 ] && [ "$(ls -A geolite2/*.mmdb 2>/dev/null)" ]; then
+            sha256sum geolite2/*.mmdb > geolite2/SHA256SUMS
+            ASN_SHA=$(grep ASN geolite2/SHA256SUMS | awk '{print $1}' || echo "")
+            CITY_SHA=$(grep City geolite2/SHA256SUMS | awk '{print $1}' || echo "")
+            COUNTRY_SHA=$(grep Country geolite2/SHA256SUMS | awk '{print $1}' || echo "")
+            echo "ASN_SHA=$ASN_SHA" >> $GITHUB_ENV
+            echo "CITY_SHA=$CITY_SHA" >> $GITHUB_ENV
+            echo "COUNTRY_SHA=$COUNTRY_SHA" >> $GITHUB_ENV
+          fi
 
-      # ---------------- GeoIP / Geosite Latest ----------------
+      # ---------------- GeoIP / Geosite ----------------
       - name: Clean old GeoIP / Geosite
         run: |
           rm -rf geoip
@@ -122,16 +128,18 @@ jobs:
 
       - name: Download GeoIP / Geosite latest
         run: |
-          curl -L https://github.com/1andrevich/Re-filter-lists/releases/latest/download/geoip.dat -o geoip/geoip.dat
-          curl -L https://github.com/1andrevich/Re-filter-lists/releases/latest/download/geosite.dat -o geoip/geosite.dat
+          curl -L https://github.com/1andrevich/Re-filter-lists/releases/latest/download/geoip.dat -o geoip/geoip.dat || echo "GeoIP skipped"
+          curl -L https://github.com/1andrevich/Re-filter-lists/releases/latest/download/geosite.dat -o geoip/geosite.dat || echo "Geosite skipped"
 
       - name: Generate GeoIP SHA256SUMS
         run: |
-          [ -d geoip ] && sha256sum geoip/* > geoip/SHA256SUMS
-          [ -f geoip/SHA256SUMS ] && GEOIP_SHA=$(grep geoip.dat geoip/SHA256SUMS | awk '{print $1}') || GEOIP_SHA=""
-          [ -f geoip/SHA256SUMS ] && GEOSITE_SHA=$(grep geosite.dat geoip/SHA256SUMS | awk '{print $1}') || GEOSITE_SHA=""
-          echo "GEOIP_SHA=$GEOIP_SHA" >> $GITHUB_ENV
-          echo "GEOSITE_SHA=$GEOSITE_SHA" >> $GITHUB_ENV
+          if [ -d geoip ] && [ "$(ls -A geoip/* 2>/dev/null)" ]; then
+            sha256sum geoip/* > geoip/SHA256SUMS
+            GEOIP_SHA=$(grep geoip.dat geoip/SHA256SUMS | awk '{print $1}' || echo "")
+            GEOSITE_SHA=$(grep geosite.dat geoip/SHA256SUMS | awk '{print $1}' || echo "")
+            echo "GEOIP_SHA=$GEOIP_SHA" >> $GITHUB_ENV
+            echo "GEOSITE_SHA=$GEOSITE_SHA" >> $GITHUB_ENV
+          fi
 
       # ---------------- Update README ----------------
       - name: Update README
