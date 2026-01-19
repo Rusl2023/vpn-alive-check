@@ -36,8 +36,8 @@ jobs:
 
       - name: Download Android APKs
         run: |
-          curl -L "$ARM64_URL" -o apk/karing_android_arm64-v8a.apk
-          curl -L "$ARMV7_URL" -o apk/karing_android_armeabi-v7a.apk
+          [ -n "$ARM64_URL" ] && curl -L "$ARM64_URL" -o apk/karing_android_arm64-v8a.apk
+          [ -n "$ARMV7_URL" ] && curl -L "$ARMV7_URL" -o apk/karing_android_armeabi-v7a.apk
 
       - name: Generate Android SHA256SUMS
         run: |
@@ -68,14 +68,14 @@ jobs:
 
       - name: Download Windows EXEs
         run: |
-          curl -L "$X64_URL" -o windows/karing_windows_x64.exe
-          curl -L "$X86_URL" -o windows/karing_windows_x86.exe
+          [ -n "$X64_URL" ] && curl -L "$X64_URL" -o windows/karing_windows_x64.exe
+          [ -n "$X86_URL" ] && curl -L "$X86_URL" -o windows/karing_windows_x86.exe
 
       - name: Generate Windows SHA256SUMS
         run: |
-          sha256sum windows/*.exe > windows/SHA256SUMS
-          X64_SHA=$(grep x64 windows/SHA256SUMS | awk '{print $1}')
-          X86_SHA=$(grep x86 windows/SHA256SUMS | awk '{print $1}')
+          [ -d windows ] && sha256sum windows/*.exe > windows/SHA256SUMS
+          [ -f windows/SHA256SUMS ] && X64_SHA=$(grep x64 windows/SHA256SUMS | awk '{print $1}') || X64_SHA=""
+          [ -f windows/SHA256SUMS ] && X86_SHA=$(grep x86 windows/SHA256SUMS | awk '{print $1}') || X86_SHA=""
           echo "X64_SHA=$X64_SHA" >> $GITHUB_ENV
           echo "X86_SHA=$X86_SHA" >> $GITHUB_ENV
 
@@ -100,16 +100,16 @@ jobs:
 
       - name: Download GeoLite2
         run: |
-          curl -L "$ASN_URL" -o geolite2/GeoLite2-ASN.mmdb
-          curl -L "$CITY_URL" -o geolite2/GeoLite2-City.mmdb
-          curl -L "$COUNTRY_URL" -o geolite2/GeoLite2-Country.mmdb
+          [ -n "$ASN_URL" ] && curl -L "$ASN_URL" -o geolite2/GeoLite2-ASN.mmdb
+          [ -n "$CITY_URL" ] && curl -L "$CITY_URL" -o geolite2/GeoLite2-City.mmdb
+          [ -n "$COUNTRY_URL" ] && curl -L "$COUNTRY_URL" -o geolite2/GeoLite2-Country.mmdb
 
       - name: Generate GeoLite2 SHA256SUMS
         run: |
-          sha256sum geolite2/*.mmdb > geolite2/SHA256SUMS
-          ASN_SHA=$(grep ASN geolite2/SHA256SUMS | awk '{print $1}')
-          CITY_SHA=$(grep City geolite2/SHA256SUMS | awk '{print $1}')
-          COUNTRY_SHA=$(grep Country geolite2/SHA256SUMS | awk '{print $1}')
+          [ -d geolite2 ] && sha256sum geolite2/*.mmdb > geolite2/SHA256SUMS
+          [ -f geolite2/SHA256SUMS ] && ASN_SHA=$(grep ASN geolite2/SHA256SUMS | awk '{print $1}') || ASN_SHA=""
+          [ -f geolite2/SHA256SUMS ] && CITY_SHA=$(grep City geolite2/SHA256SUMS | awk '{print $1}') || CITY_SHA=""
+          [ -f geolite2/SHA256SUMS ] && COUNTRY_SHA=$(grep Country geolite2/SHA256SUMS | awk '{print $1}') || COUNTRY_SHA=""
           echo "ASN_SHA=$ASN_SHA" >> $GITHUB_ENV
           echo "CITY_SHA=$CITY_SHA" >> $GITHUB_ENV
           echo "COUNTRY_SHA=$COUNTRY_SHA" >> $GITHUB_ENV
@@ -127,9 +127,9 @@ jobs:
 
       - name: Generate GeoIP SHA256SUMS
         run: |
-          sha256sum geoip/* > geoip/SHA256SUMS
-          GEOIP_SHA=$(grep geoip.dat geoip/SHA256SUMS | awk '{print $1}')
-          GEOSITE_SHA=$(grep geosite.dat geoip/SHA256SUMS | awk '{print $1}')
+          [ -d geoip ] && sha256sum geoip/* > geoip/SHA256SUMS
+          [ -f geoip/SHA256SUMS ] && GEOIP_SHA=$(grep geoip.dat geoip/SHA256SUMS | awk '{print $1}') || GEOIP_SHA=""
+          [ -f geoip/SHA256SUMS ] && GEOSITE_SHA=$(grep geosite.dat geoip/SHA256SUMS | awk '{print $1}') || GEOSITE_SHA=""
           echo "GEOIP_SHA=$GEOIP_SHA" >> $GITHUB_ENV
           echo "GEOSITE_SHA=$GEOSITE_SHA" >> $GITHUB_ENV
 
