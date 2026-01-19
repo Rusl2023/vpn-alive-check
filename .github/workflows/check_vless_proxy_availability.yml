@@ -19,7 +19,8 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y curl jq unzip python3
+          sudo apt-get install -y curl jq unzip python3 python3-pip
+          python3 -m pip install --upgrade pip
 
       - name: Download Xray
         run: |
@@ -67,6 +68,10 @@ jobs:
                       return r.read().decode().strip()
               except:
                   return "Unknown"
+
+          if not os.path.exists(INPUT):
+              print(f"[WARN] Input file {INPUT} not found, skipping check")
+              exit(0)
 
           with open(INPUT) as f:
               links = [l.strip() for l in f if l.strip().startswith("vless://")]
@@ -122,11 +127,22 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
-          # Добавляем только файлы данных
-          git add githubmirror/26_proxy_subscription_raw.txt githubmirror/26_proxy_subscription_base64.txt
+          FILE_RAW="githubmirror/26_proxy_subscription_raw.txt"
+          FILE_B64="githubmirror/26_proxy_subscription_base64.txt"
 
-          # Коммитим только если есть изменения
+          # Проверка размера файлов перед коммитом
+          MAX_SIZE=$((50 * 1024 * 1024)) # 50 MB
+          for f in "$FILE_RAW" "$FILE_B64"; do
+            if [ -f "$f" ] && [ $(stat -c%s "$f") -gt $MAX_SIZE ]; then
+              echo "[WARN] File $f exceeds 50 MB, skipping commit"
+              exit 0
+            fi
+          done
+
+          git add "$FILE_RAW" "$FILE_B64"
+
+          # Коммит только если есть изменения
           git diff --cached --quiet || git commit -m "Update VLESS base64 subscription (Xray verified)"
 
-          # Force push только добавленных файлов, чтобы не было конфликтов с main
-          git push --force https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY} HEAD:main
+          # Пушим только данные
+          git push https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY} HEAD:main
