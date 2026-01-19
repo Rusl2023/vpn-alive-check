@@ -15,38 +15,40 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Fetch latest Karing release info
+      - name: Fetch latest Karing release
         run: |
           curl -s https://api.github.com/repos/KaringX/karing/releases/latest > release.json
 
-      - name: Extract version and APK URLs
+      - name: Extract version and URLs
         run: |
           VERSION=$(jq -r '.tag_name' release.json)
-
           ARM64_URL=$(jq -r '.assets[] | select(.name | contains("android_arm64-v8a.apk")) | .browser_download_url' release.json)
           ARMV7_URL=$(jq -r '.assets[] | select(.name | contains("android_armeabi-v7a.apk")) | .browser_download_url' release.json)
-
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "ARM64_URL=$ARM64_URL" >> $GITHUB_ENV
           echo "ARMV7_URL=$ARMV7_URL" >> $GITHUB_ENV
 
+      - name: Clean old APKs
+        run: |
+          rm -rf apk
+          mkdir -p apk
+
       - name: Download APKs
         run: |
-          mkdir -p apk
           curl -L "$ARM64_URL" -o apk/karing_android_arm64-v8a.apk
           curl -L "$ARMV7_URL" -o apk/karing_android_armeabi-v7a.apk
 
-      - name: Calculate SHA256
+      - name: Generate SHA256SUMS
         run: |
-          ARM64_SHA=$(sha256sum apk/karing_android_arm64-v8a.apk | awk '{print $1}')
-          ARMV7_SHA=$(sha256sum apk/karing_android_armeabi-v7a.apk | awk '{print $1}')
-
+          sha256sum apk/*.apk > apk/SHA256SUMS
+          ARM64_SHA=$(grep arm64 apk/SHA256SUMS | awk '{print $1}')
+          ARMV7_SHA=$(grep armeabi apk/SHA256SUMS | awk '{print $1}')
           echo "ARM64_SHA=$ARM64_SHA" >> $GITHUB_ENV
           echo "ARMV7_SHA=$ARMV7_SHA" >> $GITHUB_ENV
 
       - name: Update README
         run: |
-          sed -i "s|{{KARING_VERSION}}|$VERSION|g" README.md
+          sed -i "s|^KARING_VERSION=.*|KARING_VERSION=$VERSION|g" README.md
           sed -i "s|{{ARM64_SHA}}|$ARM64_SHA|g" README.md
           sed -i "s|{{ARMV7_SHA}}|$ARMV7_SHA|g" README.md
 
@@ -54,7 +56,7 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add README.md apk/
+          git add apk README.md
           git diff --cached --quiet || git commit -m "Update Karing APK $VERSION"
 
       - name: Push
