@@ -58,5 +58,6 @@ https://immortalwrt.kyarucloud.moe/releases/
 ______________________________________________________________________________________
 
 ## ℹ️ Мая подписка бесплатных ключей ℹ️
-Создал для своей семьи, своих родственников и друзей. Копируем ссылку в подписку:
-[`подписка`](https://raw.githubusercontent.com/Rusl2023/vpn-alive-check/refs/heads/main/githubmirror/26_proxy_subscription_base64.txt)
+Создал для своей семьи, своих родственников и друзей. 
+Копируем ссылку в подписку:
+- [`подписка Free VPN "Белые списки" 2026г`](https://raw.githubusercontent.com/Rusl2023/vpn-alive-check/refs/heads/main/githubmirror/26_proxy_subscription_base64.txt)
