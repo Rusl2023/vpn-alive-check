@@ -83,7 +83,11 @@ jobs:
                   stream["tlsSettings"] = {"serverName": sni}
               if sec == "reality" and "pbk" in q:
                   stream["security"] = "reality"
-                  stream["realitySettings"] = {"serverName": sni,"publicKey": q["pbk"][0],"shortId": q.get("sid", [""])[0]}
+                  stream["realitySettings"] = {
+                      "serverName": sni,
+                      "publicKey": q["pbk"][0],
+                      "shortId": q.get("sid", [""])[0]
+                  }
 
               cfg = {
                   "inbounds":[{"listen":"127.0.0.1","port":1080,"protocol":"socks","settings":{"udp":False}}],
@@ -120,6 +124,9 @@ jobs:
 
           # Добавляем только файлы данных
           git add githubmirror/26_proxy_subscription_raw.txt githubmirror/26_proxy_subscription_base64.txt
+
+          # Очистка индекса для безопасного rebase
+          git reset --mixed
 
           # Синхронизируем с удалённой веткой, чтобы избежать ошибок push
           git fetch origin main
