@@ -11,44 +11,30 @@ https://github.com/P3TERX/GeoLite.mmdb/releases
 - geoip geosite:
 https://github.com/1andrevich/Re-filter-lists/releases
 
-# 🔐 VPN Alive Check
 
-![Karing Version](https://img.shields.io/badge/Karing-KARING_VERSION-blue?style=flat-square)
+![Karing Android Version](https://img.shields.io/badge/Karing-Android_KARING_ANDROID_VERSION-blue?style=flat-square)
+![Karing Windows Version](https://img.shields.io/badge/Karing-Windows_KARING_WINDOWS_VERSION-blue?style=flat-square)
 
 ---
 
 ## 📱 Karing (Android)
 
-Рекомендуемый клиент для:
-- VLESS
-- Reality
-- XTLS Vision
-
-APK автоматически синхронизируются **при выходе нового релиза**.
-
----
-
-## 📦 Скачать APK
-
-### 🔹 ARM64-v8a (большинство современных устройств)
+### 🔹 ARM64-v8a (современные устройства)
 👉 [Скачать APK](https://github.com/Rusl2023/vpn-alive-check/raw/main/apk/karing_android_arm64-v8a.apk)
-
-SHA256:
 
 ### 🔹 armeabi-v7a (старые устройства)
 👉 [Скачать APK](https://github.com/Rusl2023/vpn-alive-check/raw/main/apk/karing_android_armeabi-v7a.apk)
-SHA256:
-
 ---
 
-## 🧾 Контроль целостности
+## 💻 Karing (Windows)
 
-Все контрольные суммы:
-👉 [`apk/SHA256SUMS`](apk/SHA256SUMS)
+### 🔹 Windows x64 (64-bit)
+👉 [Скачать EXE](https://github.com/Rusl2023/vpn-alive-check/raw/main/windows/karing_windows_x64.exe)
 
-Проверка на Android (Termux):
-```sh
-sha256sum -c SHA256SUMS
+
+### 🔹 Windows x86 (32-bit)
+👉 [Скачать EXE](https://github.com/Rusl2023/vpn-alive-check/raw/main/windows/karing_windows_x86.exe)
+
 
 
 
