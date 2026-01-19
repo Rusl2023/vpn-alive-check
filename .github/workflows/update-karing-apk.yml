@@ -1,4 +1,4 @@
-name: Sync Karing Android APK
+name: Sync Karing Android & Windows
 
 on:
   workflow_dispatch:
@@ -15,30 +15,31 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Fetch latest Karing release
+      # ---------------- Android ----------------
+      - name: Fetch latest Karing Android release
         run: |
-          curl -s https://api.github.com/repos/KaringX/karing/releases/latest > release.json
+          curl -s https://api.github.com/repos/KaringX/karing/releases/latest > release_android.json
 
-      - name: Extract version and URLs
+      - name: Extract Android version and URLs
         run: |
-          VERSION=$(jq -r '.tag_name' release.json)
-          ARM64_URL=$(jq -r '.assets[] | select(.name | contains("android_arm64-v8a.apk")) | .browser_download_url' release.json)
-          ARMV7_URL=$(jq -r '.assets[] | select(.name | contains("android_armeabi-v7a.apk")) | .browser_download_url' release.json)
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          ANDROID_VERSION=$(jq -r '.tag_name' release_android.json)
+          ARM64_URL=$(jq -r '.assets[] | select(.name | contains("android_arm64-v8a.apk")) | .browser_download_url' release_android.json)
+          ARMV7_URL=$(jq -r '.assets[] | select(.name | contains("android_armeabi-v7a.apk")) | .browser_download_url' release_android.json)
+          echo "ANDROID_VERSION=$ANDROID_VERSION" >> $GITHUB_ENV
           echo "ARM64_URL=$ARM64_URL" >> $GITHUB_ENV
           echo "ARMV7_URL=$ARMV7_URL" >> $GITHUB_ENV
 
-      - name: Clean old APKs
+      - name: Clean old Android APKs
         run: |
           rm -rf apk
           mkdir -p apk
 
-      - name: Download APKs
+      - name: Download Android APKs
         run: |
           curl -L "$ARM64_URL" -o apk/karing_android_arm64-v8a.apk
           curl -L "$ARMV7_URL" -o apk/karing_android_armeabi-v7a.apk
 
-      - name: Generate SHA256SUMS
+      - name: Generate Android SHA256SUMS
         run: |
           sha256sum apk/*.apk > apk/SHA256SUMS
           ARM64_SHA=$(grep arm64 apk/SHA256SUMS | awk '{print $1}')
@@ -46,18 +47,55 @@ jobs:
           echo "ARM64_SHA=$ARM64_SHA" >> $GITHUB_ENV
           echo "ARMV7_SHA=$ARMV7_SHA" >> $GITHUB_ENV
 
+      # ---------------- Windows ----------------
+      - name: Fetch latest Karing Windows release
+        run: |
+          curl -s https://api.github.com/repos/KaringX/karing/releases/latest > release_windows.json
+
+      - name: Extract Windows version and URLs
+        run: |
+          WIN_VERSION=$(jq -r '.tag_name' release_windows.json)
+          X64_URL=$(jq -r '.assets[] | select(.name | contains("windows_x64.exe")) | .browser_download_url' release_windows.json)
+          X86_URL=$(jq -r '.assets[] | select(.name | contains("windows_x86.exe")) | .browser_download_url' release_windows.json)
+          echo "WIN_VERSION=$WIN_VERSION" >> $GITHUB_ENV
+          echo "X64_URL=$X64_URL" >> $GITHUB_ENV
+          echo "X86_URL=$X86_URL" >> $GITHUB_ENV
+
+      - name: Clean old Windows files
+        run: |
+          rm -rf windows
+          mkdir -p windows
+
+      - name: Download Windows EXEs
+        run: |
+          curl -L "$X64_URL" -o windows/karing_windows_x64.exe
+          curl -L "$X86_URL" -o windows/karing_windows_x86.exe
+
+      - name: Generate Windows SHA256SUMS
+        run: |
+          sha256sum windows/*.exe > windows/SHA256SUMS
+          X64_SHA=$(grep x64 windows/SHA256SUMS | awk '{print $1}')
+          X86_SHA=$(grep x86 windows/SHA256SUMS | awk '{print $1}')
+          echo "X64_SHA=$X64_SHA" >> $GITHUB_ENV
+          echo "X86_SHA=$X86_SHA" >> $GITHUB_ENV
+
+      # ---------------- Update README ----------------
       - name: Update README
         run: |
-          sed -i "s|^KARING_VERSION=.*|KARING_VERSION=$VERSION|g" README.md
+          sed -i "s|^KARING_ANDROID_VERSION=.*|KARING_ANDROID_VERSION=$ANDROID_VERSION|g" README.md
           sed -i "s|{{ARM64_SHA}}|$ARM64_SHA|g" README.md
           sed -i "s|{{ARMV7_SHA}}|$ARMV7_SHA|g" README.md
+          sed -i "s|^KARING_WINDOWS_VERSION=.*|KARING_WINDOWS_VERSION=$WIN_VERSION|g" README.md
+          sed -i "s|{{X64_SHA}}|$X64_SHA|g" README.md
+          sed -i "s|{{X86_SHA}}|$X86_SHA|g" README.md
 
+      # ---------------- Commit & Push ----------------
       - name: Commit changes
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add apk README.md
-          git diff --cached --quiet || git commit -m "Update Karing APK $VERSION"
+          git add apk windows README.md
+          git diff --cached --quiet || git commit -m "Update Karing Android & Windows $ANDROID_VERSION / $WIN_VERSION"
 
       - name: Push
         run: |
