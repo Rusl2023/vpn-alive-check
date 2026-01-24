@@ -1,6 +1,8 @@
 name: Sync Karing Android, Windows & Geo
 
 on:
+  schedule:
+    - cron: '0 0 * * *' # каждый день в полночь UTC
   workflow_dispatch:
   repository_dispatch:
     types: [karing_release]
@@ -47,7 +49,6 @@ jobs:
             ARMV7_SHA=$(grep armeabi apk/SHA256SUMS | awk '{print $1}' || echo "")
             echo "ARM64_SHA=$ARM64_SHA" >> $GITHUB_ENV
             echo "ARMV7_SHA=$ARMV7_SHA" >> $GITHUB_ENV
-          fi
 
       # ---------------- Windows ----------------
       - name: Fetch latest Karing Windows release
@@ -81,7 +82,6 @@ jobs:
             X86_SHA=$(grep x86 windows/SHA256SUMS | awk '{print $1}' || echo "")
             echo "X64_SHA=$X64_SHA" >> $GITHUB_ENV
             echo "X86_SHA=$X86_SHA" >> $GITHUB_ENV
-          fi
 
       # ---------------- GeoLite2 ----------------
       - name: Fetch latest GeoLite2 release
@@ -118,7 +118,6 @@ jobs:
             echo "ASN_SHA=$ASN_SHA" >> $GITHUB_ENV
             echo "CITY_SHA=$CITY_SHA" >> $GITHUB_ENV
             echo "COUNTRY_SHA=$COUNTRY_SHA" >> $GITHUB_ENV
-          fi
 
       # ---------------- GeoIP / Geosite ----------------
       - name: Clean old GeoIP / Geosite
@@ -139,7 +138,6 @@ jobs:
             GEOSITE_SHA=$(grep geosite.dat geoip/SHA256SUMS | awk '{print $1}' || echo "")
             echo "GEOIP_SHA=$GEOIP_SHA" >> $GITHUB_ENV
             echo "GEOSITE_SHA=$GEOSITE_SHA" >> $GITHUB_ENV
-          fi
 
       # ---------------- Update README ----------------
       - name: Update README
