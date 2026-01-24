@@ -97,7 +97,15 @@ jobs:
 
               cfg = {
                   "inbounds":[{"listen":"127.0.0.1","port":1080,"protocol":"socks","settings":{"udp":False}}],
-                  "outbounds":[{"protocol":"vless","settings":{"vnext":[{"address":u.hostname,"port":u.port or 443,"users":[{"id":u.username,"encryption":"none","flow":q.get("flow", [""])[0]}]}]},"streamSettings":stream}]
+                  "outbounds":[
+                      {
+                          "protocol":"vless",
+                          "settings":{"vnext":[{"address":u.hostname,"port":u.port or 443,"users":[{"id":u.username,"encryption":"none","flow":q.get("flow", [""])[0]}]}]},
+                          "streamSettings": stream,
+                          "tag": "vless_out"
+                      },
+                      {"protocol":"freedom","tag":"direct"}
+                  ]
               }
 
               with open("cfg.json","w") as f:
@@ -128,7 +136,6 @@ jobs:
           mkdir -p githubmirror
           : > "$OUTPUT"
 
-          # Добавляем блок inbounds для SOCKS5
           echo "inbounds:" >> "$OUTPUT"
           echo "  - listen: 0.0.0.0" >> "$OUTPUT"
           echo "    port: 7891" >> "$OUTPUT"
@@ -178,6 +185,28 @@ jobs:
               echo "    security: $SEC" >> "$OUTPUT"
             fi
           done < "$INPUT"
+
+          echo "" >> "$OUTPUT"
+          echo "outbounds:" >> "$OUTPUT"
+          echo "  - protocol: vless" >> "$OUTPUT"
+          echo "    tag: vless_out" >> "$OUTPUT"
+          echo "    settings:" >> "$OUTPUT"
+          echo "      vnext:" >> "$OUTPUT"
+          echo "        - address: PLACEHOLDER_ADDRESS" >> "$OUTPUT"
+          echo "          port: PLACEHOLDER_PORT" >> "$OUTPUT"
+          echo "          users:" >> "$OUTPUT"
+          echo "            - id: PLACEHOLDER_UUID" >> "$OUTPUT"
+          echo "              flow: PLACEHOLDER_FLOW" >> "$OUTPUT"
+          echo "    streamSettings:" >> "$OUTPUT"
+          echo "      network: tcp" >> "$OUTPUT"
+          echo "      security: reality" >> "$OUTPUT"
+          echo "      realitySettings:" >> "$OUTPUT"
+          echo "        serverName: PLACEHOLDER_SNI" >> "$OUTPUT"
+          echo "        publicKey: PLACEHOLDER_PBK" >> "$OUTPUT"
+          echo "        shortId: PLACEHOLDER_SID" >> "$OUTPUT"
+          echo "  - protocol: freedom" >> "$OUTPUT"
+          echo "    tag: direct" >> "$OUTPUT"
+
           echo "Mihomo config.yaml ready"
 
       - name: Commit and push subscription & Mihomo config safely
