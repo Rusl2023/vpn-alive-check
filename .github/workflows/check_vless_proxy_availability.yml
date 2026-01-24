@@ -67,8 +67,8 @@ jobs:
               try:
                   with urllib.request.urlopen(f"https://ipapi.co/{ip}/country/") as r:
                       return r.read().decode().strip()
-              except:
-                  return "Unknown"
+                  except:
+                      return "Unknown"
 
           if not os.path.exists(INPUT):
               print(f"[WARN] Input file {INPUT} not found, skipping check")
@@ -92,7 +92,8 @@ jobs:
                   stream["realitySettings"] = {
                       "serverName": sni,
                       "publicKey": q["pbk"][0],
-                      "shortId": q.get("sid", [""])[0]
+                      "shortId": q.get("sid", [""])[0],
+                      "fingerprint": "chrome"
                   }
 
               cfg = {
@@ -181,6 +182,7 @@ jobs:
               echo "      serverName: $SNI" >> "$OUTPUT"
               echo "      publicKey: $PBK" >> "$OUTPUT"
               echo "      shortId: $SID" >> "$OUTPUT"
+              echo "      fingerprint: chrome" >> "$OUTPUT"
             elif [ "$SEC" = "tls" ]; then
               echo "    security: tls" >> "$OUTPUT"
               echo "    tlsSettings:" >> "$OUTPUT"
@@ -226,6 +228,7 @@ jobs:
               echo "        serverName: $SNI" >> "$OUTPUT"
               echo "        publicKey: $PBK" >> "$OUTPUT"
               echo "        shortId: $SID" >> "$OUTPUT"
+              echo "        fingerprint: chrome" >> "$OUTPUT"
             elif [ "$SEC" = "tls" ]; then
               echo "      network: tcp" >> "$OUTPUT"
               echo "      security: tls" >> "$OUTPUT"
