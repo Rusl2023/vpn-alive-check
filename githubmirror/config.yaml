@@ -11,19 +11,6 @@ allow-lan: false
 log-level: info
 external-controller: 127.0.0.1:9090
 proxies:
-  - name: 72.56.70.31_8443
-    type: vless
-    server: 72.56.70.31
-    port: 8443
-    uuid: 90c9c25c-df6c-4438-83d3-ef97166a9184
-    flow: xtls-rprx-vision
-    network: tcp
-    security: reality
-    realitySettings:
-      serverName: sun6-22.userapi.com
-      publicKey: KBtor6ap1Ml0bjcI_8UgdHhZYVYNOLuuYsuXsQUNGj0
-      shortId: 
-      fingerprint: chrome
   - name: 185.82.73.212_8443
     type: vless
     server: 185.82.73.212
@@ -37,37 +24,24 @@ proxies:
       publicKey: mLmBhbVFfNuo2eUgBh6r9-5Koz9mUCn3aSzlR6IejUg
       shortId: e499f276e7bd6420
       fingerprint: chrome
-  - name: 138.124.79.9_443
+  - name: 72.56.70.31_8443
     type: vless
-    server: 138.124.79.9
-    port: 443
-    uuid: c48e01a0-cc71-4bf9-a924-cf398f33e57a
-    flow: xtls-rprx-vision
-    network: tcp
-    security: reality
-    realitySettings:
-      serverName: sun6-21.userapi.com
-      publicKey: SbVKOEMjK0sIlbwg4akyBg5mL5KZwwB-ed4eEE7YnRc
-      shortId: 
-      fingerprint: chrome
-  - name: 144.124.242.141_443
-    type: vless
-    server: 144.124.242.141
-    port: 443
-    uuid: 4fe214fb-048e-431f-b939-4518dc9df6a2
+    server: 72.56.70.31
+    port: 8443
+    uuid: 90c9c25c-df6c-4438-83d3-ef97166a9184
     flow: xtls-rprx-vision
     network: tcp
     security: reality
     realitySettings:
       serverName: sun6-22.userapi.com
-      publicKey: kY32I2PvI5UYqhjoZlcL0z6V6r1AV_lLZolQH78ApmU
-      shortId: ae575a16aa1a19a9
+      publicKey: KBtor6ap1Ml0bjcI_8UgdHhZYVYNOLuuYsuXsQUNGj0
+      shortId: 
       fingerprint: chrome
   - name: 138.124.79.8_443
     type: vless
     server: 138.124.79.8
     port: 443
-    uuid: d6b1327d-2bec-4366-a3a1-9b1284f95841
+    uuid: c48e01a0-cc71-4bf9-a924-cf398f33e57a
     flow: xtls-rprx-vision
     network: tcp
     security: reality
@@ -80,7 +54,20 @@ proxies:
     type: vless
     server: 77.239.125.99
     port: 443
-    uuid: 7b05219d-9cd5-4bda-8473-7a8d98d562f7
+    uuid: 00c49863-6d15-4289-9229-841ee5f7868c
+    flow: xtls-rprx-vision
+    network: tcp
+    security: reality
+    realitySettings:
+      serverName: sun6-21.userapi.com
+      publicKey: SbVKOEMjK0sIlbwg4akyBg5mL5KZwwB-ed4eEE7YnRc
+      shortId: 
+      fingerprint: chrome
+  - name: 138.124.79.9_443
+    type: vless
+    server: 138.124.79.9
+    port: 443
+    uuid: d6b1327d-2bec-4366-a3a1-9b1284f95841
     flow: xtls-rprx-vision
     network: tcp
     security: reality
@@ -88,6 +75,45 @@ proxies:
       serverName: sun6-21.userapi.com
       publicKey: SbVKOEMjK0sIlbwg4akyBg5mL5KZwwB-ed4eEE7YnRc
       shortId: 6ba85179e30d4fc2
+      fingerprint: chrome
+  - name: 144.124.242.141_443
+    type: vless
+    server: 144.124.242.141
+    port: 443
+    uuid: 4fe214fb-048e-431f-b939-4518dc9df6a2
+    flow: xtls-rprx-vision
+    network: tcp
+    security: reality
+    realitySettings:
+      serverName: eh.vk.com
+      publicKey: kY32I2PvI5UYqhjoZlcL0z6V6r1AV_lLZolQH78ApmU
+      shortId: ae575a16aa1a19a9
+      fingerprint: chrome
+  - name: 138.124.79.4_443
+    type: vless
+    server: 138.124.79.4
+    port: 443
+    uuid: d6b1327d-2bec-4366-a3a1-9b1284f95841
+    flow: xtls-rprx-vision
+    network: tcp
+    security: reality
+    realitySettings:
+      serverName: sun6-21.userapi.com
+      publicKey: SbVKOEMjK0sIlbwg4akyBg5mL5KZwwB-ed4eEE7YnRc
+      shortId: 
+      fingerprint: chrome
+  - name: ll2.takovpn.ru_8443
+    type: vless
+    server: ll2.takovpn.ru
+    port: 8443
+    uuid: 0414bdfa-c027-471c-94fd-e4abfa69b94e
+    flow: xtls-rprx-vision
+    network: tcp
+    security: reality
+    realitySettings:
+      serverName: sun6-20.userapi.com
+      publicKey: GacPaW0DxNTA8vpoEv7CpGBAu_atzYMBaryAuwcw70M
+      shortId: 4d42076c
       fingerprint: chrome
   - name: 94.103.1.230_443
     type: vless
@@ -102,43 +128,30 @@ proxies:
       publicKey: SbVKOEMjK0sIlbwg4akyBg5mL5KZwwB-ed4eEE7YnRc
       shortId: 
       fingerprint: chrome
+  - name: 82.22.40.35_443
+    type: vless
+    server: 82.22.40.35
+    port: 443
+    uuid: b64ff004-ec17-4cbb-9f32-c4eb7f4660e8
+    flow: xtls-rprx-vision
+    network: tcp
+    security: reality
+    realitySettings:
+      serverName: eh.vk.com
+      publicKey: isw9UCSqdj1pzN3KpqY634QY4eLCYmDrMgvI1XsQimA
+      shortId: 
+      fingerprint: chrome
   - name: 138.124.79.3_443
     type: vless
     server: 138.124.79.3
     port: 443
-    uuid: d6b1327d-2bec-4366-a3a1-9b1284f95841
+    uuid: c48e01a0-cc71-4bf9-a924-cf398f33e57a
     flow: xtls-rprx-vision
     network: tcp
     security: reality
     realitySettings:
       serverName: sun6-21.userapi.com
       publicKey: SbVKOEMjK0sIlbwg4akyBg5mL5KZwwB-ed4eEE7YnRc
-      shortId: 6ba85179e30d4fc2
-      fingerprint: chrome
-  - name: ll2.takovpn.ru_8443
-    type: vless
-    server: ll2.takovpn.ru
-    port: 8443
-    uuid: 043c34d9-032f-4b2b-bcdd-f60741649547
-    flow: xtls-rprx-vision
-    network: tcp
-    security: reality
-    realitySettings:
-      serverName: sun6-20.userapi.com
-      publicKey: GacPaW0DxNTA8vpoEv7CpGBAu_atzYMBaryAuwcw70M
-      shortId: 34a3819b9e58
-      fingerprint: chrome
-  - name: 185.99.96.64_443
-    type: vless
-    server: 185.99.96.64
-    port: 443
-    uuid: fb6153b9-d820-455f-99b9-cbdd16557042
-    flow: xtls-rprx-vision
-    network: tcp
-    security: reality
-    realitySettings:
-      serverName: 01.img.avito.st
-      publicKey: WvNaAxI0W__qfUKbtysH4IwF155YENlv3PG6crCmPkA
       shortId: 
       fingerprint: chrome
   - name: nl01-ss01.tcp-reset-club.net_8443
@@ -154,18 +167,44 @@ proxies:
       publicKey: mLmBhbVFfNuo2eUgBh6r9-5Koz9mUCn3aSzlR6IejUg
       shortId: e499f276e7bd6420
       fingerprint: chrome
-  - name: 138.124.79.4_443
+  - name: 144.124.242.141_443
     type: vless
-    server: 138.124.79.4
+    server: 144.124.242.141
     port: 443
-    uuid: d6b1327d-2bec-4366-a3a1-9b1284f95841
+    uuid: 4fe214fb-048e-431f-b939-4518dc9df6a2
     flow: xtls-rprx-vision
     network: tcp
     security: reality
     realitySettings:
-      serverName: sun6-21.userapi.com
-      publicKey: SbVKOEMjK0sIlbwg4akyBg5mL5KZwwB-ed4eEE7YnRc
-      shortId: 
+      serverName: sun6-22.userapi.com
+      publicKey: kY32I2PvI5UYqhjoZlcL0z6V6r1AV_lLZolQH78ApmU
+      shortId: ae575a16aa1a19a9
+      fingerprint: chrome
+  - name: 185.155.96.155_8443
+    type: vless
+    server: 185.155.96.155
+    port: 8443
+    uuid: 45e3b7ad-03b6-42fc-b616-1e92bdd0a5b3
+    flow: xtls-rprx-vision
+    network: tcp
+    security: reality
+    realitySettings:
+      serverName: stats.vk-portal.net
+      publicKey: mLmBhbVFfNuo2eUgBh6r9-5Koz9mUCn3aSzlR6IejUg
+      shortId: 86e999a2cdc2
+      fingerprint: chrome
+  - name: 217.13.104.115_443
+    type: vless
+    server: 217.13.104.115
+    port: 443
+    uuid: 4fe214fb-048e-431f-b939-4518dc9df6a2
+    flow: xtls-rprx-vision
+    network: tcp
+    security: reality
+    realitySettings:
+      serverName: sun6-22.userapi.com
+      publicKey: HmnZvWf1xDzvps8H-juYYtHnWPZksvaUp6cMYV7TfSk
+      shortId: a20d3ed244c76426
       fingerprint: chrome
   - name: 151.115.123.227_8443
     type: vless
@@ -179,6 +218,19 @@ proxies:
       serverName: stats.vk-portal.net
       publicKey: mLmBhbVFfNuo2eUgBh6r9-5Koz9mUCn3aSzlR6IejUg
       shortId: e499f276e7bd6420
+      fingerprint: chrome
+  - name: 144.31.119.84_443
+    type: vless
+    server: 144.31.119.84
+    port: 443
+    uuid: 95abaefc-7861-417a-81b7-166cb788ce1a
+    flow: xtls-rprx-vision
+    network: tcp
+    security: reality
+    realitySettings:
+      serverName: st.ozone.ru
+      publicKey: 9ajY_OBOn5CCPnCJTPjxg6J3IWE8uJYAiWQvG9CBGjU
+      shortId: 00684d2eae2cdd16
       fingerprint: chrome
   - name: 23.230.179.116_443
     type: vless
@@ -206,25 +258,21 @@ proxies:
       publicKey: mLmBhbVFfNuo2eUgBh6r9-5Koz9mUCn3aSzlR6IejUg
       shortId: e499f276e7bd6420
       fingerprint: chrome
+  - name: 91.107.121.223_443
+    type: vless
+    server: 91.107.121.223
+    port: 443
+    uuid: 4fe214fb-048e-431f-b939-4518dc9df6a2
+    flow: xtls-rprx-vision
+    network: tcp
+    security: reality
+    realitySettings:
+      serverName: sun6-21.userapi.com
+      publicKey: tFOva4mDqw-noGSk4B5gdh4X4WhyXHs0eNxM3QogyE4
+      shortId: f5563ddfa2847b32
+      fingerprint: chrome
 
 outbounds:
-  - protocol: vless
-    tag: 72.56.70.31_8443
-    settings:
-      vnext:
-        - address: 72.56.70.31
-          port: 8443
-          users:
-            - id: 90c9c25c-df6c-4438-83d3-ef97166a9184
-              flow: xtls-rprx-vision
-    streamSettings:
-      network: tcp
-      security: reality
-      realitySettings:
-        serverName: sun6-22.userapi.com
-        publicKey: KBtor6ap1Ml0bjcI_8UgdHhZYVYNOLuuYsuXsQUNGj0
-        shortId: 
-        fingerprint: chrome
   - protocol: vless
     tag: 185.82.73.212_8443
     settings:
@@ -243,38 +291,21 @@ outbounds:
         shortId: e499f276e7bd6420
         fingerprint: chrome
   - protocol: vless
-    tag: 138.124.79.9_443
+    tag: 72.56.70.31_8443
     settings:
       vnext:
-        - address: 138.124.79.9
-          port: 443
+        - address: 72.56.70.31
+          port: 8443
           users:
-            - id: c48e01a0-cc71-4bf9-a924-cf398f33e57a
-              flow: xtls-rprx-vision
-    streamSettings:
-      network: tcp
-      security: reality
-      realitySettings:
-        serverName: sun6-21.userapi.com
-        publicKey: SbVKOEMjK0sIlbwg4akyBg5mL5KZwwB-ed4eEE7YnRc
-        shortId: 
-        fingerprint: chrome
-  - protocol: vless
-    tag: 144.124.242.141_443
-    settings:
-      vnext:
-        - address: 144.124.242.141
-          port: 443
-          users:
-            - id: 4fe214fb-048e-431f-b939-4518dc9df6a2
+            - id: 90c9c25c-df6c-4438-83d3-ef97166a9184
               flow: xtls-rprx-vision
     streamSettings:
       network: tcp
       security: reality
       realitySettings:
         serverName: sun6-22.userapi.com
-        publicKey: kY32I2PvI5UYqhjoZlcL0z6V6r1AV_lLZolQH78ApmU
-        shortId: ae575a16aa1a19a9
+        publicKey: KBtor6ap1Ml0bjcI_8UgdHhZYVYNOLuuYsuXsQUNGj0
+        shortId: 
         fingerprint: chrome
   - protocol: vless
     tag: 138.124.79.8_443
@@ -283,7 +314,7 @@ outbounds:
         - address: 138.124.79.8
           port: 443
           users:
-            - id: d6b1327d-2bec-4366-a3a1-9b1284f95841
+            - id: c48e01a0-cc71-4bf9-a924-cf398f33e57a
               flow: xtls-rprx-vision
     streamSettings:
       network: tcp
@@ -300,7 +331,24 @@ outbounds:
         - address: 77.239.125.99
           port: 443
           users:
-            - id: 7b05219d-9cd5-4bda-8473-7a8d98d562f7
+            - id: 00c49863-6d15-4289-9229-841ee5f7868c
+              flow: xtls-rprx-vision
+    streamSettings:
+      network: tcp
+      security: reality
+      realitySettings:
+        serverName: sun6-21.userapi.com
+        publicKey: SbVKOEMjK0sIlbwg4akyBg5mL5KZwwB-ed4eEE7YnRc
+        shortId: 
+        fingerprint: chrome
+  - protocol: vless
+    tag: 138.124.79.9_443
+    settings:
+      vnext:
+        - address: 138.124.79.9
+          port: 443
+          users:
+            - id: d6b1327d-2bec-4366-a3a1-9b1284f95841
               flow: xtls-rprx-vision
     streamSettings:
       network: tcp
@@ -309,6 +357,57 @@ outbounds:
         serverName: sun6-21.userapi.com
         publicKey: SbVKOEMjK0sIlbwg4akyBg5mL5KZwwB-ed4eEE7YnRc
         shortId: 6ba85179e30d4fc2
+        fingerprint: chrome
+  - protocol: vless
+    tag: 144.124.242.141_443
+    settings:
+      vnext:
+        - address: 144.124.242.141
+          port: 443
+          users:
+            - id: 4fe214fb-048e-431f-b939-4518dc9df6a2
+              flow: xtls-rprx-vision
+    streamSettings:
+      network: tcp
+      security: reality
+      realitySettings:
+        serverName: eh.vk.com
+        publicKey: kY32I2PvI5UYqhjoZlcL0z6V6r1AV_lLZolQH78ApmU
+        shortId: ae575a16aa1a19a9
+        fingerprint: chrome
+  - protocol: vless
+    tag: 138.124.79.4_443
+    settings:
+      vnext:
+        - address: 138.124.79.4
+          port: 443
+          users:
+            - id: d6b1327d-2bec-4366-a3a1-9b1284f95841
+              flow: xtls-rprx-vision
+    streamSettings:
+      network: tcp
+      security: reality
+      realitySettings:
+        serverName: sun6-21.userapi.com
+        publicKey: SbVKOEMjK0sIlbwg4akyBg5mL5KZwwB-ed4eEE7YnRc
+        shortId: 
+        fingerprint: chrome
+  - protocol: vless
+    tag: ll2.takovpn.ru_8443
+    settings:
+      vnext:
+        - address: ll2.takovpn.ru
+          port: 8443
+          users:
+            - id: 0414bdfa-c027-471c-94fd-e4abfa69b94e
+              flow: xtls-rprx-vision
+    streamSettings:
+      network: tcp
+      security: reality
+      realitySettings:
+        serverName: sun6-20.userapi.com
+        publicKey: GacPaW0DxNTA8vpoEv7CpGBAu_atzYMBaryAuwcw70M
+        shortId: 4d42076c
         fingerprint: chrome
   - protocol: vless
     tag: 94.103.1.230_443
@@ -328,13 +427,30 @@ outbounds:
         shortId: 
         fingerprint: chrome
   - protocol: vless
+    tag: 82.22.40.35_443
+    settings:
+      vnext:
+        - address: 82.22.40.35
+          port: 443
+          users:
+            - id: b64ff004-ec17-4cbb-9f32-c4eb7f4660e8
+              flow: xtls-rprx-vision
+    streamSettings:
+      network: tcp
+      security: reality
+      realitySettings:
+        serverName: eh.vk.com
+        publicKey: isw9UCSqdj1pzN3KpqY634QY4eLCYmDrMgvI1XsQimA
+        shortId: 
+        fingerprint: chrome
+  - protocol: vless
     tag: 138.124.79.3_443
     settings:
       vnext:
         - address: 138.124.79.3
           port: 443
           users:
-            - id: d6b1327d-2bec-4366-a3a1-9b1284f95841
+            - id: c48e01a0-cc71-4bf9-a924-cf398f33e57a
               flow: xtls-rprx-vision
     streamSettings:
       network: tcp
@@ -342,40 +458,6 @@ outbounds:
       realitySettings:
         serverName: sun6-21.userapi.com
         publicKey: SbVKOEMjK0sIlbwg4akyBg5mL5KZwwB-ed4eEE7YnRc
-        shortId: 6ba85179e30d4fc2
-        fingerprint: chrome
-  - protocol: vless
-    tag: ll2.takovpn.ru_8443
-    settings:
-      vnext:
-        - address: ll2.takovpn.ru
-          port: 8443
-          users:
-            - id: 043c34d9-032f-4b2b-bcdd-f60741649547
-              flow: xtls-rprx-vision
-    streamSettings:
-      network: tcp
-      security: reality
-      realitySettings:
-        serverName: sun6-20.userapi.com
-        publicKey: GacPaW0DxNTA8vpoEv7CpGBAu_atzYMBaryAuwcw70M
-        shortId: 34a3819b9e58
-        fingerprint: chrome
-  - protocol: vless
-    tag: 185.99.96.64_443
-    settings:
-      vnext:
-        - address: 185.99.96.64
-          port: 443
-          users:
-            - id: fb6153b9-d820-455f-99b9-cbdd16557042
-              flow: xtls-rprx-vision
-    streamSettings:
-      network: tcp
-      security: reality
-      realitySettings:
-        serverName: 01.img.avito.st
-        publicKey: WvNaAxI0W__qfUKbtysH4IwF155YENlv3PG6crCmPkA
         shortId: 
         fingerprint: chrome
   - protocol: vless
@@ -396,21 +478,55 @@ outbounds:
         shortId: e499f276e7bd6420
         fingerprint: chrome
   - protocol: vless
-    tag: 138.124.79.4_443
+    tag: 144.124.242.141_443
     settings:
       vnext:
-        - address: 138.124.79.4
+        - address: 144.124.242.141
           port: 443
           users:
-            - id: d6b1327d-2bec-4366-a3a1-9b1284f95841
+            - id: 4fe214fb-048e-431f-b939-4518dc9df6a2
               flow: xtls-rprx-vision
     streamSettings:
       network: tcp
       security: reality
       realitySettings:
-        serverName: sun6-21.userapi.com
-        publicKey: SbVKOEMjK0sIlbwg4akyBg5mL5KZwwB-ed4eEE7YnRc
-        shortId: 
+        serverName: sun6-22.userapi.com
+        publicKey: kY32I2PvI5UYqhjoZlcL0z6V6r1AV_lLZolQH78ApmU
+        shortId: ae575a16aa1a19a9
+        fingerprint: chrome
+  - protocol: vless
+    tag: 185.155.96.155_8443
+    settings:
+      vnext:
+        - address: 185.155.96.155
+          port: 8443
+          users:
+            - id: 45e3b7ad-03b6-42fc-b616-1e92bdd0a5b3
+              flow: xtls-rprx-vision
+    streamSettings:
+      network: tcp
+      security: reality
+      realitySettings:
+        serverName: stats.vk-portal.net
+        publicKey: mLmBhbVFfNuo2eUgBh6r9-5Koz9mUCn3aSzlR6IejUg
+        shortId: 86e999a2cdc2
+        fingerprint: chrome
+  - protocol: vless
+    tag: 217.13.104.115_443
+    settings:
+      vnext:
+        - address: 217.13.104.115
+          port: 443
+          users:
+            - id: 4fe214fb-048e-431f-b939-4518dc9df6a2
+              flow: xtls-rprx-vision
+    streamSettings:
+      network: tcp
+      security: reality
+      realitySettings:
+        serverName: sun6-22.userapi.com
+        publicKey: HmnZvWf1xDzvps8H-juYYtHnWPZksvaUp6cMYV7TfSk
+        shortId: a20d3ed244c76426
         fingerprint: chrome
   - protocol: vless
     tag: 151.115.123.227_8443
@@ -428,6 +544,23 @@ outbounds:
         serverName: stats.vk-portal.net
         publicKey: mLmBhbVFfNuo2eUgBh6r9-5Koz9mUCn3aSzlR6IejUg
         shortId: e499f276e7bd6420
+        fingerprint: chrome
+  - protocol: vless
+    tag: 144.31.119.84_443
+    settings:
+      vnext:
+        - address: 144.31.119.84
+          port: 443
+          users:
+            - id: 95abaefc-7861-417a-81b7-166cb788ce1a
+              flow: xtls-rprx-vision
+    streamSettings:
+      network: tcp
+      security: reality
+      realitySettings:
+        serverName: st.ozone.ru
+        publicKey: 9ajY_OBOn5CCPnCJTPjxg6J3IWE8uJYAiWQvG9CBGjU
+        shortId: 00684d2eae2cdd16
         fingerprint: chrome
   - protocol: vless
     tag: 23.230.179.116_443
@@ -462,6 +595,23 @@ outbounds:
         serverName: stats.vk-portal.net
         publicKey: mLmBhbVFfNuo2eUgBh6r9-5Koz9mUCn3aSzlR6IejUg
         shortId: e499f276e7bd6420
+        fingerprint: chrome
+  - protocol: vless
+    tag: 91.107.121.223_443
+    settings:
+      vnext:
+        - address: 91.107.121.223
+          port: 443
+          users:
+            - id: 4fe214fb-048e-431f-b939-4518dc9df6a2
+              flow: xtls-rprx-vision
+    streamSettings:
+      network: tcp
+      security: reality
+      realitySettings:
+        serverName: sun6-21.userapi.com
+        publicKey: tFOva4mDqw-noGSk4B5gdh4X4WhyXHs0eNxM3QogyE4
+        shortId: f5563ddfa2847b32
         fingerprint: chrome
   - protocol: freedom
     tag: direct
