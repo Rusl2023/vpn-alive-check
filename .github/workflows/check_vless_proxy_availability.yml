@@ -167,7 +167,7 @@ jobs:
           done < "$INPUT"
           echo "Mihomo config.yaml ready"
 
-      - name: Commit and push subscription & Mihomo config
+      - name: Commit and push subscription & Mihomo config safely
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
         run: |
@@ -192,5 +192,8 @@ jobs:
           # Коммит только если есть изменения
           git diff --cached --quiet || git commit -m "Update VLESS subscription & Mihomo config (Xray verified)"
 
-          # Пушим только данные
+          # Pull с rebase, чтобы избежать ошибок пуша
+          git pull --rebase https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY} main
+
+          # Пушим изменения
           git push https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY} HEAD:main
