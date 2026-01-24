@@ -144,7 +144,6 @@ jobs:
             SNI=$(echo "$line" | sed -n 's|.*sni=\([^&]*\).*|\1|p')
             SEC=$(echo "$line" | sed -n 's|.*security=\([^&]*\).*|\1|p'); [ -z "$SEC" ] && SEC="none"
 
-            # Очищаем все поля от мусора после #
             TYPE=$(echo "$TYPE" | cut -d'#' -f1)
             FLOW=$(echo "$FLOW" | cut -d'#' -f1)
             SNI=$(echo "$SNI" | cut -d'#' -f1)
@@ -192,10 +191,6 @@ jobs:
           done
 
           git add "$FILE_RAW" "$FILE_B64" "$FILE_CFG"
-
           git diff --cached --quiet || git commit -m "Update VLESS subscription & Mihomo config (Xray verified)"
-
-          # Безопасный pull для предотвращения отказа пуша
           git pull --rebase https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY} main || true
-
           git push https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY} HEAD:main
