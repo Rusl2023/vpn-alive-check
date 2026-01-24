@@ -137,13 +137,13 @@ jobs:
           echo "proxies:" >> "$OUTPUT"
 
           while read -r line; do
-            HOST=$(echo "$line" | sed -n 's|vless://\([^@]*\)@\([^:]*\):\([^?]*\).*|\2|p')
-            PORT=$(echo "$line" | sed -n 's|vless://\([^@]*\)@\([^:]*\):\([^?]*\).*|\3|p')
+            HOST=$(echo "$line" | sed -n 's|vless://[^@]*@\([^:]*\):.*|\1|p')
+            PORT=$(echo "$line" | sed -n 's|vless://[^@]*@[^:]*:\([0-9]*\).*|\1|p')
             UUID=$(echo "$line" | sed -n 's|vless://\([^@]*\)@.*|\1|p')
-            TYPE=$(echo "$line" | grep -oP 'type=\K[^&]*' || echo tcp)
-            FLOW=$(echo "$line" | grep -oP 'flow=\K[^&]*' || echo "")
-            SNI=$(echo "$line" | grep -oP 'sni=\K[^&]*' || echo "")
-            SEC=$(echo "$line" | grep -oP 'security=\K[^&]*' || echo none)
+            TYPE=$(echo "$line" | sed -n 's|.*type=\([^&]*\).*|\1|p'); [ -z "$TYPE" ] && TYPE="tcp"
+            FLOW=$(echo "$line" | sed -n 's|.*flow=\([^&]*\).*|\1|p')
+            SNI=$(echo "$line" | sed -n 's|.*sni=\([^&]*\).*|\1|p')
+            SEC=$(echo "$line" | sed -n 's|.*security=\([^&]*\).*|\1|p'); [ -z "$SEC" ] && SEC="none"
 
             echo "  - name: ${HOST}_${PORT}" >> "$OUTPUT"
             echo "    type: vless" >> "$OUTPUT"
@@ -152,9 +152,10 @@ jobs:
             echo "    uuid: $UUID" >> "$OUTPUT"
             echo "    flow: $FLOW" >> "$OUTPUT"
             echo "    network: $TYPE" >> "$OUTPUT"
+
             if [ "$SEC" = "reality" ]; then
-              PBK=$(echo "$line" | grep -oP 'pbk=\K[^&]*')
-              SID=$(echo "$line" | grep -oP 'sid=\K[^&]*')
+              PBK=$(echo "$line" | sed -n 's|.*pbk=\([^&]*\).*|\1|p')
+              SID=$(echo "$line" | sed -n 's|.*sid=\([^&]*\).*|\1|p')
               echo "    security: reality" >> "$OUTPUT"
               echo "    realitySettings:" >> "$OUTPUT"
               echo "      serverName: $SNI" >> "$OUTPUT"
