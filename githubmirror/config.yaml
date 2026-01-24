@@ -1,3 +1,9 @@
+inbounds:
+  - listen: 0.0.0.0
+    port: 7891
+    protocol: socks
+    settings:
+      udp: false
 port: 7890
 socks-port: 7891
 redir-port: 7892
@@ -5,6 +11,18 @@ allow-lan: false
 log-level: info
 external-controller: 127.0.0.1:9090
 proxies:
+  - name: 185.82.73.212_8443
+    type: vless
+    server: 185.82.73.212
+    port: 8443
+    uuid: 45e3b7ad-03b6-42fc-b616-1e92bdd0a5b3
+    flow: xtls-rprx-vision
+    network: tcp
+    security: reality
+    realitySettings:
+      serverName: stats.vk-portal.net
+      publicKey: mLmBhbVFfNuo2eUgBh6r9-5Koz9mUCn3aSzlR6IejUg
+      shortId: e499f276e7bd6420
   - name: 72.56.70.31_8443
     type: vless
     server: 72.56.70.31
@@ -17,66 +35,6 @@ proxies:
       serverName: sun6-22.userapi.com
       publicKey: KBtor6ap1Ml0bjcI_8UgdHhZYVYNOLuuYsuXsQUNGj0
       shortId: 
-  - name: 144.124.242.141_443
-    type: vless
-    server: 144.124.242.141
-    port: 443
-    uuid: 0ee2d410-3e64-4c41-a571-3e5d2b5b8982
-    flow: xtls-rprx-vision
-    network: tcp
-    security: reality
-    realitySettings:
-      serverName: sun6-22.userapi.com
-      publicKey: kY32I2PvI5UYqhjoZlcL0z6V6r1AV_lLZolQH78ApmU
-      shortId: ae575a16aa1a19a9
-  - name: 144.124.242.141_443
-    type: vless
-    server: 144.124.242.141
-    port: 443
-    uuid: 0ee2d410-3e64-4c41-a571-3e5d2b5b8982
-    flow: xtls-rprx-vision
-    network: tcp
-    security: reality
-    realitySettings:
-      serverName: eh.vk.com
-      publicKey: kY32I2PvI5UYqhjoZlcL0z6V6r1AV_lLZolQH78ApmU
-      shortId: ae575a16aa1a19a9
-  - name: 138.124.79.8_443
-    type: vless
-    server: 138.124.79.8
-    port: 443
-    uuid: d6b1327d-2bec-4366-a3a1-9b1284f95841
-    flow: xtls-rprx-vision
-    network: tcp
-    security: reality
-    realitySettings:
-      serverName: sun6-21.userapi.com
-      publicKey: SbVKOEMjK0sIlbwg4akyBg5mL5KZwwB-ed4eEE7YnRc
-      shortId: 
-  - name: 77.239.125.99_443
-    type: vless
-    server: 77.239.125.99
-    port: 443
-    uuid: d6b1327d-2bec-4366-a3a1-9b1284f95841
-    flow: xtls-rprx-vision
-    network: tcp
-    security: reality
-    realitySettings:
-      serverName: sun6-21.userapi.com
-      publicKey: SbVKOEMjK0sIlbwg4akyBg5mL5KZwwB-ed4eEE7YnRc
-      shortId: 6ba85179e30d4fc2
-  - name: 138.124.79.9_443
-    type: vless
-    server: 138.124.79.9
-    port: 443
-    uuid: d6b1327d-2bec-4366-a3a1-9b1284f95841
-    flow: xtls-rprx-vision
-    network: tcp
-    security: reality
-    realitySettings:
-      serverName: sun6-21.userapi.com
-      publicKey: SbVKOEMjK0sIlbwg4akyBg5mL5KZwwB-ed4eEE7YnRc
-      shortId: 6ba85179e30d4fc2
   - name: nl01-ss01.tcp-reset-club.net_8443
     type: vless
     server: nl01-ss01.tcp-reset-club.net
@@ -89,6 +47,30 @@ proxies:
       serverName: stats.vk-portal.net
       publicKey: mLmBhbVFfNuo2eUgBh6r9-5Koz9mUCn3aSzlR6IejUg
       shortId: e499f276e7bd6420
+  - name: 138.124.79.8_443
+    type: vless
+    server: 138.124.79.8
+    port: 443
+    uuid: d6b1327d-2bec-4366-a3a1-9b1284f95841
+    flow: xtls-rprx-vision
+    network: tcp
+    security: reality
+    realitySettings:
+      serverName: sun6-21.userapi.com
+      publicKey: SbVKOEMjK0sIlbwg4akyBg5mL5KZwwB-ed4eEE7YnRc
+      shortId: 
+  - name: 138.124.79.9_443
+    type: vless
+    server: 138.124.79.9
+    port: 443
+    uuid: d6b1327d-2bec-4366-a3a1-9b1284f95841
+    flow: xtls-rprx-vision
+    network: tcp
+    security: reality
+    realitySettings:
+      serverName: sun6-21.userapi.com
+      publicKey: SbVKOEMjK0sIlbwg4akyBg5mL5KZwwB-ed4eEE7YnRc
+      shortId: 6ba85179e30d4fc2
   - name: 138.124.79.3_443
     type: vless
     server: 138.124.79.3
@@ -101,18 +83,6 @@ proxies:
       serverName: sun6-21.userapi.com
       publicKey: SbVKOEMjK0sIlbwg4akyBg5mL5KZwwB-ed4eEE7YnRc
       shortId: 6ba85179e30d4fc2
-  - name: 94.103.1.230_443
-    type: vless
-    server: 94.103.1.230
-    port: 443
-    uuid: d6b1327d-2bec-4366-a3a1-9b1284f95841
-    flow: xtls-rprx-vision
-    network: tcp
-    security: reality
-    realitySettings:
-      serverName: sun6-21.userapi.com
-      publicKey: SbVKOEMjK0sIlbwg4akyBg5mL5KZwwB-ed4eEE7YnRc
-      shortId: 
   - name: 138.124.79.4_443
     type: vless
     server: 138.124.79.4
@@ -125,6 +95,30 @@ proxies:
       serverName: sun6-21.userapi.com
       publicKey: SbVKOEMjK0sIlbwg4akyBg5mL5KZwwB-ed4eEE7YnRc
       shortId: 
+  - name: 144.124.242.141_443
+    type: vless
+    server: 144.124.242.141
+    port: 443
+    uuid: 0ee2d410-3e64-4c41-a571-3e5d2b5b8982
+    flow: xtls-rprx-vision
+    network: tcp
+    security: reality
+    realitySettings:
+      serverName: sun6-22.userapi.com
+      publicKey: kY32I2PvI5UYqhjoZlcL0z6V6r1AV_lLZolQH78ApmU
+      shortId: ae575a16aa1a19a9
+  - name: 77.239.125.99_443
+    type: vless
+    server: 77.239.125.99
+    port: 443
+    uuid: d6b1327d-2bec-4366-a3a1-9b1284f95841
+    flow: xtls-rprx-vision
+    network: tcp
+    security: reality
+    realitySettings:
+      serverName: sun6-21.userapi.com
+      publicKey: SbVKOEMjK0sIlbwg4akyBg5mL5KZwwB-ed4eEE7YnRc
+      shortId: 6ba85179e30d4fc2
   - name: 23.230.179.116_443
     type: vless
     server: 23.230.179.116
@@ -161,15 +155,39 @@ proxies:
       serverName: stats.vk-portal.net
       publicKey: mLmBhbVFfNuo2eUgBh6r9-5Koz9mUCn3aSzlR6IejUg
       shortId: e499f276e7bd6420
-  - name: 91.217.10.166_9443
+  - name: 144.31.19.193_443
     type: vless
-    server: 91.217.10.166
-    port: 9443
-    uuid: 4d8f29a4-f8b4-4bbc-b3a4-a1724e591b4a
+    server: 144.31.19.193
+    port: 443
+    uuid: 95abaefc-7861-417a-81b7-166cb788ce1a
     flow: xtls-rprx-vision
     network: tcp
     security: reality
     realitySettings:
-      serverName: api.avito.ru
-      publicKey: WvNaAxI0W__qfUKbtysH4IwF155YENlv3PG6crCmPkA
-      shortId: 
+      serverName: st.ozone.ru
+      publicKey: 9ajY_OBOn5CCPnCJTPjxg6J3IWE8uJYAiWQvG9CBGjU
+      shortId: 00684d2eae2cdd16
+  - name: 144.31.119.84_443
+    type: vless
+    server: 144.31.119.84
+    port: 443
+    uuid: 95abaefc-7861-417a-81b7-166cb788ce1a
+    flow: xtls-rprx-vision
+    network: tcp
+    security: reality
+    realitySettings:
+      serverName: st.ozone.ru
+      publicKey: 9ajY_OBOn5CCPnCJTPjxg6J3IWE8uJYAiWQvG9CBGjU
+      shortId: 00684d2eae2cdd16
+  - name: fi.appav.online_443
+    type: vless
+    server: fi.appav.online
+    port: 443
+    uuid: 95abaefc-7861-417a-81b7-166cb788ce1a
+    flow: xtls-rprx-vision
+    network: tcp
+    security: reality
+    realitySettings:
+      serverName: st.ozone.ru
+      publicKey: 9ajY_OBOn5CCPnCJTPjxg6J3IWE8uJYAiWQvG9CBGjU
+      shortId: 00684d2eae2cdd16
