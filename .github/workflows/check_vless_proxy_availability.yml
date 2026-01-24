@@ -127,6 +127,15 @@ jobs:
           OUTPUT="githubmirror/config.yaml"
           mkdir -p githubmirror
           : > "$OUTPUT"
+
+          # Добавляем блок inbounds для SOCKS5
+          echo "inbounds:" >> "$OUTPUT"
+          echo "  - listen: 0.0.0.0" >> "$OUTPUT"
+          echo "    port: 7891" >> "$OUTPUT"
+          echo "    protocol: socks" >> "$OUTPUT"
+          echo "    settings:" >> "$OUTPUT"
+          echo "      udp: false" >> "$OUTPUT"
+
           echo "port: 7890" >> "$OUTPUT"
           echo "socks-port: 7891" >> "$OUTPUT"
           echo "redir-port: 7892" >> "$OUTPUT"
