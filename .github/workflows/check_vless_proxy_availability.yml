@@ -34,6 +34,7 @@ jobs:
           mkdir -p githubmirror
           : > githubmirror/26_proxy_subscription_raw.txt
           : > githubmirror/26_proxy_subscription_base64.txt
+          : > githubmirror/config.yaml
 
       - name: Get runner IP
         run: |
@@ -45,7 +46,7 @@ jobs:
           import subprocess, time, json, urllib.parse, os, urllib.request
 
           INPUT = "githubmirror/26_ru_whitelist.txt"
-          OUTPUT = "githubmirror/26_proxy_subscription_raw.txt"
+          OUTPUT_RAW = "githubmirror/26_proxy_subscription_raw.txt"
           RUNNER_IP = os.environ.get("RUNNER_IP", "")
           TEST_URLS = ["https://api.ipify.org","http://cp.cloudflare.com","https://www.instagram.com/"]
 
@@ -111,7 +112,7 @@ jobs:
                   continue
               if country(ip) == "RU":
                   continue
-              with open(OUTPUT,"a") as f:
+              with open(OUTPUT_RAW,"a") as f:
                   f.write(link + "\n")
           print("Raw subscription ready")
           EOF
@@ -120,7 +121,52 @@ jobs:
         run: |
           base64 -w 0 githubmirror/26_proxy_subscription_raw.txt > githubmirror/26_proxy_subscription_base64.txt
 
-      - name: Commit and push subscription (data files only)
+      - name: Generate Mihomo config.yaml
+        run: |
+          INPUT="githubmirror/26_proxy_subscription_raw.txt"
+          OUTPUT="githubmirror/config.yaml"
+          mkdir -p githubmirror
+
+          : > "$OUTPUT"
+          echo "port: 7890" >> "$OUTPUT"
+          echo "socks-port: 7891" >> "$OUTPUT"
+          echo "redir-port: 7892" >> "$OUTPUT"
+          echo "allow-lan: false" >> "$OUTPUT"
+          echo "log-level: info" >> "$OUTPUT"
+          echo "external-controller: 127.0.0.1:9090" >> "$OUTPUT"
+          echo "proxies:" >> "$OUTPUT"
+
+          while read -r line; do
+            HOST=$(echo "$line" | sed -n 's|vless://\([^@]*\)@\([^:]*\):\([^?]*\).*|\2|p')
+            PORT=$(echo "$line" | sed -n 's|vless://\([^@]*\)@\([^:]*\):\([^?]*\).*|\3|p')
+            UUID=$(echo "$line" | sed -n 's|vless://\([^@]*\)@.*|\1|p')
+            TYPE=$(echo "$line" | grep -oP 'type=\K[^&]*' || echo tcp)
+            FLOW=$(echo "$line" | grep -oP 'flow=\K[^&]*' || echo "")
+            SNI=$(echo "$line" | grep -oP 'sni=\K[^&]*' || echo "")
+            SEC=$(echo "$line" | grep -oP 'security=\K[^&]*' || echo none)
+
+            echo "  - name: ${HOST}_${PORT}" >> "$OUTPUT"
+            echo "    type: vless" >> "$OUTPUT"
+            echo "    server: $HOST" >> "$OUTPUT"
+            echo "    port: $PORT" >> "$OUTPUT"
+            echo "    uuid: $UUID" >> "$OUTPUT"
+            echo "    flow: $FLOW" >> "$OUTPUT"
+            echo "    network: $TYPE" >> "$OUTPUT"
+            if [ "$SEC" = "reality" ]; then
+              PBK=$(echo "$line" | grep -oP 'pbk=\K[^&]*')
+              SID=$(echo "$line" | grep -oP 'sid=\K[^&]*')
+              echo "    security: reality" >> "$OUTPUT"
+              echo "    realitySettings:" >> "$OUTPUT"
+              echo "      serverName: $SNI" >> "$OUTPUT"
+              echo "      publicKey: $PBK" >> "$OUTPUT"
+              echo "      shortId: $SID" >> "$OUTPUT"
+            else
+              echo "    security: $SEC" >> "$OUTPUT"
+            fi
+          done < "$INPUT"
+          echo "Mihomo config.yaml ready"
+
+      - name: Commit and push subscription & Mihomo config
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
         run: |
@@ -129,20 +175,21 @@ jobs:
 
           FILE_RAW="githubmirror/26_proxy_subscription_raw.txt"
           FILE_B64="githubmirror/26_proxy_subscription_base64.txt"
+          FILE_CFG="githubmirror/config.yaml"
 
           # Проверка размера файлов перед коммитом
           MAX_SIZE=$((50 * 1024 * 1024)) # 50 MB
-          for f in "$FILE_RAW" "$FILE_B64"; do
+          for f in "$FILE_RAW" "$FILE_B64" "$FILE_CFG"; do
             if [ -f "$f" ] && [ $(stat -c%s "$f") -gt $MAX_SIZE ]; then
               echo "[WARN] File $f exceeds 50 MB, skipping commit"
               exit 0
             fi
           done
 
-          git add "$FILE_RAW" "$FILE_B64"
+          git add "$FILE_RAW" "$FILE_B64" "$FILE_CFG"
 
           # Коммит только если есть изменения
-          git diff --cached --quiet || git commit -m "Update VLESS base64 subscription (Xray verified)"
+          git diff --cached --quiet || git commit -m "Update VLESS subscription & Mihomo config (Xray verified)"
 
           # Пушим только данные
           git push https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY} HEAD:main
