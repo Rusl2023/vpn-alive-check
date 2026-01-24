@@ -159,6 +159,8 @@ jobs:
             FLOW=$(echo "$line" | sed -n 's|.*flow=\([^&]*\).*|\1|p')
             SNI=$(echo "$line" | sed -n 's|.*sni=\([^&]*\).*|\1|p')
             SEC=$(echo "$line" | sed -n 's|.*security=\([^&]*\).*|\1|p'); [ -z "$SEC" ] && SEC="none"
+            PBK=$(echo "$line" | sed -n 's|.*pbk=\([^&]*\).*|\1|p' | cut -d'#' -f1)
+            SID=$(echo "$line" | sed -n 's|.*sid=\([^&]*\).*|\1|p' | cut -d'#' -f1)
 
             TYPE=$(echo "$TYPE" | cut -d'#' -f1)
             FLOW=$(echo "$FLOW" | cut -d'#' -f1)
@@ -174,36 +176,67 @@ jobs:
             echo "    network: $TYPE" >> "$OUTPUT"
 
             if [ "$SEC" = "reality" ]; then
-              PBK=$(echo "$line" | sed -n 's|.*pbk=\([^&]*\).*|\1|p' | cut -d'#' -f1)
-              SID=$(echo "$line" | sed -n 's|.*sid=\([^&]*\).*|\1|p' | cut -d'#' -f1)
               echo "    security: reality" >> "$OUTPUT"
               echo "    realitySettings:" >> "$OUTPUT"
               echo "      serverName: $SNI" >> "$OUTPUT"
               echo "      publicKey: $PBK" >> "$OUTPUT"
               echo "      shortId: $SID" >> "$OUTPUT"
+            elif [ "$SEC" = "tls" ]; then
+              echo "    security: tls" >> "$OUTPUT"
+              echo "    tlsSettings:" >> "$OUTPUT"
+              echo "      serverName: $SNI" >> "$OUTPUT"
             else
-              echo "    security: $SEC" >> "$OUTPUT"
+              echo "    security: none" >> "$OUTPUT"
             fi
           done < "$INPUT"
 
           echo "" >> "$OUTPUT"
           echo "outbounds:" >> "$OUTPUT"
-          echo "  - protocol: vless" >> "$OUTPUT"
-          echo "    tag: vless_out" >> "$OUTPUT"
-          echo "    settings:" >> "$OUTPUT"
-          echo "      vnext:" >> "$OUTPUT"
-          echo "        - address: PLACEHOLDER_ADDRESS" >> "$OUTPUT"
-          echo "          port: PLACEHOLDER_PORT" >> "$OUTPUT"
-          echo "          users:" >> "$OUTPUT"
-          echo "            - id: PLACEHOLDER_UUID" >> "$OUTPUT"
-          echo "              flow: PLACEHOLDER_FLOW" >> "$OUTPUT"
-          echo "    streamSettings:" >> "$OUTPUT"
-          echo "      network: tcp" >> "$OUTPUT"
-          echo "      security: reality" >> "$OUTPUT"
-          echo "      realitySettings:" >> "$OUTPUT"
-          echo "        serverName: PLACEHOLDER_SNI" >> "$OUTPUT"
-          echo "        publicKey: PLACEHOLDER_PBK" >> "$OUTPUT"
-          echo "        shortId: PLACEHOLDER_SID" >> "$OUTPUT"
+          while read -r line; do
+            HOST=$(echo "$line" | sed -n 's|vless://[^@]*@\([^:]*\):.*|\1|p')
+            PORT=$(echo "$line" | sed -n 's|vless://[^@]*@[^:]*:\([0-9]*\).*|\1|p')
+            UUID=$(echo "$line" | sed -n 's|vless://\([^@]*\)@.*|\1|p')
+            FLOW=$(echo "$line" | sed -n 's|.*flow=\([^&]*\).*|\1|p')
+            SNI=$(echo "$line" | sed -n 's|.*sni=\([^&]*\).*|\1|p')
+            SEC=$(echo "$line" | sed -n 's|.*security=\([^&]*\).*|\1|p'); [ -z "$SEC" ] && SEC="none"
+            PBK=$(echo "$line" | sed -n 's|.*pbk=\([^&]*\).*|\1|p' | cut -d'#' -f1)
+            SID=$(echo "$line" | sed -n 's|.*sid=\([^&]*\).*|\1|p' | cut -d'#' -f1)
+            TYPE=$(echo "$line" | sed -n 's|.*type=\([^&]*\).*|\1|p'); [ -z "$TYPE" ] && TYPE="tcp"
+
+            TYPE=$(echo "$TYPE" | cut -d'#' -f1)
+            FLOW=$(echo "$FLOW" | cut -d'#' -f1)
+            SNI=$(echo "$SNI" | cut -d'#' -f1)
+            SEC=$(echo "$SEC" | cut -d'#' -f1)
+
+            echo "  - protocol: vless" >> "$OUTPUT"
+            echo "    tag: ${HOST}_${PORT}" >> "$OUTPUT"
+            echo "    settings:" >> "$OUTPUT"
+            echo "      vnext:" >> "$OUTPUT"
+            echo "        - address: $HOST" >> "$OUTPUT"
+            echo "          port: $PORT" >> "$OUTPUT"
+            echo "          users:" >> "$OUTPUT"
+            echo "            - id: $UUID" >> "$OUTPUT"
+            echo "              flow: $FLOW" >> "$OUTPUT"
+            echo "    streamSettings:" >> "$OUTPUT"
+
+            if [ "$SEC" = "reality" ]; then
+              echo "      network: tcp" >> "$OUTPUT"
+              echo "      security: reality" >> "$OUTPUT"
+              echo "      realitySettings:" >> "$OUTPUT"
+              echo "        serverName: $SNI" >> "$OUTPUT"
+              echo "        publicKey: $PBK" >> "$OUTPUT"
+              echo "        shortId: $SID" >> "$OUTPUT"
+            elif [ "$SEC" = "tls" ]; then
+              echo "      network: tcp" >> "$OUTPUT"
+              echo "      security: tls" >> "$OUTPUT"
+              echo "      tlsSettings:" >> "$OUTPUT"
+              echo "        serverName: $SNI" >> "$OUTPUT"
+            else
+              echo "      network: tcp" >> "$OUTPUT"
+              echo "      security: none" >> "$OUTPUT"
+            fi
+          done < "$INPUT"
+
           echo "  - protocol: freedom" >> "$OUTPUT"
           echo "    tag: direct" >> "$OUTPUT"
 
