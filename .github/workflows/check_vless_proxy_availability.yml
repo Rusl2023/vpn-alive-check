@@ -67,8 +67,8 @@ jobs:
               try:
                   with urllib.request.urlopen(f"https://ipapi.co/{ip}/country/") as r:
                       return r.read().decode().strip()
-                  except:
-                      return "Unknown"
+              except:
+                  return "Unknown"
 
           if not os.path.exists(INPUT):
               print(f"[WARN] Input file {INPUT} not found, skipping check")
