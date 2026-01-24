@@ -121,12 +121,11 @@ jobs:
         run: |
           base64 -w 0 githubmirror/26_proxy_subscription_raw.txt > githubmirror/26_proxy_subscription_base64.txt
 
-      - name: Generate Mihomo config.yaml
+      - name: Generate clean Mihomo config.yaml
         run: |
           INPUT="githubmirror/26_proxy_subscription_raw.txt"
           OUTPUT="githubmirror/config.yaml"
           mkdir -p githubmirror
-
           : > "$OUTPUT"
           echo "port: 7890" >> "$OUTPUT"
           echo "socks-port: 7891" >> "$OUTPUT"
@@ -145,6 +144,12 @@ jobs:
             SNI=$(echo "$line" | sed -n 's|.*sni=\([^&]*\).*|\1|p')
             SEC=$(echo "$line" | sed -n 's|.*security=\([^&]*\).*|\1|p'); [ -z "$SEC" ] && SEC="none"
 
+            # Очищаем все поля от мусора после #
+            TYPE=$(echo "$TYPE" | cut -d'#' -f1)
+            FLOW=$(echo "$FLOW" | cut -d'#' -f1)
+            SNI=$(echo "$SNI" | cut -d'#' -f1)
+            SEC=$(echo "$SEC" | cut -d'#' -f1)
+
             echo "  - name: ${HOST}_${PORT}" >> "$OUTPUT"
             echo "    type: vless" >> "$OUTPUT"
             echo "    server: $HOST" >> "$OUTPUT"
@@ -154,8 +159,8 @@ jobs:
             echo "    network: $TYPE" >> "$OUTPUT"
 
             if [ "$SEC" = "reality" ]; then
-              PBK=$(echo "$line" | sed -n 's|.*pbk=\([^&]*\).*|\1|p')
-              SID=$(echo "$line" | sed -n 's|.*sid=\([^&]*\).*|\1|p')
+              PBK=$(echo "$line" | sed -n 's|.*pbk=\([^&]*\).*|\1|p' | cut -d'#' -f1)
+              SID=$(echo "$line" | sed -n 's|.*sid=\([^&]*\).*|\1|p' | cut -d'#' -f1)
               echo "    security: reality" >> "$OUTPUT"
               echo "    realitySettings:" >> "$OUTPUT"
               echo "      serverName: $SNI" >> "$OUTPUT"
@@ -178,7 +183,6 @@ jobs:
           FILE_B64="githubmirror/26_proxy_subscription_base64.txt"
           FILE_CFG="githubmirror/config.yaml"
 
-          # Проверка размера файлов перед коммитом
           MAX_SIZE=$((50 * 1024 * 1024)) # 50 MB
           for f in "$FILE_RAW" "$FILE_B64" "$FILE_CFG"; do
             if [ -f "$f" ] && [ $(stat -c%s "$f") -gt $MAX_SIZE ]; then
@@ -189,11 +193,9 @@ jobs:
 
           git add "$FILE_RAW" "$FILE_B64" "$FILE_CFG"
 
-          # Коммит только если есть изменения
           git diff --cached --quiet || git commit -m "Update VLESS subscription & Mihomo config (Xray verified)"
 
-          # Pull с rebase, чтобы избежать ошибок пуша
-          git pull --rebase https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY} main
+          # Безопасный pull для предотвращения отказа пуша
+          git pull --rebase https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY} main || true
 
-          # Пушим изменения
           git push https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY} HEAD:main
