@@ -40,7 +40,6 @@ jobs:
         run: |
           echo "RUNNER_IP=$(curl -s https://api.ipify.org)" >> $GITHUB_ENV
 
-      # ---------- Xray check (НЕ МЕНЯЛ) ----------
       - name: Check VLESS via Xray and build raw subscription
         run: |
           python3 - <<'EOF'
@@ -126,7 +125,6 @@ jobs:
         run: |
           base64 -w 0 githubmirror/26_proxy_subscription_raw.txt > githubmirror/26_proxy_subscription_base64.txt
 
-      # ---------- FIXED MIHOMO GENERATOR ----------
       - name: Generate FINAL Mihomo config.yaml (ETALON)
         run: |
           INPUT="githubmirror/26_proxy_subscription_raw.txt"
@@ -197,6 +195,6 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add githubmirror/
-          git diff --cached --quiet || git commit -m "Fix Mihomo config to constructor-compatible format"
+          git diff --cached --quiet || git commit -m "Fix Mihomo config and Base64 subscription"
           git pull --rebase https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY} main || true
           git push https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY} HEAD:main
