@@ -1,5 +1,5 @@
 proxies:
-  - name: "🇳🇱 The Netherlands [SNI-RU] stats.vk-portal.net"
+  - name: "[OpenRay] 🇳🇱 NL-433"
     type: vless
     server: 185.82.73.212
     port: 8443
@@ -14,11 +14,55 @@ proxies:
     reality-opts:
       public-key: "mLmBhbVFfNuo2eUgBh6r9-5Koz9mUCn3aSzlR6IejUg"
       short-id: "e499f276e7bd6420"
-  - name: "[OpenRay] 🇩🇪 DE-3660"
+  - name: "[OpenRay] 🇳🇱 NL-289"
     type: vless
-    server: 77.239.125.99
+    server: 72.56.70.31
+    port: 8443
+    uuid: "90c9c25c-df6c-4438-83d3-ef97166a9184"
+    network: "tcp"
+    flow: "xtls-rprx-vision"
+    servername: "sun6-22.userapi.com"
+    client-fingerprint: chrome
+    encryption: "none"
+    tls: true
+    udp: true
+    reality-opts:
+      public-key: "KBtor6ap1Ml0bjcI_8UgdHhZYVYNOLuuYsuXsQUNGj0"
+  - name: "🇫🇷 France [SNI-RU] sun6-21.userapi.com"
+    type: vless
+    server: 138.124.79.9
     port: 443
-    uuid: "00c49863-6d15-4289-9229-841ee5f7868c"
+    uuid: "d6b1327d-2bec-4366-a3a1-9b1284f95841"
+    network: "tcp"
+    flow: "xtls-rprx-vision"
+    servername: "sun6-21.userapi.com"
+    client-fingerprint: chrome
+    encryption: "none"
+    tls: true
+    udp: true
+    reality-opts:
+      public-key: "SbVKOEMjK0sIlbwg4akyBg5mL5KZwwB-ed4eEE7YnRc"
+      short-id: "6ba85179e30d4fc2"
+  - name: "🇳🇱 The Netherlands [SNI-RU] stats.vk-portal.net"
+    type: vless
+    server: nl01-ss01.tcp-reset-club.net
+    port: 8443
+    uuid: "45e3b7ad-03b6-42fc-b616-1e92bdd0a5b3"
+    network: "tcp"
+    flow: "xtls-rprx-vision"
+    servername: "stats.vk-portal.net"
+    client-fingerprint: chrome
+    encryption: "none"
+    tls: true
+    udp: true
+    reality-opts:
+      public-key: "mLmBhbVFfNuo2eUgBh6r9-5Koz9mUCn3aSzlR6IejUg"
+      short-id: "e499f276e7bd6420"
+  - name: "[OpenRay] 🇫🇷 FR-409"
+    type: vless
+    server: 138.124.79.8
+    port: 443
+    uuid: "d6b1327d-2bec-4366-a3a1-9b1284f95841"
     network: "tcp"
     flow: "xtls-rprx-vision"
     servername: "sun6-21.userapi.com"
@@ -42,55 +86,12 @@ proxies:
     udp: true
     reality-opts:
       public-key: "SbVKOEMjK0sIlbwg4akyBg5mL5KZwwB-ed4eEE7YnRc"
-  - name: "[OpenRay] 🇳🇱 NL-289"
+  - name: "[OpenRay] 🇩🇪 DE-3660"
     type: vless
-    server: 72.56.70.31
-    port: 8443
-    uuid: "90c9c25c-df6c-4438-83d3-ef97166a9184"
-    network: "tcp"
-    flow: "xtls-rprx-vision"
-    servername: "sun6-22.userapi.com"
-    client-fingerprint: chrome
-    encryption: "none"
-    tls: true
-    udp: true
-    reality-opts:
-      public-key: "KBtor6ap1Ml0bjcI_8UgdHhZYVYNOLuuYsuXsQUNGj0"
-  - name: "[OpenRay] 🇫🇷 FR-409"
-    type: vless
-    server: 138.124.79.8
+    server: 77.239.125.99
     port: 443
-    uuid: "d6b1327d-2bec-4366-a3a1-9b1284f95841"
+    uuid: "00c49863-6d15-4289-9229-841ee5f7868c"
     network: "tcp"
-    flow: "xtls-rprx-vision"
-    servername: "sun6-21.userapi.com"
-    client-fingerprint: chrome
-    encryption: "none"
-    tls: true
-    udp: true
-    reality-opts:
-      public-key: "SbVKOEMjK0sIlbwg4akyBg5mL5KZwwB-ed4eEE7YnRc"
-  - name: "[OpenRay] 🇫🇷 FR-455"
-    type: vless
-    server: 138.124.79.9
-    port: 443
-    uuid: "d6b1327d-2bec-4366-a3a1-9b1284f95841"
-    network: "tcp"
-    flow: "xtls-rprx-vision"
-    servername: "sun6-21.userapi.com"
-    client-fingerprint: chrome
-    encryption: "none"
-    tls: true
-    udp: true
-    reality-opts:
-      public-key: "SbVKOEMjK0sIlbwg4akyBg5mL5KZwwB-ed4eEE7YnRc"
-      short-id: "6ba85179e30d4fc2"
-  - name: "[🇳🇱] [vl-re-ra] [260125-103552.310]"
-    type: vless
-    server: 94.103.1.230
-    port: 443
-    uuid: "d6b1327d-2bec-4366-a3a1-9b1284f95841"
-    network: "raw"
     flow: "xtls-rprx-vision"
     servername: "sun6-21.userapi.com"
     client-fingerprint: chrome
@@ -113,24 +114,38 @@ proxies:
     udp: true
     reality-opts:
       public-key: "SbVKOEMjK0sIlbwg4akyBg5mL5KZwwB-ed4eEE7YnRc"
-  - name: "🇳🇱 The Netherlands [SNI-RU] stats.vk-portal.net"
+  - name: ">>@oneclickvpnkeys::NL"
     type: vless
-    server: nl01-ss01.tcp-reset-club.net
-    port: 8443
-    uuid: "45e3b7ad-03b6-42fc-b616-1e92bdd0a5b3"
+    server: 94.103.1.230
+    port: 443
+    uuid: "d6b1327d-2bec-4366-a3a1-9b1284f95841"
     network: "tcp"
     flow: "xtls-rprx-vision"
-    servername: "stats.vk-portal.net"
+    servername: "sun6-21.userapi.com"
     client-fingerprint: chrome
     encryption: "none"
     tls: true
     udp: true
     reality-opts:
-      public-key: "mLmBhbVFfNuo2eUgBh6r9-5Koz9mUCn3aSzlR6IejUg"
-      short-id: "e499f276e7bd6420"
-  - name: "[OpenRay] 🇪🇪 EE-10"
+      public-key: "SbVKOEMjK0sIlbwg4akyBg5mL5KZwwB-ed4eEE7YnRc"
+  - name: "🇩🇪 Germany [SNI-RU] sun6-20.userapi.com"
     type: vless
-    server: 185.155.96.155
+    server: ll2.takovpn.ru
+    port: 8443
+    uuid: "83651868-b4ed-4efb-bbb6-632d0b09fba3"
+    network: "tcp"
+    flow: "xtls-rprx-vision"
+    servername: "sun6-20.userapi.com"
+    client-fingerprint: chrome
+    encryption: "none"
+    tls: true
+    udp: true
+    reality-opts:
+      public-key: "GacPaW0DxNTA8vpoEv7CpGBAu_atzYMBaryAuwcw70M"
+      short-id: "0f"
+  - name: "🇪🇪 Estonia [SNI-RU] stats.vk-portal.net"
+    type: vless
+    server: est01-ss01.tcp-reset-club.net
     port: 8443
     uuid: "45e3b7ad-03b6-42fc-b616-1e92bdd0a5b3"
     network: "tcp"
@@ -143,6 +158,21 @@ proxies:
     reality-opts:
       public-key: "mLmBhbVFfNuo2eUgBh6r9-5Koz9mUCn3aSzlR6IejUg"
       short-id: "86e999a2cdc2"
+  - name: "🇫🇮 FI | 144.31.19.193"
+    type: vless
+    server: 144.31.19.193
+    port: 443
+    uuid: "95abaefc-7861-417a-81b7-166cb788ce1a"
+    network: "tcp"
+    flow: "xtls-rprx-vision"
+    servername: "st.ozone.ru"
+    client-fingerprint: chrome
+    encryption: "none"
+    tls: true
+    udp: true
+    reality-opts:
+      public-key: "9ajY_OBOn5CCPnCJTPjxg6J3IWE8uJYAiWQvG9CBGjU"
+      short-id: "00684d2eae2cdd16"
   - name: "[OpenRay] 🇵🇱 PL-192"
     type: vless
     server: 151.115.123.227
@@ -173,21 +203,21 @@ proxies:
     reality-opts:
       public-key: "mLmBhbVFfNuo2eUgBh6r9-5Koz9mUCn3aSzlR6IejUg"
       short-id: "e499f276e7bd6420"
-  - name: "🇩🇪 Germany [SNI-RU] sun6-20.userapi.com"
+  - name: "[OpenRay] Dynamic-140"
     type: vless
-    server: ll2.takovpn.ru
-    port: 8443
-    uuid: "9715f993-2a6e-4367-b8dd-98d23b0e41fa"
+    server: fi.appav.online
+    port: 443
+    uuid: "95abaefc-7861-417a-81b7-166cb788ce1a"
     network: "tcp"
     flow: "xtls-rprx-vision"
-    servername: "sun6-20.userapi.com"
+    servername: "st.ozone.ru"
     client-fingerprint: chrome
     encryption: "none"
     tls: true
     udp: true
     reality-opts:
-      public-key: "GacPaW0DxNTA8vpoEv7CpGBAu_atzYMBaryAuwcw70M"
-      short-id: "6698"
+      public-key: "9ajY_OBOn5CCPnCJTPjxg6J3IWE8uJYAiWQvG9CBGjU"
+      short-id: "00684d2eae2cdd16"
   - name: "🇰🇿 KZ | 91.217.10.166"
     type: vless
     server: 91.217.10.166
@@ -207,19 +237,21 @@ proxy-groups:
   - name: auto
     type: select
     proxies:
+      - "[OpenRay] 🇳🇱 NL-433"
+      - "[OpenRay] 🇳🇱 NL-289"
+      - "🇫🇷 France [SNI-RU] sun6-21.userapi.com"
       - "🇳🇱 The Netherlands [SNI-RU] stats.vk-portal.net"
+      - "[OpenRay] 🇫🇷 FR-409"
+      - "🇫🇷 France [SNI-RU] sun6-21.userapi.com"
       - "[OpenRay] 🇩🇪 DE-3660"
       - "🇫🇷 France [SNI-RU] sun6-21.userapi.com"
-      - "[OpenRay] 🇳🇱 NL-289"
-      - "[OpenRay] 🇫🇷 FR-409"
-      - "[OpenRay] 🇫🇷 FR-455"
-      - "[🇳🇱] [vl-re-ra] [260125-103552.310]"
-      - "🇫🇷 France [SNI-RU] sun6-21.userapi.com"
-      - "🇳🇱 The Netherlands [SNI-RU] stats.vk-portal.net"
-      - "[OpenRay] 🇪🇪 EE-10"
+      - ">>@oneclickvpnkeys::NL"
+      - "🇩🇪 Germany [SNI-RU] sun6-20.userapi.com"
+      - "🇪🇪 Estonia [SNI-RU] stats.vk-portal.net"
+      - "🇫🇮 FI | 144.31.19.193"
       - "[OpenRay] 🇵🇱 PL-192"
       - "🇵🇱 Poland [SNI-RU] stats.vk-portal.net"
-      - "🇩🇪 Germany [SNI-RU] sun6-20.userapi.com"
+      - "[OpenRay] Dynamic-140"
       - "🇰🇿 KZ | 91.217.10.166"
 
 rules:
