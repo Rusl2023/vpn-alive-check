@@ -1,4 +1,18 @@
 proxies:
+  - name: "[OpenRay] 🇳🇱 NL-289"
+    type: vless
+    server: 72.56.70.31
+    port: 8443
+    uuid: "90c9c25c-df6c-4438-83d3-ef97166a9184"
+    network: "tcp"
+    flow: "xtls-rprx-vision"
+    servername: "sun6-22.userapi.com"
+    client-fingerprint: chrome
+    encryption: "none"
+    tls: true
+    udp: true
+    reality-opts:
+      public-key: "KBtor6ap1Ml0bjcI_8UgdHhZYVYNOLuuYsuXsQUNGj0"
   - name: "[OpenRay] 🇳🇱 NL-433"
     type: vless
     server: 185.82.73.212
@@ -29,20 +43,6 @@ proxies:
     reality-opts:
       public-key: "mLmBhbVFfNuo2eUgBh6r9-5Koz9mUCn3aSzlR6IejUg"
       short-id: "e499f276e7bd6420"
-  - name: "[OpenRay] 🇳🇱 NL-289"
-    type: vless
-    server: 72.56.70.31
-    port: 8443
-    uuid: "90c9c25c-df6c-4438-83d3-ef97166a9184"
-    network: "tcp"
-    flow: "xtls-rprx-vision"
-    servername: "sun6-22.userapi.com"
-    client-fingerprint: chrome
-    encryption: "none"
-    tls: true
-    udp: true
-    reality-opts:
-      public-key: "KBtor6ap1Ml0bjcI_8UgdHhZYVYNOLuuYsuXsQUNGj0"
   - name: "[OpenRay] 🇩🇪 DE-3660"
     type: vless
     server: 77.239.125.99
@@ -57,36 +57,7 @@ proxies:
     udp: true
     reality-opts:
       public-key: "SbVKOEMjK0sIlbwg4akyBg5mL5KZwwB-ed4eEE7YnRc"
-  - name: "hamedp71::🇫🇷"
-    type: vless
-    server: 138.124.79.4
-    port: 443
-    uuid: "d6b1327d-2bec-4366-a3a1-9b1284f95841"
-    network: "tcp"
-    flow: "xtls-rprx-vision"
-    servername: "sun6-21.userapi.com"
-    client-fingerprint: chrome
-    encryption: "none"
-    tls: true
-    udp: true
-    reality-opts:
-      public-key: "SbVKOEMjK0sIlbwg4akyBg5mL5KZwwB-ed4eEE7YnRc"
-  - name: "[OpenRay] 🇫🇷 FR-408"
-    type: vless
-    server: 138.124.79.3
-    port: 443
-    uuid: "d6b1327d-2bec-4366-a3a1-9b1284f95841"
-    network: "tcp"
-    flow: "xtls-rprx-vision"
-    servername: "sun6-21.userapi.com"
-    client-fingerprint: chrome
-    encryption: "none"
-    tls: true
-    udp: true
-    reality-opts:
-      public-key: "SbVKOEMjK0sIlbwg4akyBg5mL5KZwwB-ed4eEE7YnRc"
-      short-id: "6ba85179e30d4fc2"
-  - name: "[OpenRay] 🇫🇷 FR-409"
+  - name: "🇫🇷 France [SNI-RU] sun6-21.userapi.com"
     type: vless
     server: 138.124.79.8
     port: 443
@@ -100,21 +71,6 @@ proxies:
     udp: true
     reality-opts:
       public-key: "SbVKOEMjK0sIlbwg4akyBg5mL5KZwwB-ed4eEE7YnRc"
-  - name: "🇭🇺 Hungary — #158"
-    type: vless
-    server: 217.13.104.120
-    port: 443
-    uuid: "bad0ff11-40eb-4c04-8137-e1eac9cbd31e"
-    network: "tcp"
-    flow: "xtls-rprx-vision"
-    servername: "yandex.ru"
-    client-fingerprint: chrome
-    encryption: "none"
-    tls: true
-    udp: true
-    reality-opts:
-      public-key: "qjcsdhbF7IhIc-pHA43WlTvh8Qr-ePvypTTjI1XyyGo"
-      short-id: "7712e76c17de5601"
   - name: "[OpenRay] 🇪🇪 EE-10"
     type: vless
     server: 185.155.96.155
@@ -145,6 +101,20 @@ proxies:
     reality-opts:
       public-key: "mLmBhbVFfNuo2eUgBh6r9-5Koz9mUCn3aSzlR6IejUg"
       short-id: "e499f276e7bd6420"
+  - name: "🇫🇷 France [SNI-RU] sun6-21.userapi.com"
+    type: vless
+    server: 138.124.79.4
+    port: 443
+    uuid: "d6b1327d-2bec-4366-a3a1-9b1284f95841"
+    network: "tcp"
+    flow: "xtls-rprx-vision"
+    servername: "sun6-21.userapi.com"
+    client-fingerprint: chrome
+    encryption: "none"
+    tls: true
+    udp: true
+    reality-opts:
+      public-key: "SbVKOEMjK0sIlbwg4akyBg5mL5KZwwB-ed4eEE7YnRc"
   - name: "🇵🇱 Poland [SNI-RU] stats.vk-portal.net"
     type: vless
     server: pol01-ss01.tcp-reset-club.net
@@ -179,16 +149,14 @@ proxy-groups:
   - name: auto
     type: select
     proxies:
+      - "[OpenRay] 🇳🇱 NL-289"
       - "[OpenRay] 🇳🇱 NL-433"
       - "🇳🇱 The Netherlands [SNI-RU] stats.vk-portal.net"
-      - "[OpenRay] 🇳🇱 NL-289"
       - "[OpenRay] 🇩🇪 DE-3660"
-      - "hamedp71::🇫🇷"
-      - "[OpenRay] 🇫🇷 FR-408"
-      - "[OpenRay] 🇫🇷 FR-409"
-      - "🇭🇺 Hungary — #158"
+      - "🇫🇷 France [SNI-RU] sun6-21.userapi.com"
       - "[OpenRay] 🇪🇪 EE-10"
       - "[OpenRay] 🇵🇱 PL-192"
+      - "🇫🇷 France [SNI-RU] sun6-21.userapi.com"
       - "🇵🇱 Poland [SNI-RU] stats.vk-portal.net"
       - "🇰🇿 KZ | 91.217.10.166"
 
