@@ -1,19 +1,4 @@
 proxies:
-  - name: "[OpenRay] 🇳🇱 NL-433"
-    type: vless
-    server: 185.82.73.212
-    port: 8443
-    uuid: "45e3b7ad-03b6-42fc-b616-1e92bdd0a5b3"
-    network: "tcp"
-    flow: "xtls-rprx-vision"
-    servername: "stats.vk-portal.net"
-    client-fingerprint: chrome
-    encryption: "none"
-    tls: true
-    udp: true
-    reality-opts:
-      public-key: "mLmBhbVFfNuo2eUgBh6r9-5Koz9mUCn3aSzlR6IejUg"
-      short-id: "e499f276e7bd6420"
   - name: "🇳🇱 The Netherlands [SNI-RU] stats.vk-portal.net"
     type: vless
     server: nl01-ss01.tcp-reset-club.net
@@ -43,11 +28,11 @@ proxies:
     udp: true
     reality-opts:
       public-key: "KBtor6ap1Ml0bjcI_8UgdHhZYVYNOLuuYsuXsQUNGj0"
-  - name: "🇫🇷 France [SNI-RU] sun6-21.userapi.com"
+  - name: "hamedp71::🇫🇷"
     type: vless
     server: 138.124.79.3
     port: 443
-    uuid: "c48e01a0-cc71-4bf9-a924-cf398f33e57a"
+    uuid: "d6b1327d-2bec-4366-a3a1-9b1284f95841"
     network: "tcp"
     flow: "xtls-rprx-vision"
     servername: "sun6-21.userapi.com"
@@ -57,7 +42,8 @@ proxies:
     udp: true
     reality-opts:
       public-key: "SbVKOEMjK0sIlbwg4akyBg5mL5KZwwB-ed4eEE7YnRc"
-  - name: ">>@oneclickvpnkeys::FR"
+      short-id: "6ba85179e30d4fc2"
+  - name: "hamedp71::🇫🇷"
     type: vless
     server: 138.124.79.4
     port: 443
@@ -85,11 +71,11 @@ proxies:
     udp: true
     reality-opts:
       public-key: "SbVKOEMjK0sIlbwg4akyBg5mL5KZwwB-ed4eEE7YnRc"
-  - name: "[OpenRay] 🇫🇷 FR-455"
+  - name: "🇫🇷 France [SNI-RU] sun6-21.userapi.com"
     type: vless
     server: 138.124.79.9
     port: 443
-    uuid: "d6b1327d-2bec-4366-a3a1-9b1284f95841"
+    uuid: "c48e01a0-cc71-4bf9-a924-cf398f33e57a"
     network: "tcp"
     flow: "xtls-rprx-vision"
     servername: "sun6-21.userapi.com"
@@ -99,8 +85,7 @@ proxies:
     udp: true
     reality-opts:
       public-key: "SbVKOEMjK0sIlbwg4akyBg5mL5KZwwB-ed4eEE7YnRc"
-      short-id: "6ba85179e30d4fc2"
-  - name: "[OpenRay] 🇫🇷 FR-409"
+  - name: "🇫🇷 France [SNI-RU] sun6-21.userapi.com"
     type: vless
     server: 138.124.79.8
     port: 443
@@ -129,11 +114,11 @@ proxies:
     reality-opts:
       public-key: "mLmBhbVFfNuo2eUgBh6r9-5Koz9mUCn3aSzlR6IejUg"
       short-id: "86e999a2cdc2"
-  - name: "🇭🇺 Hungary — #158"
+  - name: "🇭🇺 Hungary — #156"
     type: vless
     server: 217.13.104.120
     port: 443
-    uuid: "ca2aa331-0832-43dc-b389-9b469084a99b"
+    uuid: "bad0ff11-40eb-4c04-8137-e1eac9cbd31e"
     network: "tcp"
     flow: "xtls-rprx-vision"
     servername: "yandex.ru"
@@ -179,16 +164,15 @@ proxy-groups:
   - name: auto
     type: select
     proxies:
-      - "[OpenRay] 🇳🇱 NL-433"
       - "🇳🇱 The Netherlands [SNI-RU] stats.vk-portal.net"
       - "[OpenRay] 🇳🇱 NL-289"
-      - "🇫🇷 France [SNI-RU] sun6-21.userapi.com"
-      - ">>@oneclickvpnkeys::FR"
+      - "hamedp71::🇫🇷"
+      - "hamedp71::🇫🇷"
       - "[OpenRay] 🇩🇪 DE-3660"
-      - "[OpenRay] 🇫🇷 FR-455"
-      - "[OpenRay] 🇫🇷 FR-409"
+      - "🇫🇷 France [SNI-RU] sun6-21.userapi.com"
+      - "🇫🇷 France [SNI-RU] sun6-21.userapi.com"
       - "[OpenRay] 🇪🇪 EE-10"
-      - "🇭🇺 Hungary — #158"
+      - "🇭🇺 Hungary — #156"
       - "[OpenRay] 🇵🇱 PL-192"
       - "🇵🇱 Poland [SNI-RU] stats.vk-portal.net"
 
