@@ -42,21 +42,27 @@ jobs:
           proxies = []
           proxy_names = []
           seen_names = set()
-          seen_servers = set()  # для уникальности по IP:Port
+          seen_servers = set()
 
           class CustomDumper(yaml.SafeDumper):
-              def represent_scalar(self, tag, value, style=None):
-                  # Живые флаги — принудительно в кавычках
-                  if isinstance(value, str) and any(0x1F1E6 <= ord(c) <= 0x1F1FF for c in value):
-                      style = '"'
-                  return super().represent_scalar(tag, value, style)
+              pass  # Логика полностью в str_representer
 
           def str_representer(dumper, data):
+              # Флаги: любые символы диапазона 🇦-🇿
+              has_flag = any(0x1F1E6 <= ord(c) <= 0x1F1FF for c in data)
+              if has_flag:
+                  return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='"')
+
+              # Поля, которые Mihomo лучше видит в кавычках
               quoted_fields = ["xtls-rprx-vision", "chrome", "qq", "none", "tcp", "vless"]
               if re.fullmatch(r'(?i)[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}', data) or data in quoted_fields:
                   return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='"')
-              if ' ' in data or any(c in data for c in '[]:#*') or any(0x1F1E6 <= ord(c) <= 0x1F1FF for c in data):
+
+              # Имена с пробелами или спецсимволами — в кавычки
+              if ' ' in data or any(c in data for c in '[]:#*'):
                   return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='"')
+
+              # Всё остальное (IP, servername, ключи) — без кавычек
               return dumper.represent_scalar('tag:yaml.org,2002:str', data)
 
           CustomDumper.add_representer(str, str_representer)
@@ -135,7 +141,5 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add config.yaml
           git commit -m "Update: $(date +'%Y-%m-%d %H:%M')"
-          # Добавляем удаленный репозиторий явно с токеном
           git remote add origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
-          # Force push заменяет историю на актуальный конфиг
           git push -f origin master:generated-config
