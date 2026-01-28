@@ -29,7 +29,7 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip pyyaml
 
-      - name: Generate Mihomo config.yaml with emojis
+      - name: Generate Mihomo config.yaml with emojis and double quotes
         run: |
           python3 - <<'EOF'
           import yaml
@@ -42,8 +42,14 @@ jobs:
           proxy_names = []
           seen = set()
 
-          class MyDumper(yaml.SafeDumper):
-              pass  # Не экранируем строки в кавычки
+          class DoubleQuotedDumper(yaml.SafeDumper):
+              pass
+
+          # Вынудительно ставим двойные кавычки на все строки
+          def str_representer(dumper, data):
+              return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='"')
+
+          DoubleQuotedDumper.add_representer(str, str_representer)
 
           with open(RAW, encoding='utf-8', errors='ignore') as f:
               for line in f:
@@ -98,7 +104,7 @@ jobs:
           }
 
           with open(OUT, "w", encoding="utf-8") as f:
-              yaml.dump(config, f, allow_unicode=True, sort_keys=False, Dumper=MyDumper)
+              yaml.dump(config, f, allow_unicode=True, sort_keys=False, Dumper=DoubleQuotedDumper)
           EOF
 
       - name: Commit and push to generated-config
