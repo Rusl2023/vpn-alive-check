@@ -27,20 +27,18 @@ jobs:
 
       - name: Install Python deps
         run: |
-          python3 -m pip install --upgrade pip pyyaml
+          python3 -m pip install --upgrade pip
 
       - name: Generate Mihomo config.yaml
         run: |
           python3 - <<'EOF'
-          import yaml
+          import json
           import urllib.parse
-          import re
 
           RAW = "${{ env.OUTPUT_DIR }}/raw.txt"
           OUT = "${{ env.OUTPUT_DIR }}/config.yaml"
 
           proxies = []
-          proxy_names = []
           seen_names = set()
           seen_servers = set()
 
@@ -84,32 +82,40 @@ jobs:
                           proxy["tcp-opts"] = {"header": {"type": "none"}}
 
                   proxies.append(proxy)
-                  proxy_names.append(name)
 
-          # Создаем конфигурацию вручную
-          config = {
-              "proxies": proxies,
-              "proxy-groups": [{"name": "auto", "type": "select", "proxies": proxy_names}],
-              "rules": ["MATCH,auto"]
-          }
-
-          # Кастомный YAML-думпер для живых эмодзи
-          class RealEmojiDumper(yaml.SafeDumper):
-              pass
-
-          def represent_str(dumper, data):
-              # Если есть emoji-флаг или пробелы/спецсимволы — ставим кавычки
-              if any(0x1F1E6 <= ord(c) <= 0x1F1FF for c in data) or ' ' in data or any(c in data for c in '[]:#*'):
-                  return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='"')
-              # UUID и технические поля — в кавычки
-              if '-' in data or data in ["chrome", "none", "vless", "tcp"]:
-                  return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='"')
-              return dumper.represent_scalar('tag:yaml.org,2002:str', data)
-
-          RealEmojiDumper.add_representer(str, represent_str)
-
+          # Ручная сборка YAML для живых эмодзи
           with open(OUT, "w", encoding="utf-8") as f:
-              yaml.dump(config, f, Dumper=RealEmojiDumper, allow_unicode=True, sort_keys=False, indent=2, default_flow_style=False)
+              f.write("proxies:\n")
+              for p in proxies:
+                  f.write(f"  - name: {json.dumps(p['name'], ensure_ascii=False)}\n")
+                  f.write(f"    type: {p['type']}\n")
+                  f.write(f"    server: {p['server']}\n")
+                  f.write(f"    port: {p['port']}\n")
+                  f.write(f"    uuid: {p['uuid']}\n")
+                  f.write(f"    network: {p['network']}\n")
+                  f.write(f"    flow: {p['flow']}\n")
+                  f.write(f"    servername: {p['servername']}\n")
+                  f.write(f"    client-fingerprint: {p['client-fingerprint']}\n")
+                  f.write(f"    encryption: {p['encryption']}\n")
+                  f.write(f"    tls: {str(p['tls']).lower()}\n")
+                  f.write(f"    udp: {str(p['udp']).lower()}\n")
+                  f.write(f"    reality-opts:\n")
+                  f.write(f"      public-key: {p['reality-opts']['public-key']}\n")
+                  if "short-id" in p["reality-opts"]:
+                      f.write(f"      short-id: {p['reality-opts']['short-id']}\n")
+                  if "spiderx" in p["reality-opts"]:
+                      f.write(f"      spiderx: {p['reality-opts']['spiderx']}\n")
+                  if "tcp-opts" in p:
+                      f.write(f"    tcp-opts:\n")
+                      f.write(f"      header:\n")
+                      f.write(f"        type: {p['tcp-opts']['header']['type']}\n")
+
+              f.write("\nproxy-groups:\n")
+              f.write("  - name: auto\n    type: select\n    proxies:\n")
+              for name in seen_names:
+                  f.write(f"      - {json.dumps(name, ensure_ascii=False)}\n")
+
+              f.write("\nrules:\n  - MATCH,auto\n")
           EOF
 
       - name: Commit and push
