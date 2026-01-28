@@ -41,7 +41,7 @@ jobs:
 
       - name: Check VLESS via Xray and build raw subscription
         run: |
-          python3 - <<'EOF'
+          python3 - <<EOF
           import subprocess, time, json, urllib.parse, os, urllib.request
 
           INPUT = "githubmirror/26_ru_whitelist.txt"
@@ -97,35 +97,27 @@ jobs:
                   }
 
               cfg = {
-                  "inbounds": [
-                      {
-                          "listen": "127.0.0.1",
-                          "port": 1080,
-                          "protocol": "socks",
-                          "settings": {"udp": False}
-                      }
-                  ],
-                  "outbounds": [
-                      {
-                          "protocol": "vless",
-                          "settings": {
-                              "vnext": [
-                                  {
-                                      "address": u.hostname,
-                                      "port": u.port or 443,
-                                      "users": [
-                                          {
-                                              "id": u.username,
-                                              "encryption": "none",
-                                              "flow": q.get("flow", [""])[0]
-                                          }
-                                      ]
-                                  }
-                              ]
-                          },
-                          "streamSettings": stream
-                      }
-                  ]
+                  "inbounds": [{
+                      "listen": "127.0.0.1",
+                      "port": 1080,
+                      "protocol": "socks",
+                      "settings": {"udp": False}
+                  }],
+                  "outbounds": [{
+                      "protocol": "vless",
+                      "settings": {
+                          "vnext": [{
+                              "address": u.hostname,
+                              "port": u.port or 443,
+                              "users": [{
+                                  "id": u.username,
+                                  "encryption": "none",
+                                  "flow": q.get("flow", [""])[0]
+                              }]
+                          }]
+                      },
+                      "streamSettings": stream
+                  }]
               }
 
               with open("cfg.json", "w") as f:
