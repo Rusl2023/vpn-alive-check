@@ -42,26 +42,21 @@ jobs:
           proxies = []
           proxy_names = []
           seen_names = set()
-          seen_servers = set()  # Проверка уникальности по (server, port)
+          seen_servers = set()  # для уникальности по IP:Port
 
           class CustomDumper(yaml.SafeDumper):
-              # Принудительные живые эмодзи
               def represent_scalar(self, tag, value, style=None):
+                  # Живые флаги — принудительно в кавычках
                   if isinstance(value, str) and any(0x1F1E6 <= ord(c) <= 0x1F1FF for c in value):
                       style = '"'
                   return super().represent_scalar(tag, value, style)
 
           def str_representer(dumper, data):
-              # Системные поля, UUID, Flow, Fingerprint, Encryption — в кавычки
               quoted_fields = ["xtls-rprx-vision", "chrome", "qq", "none", "tcp", "vless"]
               if re.fullmatch(r'(?i)[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}', data) or data in quoted_fields:
                   return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='"')
-
-              # Имена с пробелами, спецсимволами YAML или эмодзи — в кавычки
               if ' ' in data or any(c in data for c in '[]:#*') or any(0x1F1E6 <= ord(c) <= 0x1F1FF for c in data):
                   return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='"')
-
-              # IP, домены, ключи Reality — без кавычек
               return dumper.represent_scalar('tag:yaml.org,2002:str', data)
 
           CustomDumper.add_representer(str, str_representer)
@@ -76,11 +71,11 @@ jobs:
                   raw_name = u.fragment or f'{u.hostname}:{u.port}'
                   name = urllib.parse.unquote(raw_name)
 
-                  server_id = (u.hostname, u.port)
-                  if name in seen_names or server_id in seen_servers:
+                  server_port = f'{u.hostname}:{u.port}'
+                  if name in seen_names or server_port in seen_servers:
                       continue
                   seen_names.add(name)
-                  seen_servers.add(server_id)
+                  seen_servers.add(server_port)
 
                   proxy = {
                       "name": name,
@@ -142,5 +137,5 @@ jobs:
           git commit -m "Update: $(date +'%Y-%m-%d %H:%M')"
           # Добавляем удаленный репозиторий явно с токеном
           git remote add origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
-          # Force push: локальный master в удаленную ветку generated-config
+          # Force push заменяет историю на актуальный конфиг
           git push -f origin master:generated-config
