@@ -29,7 +29,7 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip pyyaml
 
-      - name: Generate Mihomo config.yaml with real emojis and selective quotes
+      - name: Generate Mihomo config.yaml
         run: |
           python3 - <<'EOF'
           import yaml
@@ -44,18 +44,23 @@ jobs:
           seen = set()
 
           class CustomDumper(yaml.SafeDumper):
-              pass
+              # Переопределяем способ записи ключей словарей
+              def represent_data(self, data):
+                  if isinstance(data, str) and not any(0x1F1E6 <= ord(c) <= 0x1F1FF for c in data) and ' ' not in data:
+                      return self.represent_scalar('tag:yaml.org,2002:str', data)
+                  return super().represent_data(data)
 
-          # Проверка на любые флаги стран в имени
-          def contains_flag_emoji(s):
-              return any(0x1F1E6 <= ord(c) <= 0x1F1FF for c in s)
-
-          # Кавычки только там, где нужно
           def str_representer(dumper, data):
-              # Для имен с эмодзи, пробелами или тире — двойные кавычки
-              if contains_flag_emoji(data) or ' ' in data or '-' in data:
+              # 1. UUID, Flow и Fingerprint — всегда в кавычках
+              if re.fullmatch(r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}', data) or \
+                 data in ["xtls-rprx-vision", "chrome", "qq", "none"]:
                   return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='"')
-              # Технические поля (IP, uuid, public-key, short-id, домены без пробелов) — без кавычек
+              
+              # 2. Эмодзи флагов или пробелы — в кавычки
+              if any(0x1F1E6 <= ord(c) <= 0x1F1FF for c in data) or ' ' in data:
+                  return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='"')
+              
+              # 3. Технические поля (IP, домены, ключи Reality) — без кавычек
               return dumper.represent_scalar('tag:yaml.org,2002:str', data)
 
           CustomDumper.add_representer(str, str_representer)
@@ -108,19 +113,20 @@ jobs:
 
           config = {
               "proxies": proxies,
-              "proxy-groups": [
-                  {
-                      "name": "auto",
-                      "type": "select",
-                      "proxies": proxy_names
-                  }
-              ],
+              "proxy-groups": [{"name": "auto", "type": "select", "proxies": proxy_names}],
               "rules": ["MATCH,auto"]
           }
 
           with open(OUT, "w", encoding="utf-8") as f:
-              # allow_unicode=True записывает эмодзи живыми
-              yaml.dump(config, f, allow_unicode=True, sort_keys=False, Dumper=CustomDumper, indent=2)
+              yaml.dump(
+                  config,
+                  f,
+                  allow_unicode=True,    # живые эмодзи
+                  sort_keys=False,
+                  Dumper=CustomDumper,
+                  indent=2,
+                  default_flow_style=False
+              )
           EOF
 
       - name: Commit and push to generated-config
