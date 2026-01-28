@@ -39,6 +39,10 @@ jobs:
           echo "proxies = []" >> "$PY"
           echo "proxy_names = []" >> "$PY"
           echo "seen = set()" >> "$PY"
+          echo "class MyDumper(yaml.SafeDumper):" >> "$PY"
+          echo "    def represent_str(self, data):" >> "$PY"
+          echo "        return self.represent_scalar('tag:yaml.org,2002:str', data, style='\"')" >> "$PY"
+          echo "MyDumper.add_representer(str, MyDumper.represent_str)" >> "$PY"
           echo "with open(RAW, encoding='utf-8', errors='ignore') as f:" >> "$PY"
           echo "    for line in f:" >> "$PY"
           echo "        line = line.strip()" >> "$PY"
@@ -89,7 +93,7 @@ jobs:
           echo "    ]" >> "$PY"
           echo "}" >> "$PY"
           echo "with open(OUT, \"w\", encoding='utf-8') as f:" >> "$PY"
-          echo "    yaml.safe_dump(config, f, allow_unicode=True, sort_keys=False)" >> "$PY"
+          echo "    yaml.safe_dump(config, f, allow_unicode=True, sort_keys=False, Dumper=MyDumper)" >> "$PY"
 
           python3 "$PY"
 
