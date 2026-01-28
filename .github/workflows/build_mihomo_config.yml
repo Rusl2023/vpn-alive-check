@@ -52,12 +52,12 @@ jobs:
                   return super().represent_scalar(tag, value, style)
 
           def str_representer(dumper, data):
-              # Системные поля, UUID, Flow и Fingerprint — в кавычки
+              # Системные поля, UUID, Flow, Fingerprint, Encryption — в кавычки
               quoted_fields = ["xtls-rprx-vision", "chrome", "qq", "none", "tcp", "vless"]
               if re.fullmatch(r'(?i)[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}', data) or data in quoted_fields:
                   return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='"')
 
-              # Имена с пробелами, спецсимволами или эмодзи — в кавычки
+              # Имена с пробелами, спецсимволами YAML или эмодзи — в кавычки
               if ' ' in data or any(c in data for c in '[]:#*') or any(0x1F1E6 <= ord(c) <= 0x1F1FF for c in data):
                   return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='"')
 
@@ -76,7 +76,6 @@ jobs:
                   raw_name = u.fragment or f'{u.hostname}:{u.port}'
                   name = urllib.parse.unquote(raw_name)
 
-                  # Фильтруем дубликаты по имени и по серверу+порт
                   server_id = (u.hostname, u.port)
                   if name in seen_names or server_id in seen_servers:
                       continue
@@ -107,7 +106,6 @@ jobs:
                   if "sid" in q:
                       proxy["reality-opts"]["short-id"] = q["sid"][0]
 
-                  # tcp-opts и spiderx только для нужных доменов
                   if name.startswith("[OpenRay]") or "[SNI-RU]" in name:
                       if any(domain in name for domain in ["stats.vk-portal.net", "queuev4.vk.com"]):
                           proxy["reality-opts"]["spiderx"] = "/"
@@ -142,5 +140,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add config.yaml
           git commit -m "Update: $(date +'%Y-%m-%d %H:%M')"
-          # Force push заменяет историю, оставляя только актуальный конфиг
-          git push -f origin HEAD:generated-config
+          # Добавляем удаленный репозиторий явно с токеном
+          git remote add origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+          # Force push: локальный master в удаленную ветку generated-config
+          git push -f origin master:generated-config
