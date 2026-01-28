@@ -68,4 +68,4 @@ ________________________________________________________________________________
 Создал для своей семьи, своих родственников и друзей. 
 Копируем ссылку в подписку:
 - [`подписка Free VPN "Белые списки" 2026г`](https://raw.githubusercontent.com/Rusl2023/vpn-alive-check/refs/heads/main/githubmirror/26_proxy_subscription_base64.txt)
-- [`config.yaml`](https://github.com/Rusl2023/vpn-alive-check/blob/generated-config/config.yaml)
+- [`config.yaml`](https://raw.githubusercontent.com/Rusl2023/vpn-alive-check/refs/heads/generated-config/config.yaml)
