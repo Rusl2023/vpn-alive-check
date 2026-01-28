@@ -44,37 +44,16 @@ jobs:
           seen_names = set()
           seen_servers = set()
 
-          class CustomDumper(yaml.SafeDumper):
-              pass
-
-          def str_representer(dumper, data):
-              # 1. Поля, которые всегда в кавычках (UUID, flow, client-fingerprint и т.д.)
-              quoted_fields = ["xtls-rprx-vision", "chrome", "qq", "none", "tcp", "vless"]
-              if re.fullmatch(r'(?i)[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}', data) or data in quoted_fields:
-                  return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='"')
-
-              # 2. Если есть ФЛАГИ, ПРОБЕЛЫ или спецсимволы — принудительно в кавычки
-              if any(0x1F1E6 <= ord(c) <= 0x1F1FF for c in data) or ' ' in data or any(c in data for c in '[]:#*'):
-                  return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='"')
-
-              # 3. Всё остальное (IP, домены без пробелов) — без кавычек
-              return dumper.represent_scalar('tag:yaml.org,2002:str', data)
-
-          CustomDumper.add_representer(str, str_representer)
-
           with open(RAW, encoding='utf-8', errors='ignore') as f:
               for line in f:
                   line = line.strip()
-                  if not line.startswith('vless://'):
-                      continue
+                  if not line.startswith('vless://'): continue
                   u = urllib.parse.urlparse(line)
                   q = urllib.parse.parse_qs(u.query)
-                  raw_name = u.fragment or f'{u.hostname}:{u.port}'
-                  name = urllib.parse.unquote(raw_name)
+                  name = urllib.parse.unquote(u.fragment or f'{u.hostname}:{u.port}')
 
                   server_port = f'{u.hostname}:{u.port}'
-                  if name in seen_names or server_port in seen_servers:
-                      continue
+                  if name in seen_names or server_port in seen_servers: continue
                   seen_names.add(name)
                   seen_servers.add(server_port)
 
@@ -96,11 +75,8 @@ jobs:
                       }
                   }
 
-                  if name == ">>@oneclickvpnkeys::NL (3)":
-                      proxy["client-fingerprint"] = "qq"
-
                   if "sid" in q:
-                      proxy["reality-opts"]["short-id"] = q["sid"][0]
+                      proxy["reality-opts"]["short-id"] = q.get("sid")[0]
 
                   if name.startswith("[OpenRay]") or "[SNI-RU]" in name:
                       if any(domain in name for domain in ["stats.vk-portal.net", "queuev4.vk.com"]):
@@ -110,22 +86,30 @@ jobs:
                   proxies.append(proxy)
                   proxy_names.append(name)
 
+          # Создаем конфигурацию вручную
           config = {
               "proxies": proxies,
               "proxy-groups": [{"name": "auto", "type": "select", "proxies": proxy_names}],
               "rules": ["MATCH,auto"]
           }
 
+          # Кастомный YAML-думпер для живых эмодзи
+          class RealEmojiDumper(yaml.SafeDumper):
+              pass
+
+          def represent_str(dumper, data):
+              # Если есть emoji-флаг или пробелы/спецсимволы — ставим кавычки
+              if any(0x1F1E6 <= ord(c) <= 0x1F1FF for c in data) or ' ' in data or any(c in data for c in '[]:#*'):
+                  return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='"')
+              # UUID и технические поля — в кавычки
+              if '-' in data or data in ["chrome", "none", "vless", "tcp"]:
+                  return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='"')
+              return dumper.represent_scalar('tag:yaml.org,2002:str', data)
+
+          RealEmojiDumper.add_representer(str, represent_str)
+
           with open(OUT, "w", encoding="utf-8") as f:
-              yaml.dump(
-                  config,
-                  f,
-                  allow_unicode=True,
-                  sort_keys=False,
-                  Dumper=CustomDumper,
-                  indent=2,
-                  default_flow_style=False
-              )
+              yaml.dump(config, f, Dumper=RealEmojiDumper, allow_unicode=True, sort_keys=False, indent=2, default_flow_style=False)
           EOF
 
       - name: Commit and push
