@@ -44,24 +44,23 @@ jobs:
           seen = set()
 
           class CustomDumper(yaml.SafeDumper):
-              # Переопределяем represent_scalar для ключей словарей
+              # Живые эмодзи и выборочные кавычки
               def represent_scalar(self, tag, value, style=None):
-                  # Кавычки для эмодзи флагов
-                  if any(0x1F1E6 <= ord(c) <= 0x1F1FF for c in value):
+                  if isinstance(value, str) and any(0x1F1E6 <= ord(c) <= 0x1F1FF for c in value):
                       style = '"'
                   return super().represent_scalar(tag, value, style)
 
           def str_representer(dumper, data):
-              # UUID, Flow и Fingerprint — всегда в кавычках
-              if re.fullmatch(r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}', data) or \
-                 data in ["xtls-rprx-vision", "chrome", "qq", "none"]:
+              # UUID (любой регистр), Flow, Fingerprint, Encryption — всегда в кавычках
+              if re.fullmatch(r'(?i)[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}', data) or \
+                 data in ["xtls-rprx-vision", "chrome", "qq", "none", "tcp"]:
                   return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='"')
 
-              # Эмодзи флагов, пробелы или спецсимволы YAML — в кавычки
+              # Имена с эмодзи, пробелами или спецсимволами YAML — в кавычки
               if any(0x1F1E6 <= ord(c) <= 0x1F1FF for c in data) or any(c in data for c in ' []:#:*'):
                   return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='"')
 
-              # IP, домены и простые ключи — без кавычек
+              # IP, домены и прочие ключи — без кавычек
               return dumper.represent_scalar('tag:yaml.org,2002:str', data)
 
           CustomDumper.add_representer(str, str_representer)
