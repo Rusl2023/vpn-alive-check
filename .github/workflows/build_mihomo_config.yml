@@ -29,7 +29,7 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip pyyaml
 
-      - name: Generate Mihomo config.yaml with emojis and double quotes
+      - name: Generate Mihomo config.yaml with real emojis and quotes
         run: |
           python3 - <<'EOF'
           import yaml
@@ -42,14 +42,14 @@ jobs:
           proxy_names = []
           seen = set()
 
-          class DoubleQuotedDumper(yaml.SafeDumper):
+          class QuotedDumper(yaml.SafeDumper):
               pass
 
           # Вынудительно ставим двойные кавычки на все строки
           def str_representer(dumper, data):
-              return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='"')
+              return dumper.represent_scalar('tag:yaml.org,2002:str', str(data), style='"')
 
-          DoubleQuotedDumper.add_representer(str, str_representer)
+          QuotedDumper.add_representer(str, str_representer)
 
           with open(RAW, encoding='utf-8', errors='ignore') as f:
               for line in f:
@@ -63,6 +63,7 @@ jobs:
                   if name in seen:
                       continue
                   seen.add(name)
+
                   proxy = {
                       "name": name,
                       "type": "vless",
@@ -80,14 +81,18 @@ jobs:
                           "public-key": q.get("pbk", [""])[0]
                       }
                   }
+
                   if name == ">>@oneclickvpnkeys::NL (3)":
                       proxy["client-fingerprint"] = "qq"
+
                   if "sid" in q:
                       proxy["reality-opts"]["short-id"] = q["sid"][0]
+
                   if name.startswith("[OpenRay]") or "[SNI-RU]" in name:
                       proxy["tcp-opts"] = {"header": {"type": "none"}}
                       if "stats.vk-portal.net" in name or "queuev4.vk.com" in name:
                           proxy["reality-opts"]["spiderx"] = "/"
+
                   proxies.append(proxy)
                   proxy_names.append(name)
 
@@ -104,7 +109,7 @@ jobs:
           }
 
           with open(OUT, "w", encoding="utf-8") as f:
-              yaml.dump(config, f, allow_unicode=True, sort_keys=False, Dumper=DoubleQuotedDumper)
+              yaml.dump(config, f, allow_unicode=True, sort_keys=False, Dumper=QuotedDumper)
           EOF
 
       - name: Commit and push to generated-config
