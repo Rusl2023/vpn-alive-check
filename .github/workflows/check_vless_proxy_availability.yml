@@ -41,102 +41,102 @@ jobs:
 
       - name: Check VLESS via Xray and build raw subscription
         run: |
-          python3 -c "
-import subprocess, time, json, urllib.parse, os, urllib.request
+          python3 <<'EOF'
+          import subprocess, time, json, urllib.parse, os, urllib.request
 
-INPUT = 'githubmirror/26_ru_whitelist.txt'
-OUTPUT_RAW = 'githubmirror/26_proxy_subscription_raw.txt'
-RUNNER_IP = os.environ.get('RUNNER_IP', '')
-TEST_URLS = [
-    'https://api.ipify.org',
-    'http://cp.cloudflare.com',
-    'https://www.instagram.com/'
-]
+          INPUT = 'githubmirror/26_ru_whitelist.txt'
+          OUTPUT_RAW = 'githubmirror/26_proxy_subscription_raw.txt'
+          RUNNER_IP = os.environ.get('RUNNER_IP', '')
+          TEST_URLS = [
+              'https://api.ipify.org',
+              'http://cp.cloudflare.com',
+              'https://www.instagram.com/'
+          ]
 
-def exit_ip():
-    for url in TEST_URLS:
-        try:
-            out = subprocess.check_output(
-                ['curl','-s','--max-time','8','-x','socks5h://127.0.0.1:1080',url],
-                text=True
-            ).strip()
-            if out:
-                return out
-        except:
-            pass
-    return None
+          def exit_ip():
+              for url in TEST_URLS:
+                  try:
+                      out = subprocess.check_output(
+                          ['curl','-s','--max-time','8','-x','socks5h://127.0.0.1:1080',url],
+                          text=True
+                      ).strip()
+                      if out:
+                          return out
+                  except:
+                      pass
+              return None
 
-def country(ip):
-    try:
-        with urllib.request.urlopen(f'https://ipapi.co/{ip}/country/') as r:
-            return r.read().decode().strip()
-    except:
-        return 'Unknown'
+          def country(ip):
+              try:
+                  with urllib.request.urlopen(f'https://ipapi.co/{ip}/country/') as r:
+                      return r.read().decode().strip()
+              except:
+                  return 'Unknown'
 
-if not os.path.exists(INPUT):
-    raise SystemExit(0)
+          if not os.path.exists(INPUT):
+              raise SystemExit(0)
 
-with open(INPUT) as f:
-    links = [l.strip() for l in f if l.startswith('vless://')]
+          with open(INPUT) as f:
+              links = [l.strip() for l in f if l.startswith('vless://')]
 
-for link in links:
-    u = urllib.parse.urlparse(link)
-    q = urllib.parse.parse_qs(u.query)
+          for link in links:
+              u = urllib.parse.urlparse(link)
+              q = urllib.parse.parse_qs(u.query)
 
-    stream = {'network': q.get('type', ['tcp'])[0]}
-    sec = q.get('security', ['none'])[0]
-    sni = q.get('sni', [''])[0]
+              stream = {'network': q.get('type', ['tcp'])[0]}
+              sec = q.get('security', ['none'])[0]
+              sni = q.get('sni', [''])[0]
 
-    if sec == 'reality' and 'pbk' in q:
-        stream['security'] = 'reality'
-        stream['realitySettings'] = {
-            'serverName': sni,
-            'publicKey': q['pbk'][0],
-            'shortId': q.get('sid', [''])[0],
-            'fingerprint': 'chrome'
-        }
+              if sec == 'reality' and 'pbk' in q:
+                  stream['security'] = 'reality'
+                  stream['realitySettings'] = {
+                      'serverName': sni,
+                      'publicKey': q['pbk'][0],
+                      'shortId': q.get('sid', [''])[0],
+                      'fingerprint': 'chrome'
+                  }
 
-    cfg = {
-        'inbounds': [{
-            'listen': '127.0.0.1',
-            'port': 1080,
-            'protocol': 'socks',
-            'settings': {'udp': False}
-        }],
-        'outbounds': [{
-            'protocol': 'vless',
-            'settings': {
-                'vnext': [{
-                    'address': u.hostname,
-                    'port': u.port or 443,
-                    'users': [{
-                        'id': u.username,
-                        'encryption': 'none',
-                        'flow': q.get('flow', [''])[0]
-                    }]
-                }]
-            },
-            'streamSettings': stream
-        }]
-    }
+              cfg = {
+                  'inbounds': [{
+                      'listen': '127.0.0.1',
+                      'port': 1080,
+                      'protocol': 'socks',
+                      'settings': {'udp': False}
+                  }],
+                  'outbounds': [{
+                      'protocol': 'vless',
+                      'settings': {
+                          'vnext': [{
+                              'address': u.hostname,
+                              'port': u.port or 443,
+                              'users': [{
+                                  'id': u.username,
+                                  'encryption': 'none',
+                                  'flow': q.get('flow', [''])[0]
+                              }]
+                          }]
+                      },
+                      'streamSettings': stream
+                  }]
+              }
 
-    with open('cfg.json', 'w') as f:
-        json.dump(cfg, f)
+              with open('cfg.json', 'w') as f:
+                  json.dump(cfg, f)
 
-    p = subprocess.Popen(['./xray', 'run', '-c', 'cfg.json'])
-    time.sleep(3)
-    ip = exit_ip()
-    p.terminate()
-    time.sleep(1)
+              p = subprocess.Popen(['./xray', 'run', '-c', 'cfg.json'])
+              time.sleep(3)
+              ip = exit_ip()
+              p.terminate()
+              time.sleep(1)
 
-    if not ip or ip == RUNNER_IP:
-        continue
-    if country(ip) == 'RU':
-        continue
+              if not ip or ip == RUNNER_IP:
+                  continue
+              if country(ip) == 'RU':
+                  continue
 
-    with open(OUTPUT_RAW, 'a') as f:
-        f.write(link + '\\n')
-"
+              with open(OUTPUT_RAW, 'a') as f:
+                  f.write(link + '\n')
+          EOF
 
       - name: Encode subscription to Base64
         run: |
