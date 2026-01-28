@@ -18,11 +18,11 @@ jobs:
       - name: Checkout self repo
         uses: actions/checkout@v4
 
-      - name: Set up directories
+      - name: Set up output directory
         run: |
           mkdir -p ${{ env.OUTPUT_DIR }}
           : > ${{ env.OUTPUT_DIR }}/config.yaml
-          : > ${{ env.OUTPUT_DIR }}/26_proxy_subscription_raw.txt
+          : > ${{ env.OUTPUT_DIR }}/26_proxy_subscription_merged.txt
 
       - name: Checkout vpn-alive-check
         uses: actions/checkout@v4
@@ -44,20 +44,17 @@ jobs:
           sudo apt-get install -y python3 python3-pip
           python3 -m pip install --upgrade pip pyyaml
 
-      # ---------------- Copy raw subscription ----------------
-      - name: Copy ready proxy subscription
-        run: |
-          cp vpn-alive-check/githubmirror/26_proxy_subscription_raw.txt ${{ env.OUTPUT_DIR }}/26_proxy_subscription_raw.txt
-
       # ---------------- Merge domain groups and geo rules ----------------
       - name: Merge Domain Groups and Geo Rules
         run: |
-          RAW="${{ env.OUTPUT_DIR }}/26_proxy_subscription_raw.txt"
+          RAW="vpn-alive-check/githubmirror/26_proxy_subscription_raw.txt"
           MERGED="${{ env.OUTPUT_DIR }}/26_proxy_subscription_merged.txt"
           : > "$MERGED"
 
           # добавляем все прокси из raw
-          cat "$RAW" >> "$MERGED"
+          if [ -f "$RAW" ]; then
+            cat "$RAW" >> "$MERGED"
+          fi
 
           # добавляем группы доменов из iplist
           if [ -d "iplist/config" ]; then
@@ -88,54 +85,27 @@ jobs:
           OUTPUT="${{ env.OUTPUT_DIR }}/config.yaml"
 
           TMP_PY=$(mktemp)
-          echo "import yaml" > "$TMP_PY"
-          echo "import urllib.parse" >> "$TMP_PY"
-          echo "import os" >> "$TMP_PY"
-          echo "RAW = os.environ['RAW']" >> "$TMP_PY"
-          echo "OUTPUT = os.environ['OUTPUT']" >> "$TMP_PY"
-          echo "proxies = []" >> "$TMP_PY"
-          echo "proxy_groups = [{'name':'auto','type':'select','proxies':[]}]" >> "$TMP_PY"
-          echo "rules = []" >> "$TMP_PY"
+          echo "import yaml, os, urllib.parse" > "$TMP_PY"
+          echo "RAW=os.environ['RAW']" >> "$TMP_PY"
+          echo "OUTPUT=os.environ['OUTPUT']" >> "$TMP_PY"
+          echo "proxies=[]; proxy_groups=[{'name':'auto','type':'select','proxies':[]}]; rules=[]" >> "$TMP_PY"
           echo "with open(RAW, encoding='utf-8', errors='ignore') as f:" >> "$TMP_PY"
           echo "    for line in f:" >> "$TMP_PY"
-          echo "        line = line.strip()" >> "$TMP_PY"
-          echo "        if not line or line.startswith('#'):" >> "$TMP_PY"
-          echo "            continue" >> "$TMP_PY"
+          echo "        line=line.strip()" >> "$TMP_PY"
+          echo "        if not line or line.startswith('#'): continue" >> "$TMP_PY"
           echo "        if line.startswith('vless://'):" >> "$TMP_PY"
-          echo "            u = urllib.parse.urlparse(line)" >> "$TMP_PY"
-          echo "            q = urllib.parse.parse_qs(u.query)" >> "$TMP_PY"
-          echo "            stream_type = q.get('type',['tcp'])[0]" >> "$TMP_PY"
-          echo "            flow = q.get('flow',[''])[0]" >> "$TMP_PY"
-          echo "            sni = q.get('sni',[''])[0]" >> "$TMP_PY"
-          echo "            pbk = q.get('pbk',[''])[0] if 'pbk' in q else ''" >> "$TMP_PY"
-          echo "            sid = q.get('sid',[''])[0] if 'sid' in q else ''" >> "$TMP_PY"
-          echo "            name = u.username if u.username else f'{u.hostname}:{u.port}'" >> "$TMP_PY"
-          echo "            proxy = {" >> "$TMP_PY"
-          echo "                'name': name," >> "$TMP_PY"
-          echo "                'type': 'vless'," >> "$TMP_PY"
-          echo "                'server': u.hostname," >> "$TMP_PY"
-          echo "                'port': int(u.port)," >> "$TMP_PY"
-          echo "                'uuid': u.username," >> "$TMP_PY"
-          echo "                'network': stream_type," >> "$TMP_PY"
-          echo "                'flow': flow," >> "$TMP_PY"
-          echo "                'servername': sni," >> "$TMP_PY"
-          echo "                'client-fingerprint': 'chrome'," >> "$TMP_PY"
-          echo "                'encryption': 'none'," >> "$TMP_PY"
-          echo "                'tls': True," >> "$TMP_PY"
-          echo "                'udp': True," >> "$TMP_PY"
-          echo "                'reality-opts': {'public-key': pbk}" >> "$TMP_PY"
-          echo "            }" >> "$TMP_PY"
-          echo "            if sid:" >> "$TMP_PY"
-          echo "                proxy['reality-opts']['short-id'] = sid" >> "$TMP_PY"
-          echo "            proxies.append(proxy)" >> "$TMP_PY"
-          echo "            proxy_groups[0]['proxies'].append(name)" >> "$TMP_PY"
-          echo "        else:" >> "$TMP_PY"
-          echo "            rules.append(line)" >> "$TMP_PY"
-          echo "rules.insert(0,'GEOIP,ru,DIRECT')" >> "$TMP_PY"
-          echo "rules.append('MATCH,auto')" >> "$TMP_PY"
-          echo "cfg = {'proxies': proxies, 'proxy-groups': proxy_groups, 'rules': rules}" >> "$TMP_PY"
-          echo "with open(OUTPUT,'w', encoding='utf-8') as f:" >> "$TMP_PY"
-          echo "    yaml.safe_dump(cfg,f,default_flow_style=False)" >> "$TMP_PY"
+          echo "            u=urllib.parse.urlparse(line); q=urllib.parse.parse_qs(u.query)" >> "$TMP_PY"
+          echo "            proxy={'name':u.username or f'{u.hostname}:{u.port}', 'type':'vless'," >> "$TMP_PY"
+          echo "                   'server':u.hostname,'port':int(u.port),'uuid':u.username," >> "$TMP_PY"
+          echo "                   'network':q.get('type',['tcp'])[0],'flow':q.get('flow',[''])[0]," >> "$TMP_PY"
+          echo "                   'servername':q.get('sni',[''])[0],'client-fingerprint':'chrome'," >> "$TMP_PY"
+          echo "                   'encryption':'none','tls':True,'udp':True,'reality-opts':{'public-key':q.get('pbk',[''])[0]}}" >> "$TMP_PY"
+          echo "            if 'sid' in q: proxy['reality-opts']['short-id']=q['sid'][0]" >> "$TMP_PY"
+          echo "            proxies.append(proxy); proxy_groups[0]['proxies'].append(proxy['name'])" >> "$TMP_PY"
+          echo "        else: rules.append(line)" >> "$TMP_PY"
+          echo "rules.insert(0,'GEOIP,ru,DIRECT'); rules.append('MATCH,auto')" >> "$TMP_PY"
+          echo "cfg={'proxies':proxies,'proxy-groups':proxy_groups,'rules':rules}" >> "$TMP_PY"
+          echo "with open(OUTPUT,'w',encoding='utf-8') as f: yaml.safe_dump(cfg,f,default_flow_style=False)" >> "$TMP_PY"
 
           RAW="$RAW" OUTPUT="$OUTPUT" python3 "$TMP_PY"
           rm -f "$TMP_PY"
@@ -143,12 +113,16 @@ jobs:
       # ---------------- Commit and Push to generated-config ----------------
       - name: Commit and Push Generated Files
         run: |
+          ls -l ${{ env.OUTPUT_DIR }}
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           cd ${{ env.OUTPUT_DIR }}
           git init
           git checkout -b generated-config
           git remote add origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
-          git add config.yaml 26_proxy_subscription_raw.txt 26_proxy_subscription_merged.txt
+          # добавляем только реально существующие файлы
+          for f in config.yaml 26_proxy_subscription_merged.txt; do
+            [ -f "$f" ] && git add "$f"
+          done
           git commit -m "Update generated Mihomo config [skip ci]" || echo "No changes to commit"
-          git push -u origin generated-config
+          git push -u origin generated-config --force
