@@ -18,7 +18,6 @@ jobs:
 
       - name: Prepare output directory
         run: |
-          rm -rf "$OUTPUT_DIR"
           mkdir -p "$OUTPUT_DIR"
 
       - name: Download raw VLESS subscription
@@ -34,22 +33,25 @@ jobs:
           python3 - <<'EOF'
           import json
           import urllib.parse
+          import os
 
-          RAW = "${{ env.OUTPUT_DIR }}/raw.txt"
-          OUT = "${{ env.OUTPUT_DIR }}/config.yaml"
+          RAW = os.environ['OUTPUT_DIR'] + "/raw.txt"
+          OUT = os.environ['OUTPUT_DIR'] + "/config.yaml"
 
           proxies = []
-          seen_names = []  # Сохраняем порядок
+          seen_names = []
 
           with open(RAW, encoding='utf-8', errors='ignore') as f:
               for line in f:
                   line = line.strip()
-                  if not line.startswith('vless://'): continue
+                  if not line.startswith('vless://'):
+                      continue
                   u = urllib.parse.urlparse(line)
                   q = urllib.parse.parse_qs(u.query)
                   name = urllib.parse.unquote(u.fragment or f'{u.hostname}:{u.port}')
 
-                  if name in seen_names: continue
+                  if name in seen_names:
+                      continue
                   seen_names.append(name)
 
                   proxy = {
@@ -80,7 +82,6 @@ jobs:
 
                   proxies.append(proxy)
 
-          # Ручная сборка YAML с живыми эмодзи и правильными кавычками
           with open(OUT, "w", encoding="utf-8") as f:
               f.write("proxies:\n")
               for p in proxies:
@@ -92,8 +93,7 @@ jobs:
                   f.write(f"    network: {json.dumps(p['network'])}\n")
                   f.write(f"    flow: {json.dumps(p['flow'])}\n")
                   f.write(f"    servername: {json.dumps(p['servername'])}\n")
-                  if "client-fingerprint" in p:
-                      f.write(f"    client-fingerprint: {json.dumps(p['client-fingerprint'])}\n")
+                  f.write(f"    client-fingerprint: {json.dumps(p['client-fingerprint'])}\n")
                   f.write(f"    encryption: {json.dumps(p['encryption'])}\n")
                   f.write(f"    tls: {str(p['tls']).lower()}\n")
                   f.write(f"    udp: {str(p['udp']).lower()}\n")
@@ -108,11 +108,14 @@ jobs:
                   f.write("\n")
 
               f.write("proxy-groups:\n")
-              f.write("  - name: \"auto\"\n    type: \"select\"\n    proxies:\n")
+              f.write("  - name: auto\n    type: select\n    proxies:\n")
               for n in seen_names:
                   f.write(f"      - {json.dumps(n, ensure_ascii=False)}\n")
-              
-              f.write("\nrules:\n  - \"MATCH,auto\"\n")
+
+              f.write("\nrules:\n")
+              f.write("  - GEOIP,RU,DIRECT\n")
+              f.write("  - DOMAIN-SUFFIX,ru,DIRECT\n")
+              f.write("  - MATCH,auto\n")
           EOF
 
       - name: Commit and push
