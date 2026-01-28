@@ -34,7 +34,6 @@ jobs:
           mkdir -p githubmirror
           : > githubmirror/26_proxy_subscription_raw.txt
           : > githubmirror/26_proxy_subscription_base64.txt
-          : > githubmirror/config.yaml
 
       - name: Get runner IP
         run: |
@@ -44,10 +43,15 @@ jobs:
         run: |
           python3 - <<'EOF'
           import subprocess, time, json, urllib.parse, os, urllib.request
+
           INPUT = "githubmirror/26_ru_whitelist.txt"
           OUTPUT_RAW = "githubmirror/26_proxy_subscription_raw.txt"
           RUNNER_IP = os.environ.get("RUNNER_IP", "")
-          TEST_URLS = ["https://api.ipify.org","http://cp.cloudflare.com","https://www.instagram.com/"]
+          TEST_URLS = [
+              "https://api.ipify.org",
+              "http://cp.cloudflare.com",
+              "https://www.instagram.com/"
+          ]
 
           def exit_ip():
               for url in TEST_URLS:
@@ -93,20 +97,41 @@ jobs:
                   }
 
               cfg = {
-                  "inbounds":[{"listen":"127.0.0.1","port":1080,"protocol":"socks","settings":{"udp":False}}],
-                  "outbounds":[
+                  "inbounds": [
                       {
-                          "protocol":"vless",
-                          "settings":{"vnext":[{"address":u.hostname,"port":u.port or 443,"users":[{"id":u.username,"encryption":"none","flow":q.get("flow", [""])[0]}]}]},
+                          "listen": "127.0.0.1",
+                          "port": 1080,
+                          "protocol": "socks",
+                          "settings": {"udp": False}
+                      }
+                  ],
+                  "outbounds": [
+                      {
+                          "protocol": "vless",
+                          "settings": {
+                              "vnext": [
+                                  {
+                                      "address": u.hostname,
+                                      "port": u.port or 443,
+                                      "users": [
+                                          {
+                                              "id": u.username,
+                                              "encryption": "none",
+                                              "flow": q.get("flow", [""])[0]
+                                          }
+                                      ]
+                                  }
+                              ]
+                          },
                           "streamSettings": stream
                       }
                   ]
               }
 
-              with open("cfg.json","w") as f:
-                  json.dump(cfg,f)
+              with open("cfg.json", "w") as f:
+                  json.dump(cfg, f)
 
-              p = subprocess.Popen(["./xray","run","-c","cfg.json"])
+              p = subprocess.Popen(["./xray", "run", "-c", "cfg.json"])
               time.sleep(3)
               ip = exit_ip()
               p.terminate()
@@ -117,7 +142,7 @@ jobs:
               if country(ip) == "RU":
                   continue
 
-              with open(OUTPUT_RAW,"a") as f:
+              with open(OUTPUT_RAW, "a") as f:
                   f.write(link + "\n")
           EOF
 
@@ -125,76 +150,17 @@ jobs:
         run: |
           base64 -w 0 githubmirror/26_proxy_subscription_raw.txt > githubmirror/26_proxy_subscription_base64.txt
 
-      - name: Generate FINAL Mihomo config.yaml (ETALON)
-        run: |
-          INPUT="githubmirror/26_proxy_subscription_raw.txt"
-          OUTPUT="githubmirror/config.yaml"
-
-          url_decode() { printf '%b' "${1//%/\\x}"; }
-
-          echo "proxies:" > "$OUTPUT"
-
-          while read -r line; do
-            BASE="${line%%#*}"
-            FRAG="${line#*#}"
-            [ "$FRAG" = "$line" ] && FRAG=""
-
-            NAME=$(url_decode "$FRAG")
-
-            HOST=$(echo "$BASE" | sed -n 's|vless://[^@]*@\([^:]*\):.*|\1|p')
-            PORT=$(echo "$BASE" | sed -n 's|vless://[^@]*@[^:]*:\([0-9]*\).*|\1|p')
-            UUID=$(echo "$BASE" | sed -n 's|vless://\([^@]*\)@.*|\1|p')
-
-            TYPE=$(echo "$BASE" | sed -n 's|.*type=\([^&]*\).*|\1|p')
-            FLOW=$(echo "$BASE" | sed -n 's|.*flow=\([^&]*\).*|\1|p')
-            SNI=$(echo "$BASE" | sed -n 's|.*sni=\([^&]*\).*|\1|p')
-            PBK=$(echo "$BASE" | sed -n 's|.*pbk=\([^&]*\).*|\1|p')
-            SID=$(echo "$BASE" | sed -n 's|.*sid=\([^&]*\).*|\1|p')
-
-            [ -z "$TYPE" ] && TYPE="tcp"
-            [ -z "$NAME" ] && NAME="${HOST}:${PORT}"
-
-            echo "  - name: \"$NAME\"" >> "$OUTPUT"
-            echo "    type: vless" >> "$OUTPUT"
-            echo "    server: $HOST" >> "$OUTPUT"
-            echo "    port: $PORT" >> "$OUTPUT"
-            echo "    uuid: \"$UUID\"" >> "$OUTPUT"
-            echo "    network: \"$TYPE\"" >> "$OUTPUT"
-            echo "    flow: \"$FLOW\"" >> "$OUTPUT"
-            echo "    servername: \"$SNI\"" >> "$OUTPUT"
-            echo "    client-fingerprint: chrome" >> "$OUTPUT"
-            echo "    encryption: \"none\"" >> "$OUTPUT"
-            echo "    tls: true" >> "$OUTPUT"
-            echo "    udp: true" >> "$OUTPUT"
-            echo "    reality-opts:" >> "$OUTPUT"
-            echo "      public-key: \"$PBK\"" >> "$OUTPUT"
-            [ -n "$SID" ] && echo "      short-id: \"$SID\"" >> "$OUTPUT"
-          done < "$INPUT"
-
-          echo "" >> "$OUTPUT"
-          echo "proxy-groups:" >> "$OUTPUT"
-          echo "  - name: auto" >> "$OUTPUT"
-          echo "    type: select" >> "$OUTPUT"
-          echo "    proxies:" >> "$OUTPUT"
-
-          while read -r line; do
-            FRAG="${line#*#}"
-            NAME=$(url_decode "$FRAG")
-            [ -z "$NAME" ] && continue
-            echo "      - \"$NAME\"" >> "$OUTPUT"
-          done < "$INPUT"
-
-          echo "" >> "$OUTPUT"
-          echo "rules:" >> "$OUTPUT"
-          echo "  - MATCH,auto" >> "$OUTPUT"
-
       - name: Commit and push
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add githubmirror/
-          git diff --cached --quiet || git commit -m "Fix Mihomo config and Base64 subscription"
-          git pull --rebase https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY} main || true
+
+          git fetch origin main
+          git reset --hard origin/main
+
+          git add githubmirror/26_proxy_subscription_raw.txt githubmirror/26_proxy_subscription_base64.txt
+          git diff --cached --quiet || git commit -m "Update VLESS proxy subscription (raw + base64)"
+
           git push https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY} HEAD:main
