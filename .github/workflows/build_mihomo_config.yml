@@ -13,24 +13,10 @@ jobs:
       VPN_REPO: Rusl2023/vpn-alive-check
       IPLIST_REPO: rekryt/iplist
       OUTPUT_DIR: githubmirror
+      RAW_URL: https://raw.githubusercontent.com/Rusl2023/vpn-alive-check/refs/heads/main/githubmirror/26_proxy_subscription_raw.txt
 
     steps:
-      - name: Checkout self repo
-        uses: actions/checkout@v4
-
-      - name: Set up output directory
-        run: |
-          mkdir -p ${{ env.OUTPUT_DIR }}
-          : > ${{ env.OUTPUT_DIR }}/config.yaml
-          : > ${{ env.OUTPUT_DIR }}/26_proxy_subscription_merged.txt
-
-      - name: Checkout vpn-alive-check
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ env.VPN_REPO }}
-          path: vpn-alive-check
-          persist-credentials: false
-
+      # ---------------- Checkout iplist ----------------
       - name: Checkout iplist
         uses: actions/checkout@v4
         with:
@@ -38,16 +24,23 @@ jobs:
           path: iplist
           persist-credentials: false
 
+      # ---------------- Install dependencies ----------------
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y python3 python3-pip
+          sudo apt-get install -y python3 python3-pip curl
           python3 -m pip install --upgrade pip pyyaml
+
+      # ---------------- Download raw subscription ----------------
+      - name: Download proxy subscription raw
+        run: |
+          mkdir -p ${{ env.OUTPUT_DIR }}
+          curl -sSL ${{ env.RAW_URL }} -o ${{ env.OUTPUT_DIR }}/26_proxy_subscription_raw.txt
 
       # ---------------- Merge domain groups and geo rules ----------------
       - name: Merge Domain Groups and Geo Rules
         run: |
-          RAW="vpn-alive-check/githubmirror/26_proxy_subscription_raw.txt"
+          RAW="${{ env.OUTPUT_DIR }}/26_proxy_subscription_raw.txt"
           MERGED="${{ env.OUTPUT_DIR }}/26_proxy_subscription_merged.txt"
           : > "$MERGED"
 
@@ -67,15 +60,6 @@ jobs:
                 done
               fi
             done
-          fi
-
-          # добавляем geoip.dat и geosite.dat, если существуют
-          if [ -f "vpn-alive-check/geoip/geoip.dat" ]; then
-            echo "GEOIP,ru,DIRECT" >> "$MERGED"
-            cat vpn-alive-check/geoip/geoip.dat >> "$MERGED"
-          fi
-          if [ -f "vpn-alive-check/geoip/geosite.dat" ]; then
-            cat vpn-alive-check/geoip/geosite.dat >> "$MERGED"
           fi
 
       # ---------------- Generate Mihomo Config ----------------
@@ -113,16 +97,12 @@ jobs:
       # ---------------- Commit and Push to generated-config ----------------
       - name: Commit and Push Generated Files
         run: |
-          ls -l ${{ env.OUTPUT_DIR }}
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           cd ${{ env.OUTPUT_DIR }}
           git init
           git checkout -b generated-config
           git remote add origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
-          # добавляем только реально существующие файлы
-          for f in config.yaml 26_proxy_subscription_merged.txt; do
-            [ -f "$f" ] && git add "$f"
-          done
+          git add config.yaml 26_proxy_subscription_merged.txt
           git commit -m "Update generated Mihomo config [skip ci]" || echo "No changes to commit"
           git push -u origin generated-config --force
