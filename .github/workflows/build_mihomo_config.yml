@@ -33,14 +33,16 @@ jobs:
           path: iplist
           persist-credentials: false
 
-      - name: Merge Domain Groups
+      - name: Merge Domain Groups and add basic rules
         run: |
           RAW="${{ env.OUTPUT_DIR }}/26_proxy_subscription_raw.txt"
           MERGED="${{ env.OUTPUT_DIR }}/26_proxy_subscription_merged.txt"
           : > "$MERGED"
 
+          # Добавляем все прокси из raw
           cat "$RAW" >> "$MERGED"
 
+          # Добавляем группы доменов из iplist
           if [ -d "iplist/config" ]; then
             for GROUP in iplist/config/*; do
               if [ -d "$GROUP" ]; then
@@ -53,6 +55,12 @@ jobs:
             done
           fi
 
+          # Добавляем базовые правила
+          echo "DOMAIN-SUFFIX,localhost,DIRECT" >> "$MERGED"
+          echo "DOMAIN-SUFFIX,local,DIRECT" >> "$MERGED"
+          echo "IP-CIDR,127.0.0.0/8,DIRECT" >> "$MERGED"
+          echo "IP-CIDR,10.0.0.0/8,DIRECT" >> "$MERGED"
+          echo "IP-CIDR,192.168.0.0/16,DIRECT" >> "$MERGED"
           echo "GEOIP,ru,DIRECT" >> "$MERGED"
           echo "MATCH,auto" >> "$MERGED"
 
@@ -105,11 +113,9 @@ jobs:
           echo "            proxy_groups[0]['proxies'].append(name)" >> "$TMP_PY"
           echo "        else:" >> "$TMP_PY"
           echo "            rules.append(line)" >> "$TMP_PY"
-          echo "rules.insert(0,'GEOIP,ru,DIRECT')" >> "$TMP_PY"
-          echo "rules.append('MATCH,auto')" >> "$TMP_PY"
           echo "cfg = {'proxies': proxies, 'proxy-groups': proxy_groups, 'rules': rules}" >> "$TMP_PY"
           echo "with open(OUTPUT,'w', encoding='utf-8') as f:" >> "$TMP_PY"
-          echo "    yaml.safe_dump(cfg,f,default_flow_style=True)" >> "$TMP_PY"
+          echo "    yaml.safe_dump(cfg,f,default_flow_style=False)" >> "$TMP_PY"
 
           RAW="$RAW" OUTPUT="$OUTPUT" python3 "$TMP_PY"
           rm -f "$TMP_PY"
