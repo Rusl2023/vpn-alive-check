@@ -72,7 +72,7 @@ jobs:
           echo "        if 'sid' in q:" >> "$PY"
           echo "            proxy['reality-opts']['short-id'] = q['sid'][0]" >> "$PY"
           echo "        proxies.append(proxy)" >> "$PY"
-          echo "        proxy_names.append(name)" >> "$PY"
+          echo "        proxy_names.append(f\"'{name}'\")" >> "$PY"
           echo "config = {" >> "$PY"
           echo "    'proxies': proxies," >> "$PY"
           echo "    'proxy-groups': [{" >> "$PY"
