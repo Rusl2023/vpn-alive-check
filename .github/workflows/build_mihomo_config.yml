@@ -39,8 +39,7 @@ jobs:
           OUT = "${{ env.OUTPUT_DIR }}/config.yaml"
 
           proxies = []
-          seen_names = set()
-          seen_servers = set()
+          seen_names = []  # Сохраняем порядок
 
           with open(RAW, encoding='utf-8', errors='ignore') as f:
               for line in f:
@@ -50,10 +49,8 @@ jobs:
                   q = urllib.parse.parse_qs(u.query)
                   name = urllib.parse.unquote(u.fragment or f'{u.hostname}:{u.port}')
 
-                  server_port = f'{u.hostname}:{u.port}'
-                  if name in seen_names or server_port in seen_servers: continue
-                  seen_names.add(name)
-                  seen_servers.add(server_port)
+                  if name in seen_names: continue
+                  seen_names.append(name)
 
                   proxy = {
                       "name": name,
@@ -83,39 +80,39 @@ jobs:
 
                   proxies.append(proxy)
 
-          # Ручная сборка YAML для живых эмодзи
+          # Ручная сборка YAML с живыми эмодзи и правильными кавычками
           with open(OUT, "w", encoding="utf-8") as f:
               f.write("proxies:\n")
               for p in proxies:
                   f.write(f"  - name: {json.dumps(p['name'], ensure_ascii=False)}\n")
-                  f.write(f"    type: {p['type']}\n")
+                  f.write(f"    type: {json.dumps(p['type'])}\n")
                   f.write(f"    server: {p['server']}\n")
                   f.write(f"    port: {p['port']}\n")
-                  f.write(f"    uuid: {p['uuid']}\n")
-                  f.write(f"    network: {p['network']}\n")
-                  f.write(f"    flow: {p['flow']}\n")
-                  f.write(f"    servername: {p['servername']}\n")
-                  f.write(f"    client-fingerprint: {p['client-fingerprint']}\n")
-                  f.write(f"    encryption: {p['encryption']}\n")
+                  f.write(f"    uuid: {json.dumps(p['uuid'])}\n")
+                  f.write(f"    network: {json.dumps(p['network'])}\n")
+                  f.write(f"    flow: {json.dumps(p['flow'])}\n")
+                  f.write(f"    servername: {json.dumps(p['servername'])}\n")
+                  if "client-fingerprint" in p:
+                      f.write(f"    client-fingerprint: {json.dumps(p['client-fingerprint'])}\n")
+                  f.write(f"    encryption: {json.dumps(p['encryption'])}\n")
                   f.write(f"    tls: {str(p['tls']).lower()}\n")
                   f.write(f"    udp: {str(p['udp']).lower()}\n")
                   f.write(f"    reality-opts:\n")
-                  f.write(f"      public-key: {p['reality-opts']['public-key']}\n")
+                  f.write(f"      public-key: {json.dumps(p['reality-opts']['public-key'])}\n")
                   if "short-id" in p["reality-opts"]:
-                      f.write(f"      short-id: {p['reality-opts']['short-id']}\n")
+                      f.write(f"      short-id: {json.dumps(p['reality-opts']['short-id'])}\n")
                   if "spiderx" in p["reality-opts"]:
-                      f.write(f"      spiderx: {p['reality-opts']['spiderx']}\n")
+                      f.write(f"      spiderx: {json.dumps(p['reality-opts']['spiderx'])}\n")
                   if "tcp-opts" in p:
-                      f.write(f"    tcp-opts:\n")
-                      f.write(f"      header:\n")
-                      f.write(f"        type: {p['tcp-opts']['header']['type']}\n")
+                      f.write(f"    tcp-opts:\n      header:\n        type: {json.dumps(p['tcp-opts']['header']['type'])}\n")
+                  f.write("\n")
 
-              f.write("\nproxy-groups:\n")
-              f.write("  - name: auto\n    type: select\n    proxies:\n")
-              for name in seen_names:
-                  f.write(f"      - {json.dumps(name, ensure_ascii=False)}\n")
-
-              f.write("\nrules:\n  - MATCH,auto\n")
+              f.write("proxy-groups:\n")
+              f.write("  - name: \"auto\"\n    type: \"select\"\n    proxies:\n")
+              for n in seen_names:
+                  f.write(f"      - {json.dumps(n, ensure_ascii=False)}\n")
+              
+              f.write("\nrules:\n  - \"MATCH,auto\"\n")
           EOF
 
       - name: Commit and push
