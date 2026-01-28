@@ -29,11 +29,12 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip pyyaml
 
-      - name: Generate Mihomo config.yaml with real emojis and quotes
+      - name: Generate Mihomo config.yaml with real emojis and selective quotes
         run: |
           python3 - <<'EOF'
           import yaml
           import urllib.parse
+          import re
 
           RAW = "${{ env.OUTPUT_DIR }}/raw.txt"
           OUT = "${{ env.OUTPUT_DIR }}/config.yaml"
@@ -42,14 +43,22 @@ jobs:
           proxy_names = []
           seen = set()
 
-          class QuotedDumper(yaml.SafeDumper):
+          class CustomDumper(yaml.SafeDumper):
               pass
 
-          # Вынудительно ставим двойные кавычки на все строки
-          def str_representer(dumper, data):
-              return dumper.represent_scalar('tag:yaml.org,2002:str', str(data), style='"')
+          # Проверка на любые флаги стран в имени
+          def contains_flag_emoji(s):
+              return any(0x1F1E6 <= ord(c) <= 0x1F1FF for c in s)
 
-          QuotedDumper.add_representer(str, str_representer)
+          # Кавычки только там, где нужно
+          def str_representer(dumper, data):
+              # Без кавычек для IP, доменов, public-key, short-id
+              if re.fullmatch(r'[a-zA-Z0-9\.\-\_\/]+', data) and not contains_flag_emoji(data) and ' ' not in data:
+                  return dumper.represent_scalar('tag:yaml.org,2002:str', data)
+              # Для имен с эмодзи, UUID, flow и т.п. ставим двойные кавычки
+              return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='"')
+
+          CustomDumper.add_representer(str, str_representer)
 
           with open(RAW, encoding='utf-8', errors='ignore') as f:
               for line in f:
@@ -88,10 +97,11 @@ jobs:
                   if "sid" in q:
                       proxy["reality-opts"]["short-id"] = q["sid"][0]
 
+                  # tcp-opts и spiderx только для нужных доменов
                   if name.startswith("[OpenRay]") or "[SNI-RU]" in name:
-                      proxy["tcp-opts"] = {"header": {"type": "none"}}
-                      if "stats.vk-portal.net" in name or "queuev4.vk.com" in name:
+                      if any(domain in name for domain in ["stats.vk-portal.net", "queuev4.vk.com"]):
                           proxy["reality-opts"]["spiderx"] = "/"
+                          proxy["tcp-opts"] = {"header": {"type": "none"}}
 
                   proxies.append(proxy)
                   proxy_names.append(name)
@@ -109,7 +119,7 @@ jobs:
           }
 
           with open(OUT, "w", encoding="utf-8") as f:
-              yaml.dump(config, f, allow_unicode=True, sort_keys=False, Dumper=QuotedDumper)
+              yaml.dump(config, f, allow_unicode=True, sort_keys=False, Dumper=CustomDumper, indent=2)
           EOF
 
       - name: Commit and push to generated-config
