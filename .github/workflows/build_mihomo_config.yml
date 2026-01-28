@@ -93,7 +93,7 @@ jobs:
           echo "    ]" >> "$PY"
           echo "}" >> "$PY"
           echo "with open(OUT, \"w\", encoding='utf-8') as f:" >> "$PY"
-          echo "    yaml.safe_dump(config, f, allow_unicode=True, sort_keys=False, Dumper=MyDumper)" >> "$PY"
+          echo "    yaml.dump(config, f, allow_unicode=True, sort_keys=False, Dumper=MyDumper)" >> "$PY"
 
           python3 "$PY"
 
