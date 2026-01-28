@@ -45,24 +45,19 @@ jobs:
           seen_servers = set()
 
           class CustomDumper(yaml.SafeDumper):
-              pass  # Логика полностью в str_representer
+              pass
 
           def str_representer(dumper, data):
-              # Флаги: любые символы диапазона 🇦-🇿
-              has_flag = any(0x1F1E6 <= ord(c) <= 0x1F1FF for c in data)
-              if has_flag:
-                  return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='"')
-
-              # Поля, которые Mihomo лучше видит в кавычках
+              # 1. Поля, которые всегда в кавычках (UUID, flow, client-fingerprint и т.д.)
               quoted_fields = ["xtls-rprx-vision", "chrome", "qq", "none", "tcp", "vless"]
               if re.fullmatch(r'(?i)[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}', data) or data in quoted_fields:
                   return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='"')
 
-              # Имена с пробелами или спецсимволами — в кавычки
-              if ' ' in data or any(c in data for c in '[]:#*'):
+              # 2. Если есть ФЛАГИ, ПРОБЕЛЫ или спецсимволы — принудительно в кавычки
+              if any(0x1F1E6 <= ord(c) <= 0x1F1FF for c in data) or ' ' in data or any(c in data for c in '[]:#*'):
                   return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='"')
 
-              # Всё остальное (IP, servername, ключи) — без кавычек
+              # 3. Всё остальное (IP, домены без пробелов) — без кавычек
               return dumper.represent_scalar('tag:yaml.org,2002:str', data)
 
           CustomDumper.add_representer(str, str_representer)
@@ -137,6 +132,7 @@ jobs:
         run: |
           cd "$OUTPUT_DIR"
           git init
+          git checkout -b master
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add config.yaml
