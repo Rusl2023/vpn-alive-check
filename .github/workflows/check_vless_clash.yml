@@ -35,6 +35,7 @@ jobs:
               import geoip2.database
           except ImportError:
               geoip2 = None
+
           URLS = [
               "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/v2ray/all_sub.txt",
               "https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/1.txt",
@@ -126,16 +127,24 @@ jobs:
               return lst[len(lst)//2]
 
           def parse_vless(link):
-              u = urllib.parse.urlparse(link)
-              q = urllib.parse.parse_qs(u.query)
-              return {
-                  "link": link,
-                  "host": u.hostname,
-                  "port": u.port or 443,
-                  "security": q.get("security", [""])[0],
-                  "sni": q.get("sni", [""])[0],
-                  "flow": q.get("flow", [""])[0]
-              }
+              try:
+                  u = urllib.parse.urlparse(link)
+                  q = urllib.parse.parse_qs(u.query)
+                  port = u.port
+                  if port is None:
+                      port = 443
+                  else:
+                      port = int(str(port).strip())
+                  return {
+                      "link": link,
+                      "host": u.hostname,
+                      "port": port,
+                      "security": q.get("security", [""])[0],
+                      "sni": q.get("sni", [""])[0],
+                      "flow": q.get("flow", [""])[0]
+                  }
+              except:
+                  return None
 
           def check_vless(link):
               d = parse_vless(link)
@@ -192,21 +201,7 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-
           git add githubmirror/whitelist.txt
-
-          # Сохраняем текущие незакоммиченные изменения
-          git stash push -u -m "pre-rebase-stash"
-
-          # Синхронизируем с удалённой веткой
-          git fetch origin main
-          git rebase origin/main || git rebase --abort
-
-          # Восстанавливаем изменения
-          git stash pop || true
-
-          # Коммитим только если есть изменения
+          git pull --rebase https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY} main
           git diff --cached --quiet || git commit -m "Update RU whitelist VLESS (GeoIP filtering)"
-
-          # Пушим изменения
           git push https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY} HEAD:main
