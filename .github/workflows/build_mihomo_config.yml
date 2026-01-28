@@ -52,11 +52,11 @@ jobs:
 
           # Кавычки только там, где нужно
           def str_representer(dumper, data):
-              # Без кавычек для IP, доменов, public-key, short-id
-              if re.fullmatch(r'[a-zA-Z0-9\.\-\_\/]+', data) and not contains_flag_emoji(data) and ' ' not in data:
-                  return dumper.represent_scalar('tag:yaml.org,2002:str', data)
-              # Для имен с эмодзи, UUID, flow и т.п. ставим двойные кавычки
-              return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='"')
+              # Для имен с эмодзи, пробелами или тире — двойные кавычки
+              if contains_flag_emoji(data) or ' ' in data or '-' in data:
+                  return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='"')
+              # Технические поля (IP, uuid, public-key, short-id, домены без пробелов) — без кавычек
+              return dumper.represent_scalar('tag:yaml.org,2002:str', data)
 
           CustomDumper.add_representer(str, str_representer)
 
@@ -119,6 +119,7 @@ jobs:
           }
 
           with open(OUT, "w", encoding="utf-8") as f:
+              # allow_unicode=True записывает эмодзи живыми
               yaml.dump(config, f, allow_unicode=True, sort_keys=False, Dumper=CustomDumper, indent=2)
           EOF
 
