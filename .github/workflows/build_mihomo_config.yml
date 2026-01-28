@@ -29,71 +29,77 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip pyyaml
 
-      - name: Generate Mihomo config.yaml
+      - name: Generate Mihomo config.yaml with emojis
         run: |
-          PY="$OUTPUT_DIR/gen.py"
-          : > "$PY"
-          echo "import yaml, urllib.parse" >> "$PY"
-          echo "RAW = \"$OUTPUT_DIR/raw.txt\"" >> "$PY"
-          echo "OUT = \"$OUTPUT_DIR/config.yaml\"" >> "$PY"
-          echo "proxies = []" >> "$PY"
-          echo "proxy_names = []" >> "$PY"
-          echo "seen = set()" >> "$PY"
-          echo "class MyDumper(yaml.SafeDumper):" >> "$PY"
-          echo "    pass  # Не эскейпим строки в кавычки" >> "$PY"
-          echo "with open(RAW, encoding='utf-8', errors='ignore') as f:" >> "$PY"
-          echo "    for line in f:" >> "$PY"
-          echo "        line = line.strip()" >> "$PY"
-          echo "        if not line.startswith('vless://'):" >> "$PY"
-          echo "            continue" >> "$PY"
-          echo "        u = urllib.parse.urlparse(line)" >> "$PY"
-          echo "        q = urllib.parse.parse_qs(u.query)" >> "$PY"
-          echo "        raw_name = u.fragment or f'{u.hostname}:{u.port}'" >> "$PY"
-          echo "        name = urllib.parse.unquote(raw_name)" >> "$PY"
-          echo "        if name in seen:" >> "$PY"
-          echo "            continue" >> "$PY"
-          echo "        seen.add(name)" >> "$PY"
-          echo "        proxy = {" >> "$PY"
-          echo "            'name': name," >> "$PY"
-          echo "            'type': 'vless'," >> "$PY"
-          echo "            'server': u.hostname," >> "$PY"
-          echo "            'port': int(u.port)," >> "$PY"
-          echo "            'uuid': u.username," >> "$PY"
-          echo "            'network': q.get('type', ['tcp'])[0]," >> "$PY"
-          echo "            'flow': q.get('flow', [''])[0]," >> "$PY"
-          echo "            'servername': q.get('sni', [''])[0]," >> "$PY"
-          echo "            'client-fingerprint': 'chrome'," >> "$PY"
-          echo "            'encryption': 'none'," >> "$PY"
-          echo "            'tls': True," >> "$PY"
-          echo "            'udp': True," >> "$PY"
-          echo "            'reality-opts': {" >> "$PY"
-          echo "                'public-key': q.get('pbk', [''])[0]" >> "$PY"
-          echo "            }" >> "$PY"
-          echo "        }" >> "$PY"
-          echo "        if name == '>>@oneclickvpnkeys::NL (3)': proxy['client-fingerprint'] = 'qq'" >> "$PY"
-          echo "        if 'sid' in q:" >> "$PY"
-          echo "            proxy['reality-opts']['short-id'] = q['sid'][0]" >> "$PY"
-          echo "        if name.startswith('[OpenRay]') or '[SNI-RU]' in name:" >> "$PY"
-          echo "            proxy['tcp-opts'] = {'header': {'type': 'none'}}" >> "$PY"
-          echo "            if 'stats.vk-portal.net' in name or 'queuev4.vk.com' in name:" >> "$PY"
-          echo "                proxy['reality-opts']['spiderx'] = '/'" >> "$PY"
-          echo "        proxies.append(proxy)" >> "$PY"
-          echo "        proxy_names.append(name)" >> "$PY"
-          echo "config = {" >> "$PY"
-          echo "    'proxies': proxies," >> "$PY"
-          echo "    'proxy-groups': [{" >> "$PY"
-          echo "        'name': 'auto'," >> "$PY"
-          echo "        'type': 'select'," >> "$PY"
-          echo "        'proxies': proxy_names" >> "$PY"
-          echo "    }]," >> "$PY"
-          echo "    'rules': [" >> "$PY"
-          echo "        'MATCH,auto'" >> "$PY"
-          echo "    ]" >> "$PY"
-          echo "}" >> "$PY"
-          echo "with open(OUT, 'w', encoding='utf-8') as f:" >> "$PY"
-          echo "    yaml.dump(config, f, allow_unicode=True, sort_keys=False, Dumper=MyDumper)" >> "$PY"
+          python3 - <<'EOF'
+          import yaml
+          import urllib.parse
 
-          python3 "$PY"
+          RAW = "${{ env.OUTPUT_DIR }}/raw.txt"
+          OUT = "${{ env.OUTPUT_DIR }}/config.yaml"
+
+          proxies = []
+          proxy_names = []
+          seen = set()
+
+          class MyDumper(yaml.SafeDumper):
+              pass  # Не экранируем строки в кавычки
+
+          with open(RAW, encoding='utf-8', errors='ignore') as f:
+              for line in f:
+                  line = line.strip()
+                  if not line.startswith('vless://'):
+                      continue
+                  u = urllib.parse.urlparse(line)
+                  q = urllib.parse.parse_qs(u.query)
+                  raw_name = u.fragment or f'{u.hostname}:{u.port}'
+                  name = urllib.parse.unquote(raw_name)
+                  if name in seen:
+                      continue
+                  seen.add(name)
+                  proxy = {
+                      "name": name,
+                      "type": "vless",
+                      "server": u.hostname,
+                      "port": int(u.port),
+                      "uuid": u.username,
+                      "network": q.get("type", ["tcp"])[0],
+                      "flow": q.get("flow", [""])[0],
+                      "servername": q.get("sni", [""])[0],
+                      "client-fingerprint": "chrome",
+                      "encryption": "none",
+                      "tls": True,
+                      "udp": True,
+                      "reality-opts": {
+                          "public-key": q.get("pbk", [""])[0]
+                      }
+                  }
+                  if name == ">>@oneclickvpnkeys::NL (3)":
+                      proxy["client-fingerprint"] = "qq"
+                  if "sid" in q:
+                      proxy["reality-opts"]["short-id"] = q["sid"][0]
+                  if name.startswith("[OpenRay]") or "[SNI-RU]" in name:
+                      proxy["tcp-opts"] = {"header": {"type": "none"}}
+                      if "stats.vk-portal.net" in name or "queuev4.vk.com" in name:
+                          proxy["reality-opts"]["spiderx"] = "/"
+                  proxies.append(proxy)
+                  proxy_names.append(name)
+
+          config = {
+              "proxies": proxies,
+              "proxy-groups": [
+                  {
+                      "name": "auto",
+                      "type": "select",
+                      "proxies": proxy_names
+                  }
+              ],
+              "rules": ["MATCH,auto"]
+          }
+
+          with open(OUT, "w", encoding="utf-8") as f:
+              yaml.dump(config, f, allow_unicode=True, sort_keys=False, Dumper=MyDumper)
+          EOF
 
       - name: Commit and push to generated-config
         run: |
