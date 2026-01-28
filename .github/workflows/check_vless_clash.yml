@@ -10,22 +10,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           persist-credentials: false
 
+      # 2️⃣ Setup Python
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
+      # 3️⃣ Install dependencies
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install requests geoip2
 
-      - name: Check VLESS servers (Reality Vision + SNI + GeoIP + ASN)
+      # 4️⃣ Check VLESS servers (Reality Vision + SNI + GeoIP + ASN)
+      - name: Check VLESS servers
         id: check_alive
         run: |
           python - <<'EOF'
@@ -194,6 +198,7 @@ jobs:
               out.write(f"count={len(results)}\n")
           EOF
 
+      # 5️⃣ Commit & push
       - name: Commit and push result
         if: steps.check_alive.outputs.count != '0'
         env:
@@ -201,7 +206,14 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
+
+          # Сначала синхронизируем локальный репозиторий с удалённым
+          git fetch origin main
+          git reset --hard origin/main
+
+          # Добавляем новый файл и коммитим
           git add githubmirror/whitelist.txt
-          git pull --rebase https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY} main
           git diff --cached --quiet || git commit -m "Update RU whitelist VLESS (GeoIP filtering)"
+
+          # Пушим на main
           git push https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY} HEAD:main
