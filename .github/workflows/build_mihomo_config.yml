@@ -41,17 +41,25 @@ jobs:
           proxies = []
           seen_names = []
 
+          if os.path.exists(OUT):
+              # Загружаем старые имена, чтобы сохранить порядок и не дублировать
+              with open(OUT, encoding='utf-8') as f:
+                  for line in f:
+                      line = line.strip()
+                      if line.startswith('- name:'):
+                          name = line.split(':',1)[1].strip().strip('"')
+                          if name not in seen_names:
+                              seen_names.append(name)
+
           with open(RAW, encoding='utf-8', errors='ignore') as f:
               for line in f:
                   line = line.strip()
-                  if not line.startswith('vless://'):
-                      continue
+                  if not line.startswith('vless://'): continue
                   u = urllib.parse.urlparse(line)
                   q = urllib.parse.parse_qs(u.query)
                   name = urllib.parse.unquote(u.fragment or f'{u.hostname}:{u.port}')
 
-                  if name in seen_names:
-                      continue
+                  if name in seen_names: continue
                   seen_names.append(name)
 
                   proxy = {
@@ -83,6 +91,7 @@ jobs:
                   proxies.append(proxy)
 
           with open(OUT, "w", encoding="utf-8") as f:
+              # Прокси
               f.write("proxies:\n")
               for p in proxies:
                   f.write(f"  - name: {json.dumps(p['name'], ensure_ascii=False)}\n")
@@ -93,7 +102,8 @@ jobs:
                   f.write(f"    network: {json.dumps(p['network'])}\n")
                   f.write(f"    flow: {json.dumps(p['flow'])}\n")
                   f.write(f"    servername: {json.dumps(p['servername'])}\n")
-                  f.write(f"    client-fingerprint: {json.dumps(p['client-fingerprint'])}\n")
+                  if "client-fingerprint" in p:
+                      f.write(f"    client-fingerprint: {json.dumps(p['client-fingerprint'])}\n")
                   f.write(f"    encryption: {json.dumps(p['encryption'])}\n")
                   f.write(f"    tls: {str(p['tls']).lower()}\n")
                   f.write(f"    udp: {str(p['udp']).lower()}\n")
@@ -107,11 +117,15 @@ jobs:
                       f.write(f"    tcp-opts:\n      header:\n        type: {json.dumps(p['tcp-opts']['header']['type'])}\n")
                   f.write("\n")
 
+              # Proxy-groups с кавычками для симметрии
               f.write("proxy-groups:\n")
-              f.write("  - name: auto\n    type: select\n    proxies:\n")
+              f.write('  - name: "auto"\n')
+              f.write('    type: "select"\n')
+              f.write('    proxies:\n')
               for n in seen_names:
                   f.write(f"      - {json.dumps(n, ensure_ascii=False)}\n")
 
+              # Правила: Россия напрямую, остальные через auto
               f.write("\nrules:\n")
               f.write("  - GEOIP,RU,DIRECT\n")
               f.write("  - DOMAIN-SUFFIX,ru,DIRECT\n")
