@@ -191,4 +191,5 @@ jobs:
           git config user.email "github-actions@github.com"
           git add githubmirror/26_alive.txt githubmirror/26_alive_base64.txt
           git diff --cached --quiet || git commit -m "Update alive VLESS (Reality, 1 per country)"
+          git pull --rebase https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY} main
           git push https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY} HEAD:main
