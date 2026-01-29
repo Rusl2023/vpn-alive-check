@@ -44,6 +44,7 @@ jobs:
 
       - name: Download Mihomo binary
         run: |
+          # Получаем последнюю версию Mihomo для Linux amd64
           DOWNLOAD_URL=$(curl -s https://api.github.com/repos/MetaCubeX/mihomo/releases/latest \
             | jq -r '.assets[] | select(.name | contains("linux-amd64") and endswith(".gz")).browser_download_url' | xargs)
 
@@ -52,6 +53,7 @@ jobs:
             exit 1
           fi
 
+          echo "Downloading Mihomo from $DOWNLOAD_URL"
           curl -L -o mihomo.gz "$DOWNLOAD_URL"
           gunzip -f mihomo.gz
           chmod +x mihomo
@@ -69,7 +71,8 @@ jobs:
           with open(INPUT, encoding='utf-8', errors='ignore') as f:
               links = [l.strip() for l in f if l.startswith('vless://')]
           def check_proxy(link):
-              u = urllib.parse.urlparse(link); q = urllib.parse.parse_qs(u.query)
+              u = urllib.parse.urlparse(link)
+              q = urllib.parse.parse_qs(u.query)
               proxy_name = u.fragment or f'{u.hostname}:{u.port}'
               cfg = {'socks-port': 1080, 'proxies': [{
                   'name': proxy_name, 'type': 'vless', 'server': u.hostname, 'port': int(u.port),
@@ -80,10 +83,12 @@ jobs:
               }]}
               with open('temp.yaml', 'w', encoding='utf-8') as f: yaml.dump(cfg, f)
               p = subprocess.Popen(['./mihomo', '-f', 'temp.yaml'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-              time.sleep(2); valid = False
+              time.sleep(2)
+              valid = False
               try:
                   r = requests.get('https://api.ipify.org', proxies={'http':'socks5h://127.0.0.1:1080','https':'socks5h://127.0.0.1:1080'}, timeout=7)
-                  if r.status_code == 200 and r.text.strip() != RUNNER_IP: valid = True
+                  if r.status_code == 200 and r.text.strip() != RUNNER_IP:
+                      valid = True
               except: pass
               p.terminate(); p.wait(); time.sleep(0.5); return valid
           for link in links:
@@ -92,7 +97,8 @@ jobs:
           EOF
 
       - name: Encode subscription to Base64
-        run: base64 -w 0 ${{ env.RAW_FILE }} > ${{ env.BASE64_FILE }}
+        run: |
+          base64 -w 0 ${{ env.RAW_FILE }} > ${{ env.BASE64_FILE }}
 
       - name: Generate Mihomo config.yaml
         env:
@@ -107,7 +113,8 @@ jobs:
               for line in f:
                   line = line.strip()
                   if not line.startswith('vless://'): continue
-                  u = urllib.parse.urlparse(line); q = urllib.parse.parse_qs(u.query)
+                  u = urllib.parse.urlparse(line)
+                  q = urllib.parse.parse_qs(u.query)
                   name = urllib.parse.unquote(u.fragment or f'{u.hostname}:{u.port}')
                   if name in names: continue
                   names.append(name)
