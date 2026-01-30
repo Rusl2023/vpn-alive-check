@@ -5,16 +5,19 @@ on:
     - cron: '*/30 * * * *'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   check:
     runs-on: ubuntu-latest
     timeout-minutes: 60
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          persist-credentials: false
+          fetch-depth: 0
 
       - name: Install dependencies
         run: |
@@ -29,7 +32,7 @@ jobs:
           unzip -o xray.zip xray geoip.dat geosite.dat
           chmod +x xray
 
-      - name: Prepare files
+      - name: Prepare output files
         run: |
           mkdir -p githubmirror
           : > githubmirror/26_proxy_subscription_raw.txt
@@ -124,7 +127,7 @@ jobs:
                   json.dump(cfg, f)
 
               p = subprocess.Popen(['./xray', 'run', '-c', 'cfg.json'])
-              time.sleep(3)
+              time.sleep(4)
               ip = exit_ip()
               p.terminate()
               time.sleep(1)
@@ -140,19 +143,21 @@ jobs:
 
       - name: Encode subscription to Base64
         run: |
-          base64 -w 0 githubmirror/26_proxy_subscription_raw.txt > githubmirror/26_proxy_subscription_base64.txt
+          base64 -w 0 githubmirror/26_proxy_subscription_raw.txt \
+            > githubmirror/26_proxy_subscription_base64.txt
 
-      - name: Commit and push
-        env:
-          GH_PAT: ${{ secrets.GH_PAT }}
+      - name: Commit and push changes
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
-          git fetch origin main
-          git reset --hard origin/main
+          git add githubmirror/26_proxy_subscription_raw.txt \
+                  githubmirror/26_proxy_subscription_base64.txt
 
-          git add githubmirror/26_proxy_subscription_raw.txt githubmirror/26_proxy_subscription_base64.txt
-          git diff --cached --quiet || git commit -m "Update VLESS proxy subscription (raw + base64)"
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
 
-          git push https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY} HEAD:main
+          git commit -m "Update VLESS proxy subscription (raw + base64)"
+          git push
