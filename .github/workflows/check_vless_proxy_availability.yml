@@ -16,8 +16,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Install dependencies
         run: |
@@ -35,8 +33,7 @@ jobs:
       - name: Prepare output files
         run: |
           mkdir -p githubmirror
-          : > githubmirror/26_proxy_subscription_raw.txt
-          : > githubmirror/26_proxy_subscription_base64.txt
+          echo "# updated $(date -u)" > githubmirror/26_proxy_subscription_raw.txt
 
       - name: Get runner IP
         run: |
@@ -81,6 +78,8 @@ jobs:
 
           with open(INPUT) as f:
               links = [l.strip() for l in f if l.startswith('vless://')]
+
+          ok = 0
 
           for link in links:
               u = urllib.parse.urlparse(link)
@@ -139,12 +138,22 @@ jobs:
 
               with open(OUTPUT_RAW, 'a') as f:
                   f.write(link + '\n')
+              ok += 1
+
+          print(f"OK proxies: {ok}")
           EOF
 
       - name: Encode subscription to Base64
         run: |
           base64 -w 0 githubmirror/26_proxy_subscription_raw.txt \
             > githubmirror/26_proxy_subscription_base64.txt
+
+      - name: Debug output
+        run: |
+          echo "RAW lines:"
+          wc -l githubmirror/26_proxy_subscription_raw.txt
+          echo "BASE64 size:"
+          wc -c githubmirror/26_proxy_subscription_base64.txt
 
       - name: Commit and push changes
         run: |
@@ -154,10 +163,5 @@ jobs:
           git add githubmirror/26_proxy_subscription_raw.txt \
                   githubmirror/26_proxy_subscription_base64.txt
 
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
-            exit 0
-          fi
-
-          git commit -m "Update VLESS proxy subscription (raw + base64)"
+          git commit -m "Auto update VLESS subscription ($(date -u))" || true
           git push
