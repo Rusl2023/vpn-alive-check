@@ -8,6 +8,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: vless-subscription-update
+  cancel-in-progress: true
+
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -16,6 +20,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Install dependencies
         run: |
@@ -125,7 +131,12 @@ jobs:
               with open('cfg.json', 'w') as f:
                   json.dump(cfg, f)
 
-              p = subprocess.Popen(['./xray', 'run', '-c', 'cfg.json'])
+              p = subprocess.Popen(
+                  ['./xray', 'run', '-c', 'cfg.json'],
+                  stdout=subprocess.DEVNULL,
+                  stderr=subprocess.DEVNULL
+              )
+
               time.sleep(4)
               ip = exit_ip()
               p.terminate()
@@ -163,5 +174,7 @@ jobs:
           git add githubmirror/26_proxy_subscription_raw.txt \
                   githubmirror/26_proxy_subscription_base64.txt
 
-          git commit -m "Auto update VLESS subscription ($(date -u))" || true
+          git commit -m "Auto update VLESS subscription ($(date -u))" || exit 0
+
+          git pull --rebase origin main
           git push
