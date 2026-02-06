@@ -61,7 +61,8 @@ https://immortalwrt.kyarucloud.moe/releases/
 [`База 3`](https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list/refs/heads/main/vless_configs.txt)
 [`База 4`](https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/WHITE-SNI-RU-all.txt)
 [`База 5`](https://raw.githubusercontent.com/hamedcode/port-based-v2ray-configs/main/sub/vless.txt)
-          
+## список обновляемых SNI для белых списков
+[`SNI`](https://github.com/hxehex/russia-mobile-internet-whitelist/blob/main/whitelist.txt)
 ______________________________________________________________________________________
 
 ## ℹ️ Мая подписка бесплатных ключей ℹ️
