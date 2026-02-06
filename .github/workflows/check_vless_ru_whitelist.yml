@@ -25,7 +25,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests geoip2
 
-      - name: Check VLESS servers (Reality Vision + SNI + GeoIP + ASN)
+      - name: Check VLESS servers (Reality Vision + GeoIP + ASN)
         id: check_alive
         run: |
           python - <<'EOF'
@@ -97,7 +97,7 @@ jobs:
               flow = q.get("flow", [""])[0]
               return flow == "xtls-rprx-vision" and "xhttp" not in flow
 
-          # ====== Проверка страны ======
+          # ====== Проверка страны (не RU) ======
           def geo_country(host):
               try:
                   ip = socket.gethostbyname(host)
@@ -106,7 +106,7 @@ jobs:
               except:
                   return False
 
-          # ====== Проверка ASN ======
+          # ====== Проверка ASN (не российский) ======
           RU_ASN_KEYWORDS = (
               "rostelecom", "mts", "megafon", "beeline",
               "tele2", "yandex", "mail.ru", "rt"
@@ -229,4 +229,3 @@ jobs:
           git add githubmirror/26_ru_whitelist.txt
           git diff --cached --quiet || git commit -m "Update RU whitelist VLESS (remote SNI list)"
           git push https://x-access-token:${GH_PAT}@github.com/${{ github.repository }} HEAD:main
-          
