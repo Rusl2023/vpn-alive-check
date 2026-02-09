@@ -8,7 +8,6 @@ on:
 permissions:
   contents: write
 
-# 🔒 защита от одновременных запусков
 concurrency:
   group: vless-subscription-update
   cancel-in-progress: true
@@ -28,7 +27,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y curl jq unzip python3 python3-pip
-          python3 -m pip install --upgrade pip geoip2
+          python3 -m pip install --upgrade pip
+          pip install geoip2
 
       - name: Download Xray
         run: |
@@ -49,23 +49,31 @@ jobs:
       - name: Check VLESS via Xray and build raw subscription
         run: |
           python3 <<'EOF'
-          import subprocess, time, json, urllib.parse, os, geoip2.database
+          import subprocess
+          import time
+          import json
+          import urllib.parse
+          import os
+          import geoip2.database
 
-          INPUT = 'githubmirror/26_ru_whitelist.txt'
-          OUTPUT_RAW = 'githubmirror/26_proxy_subscription_raw.txt'
+          INPUT_FILE = 'githubmirror/26_ru_whitelist.txt'
+          OUTPUT_FILE = 'githubmirror/26_proxy_subscription_raw.txt'
           RUNNER_IP = os.environ.get('RUNNER_IP', '')
-          GEO_COUNTRY = 'geolite2/GeoLite2-Country.mmdb'
 
-          if not os.path.exists(INPUT):
-              raise SystemExit(0)
+          # Подключение GeoLite2
+          reader = geoip2.database.Reader('GeoLite2-Country.mmdb')
 
-          def get_country_flag(ip_or_host):
+          def get_country_flag(ip):
               try:
-                  with geoip2.database.Reader(GEO_COUNTRY) as reader:
-                      rec = reader.country(ip_or_host)
-                      return rec.country.iso_code
+                  response = reader.country(ip)
+                  code = response.country.iso_code
+                  FLAGS = {
+                      'RU':'🇷🇺','KZ':'🇰🇿','PL':'🇵🇱','HU':'🇭🇺',
+                      'US':'🇺🇸','NL':'🇳🇱','DE':'🇩🇪','FR':'🇫🇷'
+                  }
+                  return FLAGS.get(code,'🏳️')
               except:
-                  return 'XX'
+                  return '🏳️'
 
           TEST_URLS = [
               'https://api.ipify.org',
@@ -77,7 +85,7 @@ jobs:
               for url in TEST_URLS:
                   try:
                       out = subprocess.check_output(
-                          ['curl','-s','--max-time','8','-x','socks5h://127.0.0.1:1080',url],
+                          ['curl','-s','--max-time','8','--socks5-hostname','127.0.0.1:1080',url],
                           text=True
                       ).strip()
                       if out:
@@ -86,81 +94,83 @@ jobs:
                       pass
               return None
 
-          with open(INPUT) as f:
+          if not os.path.exists(INPUT_FILE):
+              raise SystemExit(0)
+
+          with open(INPUT_FILE) as f:
               links = [l.strip() for l in f if l.startswith('vless://')]
 
           ok = 0
+
           for link in links:
               u = urllib.parse.urlparse(link)
               q = urllib.parse.parse_qs(u.query)
 
-              stream = {'network': q.get('type', ['tcp'])[0]}
-              sec = q.get('security', ['none'])[0]
-              sni = q.get('sni', [''])[0]
+              sni = q.get('sni',[''])[0]
+              stream = {'network': q.get('type',['tcp'])[0]}
 
-              if sec == 'reality' and 'pbk' in q:
+              if q.get('security',[''])[0]=='reality' and 'pbk' in q:
                   stream['security'] = 'reality'
                   stream['realitySettings'] = {
                       'serverName': sni,
                       'publicKey': q['pbk'][0],
-                      'shortId': q.get('sid', [''])[0],
+                      'shortId': q.get('sid',[''])[0],
                       'fingerprint': 'chrome'
                   }
 
               cfg = {
-                  'inbounds': [{
-                      'listen': '127.0.0.1',
-                      'port': 1080,
-                      'protocol': 'socks',
-                      'settings': {'udp': False}
+                  "inbounds": [{
+                      "listen": "127.0.0.1",
+                      "port": 1080,
+                      "protocol": "socks",
+                      "settings": {"udp": False}
                   }],
-                  'outbounds': [{
-                      'protocol': 'vless',
-                      'settings': {
-                          'vnext': [{
-                              'address': u.hostname,
-                              'port': u.port or 443,
-                              'users': [{
-                                  'id': u.username,
-                                  'encryption': 'none',
-                                  'flow': q.get('flow', [''])[0]
+                  "outbounds": [{
+                      "protocol": "vless",
+                      "settings": {
+                          "vnext": [{
+                              "address": u.hostname,
+                              "port": u.port or 443,
+                              "users": [{
+                                  "id": u.username,
+                                  "encryption": "none",
+                                  "flow": q.get('flow',[''])[0]
                               }]
                           }]
                       },
-                      'streamSettings': stream
+                      "streamSettings": stream
                   }]
               }
 
-              with open('cfg.json', 'w') as f:
-                  json.dump(cfg, f)
+              with open("cfg.json","w") as f:
+                  json.dump(cfg,f)
 
               p = subprocess.Popen(
-                  ['./xray', 'run', '-c', 'cfg.json'],
+                  ['./xray','-c','cfg.json'],
                   stdout=subprocess.DEVNULL,
                   stderr=subprocess.DEVNULL
               )
 
               time.sleep(4)
-              ip = exit_ip()
+              ip_out = exit_ip()
               p.terminate()
               time.sleep(1)
 
-              if not ip or ip == RUNNER_IP:
+              if not ip_out or ip_out==RUNNER_IP:
                   continue
 
-              exit_flag = get_country_flag(ip)
-              if exit_flag == 'RU':
-                  continue
+              in_flag = get_country_flag(u.hostname)
+              out_flag = get_country_flag(ip_out)
 
-              inbound_flag = get_country_flag(u.hostname)
+              final_name = f"in {in_flag} RusL exit {out_flag} {sni}"
+              final_link = link.split('#')[0] + '#' + final_name
 
-              with open(OUTPUT_RAW, 'a') as f:
-                  f.write(f"in [{inbound_flag} - входа сервер] Rusl\n")
-                  f.write(f"exit [{exit_flag} - выхода прокси]\n")
-                  f.write(f"sni {sni}\n")
+              with open(OUTPUT_FILE,'a') as f:
+                  f.write(final_link + '\n')
 
-              ok += 1
+              ok +=1
 
+          reader.close()
           print(f"OK proxies: {ok}")
           EOF
 
@@ -176,7 +186,7 @@ jobs:
           echo "BASE64 size:"
           wc -c githubmirror/26_proxy_subscription_base64.txt
 
-      - name: Commit and push changes (safe)
+      - name: Commit and push
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
@@ -185,6 +195,5 @@ jobs:
                   githubmirror/26_proxy_subscription_base64.txt
 
           git commit -m "Auto update VLESS subscription ($(date -u))" || exit 0
-
-          git pull --rebase origin main
+          git pull --rebase origin main || true
           git push
