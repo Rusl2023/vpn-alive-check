@@ -34,6 +34,7 @@ jobs:
           import socket
           import urllib.parse
           import requests
+          import uuid
           from concurrent.futures import ThreadPoolExecutor, as_completed
           import geoip2.database
 
@@ -157,6 +158,12 @@ jobs:
                       except:
                           pass
                   fp = q.get("fp", [""])[0].lower()
+                  uid = u.username  # UUID в VLESS
+                  # проверка корректности UUID
+                  try:
+                      uuid.UUID(uid)
+                  except:
+                      return None
                   return {
                       "link": link.strip(),
                       "host": u.hostname,
