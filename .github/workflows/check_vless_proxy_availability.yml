@@ -1,4 +1,4 @@
-name: Check VLESS proxy availability via Xray (GeoIP)
+name: Check VLESS proxy availability via Xray (base64 subscription)
 
 on:
   schedule:
@@ -15,7 +15,7 @@ concurrency:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 120
 
     steps:
       - name: Checkout repository
@@ -46,11 +46,10 @@ jobs:
         run: |
           echo "RUNNER_IP=$(curl -s https://api.ipify.org)" >> $GITHUB_ENV
 
-      - name: Check VLESS via Xray (parallel, GeoIP only)
+      - name: Check VLESS via Xray and build raw subscription
         run: |
           python3 <<'EOF'
-          import subprocess, json, urllib.parse, os, time
-          from concurrent.futures import ThreadPoolExecutor, as_completed
+          import subprocess, json, urllib.parse, os, time, socket
           import geoip2.database
           import requests
 
@@ -58,34 +57,31 @@ jobs:
           OUTPUT_RAW = 'githubmirror/26_proxy_subscription_raw.txt'
           RUNNER_IP = os.environ.get('RUNNER_IP', '')
           XRAY_BIN = './xray'
-          MAX_WORKERS = 20
-
-          COUNTRY_DB = 'geolite2/GeoLite2-Country.mmdb'
-          if not os.path.exists(COUNTRY_DB):
-              raise SystemExit("GeoLite2-Country.mmdb not found")
-
-          geo_reader = geoip2.database.Reader(COUNTRY_DB)
           TEST_URLS = [
               'https://api.ipify.org',
               'http://cp.cloudflare.com',
               'https://www.instagram.com/'
           ]
+          COUNTRY_DB = 'geolite2/GeoLite2-Country.mmdb'
 
-          geo_cache = {}
+          if not os.path.exists(COUNTRY_DB):
+              raise SystemExit("GeoLite2-Country.mmdb not found")
 
-          def get_country_flag(ip):
-              if ip in geo_cache:
-                  return geo_cache[ip]
+          geo_reader = geoip2.database.Reader(COUNTRY_DB)
+
+          def get_country(ip):
               try:
-                  c = geo_reader.country(ip).country.iso_code
-                  flag = "".join(chr(0x1F1E6 + ord(ch.upper()) - ord('A')) for ch in c)
-                  geo_cache[ip] = (c, flag)
-                  return c, flag
+                  return geo_reader.country(ip).country.iso_code
               except:
-                  geo_cache[ip] = ('??', '🏳️')
-                  return '??', '🏳️'
+                  return '??'
 
-          def test_exit_ip(max_attempts=10, delay=0.5):
+          def flag(code):
+              try:
+                  return "".join(chr(0x1F1E6 + ord(c.upper()) - ord('A')) for c in code)
+              except:
+                  return "🏳️"
+
+          def exit_ip(max_attempts=10, delay=1):
               proxies = {'http':'socks5h://127.0.0.1:1080','https':'socks5h://127.0.0.1:1080'}
               for _ in range(max_attempts):
                   for url in TEST_URLS:
@@ -93,34 +89,41 @@ jobs:
                           r = requests.get(url, proxies=proxies, timeout=5)
                           if r.status_code == 200 and r.text.strip():
                               return r.text.strip()
-                      except:
-                          continue
+                      except: pass
                   time.sleep(delay)
               return None
 
-          def check_proxy(link):
+          if not os.path.exists(INPUT):
+              raise SystemExit(0)
+
+          with open(INPUT) as f:
+              links = [l.strip() for l in f if l.startswith('vless://')]
+
+          ok = 0
+          for link in links:
               try:
                   u = urllib.parse.urlparse(link)
                   q = urllib.parse.parse_qs(u.query)
                   sec = q.get('security', ['none'])[0]
                   sni = q.get('sni', [''])[0]
-                  flow = q.get('flow', [''])[0]
-                  fp = q.get('fp', [''])[0].lower()
-                  if sec != 'reality' or fp != 'chrome' or flow != 'xtls-rprx-vision':
-                      return None
+                  if sec != 'reality' or 'pbk' not in q:
+                      continue
 
-                  port = u.port or 443
                   cfg = {
                       'inbounds':[{'listen':'127.0.0.1','port':1080,'protocol':'socks','settings':{'udp':False}}],
                       'outbounds':[{
                           'protocol':'vless',
-                          'settings':{'vnext':[{'address':u.hostname,'port':port,'users':[{'id':u.username,'encryption':'none','flow':flow}]}]},
+                          'settings':{'vnext':[{
+                              'address': u.hostname,
+                              'port': u.port or 443,
+                              'users':[{'id': u.username,'encryption':'none','flow': q.get('flow', [''])[0]}]
+                          }]},
                           'streamSettings':{
                               'network': q.get('type',['tcp'])[0],
                               'security':'reality',
                               'realitySettings':{
                                   'serverName': sni,
-                                  'publicKey': q.get('pbk',[''])[0],
+                                  'publicKey': q['pbk'][0],
                                   'shortId': q.get('sid',[''])[0],
                                   'fingerprint':'chrome'
                               }
@@ -129,57 +132,48 @@ jobs:
                   }
 
                   with open('cfg.json','w') as f:
-                      json.dump(cfg, f)
+                      json.dump(cfg,f)
 
-                  # Запускаем Xray
                   p = subprocess.Popen([XRAY_BIN,'run','-c','cfg.json'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-                  # Ждём, пока Xray выдаст IP (без фиксированного sleep)
-                  exit_ip = test_exit_ip()
-
+                  ip = exit_ip()  # ждём пока Xray поднимется
                   p.terminate()
+                  time.sleep(0.5)
 
-                  if not exit_ip or exit_ip == RUNNER_IP:
-                      return None
+                  if not ip or ip == RUNNER_IP:
+                      continue
 
-                  host_country, host_flag = get_country_flag(u.hostname)
-                  exit_country, exit_flag = get_country_flag(exit_ip)
+                  host_flag = flag(get_country(u.hostname))
+                  exit_flag = flag(get_country(ip))
 
-                  if host_country=='RU' or exit_country=='RU':
-                      return None
+                  # Фильтр по GeoIP (локальный файл, исключаем RU)
+                  if get_country(u.hostname) == 'RU' or get_country(ip) == 'RU':
+                      continue
 
                   name = f"in {host_flag} Rusl exit {exit_flag} {sni}"
-                  return link.split('#')[0] + f"#{name}"
+                  with open(OUTPUT_RAW, 'a') as f:
+                      f.write(link.split('#')[0] + f"#{name}\n")
+                  ok += 1
               except:
-                  return None
+                  continue
 
-          if not os.path.exists(INPUT):
-              raise SystemExit(0)
-
-          with open(INPUT) as f:
-              links = [l.strip() for l in f if l.startswith('vless://')]
-
-          results = []
-          with ThreadPoolExecutor(max_workers=MAX_WORKERS) as exe:
-              futures = {exe.submit(check_proxy, l): l for l in links}
-              for f in as_completed(futures):
-                  res = f.result()
-                  if res:
-                      results.append(res)
-
-          os.makedirs('githubmirror', exist_ok=True)
-          with open(OUTPUT_RAW,'w') as f:
-              for link in results:
-                  f.write(link+'\n')
-
-          print(f"OK proxies: {len(results)}")
+          print(f"OK proxies: {ok}")
           EOF
 
-      - name: Push
+      - name: Encode subscription to Base64
+        run: |
+          base64 -w 0 githubmirror/26_proxy_subscription_raw.txt > githubmirror/26_proxy_subscription_base64.txt
+
+      - name: Debug output
+        run: |
+          echo "RAW lines:" && wc -l githubmirror/26_proxy_subscription_raw.txt
+          echo "BASE64 size:" && wc -c githubmirror/26_proxy_subscription_base64.txt
+
+      - name: Commit and push changes (safe)
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add githubmirror/*
-          git commit -m "PRO update $(date -u)" || exit 0
+          git add githubmirror/26_proxy_subscription_raw.txt githubmirror/26_proxy_subscription_base64.txt
+          git commit -m "Auto update VLESS subscription ($(date -u))" || exit 0
           git pull --rebase origin main
           git push
