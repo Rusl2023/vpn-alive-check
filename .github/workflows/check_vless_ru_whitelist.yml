@@ -106,18 +106,21 @@ jobs:
               except:
                   return False, "??"
 
-          # ====== Проверка ASN (не российский) ======
-          RU_ASN_KEYWORDS = (
-              "rostelecom", "mts", "megafon", "beeline",
-              "tele2", "yandex", "mail.ru", "rt"
-          )
+          # ====== Проверка ASN (не российский) через GeoLite2-ASN ======
+          RU_ASN_NUMBERS = {12389, 3215, 8359, 20309, 20485}  # можно расширять
+          RU_ASN_KEYWORDS = ("rostelecom", "mts", "megafon", "beeline", "tele2", "yandex", "mail.ru", "rt")
 
           def is_not_ru_asn(host):
               try:
                   ip = socket.gethostbyname(host)
                   r = reader_asn.asn(ip)
+                  asn = r.autonomous_system_number
                   org = (r.autonomous_system_organization or "").lower()
-                  return not any(k in org for k in RU_ASN_KEYWORDS)
+                  if asn in RU_ASN_NUMBERS:
+                      return False
+                  if any(k.lower() in org for k in RU_ASN_KEYWORDS):
+                      return False
+                  return True
               except:
                   return False
 
@@ -167,11 +170,10 @@ jobs:
                   return None
 
           # ====== Проверка VLESS с фильтрацией ======
-          def check_vless(link, idx):
+          def check_vless(link):
               d = parse_vless(link)
               if not d:
                   return None
-              # Фильтры
               if d["security"] != "reality":
                   return None
               if d["fp"] != "chrome":
@@ -195,17 +197,15 @@ jobs:
                       return None
                   pings.append(p)
               latency = median(pings)
-
-              # ====== Имя ключа ======
-              display_name = f"RUSL86 | {country} | {flag(country)} | {idx+1}"
-              link_with_name = f"{d['link']}#{display_name}"
-              return latency, link_with_name
+              return latency, d
 
           # ====== Загрузка всех ссылок ======
           lines = []
           for url in URLS:
               try:
-                  lines.extend(requests.get(url, timeout=20).text.splitlines())
+                  r = requests.get(url, timeout=20)
+                  r.raise_for_status()
+                  lines.extend(r.text.splitlines())
               except:
                   pass
 
@@ -213,20 +213,24 @@ jobs:
 
           # ====== Проверка и сбор результатов ======
           results = []
-          seen = set()
+          seen_keys = set()
           with ThreadPoolExecutor(max_workers=MAX_WORKERS) as exe:
-              futures = [exe.submit(check_vless, v, idx) for idx, v in enumerate(vless_links)]
+              futures = {exe.submit(check_vless, v): v for v in vless_links}
               for f in as_completed(futures):
                   r = f.result()
                   if not r:
                       continue
-                  latency, link = r
-                  if link in seen:
+                  latency, d = r
+                  key_id = (d["host"], d["port"], d["sni"])
+                  if key_id in seen_keys:
                       continue
-                  seen.add(link)
-                  results.append((latency, link))
+                  seen_keys.add(key_id)
+                  display_name = f"RUSL86 | {flag(geo_country(d['host'])[1])} | {d['host']}"
+                  link_with_name = f"{d['link']}#{display_name}"
+                  results.append((latency, link_with_name))
 
           results.sort(key=lambda x: x[0])
+
           os.makedirs("githubmirror", exist_ok=True)
           with open("githubmirror/26_ru_whitelist.txt", "w") as f:
               for _, link in results:
