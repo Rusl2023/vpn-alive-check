@@ -49,9 +49,7 @@ jobs:
       - name: Check VLESS via Xray and build raw subscription
         run: |
           python3 <<'EOF'
-          import subprocess, json, urllib.parse, os, time, socket
-          import geoip2.database
-          import requests
+          import subprocess, json, urllib.parse, os, time, requests
 
           INPUT = 'githubmirror/26_ru_whitelist.txt'
           OUTPUT_RAW = 'githubmirror/26_proxy_subscription_raw.txt'
@@ -62,24 +60,6 @@ jobs:
               'http://cp.cloudflare.com',
               'https://www.instagram.com/'
           ]
-          COUNTRY_DB = 'geolite2/GeoLite2-Country.mmdb'
-
-          if not os.path.exists(COUNTRY_DB):
-              raise SystemExit("GeoLite2-Country.mmdb not found")
-
-          geo_reader = geoip2.database.Reader(COUNTRY_DB)
-
-          def get_country(ip):
-              try:
-                  return geo_reader.country(ip).country.iso_code
-              except:
-                  return '??'
-
-          def flag(code):
-              try:
-                  return "".join(chr(0x1F1E6 + ord(c.upper()) - ord('A')) for c in code)
-              except:
-                  return "🏳️"
 
           def exit_ip(max_attempts=10, delay=1):
               proxies = {'http':'socks5h://127.0.0.1:1080','https':'socks5h://127.0.0.1:1080'}
@@ -104,10 +84,7 @@ jobs:
               try:
                   u = urllib.parse.urlparse(link)
                   q = urllib.parse.parse_qs(u.query)
-                  sec = q.get('security', ['none'])[0]
                   sni = q.get('sni', [''])[0]
-                  if sec != 'reality' or 'pbk' not in q:
-                      continue
 
                   cfg = {
                       'inbounds':[{'listen':'127.0.0.1','port':1080,'protocol':'socks','settings':{'udp':False}}],
@@ -120,10 +97,10 @@ jobs:
                           }]},
                           'streamSettings':{
                               'network': q.get('type',['tcp'])[0],
-                              'security':'reality',
-                              'realitySettings':{
+                              'security': q.get('security',['none'])[0],
+                              'realitySettings': {
                                   'serverName': sni,
-                                  'publicKey': q['pbk'][0],
+                                  'publicKey': q.get('pbk',[''])[0],
                                   'shortId': q.get('sid',[''])[0],
                                   'fingerprint':'chrome'
                               }
@@ -136,21 +113,14 @@ jobs:
 
                   p = subprocess.Popen([XRAY_BIN,'run','-c','cfg.json'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-                  ip = exit_ip()  # ждём пока Xray поднимется
+                  ip = exit_ip()
                   p.terminate()
                   time.sleep(0.5)
 
                   if not ip or ip == RUNNER_IP:
                       continue
 
-                  host_flag = flag(get_country(u.hostname))
-                  exit_flag = flag(get_country(ip))
-
-                  # Фильтр по GeoIP (локальный файл, исключаем RU)
-                  if get_country(u.hostname) == 'RU' or get_country(ip) == 'RU':
-                      continue
-
-                  name = f"in {host_flag} Rusl exit {exit_flag} {sni}"
+                  name = f"exit {ip} {sni}"
                   with open(OUTPUT_RAW, 'a') as f:
                       f.write(link.split('#')[0] + f"#{name}\n")
                   ok += 1
