@@ -1,4 +1,4 @@
-name: Check VLESS proxy availability via Xray (GeoIP + ASN)
+name: Check VLESS proxy availability via Xray (GeoIP)
 
 on:
   schedule:
@@ -46,12 +46,13 @@ jobs:
         run: |
           echo "RUNNER_IP=$(curl -s https://api.ipify.org)" >> $GITHUB_ENV
 
-      - name: Check VLESS via Xray (parallel, GeoIP + ASN)
+      - name: Check VLESS via Xray (parallel, GeoIP only)
         run: |
           python3 <<'EOF'
           import subprocess, json, urllib.parse, os, time
           from concurrent.futures import ThreadPoolExecutor, as_completed
           import geoip2.database
+          import requests
 
           INPUT = 'githubmirror/26_ru_whitelist.txt'
           OUTPUT_RAW = 'githubmirror/26_proxy_subscription_raw.txt'
@@ -60,16 +61,11 @@ jobs:
           MAX_WORKERS = 20  # 20 потоков
 
           COUNTRY_DB = 'geolite2/GeoLite2-Country.mmdb'
-          ASN_DB = 'geolite2/GeoLite2-ASN.mmdb'
 
-          if not os.path.exists(COUNTRY_DB) or not os.path.exists(ASN_DB):
-              raise SystemExit("GeoLite DBs not found")
+          if not os.path.exists(COUNTRY_DB):
+              raise SystemExit("GeoLite2-Country.mmdb not found")
 
           geo_reader = geoip2.database.Reader(COUNTRY_DB)
-          asn_reader = geoip2.database.Reader(ASN_DB)
-
-          RU_ASN_NUMBERS = {12389, 3215, 8359, 20309, 20485}
-          RU_ASN_KEYWORDS = ("rostelecom", "mts", "megafon", "beeline", "tele2", "yandex", "mail.ru", "rt")
 
           TEST_URLS = [
               'https://api.ipify.org',
@@ -78,7 +74,6 @@ jobs:
           ]
 
           geo_cache = {}
-          asn_cache = {}
 
           def get_country_flag(ip):
               if ip in geo_cache:
@@ -91,20 +86,6 @@ jobs:
               except:
                   geo_cache[ip] = ('??', '🏳️')
                   return '??', '🏳️'
-
-          def is_not_ru_asn(ip):
-              if ip in asn_cache:
-                  return asn_cache[ip]
-              try:
-                  r = asn_reader.asn(ip)
-                  asn = r.autonomous_system_number
-                  org = (r.autonomous_system_organization or '').lower()
-                  res = asn not in RU_ASN_NUMBERS and not any(k in org for k in RU_ASN_KEYWORDS)
-                  asn_cache[ip] = res
-                  return res
-              except:
-                  asn_cache[ip] = False
-                  return False
 
           def check_proxy(link):
               try:
@@ -142,7 +123,6 @@ jobs:
 
                   exit_ip = None
                   proxies = {'http':'socks5h://127.0.0.1:1080','https':'socks5h://127.0.0.1:1080'}
-                  import requests
                   for url in TEST_URLS:
                       try:
                           r = requests.get(url, proxies=proxies, timeout=3)
@@ -160,9 +140,8 @@ jobs:
                   host_country, host_flag = get_country_flag(u.hostname)
                   exit_country, exit_flag = get_country_flag(exit_ip)
 
+                  # Фильтр только по GeoIP
                   if host_country=='RU' or exit_country=='RU':
-                      return None
-                  if not is_not_ru_asn(u.hostname) or not is_not_ru_asn(exit_ip):
                       return None
 
                   name = f"in {host_flag} Rusl exit {exit_flag} {sni}"
