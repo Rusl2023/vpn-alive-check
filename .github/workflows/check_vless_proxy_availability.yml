@@ -1,4 +1,4 @@
-name: Check VLESS proxy availability via Xray (base64 subscription)
+name: Check VLESS proxy availability via Xray (PRO)
 
 on:
   schedule:
@@ -8,7 +8,6 @@ on:
 permissions:
   contents: write
 
-# 🔒 защита от одновременных запусков
 concurrency:
   group: vless-subscription-update
   cancel-in-progress: true
@@ -19,16 +18,13 @@ jobs:
     timeout-minutes: 60
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v4
 
-      - name: Install dependencies
+      - name: Install deps
         run: |
           sudo apt-get update
           sudo apt-get install -y curl jq unzip python3 python3-pip
-          python3 -m pip install --upgrade pip
+          python3 -m pip install geoip2 requests
 
       - name: Download Xray
         run: |
@@ -37,146 +33,162 @@ jobs:
           unzip -o xray.zip xray geoip.dat geosite.dat
           chmod +x xray
 
-      - name: Prepare output files
+      - name: Prepare
         run: |
           mkdir -p githubmirror
           echo "# updated $(date -u)" > githubmirror/26_proxy_subscription_raw.txt
 
-      - name: Get runner IP
-        run: |
-          echo "RUNNER_IP=$(curl -s https://api.ipify.org)" >> $GITHUB_ENV
+      - name: Runner IP
+        run: echo "RUNNER_IP=$(curl -s https://api.ipify.org)" >> $GITHUB_ENV
 
-      - name: Check VLESS via Xray and build raw subscription
+      - name: PRO check
         run: |
           python3 <<'EOF'
-          import subprocess, time, json, urllib.parse, os, urllib.request
+          import subprocess, time, json, urllib.parse, os, socket
+          from concurrent.futures import ThreadPoolExecutor, as_completed
+          import geoip2.database
 
           INPUT = 'githubmirror/26_ru_whitelist.txt'
-          OUTPUT_RAW = 'githubmirror/26_proxy_subscription_raw.txt'
-          RUNNER_IP = os.environ.get('RUNNER_IP', '')
-          TEST_URLS = [
-              'https://api.ipify.org',
-              'http://cp.cloudflare.com',
-              'https://www.instagram.com/'
+          OUTPUT = 'githubmirror/26_proxy_subscription_raw.txt'
+          RUNNER_IP = os.environ.get('RUNNER_IP','')
+
+          ASN_DB='geolite2/GeoLite2-ASN.mmdb'
+          COUNTRY_DB='geolite2/GeoLite2-Country.mmdb'
+
+          asn_reader=geoip2.database.Reader(ASN_DB)
+          country_reader=geoip2.database.Reader(COUNTRY_DB)
+
+          MAX_WORKERS=12
+
+          RU_ASN_KEYWORDS=[
+              'rostelecom','mts','megafon','beeline','tele2',
+              'yandex','mail.ru','vk','rt.ru','tinkoff'
           ]
 
-          def exit_ip():
-              for url in TEST_URLS:
-                  try:
-                      out = subprocess.check_output(
-                          ['curl','-s','--max-time','8','-x','socks5h://127.0.0.1:1080',url],
-                          text=True
-                      ).strip()
-                      if out:
-                          return out
-                  except:
-                      pass
-              return None
+          def flag(c):
+              try:return "".join(chr(0x1F1E6+ord(x)-65) for x in c.upper())
+              except:return "🏳️"
 
-          def country(ip):
+          def geo(ip):
+              try:c=country_reader.country(ip).country.iso_code
+              except:c="??"
+              try:a=asn_reader.asn(ip).autonomous_system_organization or ""
+              except:a=""
+              return c,a.lower()
+
+          def host_geo(host):
+              try:ip=socket.gethostbyname(host)
+              except:return "??",""
+              return geo(ip)
+
+          def is_ru_asn(asn):
+              return any(k in asn for k in RU_ASN_KEYWORDS)
+
+          def exit_ip(port):
               try:
-                  with urllib.request.urlopen(f'https://ipapi.co/{ip}/country/') as r:
-                      return r.read().decode().strip()
+                  out=subprocess.check_output(
+                      ['curl','-s','--max-time','8',f'-x','socks5h://127.0.0.1:'+str(port),'https://api.ipify.org'],
+                      text=True
+                  ).strip()
+                  return out
               except:
-                  return 'Unknown'
+                  return None
 
-          if not os.path.exists(INPUT):
-              raise SystemExit(0)
+          def test(link,idx):
+              u=urllib.parse.urlparse(link)
+              q=urllib.parse.parse_qs(u.query)
 
-          with open(INPUT) as f:
-              links = [l.strip() for l in f if l.startswith('vless://')]
+              in_country,in_asn=host_geo(u.hostname)
+              if in_country=="RU":return None
+              if is_ru_asn(in_asn):return None
 
-          ok = 0
+              port_local=20000+idx
 
-          for link in links:
-              u = urllib.parse.urlparse(link)
-              q = urllib.parse.parse_qs(u.query)
+              stream={'network':q.get('type',['tcp'])[0]}
+              sec=q.get('security',[''])[0]
+              sni=q.get('sni',[''])[0]
 
-              stream = {'network': q.get('type', ['tcp'])[0]}
-              sec = q.get('security', ['none'])[0]
-              sni = q.get('sni', [''])[0]
-
-              if sec == 'reality' and 'pbk' in q:
-                  stream['security'] = 'reality'
-                  stream['realitySettings'] = {
-                      'serverName': sni,
-                      'publicKey': q['pbk'][0],
-                      'shortId': q.get('sid', [''])[0],
-                      'fingerprint': 'chrome'
+              if sec=='reality' and 'pbk' in q:
+                  stream['security']='reality'
+                  stream['realitySettings']={
+                      'serverName':sni,
+                      'publicKey':q['pbk'][0],
+                      'shortId':q.get('sid',[''])[0],
+                      'fingerprint':'chrome'
                   }
 
-              cfg = {
-                  'inbounds': [{
-                      'listen': '127.0.0.1',
-                      'port': 1080,
-                      'protocol': 'socks',
-                      'settings': {'udp': False}
+              cfg={
+                  'inbounds':[{
+                      'listen':'127.0.0.1',
+                      'port':port_local,
+                      'protocol':'socks',
+                      'settings':{'udp':False}
                   }],
-                  'outbounds': [{
-                      'protocol': 'vless',
-                      'settings': {
-                          'vnext': [{
-                              'address': u.hostname,
-                              'port': u.port or 443,
-                              'users': [{
-                                  'id': u.username,
-                                  'encryption': 'none',
-                                  'flow': q.get('flow', [''])[0]
+                  'outbounds':[{
+                      'protocol':'vless',
+                      'settings':{
+                          'vnext':[{
+                              'address':u.hostname,
+                              'port':u.port or 443,
+                              'users':[{
+                                  'id':u.username,
+                                  'encryption':'none',
+                                  'flow':q.get('flow',[''])[0]
                               }]
                           }]
                       },
-                      'streamSettings': stream
+                      'streamSettings':stream
                   }]
               }
 
-              with open('cfg.json', 'w') as f:
-                  json.dump(cfg, f)
+              cfg_file=f'cfg_{idx}.json'
+              with open(cfg_file,'w') as f:json.dump(cfg,f)
 
-              p = subprocess.Popen(
-                  ['./xray', 'run', '-c', 'cfg.json'],
-                  stdout=subprocess.DEVNULL,
-                  stderr=subprocess.DEVNULL
-              )
+              p=subprocess.Popen(['./xray','run','-c',cfg_file],
+                                 stdout=subprocess.DEVNULL,
+                                 stderr=subprocess.DEVNULL)
 
               time.sleep(4)
-              ip = exit_ip()
+              ip=exit_ip(port_local)
               p.terminate()
-              time.sleep(1)
+              time.sleep(0.5)
 
-              if not ip or ip == RUNNER_IP:
-                  continue
-              if country(ip) == 'RU':
-                  continue
+              if not ip or ip==RUNNER_IP:return None
 
-              with open(OUTPUT_RAW, 'a') as f:
-                  f.write(link + '\n')
-              ok += 1
+              out_country,out_asn=geo(ip)
+              if out_country=="RU":return None
+              if is_ru_asn(out_asn):return None
 
-          print(f"OK proxies: {ok}")
+              name=f"in {flag(in_country)} Rusl exit {flag(out_country)} {sni}"
+              clean=link.split('#')[0]+"#"+name
+              return clean
+
+          if not os.path.exists(INPUT):raise SystemExit(0)
+          with open(INPUT) as f:links=[l.strip() for l in f if l.startswith('vless://')]
+
+          ok=[]
+          with ThreadPoolExecutor(MAX_WORKERS) as ex:
+              futures=[ex.submit(test,l,i) for i,l in enumerate(links)]
+              for f in as_completed(futures):
+                  r=f.result()
+                  if r:ok.append(r)
+
+          with open(OUTPUT,'a') as f:
+              for l in ok:f.write(l+'\n')
+
+          print("OK:",len(ok))
           EOF
 
-      - name: Encode subscription to Base64
+      - name: Encode
         run: |
           base64 -w 0 githubmirror/26_proxy_subscription_raw.txt \
             > githubmirror/26_proxy_subscription_base64.txt
 
-      - name: Debug output
-        run: |
-          echo "RAW lines:"
-          wc -l githubmirror/26_proxy_subscription_raw.txt
-          echo "BASE64 size:"
-          wc -c githubmirror/26_proxy_subscription_base64.txt
-
-      - name: Commit and push changes (safe)
+      - name: Push
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-
-          git add githubmirror/26_proxy_subscription_raw.txt \
-                  githubmirror/26_proxy_subscription_base64.txt
-
-          git commit -m "Auto update VLESS subscription ($(date -u))" || exit 0
-
-          # 🔑 КЛЮЧЕВОЙ ФИКС
+          git add githubmirror/*
+          git commit -m "PRO update $(date -u)" || exit 0
           git pull --rebase origin main
           git push
