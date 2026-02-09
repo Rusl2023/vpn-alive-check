@@ -138,7 +138,8 @@ jobs:
 
           def median(lst):
               lst = sorted(lst)
-              return lst[len(lst) // 2]
+              n = len(lst)
+              return lst[n//2] if n % 2 == 1 else (lst[n//2-1]+lst[n//2])//2
 
           # ====== Флаг страны ======
           def flag(code):
@@ -147,10 +148,10 @@ jobs:
               except:
                   return "🏳️"
 
-          # ====== Разбор VLESS ссылки с фильтрацией пустых параметров и автоочисткой ======
+          # ====== Разбор VLESS ссылки ======
           def parse_vless(link):
               try:
-                  link = link.strip().replace(" ", "")  # удаляем пробелы в хостах и перед #
+                  link = link.strip().replace(" ", "")
                   u = urllib.parse.urlparse(link)
                   q = urllib.parse.parse_qs(u.query)
                   port = 443
@@ -165,13 +166,11 @@ jobs:
                       uuid.UUID(uid)
                   except:
                       return None
-
                   if u.hostname is None:
                       return None
-
                   sni = q.get("sni", [""])[0].lower()
                   tag = u.fragment or ""
-                  tag = re.sub(r"[^\w\-]", "", tag)  # чистим спецсимволы и пробелы
+                  tag = re.sub(r"[^\w\-]", "", tag)
                   return {
                       "link": f"{link}#{tag}" if tag else link,
                       "host": u.hostname,
@@ -187,24 +186,15 @@ jobs:
           # ====== Проверка VLESS с фильтрацией ======
           def check_vless(link):
               d = parse_vless(link)
-              if not d:
-                  return None
-              if d["security"] != "reality":
-                  return None
-              if d["fp"] != "chrome":
-                  return None
-              if d["port"] not in (80, 443):
-                  return None
-              if not d["sni"] or d["sni"] not in RU_SNI_WHITELIST:
-                  return None
-              if not is_valid_flow(d["link"]):
-                  return None
+              if not d: return None
+              if d["security"] != "reality": return None
+              if d["fp"] != "chrome": return None
+              if d["port"] not in (80, 443): return None
+              if not d["sni"] or d["sni"] not in RU_SNI_WHITELIST: return None
+              if not is_valid_flow(d["link"]): return None
               geo_ok, country = geo_country(d["host"])
-              if not geo_ok:
-                  return None
-              if not is_not_ru_asn(d["host"]):
-                  return None
-
+              if not geo_ok: return None
+              if not is_not_ru_asn(d["host"]): return None
               pings = []
               for _ in range(CHECK_COUNT):
                   p = tcp_ping(d["host"], d["port"])
@@ -214,7 +204,7 @@ jobs:
               latency = median(pings)
               return latency, d
 
-          # ====== Загрузка всех ссылок и автоочистка ======
+          # ====== Загрузка ссылок ======
           lines = []
           for url in URLS:
               try:
