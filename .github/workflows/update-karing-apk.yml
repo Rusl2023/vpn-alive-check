@@ -2,7 +2,7 @@ name: Sync Karing Android, Windows, Geo & Xray
 
 on:
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '0 0 * * *' # каждый день в полночь UTC
   workflow_dispatch:
   repository_dispatch:
     types: [karing_release]
@@ -141,6 +141,7 @@ jobs:
             GEOSITE_SHA=$(grep geosite.dat geoip/SHA256SUMS | awk '{print $1}' || echo "")
             echo "GEOIP_SHA=$GEOIP_SHA" >> $GITHUB_ENV
             echo "GEOSITE_SHA=$GEOSITE_SHA" >> $GITHUB_ENV
+          fi
 
       # ---------------- Xray ----------------
       - name: Clean old Xray
