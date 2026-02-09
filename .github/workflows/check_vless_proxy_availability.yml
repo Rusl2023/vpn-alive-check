@@ -1,4 +1,4 @@
-name: Check VLESS proxy availability via Xray (PRO)
+name: Check VLESS proxy availability via Xray (GeoIP + ASN)
 
 on:
   schedule:
@@ -18,13 +18,17 @@ jobs:
     timeout-minutes: 60
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Install deps
+      - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y curl jq unzip python3 python3-pip
-          python3 -m pip install geoip2 requests
+          python3 -m pip install --upgrade pip
+          python3 -m pip install requests geoip2
 
       - name: Download Xray
         run: |
@@ -33,156 +37,163 @@ jobs:
           unzip -o xray.zip xray geoip.dat geosite.dat
           chmod +x xray
 
-      - name: Prepare
+      - name: Prepare output files
         run: |
           mkdir -p githubmirror
           echo "# updated $(date -u)" > githubmirror/26_proxy_subscription_raw.txt
 
-      - name: Runner IP
-        run: echo "RUNNER_IP=$(curl -s https://api.ipify.org)" >> $GITHUB_ENV
+      - name: Get runner IP
+        run: |
+          echo "RUNNER_IP=$(curl -s https://api.ipify.org)" >> $GITHUB_ENV
 
-      - name: PRO check
+      - name: Check VLESS via Xray (parallel, GeoIP + ASN)
         run: |
           python3 <<'EOF'
-          import subprocess, time, json, urllib.parse, os, socket
+          import subprocess, json, urllib.parse, os, time
           from concurrent.futures import ThreadPoolExecutor, as_completed
           import geoip2.database
 
           INPUT = 'githubmirror/26_ru_whitelist.txt'
-          OUTPUT = 'githubmirror/26_proxy_subscription_raw.txt'
-          RUNNER_IP = os.environ.get('RUNNER_IP','')
+          OUTPUT_RAW = 'githubmirror/26_proxy_subscription_raw.txt'
+          RUNNER_IP = os.environ.get('RUNNER_IP', '')
+          XRAY_BIN = './xray'
+          MAX_WORKERS = 20  # 20 потоков
 
-          ASN_DB='geolite2/GeoLite2-ASN.mmdb'
-          COUNTRY_DB='geolite2/GeoLite2-Country.mmdb'
+          COUNTRY_DB = 'geolite2/GeoLite2-Country.mmdb'
+          ASN_DB = 'geolite2/GeoLite2-ASN.mmdb'
 
-          asn_reader=geoip2.database.Reader(ASN_DB)
-          country_reader=geoip2.database.Reader(COUNTRY_DB)
+          if not os.path.exists(COUNTRY_DB) or not os.path.exists(ASN_DB):
+              raise SystemExit("GeoLite DBs not found")
 
-          MAX_WORKERS=12
+          geo_reader = geoip2.database.Reader(COUNTRY_DB)
+          asn_reader = geoip2.database.Reader(ASN_DB)
 
-          RU_ASN_KEYWORDS=[
-              'rostelecom','mts','megafon','beeline','tele2',
-              'yandex','mail.ru','vk','rt.ru','tinkoff'
+          RU_ASN_NUMBERS = {12389, 3215, 8359, 20309, 20485}
+          RU_ASN_KEYWORDS = ("rostelecom", "mts", "megafon", "beeline", "tele2", "yandex", "mail.ru", "rt")
+
+          TEST_URLS = [
+              'https://api.ipify.org',
+              'http://cp.cloudflare.com',
+              'https://www.instagram.com/'
           ]
 
-          def flag(c):
-              try:return "".join(chr(0x1F1E6+ord(x)-65) for x in c.upper())
-              except:return "🏳️"
+          # ================= Функции =================
 
-          def geo(ip):
-              try:c=country_reader.country(ip).country.iso_code
-              except:c="??"
-              try:a=asn_reader.asn(ip).autonomous_system_organization or ""
-              except:a=""
-              return c,a.lower()
+          geo_cache = {}
+          asn_cache = {}
 
-          def host_geo(host):
-              try:ip=socket.gethostbyname(host)
-              except:return "??",""
-              return geo(ip)
-
-          def is_ru_asn(asn):
-              return any(k in asn for k in RU_ASN_KEYWORDS)
-
-          def exit_ip(port):
+          def get_country_flag(ip):
+              if ip in geo_cache:
+                  return geo_cache[ip]
               try:
-                  out=subprocess.check_output(
-                      ['curl','-s','--max-time','8',f'-x','socks5h://127.0.0.1:'+str(port),'https://api.ipify.org'],
-                      text=True
-                  ).strip()
-                  return out
+                  c = geo_reader.country(ip).country.iso_code
+                  flag = "".join(chr(0x1F1E6 + ord(ch.upper()) - ord('A')) for ch in c)
+                  geo_cache[ip] = (c, flag)
+                  return c, flag
+              except:
+                  geo_cache[ip] = ('??', '🏳️')
+                  return '??', '🏳️'
+
+          def is_not_ru_asn(ip):
+              if ip in asn_cache:
+                  return asn_cache[ip]
+              try:
+                  r = asn_reader.asn(ip)
+                  asn = r.autonomous_system_number
+                  org = (r.autonomous_system_organization or '').lower()
+                  res = asn not in RU_ASN_NUMBERS and not any(k in org for k in RU_ASN_KEYWORDS)
+                  asn_cache[ip] = res
+                  return res
+              except:
+                  asn_cache[ip] = False
+                  return False
+
+          def check_proxy(link):
+              try:
+                  u = urllib.parse.urlparse(link)
+                  q = urllib.parse.parse_qs(u.query)
+                  sec = q.get('security', ['none'])[0]
+                  sni = q.get('sni', [''])[0]
+                  flow = q.get('flow', [''])[0]
+                  fp = q.get('fp', [''])[0].lower()
+                  if sec != 'reality' or fp != 'chrome' or flow != 'xtls-rprx-vision':
+                      return None
+
+                  port = u.port or 443
+                  cfg = {
+                      'inbounds':[{'listen':'127.0.0.1','port':1080,'protocol':'socks','settings':{'udp':False}}],
+                      'outbounds':[{
+                          'protocol':'vless',
+                          'settings':{'vnext':[{'address':u.hostname,'port':port,'users':[{'id':u.username,'encryption':'none','flow':flow}]}]},
+                          'streamSettings':{
+                              'network': q.get('type',['tcp'])[0],
+                              'security':'reality',
+                              'realitySettings':{
+                                  'serverName': sni,
+                                  'publicKey': q.get('pbk',[''])[0],
+                                  'shortId': q.get('sid',[''])[0],
+                                  'fingerprint':'chrome'
+                              }
+                          }
+                      }]
+                  }
+
+                  with open('cfg.json','w') as f: json.dump(cfg,f)
+                  p = subprocess.Popen([XRAY_BIN,'run','-c','cfg.json'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                  time.sleep(1.5)
+
+                  exit_ip = None
+                  proxies = {'http':'socks5h://127.0.0.1:1080','https':'socks5h://127.0.0.1:1080'}
+                  for url in TEST_URLS:
+                      import requests
+                      try:
+                          r = requests.get(url, proxies=proxies, timeout=3)
+                          if r.status_code == 200:
+                              exit_ip = r.text.strip()
+                              break
+                      except: continue
+
+                  p.terminate()
+                  time.sleep(0.5)
+
+                  if not exit_ip or exit_ip == RUNNER_IP:
+                      return None
+
+                  host_country, host_flag = get_country_flag(u.hostname)
+                  exit_country, exit_flag = get_country_flag(exit_ip)
+
+                  if host_country=='RU' or exit_country=='RU':
+                      return None
+                  if not is_not_ru_asn(u.hostname) or not is_not_ru_asn(exit_ip):
+                      return None
+
+                  name = f"in {host_flag} Rusl exit {exit_flag} {sni}"
+                  return link.split('#')[0] + f"#{name}"
               except:
                   return None
 
-          def test(link,idx):
-              u=urllib.parse.urlparse(link)
-              q=urllib.parse.parse_qs(u.query)
+          # ================= Main =================
+          if not os.path.exists(INPUT):
+              raise SystemExit(0)
 
-              in_country,in_asn=host_geo(u.hostname)
-              if in_country=="RU":return None
-              if is_ru_asn(in_asn):return None
+          with open(INPUT) as f:
+              links = [l.strip() for l in f if l.startswith('vless://')]
 
-              port_local=20000+idx
-
-              stream={'network':q.get('type',['tcp'])[0]}
-              sec=q.get('security',[''])[0]
-              sni=q.get('sni',[''])[0]
-
-              if sec=='reality' and 'pbk' in q:
-                  stream['security']='reality'
-                  stream['realitySettings']={
-                      'serverName':sni,
-                      'publicKey':q['pbk'][0],
-                      'shortId':q.get('sid',[''])[0],
-                      'fingerprint':'chrome'
-                  }
-
-              cfg={
-                  'inbounds':[{
-                      'listen':'127.0.0.1',
-                      'port':port_local,
-                      'protocol':'socks',
-                      'settings':{'udp':False}
-                  }],
-                  'outbounds':[{
-                      'protocol':'vless',
-                      'settings':{
-                          'vnext':[{
-                              'address':u.hostname,
-                              'port':u.port or 443,
-                              'users':[{
-                                  'id':u.username,
-                                  'encryption':'none',
-                                  'flow':q.get('flow',[''])[0]
-                              }]
-                          }]
-                      },
-                      'streamSettings':stream
-                  }]
-              }
-
-              cfg_file=f'cfg_{idx}.json'
-              with open(cfg_file,'w') as f:json.dump(cfg,f)
-
-              p=subprocess.Popen(['./xray','run','-c',cfg_file],
-                                 stdout=subprocess.DEVNULL,
-                                 stderr=subprocess.DEVNULL)
-
-              time.sleep(4)
-              ip=exit_ip(port_local)
-              p.terminate()
-              time.sleep(0.5)
-
-              if not ip or ip==RUNNER_IP:return None
-
-              out_country,out_asn=geo(ip)
-              if out_country=="RU":return None
-              if is_ru_asn(out_asn):return None
-
-              name=f"in {flag(in_country)} Rusl exit {flag(out_country)} {sni}"
-              clean=link.split('#')[0]+"#"+name
-              return clean
-
-          if not os.path.exists(INPUT):raise SystemExit(0)
-          with open(INPUT) as f:links=[l.strip() for l in f if l.startswith('vless://')]
-
-          ok=[]
-          with ThreadPoolExecutor(MAX_WORKERS) as ex:
-              futures=[ex.submit(test,l,i) for i,l in enumerate(links)]
+          results = []
+          with ThreadPoolExecutor(max_workers=MAX_WORKERS) as exe:
+              futures = {exe.submit(check_proxy, l): l for l in links}
               for f in as_completed(futures):
-                  r=f.result()
-                  if r:ok.append(r)
+                  res = f.result()
+                  if res:
+                      results.append(res)
 
-          with open(OUTPUT,'a') as f:
-              for l in ok:f.write(l+'\n')
+          os.makedirs('githubmirror', exist_ok=True)
+          with open(OUTPUT_RAW,'w') as f:
+              for link in results:
+                  f.write(link+'\n')
 
-          print("OK:",len(ok))
+          print(f"OK proxies: {len(results)}")
           EOF
-
-      - name: Encode
-        run: |
-          base64 -w 0 githubmirror/26_proxy_subscription_raw.txt \
-            > githubmirror/26_proxy_subscription_base64.txt
 
       - name: Push
         run: |
