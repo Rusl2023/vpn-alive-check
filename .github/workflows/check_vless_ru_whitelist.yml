@@ -231,7 +231,8 @@ jobs:
                   if key_id in seen_keys:
                       continue
                   seen_keys.add(key_id)
-                  display_name = f"RUSL86 | {flag(geo_country(d['host'])[1])} | {d['host']}"
+                  country_code = geo_country(d['host'])[1]
+                  display_name = f"RUSL86 | EXIT {flag(country_code)} | SNI {d['sni']}"
                   link_with_name = d["link"].split("#")[0] + f"#{display_name}"
                   results.append((latency, link_with_name))
 
