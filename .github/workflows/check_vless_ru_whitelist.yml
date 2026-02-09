@@ -106,8 +106,8 @@ jobs:
               except:
                   return False, "??"
 
-          # ====== Проверка ASN (не российский) через GeoLite2-ASN ======
-          RU_ASN_NUMBERS = {12389, 3215, 8359, 20309, 20485}  # можно расширять
+          # ====== Проверка ASN (не российский) ======
+          RU_ASN_NUMBERS = {12389, 3215, 8359, 20309, 20485}
           RU_ASN_KEYWORDS = ("rostelecom", "mts", "megafon", "beeline", "tele2", "yandex", "mail.ru", "rt")
 
           def is_not_ru_asn(host):
@@ -118,7 +118,7 @@ jobs:
                   org = (r.autonomous_system_organization or "").lower()
                   if asn in RU_ASN_NUMBERS:
                       return False
-                  if any(k.lower() in org for k in RU_ASN_KEYWORDS):
+                  if any(k in org for k in RU_ASN_KEYWORDS):
                       return False
                   return True
               except:
