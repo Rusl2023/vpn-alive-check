@@ -147,10 +147,11 @@ jobs:
               except:
                   return "🏳️"
 
-          # ====== Разбор VLESS ссылки с фильтрацией пустых параметров ======
+          # ====== Разбор VLESS ссылки с фильтрацией пустых параметров и автоочисткой ======
           def parse_vless(link):
               try:
-                  u = urllib.parse.urlparse(link.strip())
+                  link = link.strip().replace(" ", "")  # удаляем пробелы в хостах и перед #
+                  u = urllib.parse.urlparse(link)
                   q = urllib.parse.parse_qs(u.query)
                   port = 443
                   if u.netloc and ":" in u.netloc:
@@ -159,25 +160,20 @@ jobs:
                       except:
                           pass
                   fp = q.get("fp", [""])[0].lower()
-                  uid = u.username  # UUID в VLESS
-                  # проверка корректности UUID
+                  uid = u.username
                   try:
                       uuid.UUID(uid)
                   except:
                       return None
 
-                  # фильтруем пустые headerType, path, host
-                  if q.get("headerType", [""])[0] == "" or q.get("path", [""])[0] == "" or u.hostname is None:
+                  if u.hostname is None:
                       return None
 
                   sni = q.get("sni", [""])[0].lower()
-                  # фильтр спецсимволов/эмодзи в #tag
                   tag = u.fragment or ""
-                  if re.search(r"[^\w\-]", tag):
-                      return None
-
+                  tag = re.sub(r"[^\w\-]", "", tag)  # чистим спецсимволы и пробелы
                   return {
-                      "link": link.strip(),
+                      "link": f"{link}#{tag}" if tag else link,
                       "host": u.hostname,
                       "port": port,
                       "security": q.get("security", [""])[0],
@@ -218,13 +214,14 @@ jobs:
               latency = median(pings)
               return latency, d
 
-          # ====== Загрузка всех ссылок ======
+          # ====== Загрузка всех ссылок и автоочистка ======
           lines = []
           for url in URLS:
               try:
                   r = requests.get(url, timeout=20)
                   r.raise_for_status()
-                  lines.extend(r.text.splitlines())
+                  cleaned = [l.replace(" ", "") for l in r.text.splitlines()]
+                  lines.extend(cleaned)
               except:
                   pass
 
@@ -245,7 +242,7 @@ jobs:
                       continue
                   seen_keys.add(key_id)
                   display_name = f"RUSL86 | {flag(geo_country(d['host'])[1])} | {d['host']}"
-                  link_with_name = f"{d['link']}#{display_name}"
+                  link_with_name = d["link"].split("#")[0] + f"#{display_name}"
                   results.append((latency, link_with_name))
 
           results.sort(key=lambda x: x[0])
