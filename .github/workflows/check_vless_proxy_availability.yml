@@ -85,18 +85,18 @@ jobs:
                   geo_cache[ip] = ('??', '🏳️')
                   return '??', '🏳️'
 
-          def test_exit_ip():
+          def test_exit_ip(max_attempts=10, delay=0.5):
               proxies = {'http':'socks5h://127.0.0.1:1080','https':'socks5h://127.0.0.1:1080'}
-              exit_ip = None
-              for url in TEST_URLS:
-                  try:
-                      r = requests.get(url, proxies=proxies, timeout=5)
-                      if r.status_code == 200:
-                          exit_ip = r.text.strip()
-                          break
-                  except:
-                      continue
-              return exit_ip
+              for _ in range(max_attempts):
+                  for url in TEST_URLS:
+                      try:
+                          r = requests.get(url, proxies=proxies, timeout=5)
+                          if r.status_code == 200 and r.text.strip():
+                              return r.text.strip()
+                      except:
+                          continue
+                  time.sleep(delay)
+              return None
 
           def check_proxy(link):
               try:
@@ -128,20 +128,16 @@ jobs:
                       }]
                   }
 
-                  with open('cfg.json','w') as f: json.dump(cfg,f)
+                  with open('cfg.json','w') as f:
+                      json.dump(cfg, f)
 
                   # Запускаем Xray
                   p = subprocess.Popen([XRAY_BIN,'run','-c','cfg.json'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                  time.sleep(6)  # увеличенное ожидание
 
-                  # Проверяем exit IP с retry
+                  # Ждём, пока Xray выдаст IP (без фиксированного sleep)
                   exit_ip = test_exit_ip()
-                  if not exit_ip:
-                      time.sleep(2)
-                      exit_ip = test_exit_ip()
 
                   p.terminate()
-                  time.sleep(0.5)
 
                   if not exit_ip or exit_ip == RUNNER_IP:
                       return None
@@ -149,7 +145,6 @@ jobs:
                   host_country, host_flag = get_country_flag(u.hostname)
                   exit_country, exit_flag = get_country_flag(exit_ip)
 
-                  # Фильтр только по GeoIP
                   if host_country=='RU' or exit_country=='RU':
                       return None
 
