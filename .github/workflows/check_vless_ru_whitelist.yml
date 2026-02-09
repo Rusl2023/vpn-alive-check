@@ -25,7 +25,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests geoip2
 
-      - name: Check VLESS servers (Reality Vision + GeoIP + ASN)
+      - name: Check VLESS servers (Reality Vision + GeoIP + ASN + Filters)
         id: check_alive
         run: |
           python - <<'EOF'
@@ -59,7 +59,7 @@ jobs:
           RU_SNI_WHITELIST_URL = "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/refs/heads/main/whitelist.txt"
 
           TIMEOUT = 0.6
-          CHECK_COUNT = 5          # меньше для скорости
+          CHECK_COUNT = 5
           MAX_LATENCY = 600
           MAX_WORKERS = 120
 
@@ -102,9 +102,9 @@ jobs:
               try:
                   ip = socket.gethostbyname(host)
                   country = reader_country.country(ip).country.iso_code
-                  return country != "RU"
+                  return country != "RU", country
               except:
-                  return False
+                  return False, "??"
 
           # ====== Проверка ASN (не российский) ======
           RU_ASN_KEYWORDS = (
@@ -135,6 +135,13 @@ jobs:
               lst = sorted(lst)
               return lst[len(lst) // 2]
 
+          # ====== Флаг страны ======
+          def flag(code):
+              try:
+                  return "".join(chr(0x1F1E6 + ord(c.upper()) - ord('A')) for c in code)
+              except:
+                  return "🏳️"
+
           # ====== Разбор VLESS ссылки ======
           def parse_vless(link):
               try:
@@ -146,6 +153,7 @@ jobs:
                           port = int(u.netloc.rsplit(":", 1)[1])
                       except:
                           pass
+                  fp = q.get("fp", [""])[0].lower()
                   return {
                       "link": link.strip(),
                       "host": u.hostname,
@@ -153,22 +161,29 @@ jobs:
                       "security": q.get("security", [""])[0],
                       "sni": q.get("sni", [""])[0].lower(),
                       "flow": q.get("flow", [""])[0],
+                      "fp": fp
                   }
               except:
                   return None
 
           # ====== Проверка VLESS с фильтрацией ======
-          def check_vless(link):
+          def check_vless(link, idx):
               d = parse_vless(link)
               if not d:
                   return None
+              # Фильтры
               if d["security"] != "reality":
+                  return None
+              if d["fp"] != "chrome":
+                  return None
+              if d["port"] not in (80, 443):
                   return None
               if not d["sni"] or d["sni"] not in RU_SNI_WHITELIST:
                   return None
               if not is_valid_flow(d["link"]):
                   return None
-              if not geo_country(d["host"]):
+              geo_ok, country = geo_country(d["host"])
+              if not geo_ok:
                   return None
               if not is_not_ru_asn(d["host"]):
                   return None
@@ -179,7 +194,12 @@ jobs:
                   if p is None or p > MAX_LATENCY:
                       return None
                   pings.append(p)
-              return median(pings), d
+              latency = median(pings)
+
+              # ====== Имя ключа ======
+              display_name = f"RUSL86 | {country} | {flag(country)} | {idx+1}"
+              link_with_name = f"{d['link']}#{display_name}"
+              return latency, link_with_name
 
           # ====== Загрузка всех ссылок ======
           lines = []
@@ -195,17 +215,16 @@ jobs:
           results = []
           seen = set()
           with ThreadPoolExecutor(max_workers=MAX_WORKERS) as exe:
-              futures = [exe.submit(check_vless, v) for v in vless_links]
+              futures = [exe.submit(check_vless, v, idx) for idx, v in enumerate(vless_links)]
               for f in as_completed(futures):
                   r = f.result()
                   if not r:
                       continue
-                  latency, d = r
-                  key = (d["host"], d["port"], d["sni"], d["flow"])
-                  if key in seen:
+                  latency, link = r
+                  if link in seen:
                       continue
-                  seen.add(key)
-                  results.append((latency, d["link"]))
+                  seen.add(link)
+                  results.append((latency, link))
 
           results.sort(key=lambda x: x[0])
           os.makedirs("githubmirror", exist_ok=True)
@@ -227,5 +246,5 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add githubmirror/26_ru_whitelist.txt
-          git diff --cached --quiet || git commit -m "Update RU whitelist VLESS (remote SNI list)"
+          git diff --cached --quiet || git commit -m "Update RU whitelist VLESS (Reality Vision, GeoIP, Ports 80/443)"
           git push https://x-access-token:${GH_PAT}@github.com/${{ github.repository }} HEAD:main
