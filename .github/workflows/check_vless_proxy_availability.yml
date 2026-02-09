@@ -46,7 +46,7 @@ jobs:
         run: |
           echo "RUNNER_IP=$(curl -s https://api.ipify.org)" >> $GITHUB_ENV
 
-      - name: Check VLESS via Xray and build raw subscription
+      - name: Check VLESS via Xray and build raw subscription (10 threads, all 4 sites must respond)
         run: |
           python3 <<'EOF'
           import subprocess
@@ -56,82 +56,115 @@ jobs:
           import os
           import geoip2.database
           import socket
+          from concurrent.futures import ThreadPoolExecutor, as_completed
 
           INPUT_FILE = 'githubmirror/26_ru_whitelist.txt'
           OUTPUT_FILE = 'githubmirror/26_proxy_subscription_raw.txt'
           RUNNER_IP = os.environ.get('RUNNER_IP', '')
 
-          # Используем локальные файлы GeoLite2 из репозитория
+          THREADS = 10
+          BASE_PORT = 1080
+
           reader = geoip2.database.Reader('geolite2/GeoLite2-Country.mmdb')
 
-          FLAGS = {
-              'AF':'🇦🇫','AL':'🇦🇱','DZ':'🇩🇿','AS':'🇦🇸','AD':'🇦🇩',
-              'AO':'🇦🇴','AI':'🇦🇮','AG':'🇦🇬','AR':'🇦🇷','AM':'🇦🇲',
-              'AU':'🇦🇺','AT':'🇦🇹','AZ':'🇦🇿','BS':'🇧🇸','BH':'🇧🇭',
-              'BD':'🇧🇩','BB':'🇧🇧','BY':'🇧🇾','BE':'🇧🇪','BZ':'🇧🇿',
-              'BJ':'🇧🇯','BM':'🇧🇲','BT':'🇧🇹','BO':'🇧🇴','BA':'🇧🇦',
-              'BW':'🇧🇼','BR':'🇧🇷','BN':'🇧🇳','BG':'🇧🇬','BF':'🇧🇫',
-              'BI':'🇧🇮','KH':'🇰🇭','CM':'🇨🇲','CA':'🇨🇦','CV':'🇨🇻',
-              'CF':'🇨🇫','TD':'🇹🇩','CL':'🇨🇱','CN':'🇨🇳','CO':'🇨🇴',
-              'KM':'🇰🇲','CD':'🇨🇩','CG':'🇨🇬','CR':'🇨🇷','HR':'🇭🇷',
-              'CU':'🇨🇺','CY':'🇨🇾','CZ':'🇨🇿','DK':'🇩🇰','DJ':'🇩🇯',
-              'DM':'🇩🇲','DO':'🇩🇴','EC':'🇪🇨','EG':'🇪🇬','SV':'🇸🇻',
-              'GQ':'🇬🇶','ER':'🇪🇷','EE':'🇪🇪','ET':'🇪🇹','FJ':'🇫🇯',
-              'FI':'🇫🇮','FR':'🇫🇷','GA':'🇬🇦','GM':'🇬🇲','GE':'🇬🇪',
-              'DE':'🇩🇪','GH':'🇬🇭','GR':'🇬🇷','GD':'🇬🇩','GT':'🇬🇹',
-              'GN':'🇬🇳','GW':'🇬🇼','GY':'🇬🇾','HT':'🇭🇹','HN':'🇭🇳',
-              'HU':'🇭🇺','IS':'🇮🇸','IN':'🇮🇳','ID':'🇮🇩','IR':'🇮🇷',
-              'IQ':'🇮🇶','IE':'🇮🇪','IL':'🇮🇱','IT':'🇮🇹','JM':'🇯🇲',
-              'JP':'🇯🇵','JO':'🇯🇴','KZ':'🇰🇿','KE':'🇰🇪','KI':'🇰🇮',
-              'KP':'🇰🇵','KR':'🇰🇷','KW':'🇰🇼','KG':'🇰🇬','LA':'🇱🇦',
-              'LV':'🇱🇻','LB':'🇱🇧','LS':'🇱🇸','LR':'🇱🇷','LY':'🇱🇾',
-              'LI':'🇱🇮','LT':'🇱🇹','LU':'🇱🇺','MG':'🇲🇬','MW':'🇲🇼',
-              'MY':'🇲🇾','MV':'🇲🇻','ML':'🇲🇱','MT':'🇲🇹','MH':'🇲🇭',
-              'MR':'🇲🇷','MU':'🇲🇺','MX':'🇲🇽','FM':'🇫🇲','MD':'🇲🇩',
-              'MC':'🇲🇨','MN':'🇲🇳','ME':'🇲🇪','MA':'🇲🇦','MZ':'🇲🇿',
-              'MM':'🇲🇲','NA':'🇳🇦','NR':'🇳🇷','NP':'🇳🇵','NL':'🇳🇱',
-              'NZ':'🇳🇿','NI':'🇳🇮','NE':'🇳🇪','NG':'🇳🇬','NO':'🇳🇴',
-              'OM':'🇴🇲','PK':'🇵🇰','PW':'🇵🇼','PA':'🇵🇦','PG':'🇵🇬',
-              'PY':'🇵🇾','PE':'🇵🇪','PH':'🇵🇭','PL':'🇵🇱','PT':'🇵🇹',
-              'QA':'🇶🇦','RO':'🇷🇴','RU':'🇷🇺','RW':'🇷🇼','KN':'🇰🇳',
-              'LC':'🇱🇨','VC':'🇻🇨','WS':'🇼🇸','SM':'🇸🇲','ST':'🇸🇹',
-              'SA':'🇸🇦','SN':'🇸🇳','RS':'🇷🇸','SC':'🇸🇨','SL':'🇸🇱',
-              'SG':'🇸🇬','SK':'🇸🇰','SI':'🇸🇮','SB':'🇸🇧','SO':'🇸🇴',
-              'ZA':'🇿🇦','ES':'🇪🇸','LK':'🇱🇰','SD':'🇸🇩','SR':'🇸🇷',
-              'SE':'🇸🇪','CH':'🇨🇭','SY':'🇸🇾','TW':'🇹🇼','TJ':'🇹🇯',
-              'TZ':'🇹🇿','TH':'🇹🇭','TL':'🇹🇱','TG':'🇹🇬','TO':'🇹🇴',
-              'TT':'🇹🇹','TN':'🇹🇳','TR':'🇹🇷','TM':'🇹🇲','UG':'🇺🇬',
-              'UA':'🇺🇦','AE':'🇦🇪','GB':'🇬🇧','US':'🇺🇸','UY':'🇺🇾',
-              'UZ':'🇺🇿','VU':'🇻🇺','VE':'🇻🇪','VN':'🇻🇳','YE':'🇾🇪',
+          FLAGS = {  # флаги стран
+              'AF':'🇦🇫','AL':'🇦🇱','DZ':'🇩🇿','AS':'🇦🇸','AD':'🇦🇩','AO':'🇦🇴','AI':'🇦🇮','AG':'🇦🇬','AR':'🇦🇷','AM':'🇦🇲',
+              'AU':'🇦🇺','AT':'🇦🇹','AZ':'🇦🇿','BS':'🇧🇸','BH':'🇧🇭','BD':'🇧🇩','BB':'🇧🇧','BY':'🇧🇾','BE':'🇧🇪','BZ':'🇧🇿',
+              'BJ':'🇧🇯','BM':'🇧🇲','BT':'🇧🇹','BO':'🇧🇴','BA':'🇧🇦','BW':'🇧🇼','BR':'🇧🇷','BN':'🇧🇳','BG':'🇧🇬','BF':'🇧🇫',
+              'BI':'🇧🇮','KH':'🇰🇭','CM':'🇨🇲','CA':'🇨🇦','CV':'🇨🇻','CF':'🇨🇫','TD':'🇹🇩','CL':'🇨🇱','CN':'🇨🇳','CO':'🇨🇴',
+              'KM':'🇰🇲','CD':'🇨🇩','CG':'🇨🇬','CR':'🇨🇷','HR':'🇭🇷','CU':'🇨🇺','CY':'🇨🇾','CZ':'🇨🇿','DK':'🇩🇰','DJ':'🇩🇯',
+              'DM':'🇩🇲','DO':'🇩🇴','EC':'🇪🇨','EG':'🇪🇬','SV':'🇸🇻','GQ':'🇬🇶','ER':'🇪🇷','EE':'🇪🇪','ET':'🇪🇹','FJ':'🇫🇯',
+              'FI':'🇫🇮','FR':'🇫🇷','GA':'🇬🇦','GM':'🇬🇲','GE':'🇬🇪','DE':'🇩🇪','GH':'🇬🇭','GR':'🇬🇷','GD':'🇬🇩','GT':'🇬🇹',
+              'GN':'🇬🇳','GW':'🇬🇼','GY':'🇬🇾','HT':'🇭🇹','HN':'🇭🇳','HU':'🇭🇺','IS':'🇮🇸','IN':'🇮🇳','ID':'🇮🇩','IR':'🇮🇷',
+              'IQ':'🇮🇶','IE':'🇮🇪','IL':'🇮🇱','IT':'🇮🇹','JM':'🇯🇲','JP':'🇯🇵','JO':'🇯🇴','KZ':'🇰🇿','KE':'🇰🇪','KI':'🇰🇮',
+              'KP':'🇰🇵','KR':'🇰🇷','KW':'🇰🇼','KG':'🇰🇬','LA':'🇱🇦','LV':'🇱🇻','LB':'🇱🇧','LS':'🇱🇸','LR':'🇱🇷','LY':'🇱🇾',
+              'LI':'🇱🇮','LT':'🇱🇹','LU':'🇱🇺','MG':'🇲🇬','MW':'🇲🇼','MY':'🇲🇾','MV':'🇲🇻','ML':'🇲🇱','MT':'🇲🇹','MH':'🇲🇭',
+              'MR':'🇲🇷','MU':'🇲🇺','MX':'🇲🇽','FM':'🇫🇲','MD':'🇲🇩','MC':'🇲🇨','MN':'🇲🇳','ME':'🇲🇪','MA':'🇲🇦','MZ':'🇲🇿',
+              'MM':'🇲🇲','NA':'🇳🇦','NR':'🇳🇷','NP':'🇳🇵','NL':'🇳🇱','NZ':'🇳🇿','NI':'🇳🇮','NE':'🇳🇪','NG':'🇳🇬','NO':'🇳🇴',
+              'OM':'🇴🇲','PK':'🇵🇰','PW':'🇵🇼','PA':'🇵🇦','PG':'🇵🇬','PY':'🇵🇾','PE':'🇵🇪','PH':'🇵🇭','PL':'🇵🇱','PT':'🇵🇹',
+              'QA':'🇶🇦','RO':'🇷🇴','RU':'🇷🇺','RW':'🇷🇼','KN':'🇰🇳','LC':'🇱🇨','VC':'🇻🇨','WS':'🇼🇸','SM':'🇸🇲','ST':'🇸🇹',
+              'SA':'🇸🇦','SN':'🇸🇳','RS':'🇷🇸','SC':'🇸🇨','SL':'🇸🇱','SG':'🇸🇬','SK':'🇸🇰','SI':'🇸🇮','SB':'🇸🇧','SO':'🇸🇴',
+              'ZA':'🇿🇦','ES':'🇪🇸','LK':'🇱🇰','SD':'🇸🇩','SR':'🇸🇷','SE':'🇸🇪','CH':'🇨🇭','SY':'🇸🇾','TW':'🇹🇼','TJ':'🇹🇯',
+              'TZ':'🇹🇿','TH':'🇹🇭','TL':'🇹🇱','TG':'🇹🇬','TO':'🇹🇴','TT':'🇹🇹','TN':'🇹🇳','TR':'🇹🇷','TM':'🇹🇲','UG':'🇺🇬',
+              'UA':'🇺🇦','AE':'🇦🇪','GB':'🇬🇧','US':'🇺🇸','UY':'🇺🇾','UZ':'🇺🇿','VU':'🇻🇺','VE':'🇻🇪','VN':'🇻🇳','YE':'🇾🇪',
               'ZM':'🇿🇲','ZW':'🇿🇼'
           }
 
-          def get_country_flag(ip_or_hostname):
+          TEST_URLS = [
+              "https://api.ipify.org",
+              "https://ipinfo.io/ip",
+              "https://www.netflix.com",
+              "https://www.instagram.com"
+          ]
+
+          def get_country_flag(host):
               try:
-                  ip = socket.gethostbyname(ip_or_hostname)
-                  response = reader.country(ip)
-                  return FLAGS.get(response.country.iso_code, '🏳️')
+                  ip = socket.gethostbyname(host)
+                  return FLAGS.get(reader.country(ip).country.iso_code, '🏳️')
               except:
                   return '🏳️'
 
-          TEST_URLS = [
-              'https://api.ipify.org',
-              'http://cp.cloudflare.com',
-              'https://www.instagram.com/'
-          ]
+          def test_proxy(link, idx):
+              port = BASE_PORT + idx
+              try:
+                  u = urllib.parse.urlparse(link)
+                  q = urllib.parse.parse_qs(u.query)
+                  sni = q.get('sni',[''])[0]
 
-          def exit_ip():
-              for url in TEST_URLS:
-                  try:
-                      out = subprocess.check_output(
-                          ['curl','-s','--max-time','8','--socks5-hostname','127.0.0.1:1080',url],
-                          text=True
-                      ).strip()
-                      if out:
-                          return out
-                  except:
-                      pass
-              return None
+                  cfg = {
+                      "inbounds":[{
+                          "listen":"127.0.0.1",
+                          "port":port,
+                          "protocol":"socks",
+                          "settings":{"udp":False}
+                      }],
+                      "outbounds":[{
+                          "protocol":"vless",
+                          "settings":{
+                              "vnext":[{
+                                  "address":u.hostname,
+                                  "port":u.port or 443,
+                                  "users":[{"id":u.username,"encryption":"none"}]
+                              }]
+                          },
+                          "streamSettings":{"network": q.get('type',['tcp'])[0]}
+                      }]
+                  }
+
+                  fname = f"cfg_{port}.json"
+                  with open(fname,"w") as f:
+                      json.dump(cfg,f)
+
+                  p = subprocess.Popen(['./xray','-c',fname],
+                                       stdout=subprocess.DEVNULL,
+                                       stderr=subprocess.DEVNULL)
+                  time.sleep(2)
+
+                  all_ok = True
+                  for test_url in TEST_URLS:
+                      try:
+                          out_ip = subprocess.check_output(
+                              ['curl','-s','--max-time','8','--socks5-hostname',f'127.0.0.1:{port}', test_url],
+                              text=True
+                          ).strip()
+                          if not out_ip or out_ip == RUNNER_IP:
+                              all_ok = False
+                              break
+                      except:
+                          all_ok = False
+                          break
+
+                  p.terminate()
+                  time.sleep(1)
+                  if not all_ok:
+                      return None
+
+                  in_flag = get_country_flag(u.hostname)
+                  out_flag = get_country_flag(out_ip)
+                  name = f"in {in_flag} RusL exit {out_flag} {sni}"
+                  return link.split('#')[0] + '#' + name
+              except:
+                  return None
 
           if not os.path.exists(INPUT_FILE):
               raise SystemExit(0)
@@ -139,70 +172,20 @@ jobs:
           with open(INPUT_FILE) as f:
               links = [l.strip() for l in f if l.startswith('vless://')]
 
-          ok = 0
+          results = []
+          with ThreadPoolExecutor(max_workers=THREADS) as ex:
+              futures = [ex.submit(test_proxy, link, i) for i, link in enumerate(links)]
+              for f in as_completed(futures):
+                  r = f.result()
+                  if r:
+                      results.append(r)
 
-          for link in links:
-              u = urllib.parse.urlparse(link)
-              q = urllib.parse.parse_qs(u.query)
+          with open(OUTPUT_FILE,'a') as f:
+              for r in results:
+                  f.write(r+'\n')
 
-              sni = q.get('sni',[''])[0]
-              # Убираем фильтр по security/pbk/flow
-              stream = {'network': q.get('type',['tcp'])[0]}
-
-              cfg = {
-                  "inbounds": [{
-                      "listen": "127.0.0.1",
-                      "port": 1080,
-                      "protocol": "socks",
-                      "settings": {"udp": False}
-                  }],
-                  "outbounds": [{
-                      "protocol": "vless",
-                      "settings": {
-                          "vnext": [{
-                              "address": u.hostname,
-                              "port": u.port or 443,
-                              "users": [{
-                                  "id": u.username,
-                                  "encryption": "none",
-                                  "flow": q.get('flow',[''])[0]
-                              }]
-                          }]
-                      },
-                      "streamSettings": stream
-                  }]
-              }
-
-              with open("cfg.json","w") as f:
-                  json.dump(cfg,f)
-
-              p = subprocess.Popen(
-                  ['./xray','-c','cfg.json'],
-                  stdout=subprocess.DEVNULL,
-                  stderr=subprocess.DEVNULL
-              )
-
-              time.sleep(4)
-              ip_out = exit_ip()
-              p.terminate()
-              time.sleep(1)
-
-              if not ip_out or ip_out==RUNNER_IP:
-                  continue
-
-              in_flag = get_country_flag(u.hostname)
-              out_flag = get_country_flag(ip_out)
-
-              final_name = f"in {in_flag} RusL exit {out_flag} {sni}"
-              final_link = link.split('#')[0] + '#' + final_name
-
-              with open(OUTPUT_FILE,'a') as f:
-                  f.write(final_link + '\n')
-
-              ok +=1
-
+          print("OK proxies:", len(results))
           reader.close()
-          print(f"OK proxies: {ok}")
           EOF
 
       - name: Encode subscription to Base64
