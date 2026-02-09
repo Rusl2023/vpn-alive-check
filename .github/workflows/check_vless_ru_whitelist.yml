@@ -35,6 +35,7 @@ jobs:
           import urllib.parse
           import requests
           import uuid
+          import re
           from concurrent.futures import ThreadPoolExecutor, as_completed
           import geoip2.database
 
@@ -146,7 +147,7 @@ jobs:
               except:
                   return "🏳️"
 
-          # ====== Разбор VLESS ссылки ======
+          # ====== Разбор VLESS ссылки с фильтрацией пустых параметров ======
           def parse_vless(link):
               try:
                   u = urllib.parse.urlparse(link.strip())
@@ -164,12 +165,23 @@ jobs:
                       uuid.UUID(uid)
                   except:
                       return None
+
+                  # фильтруем пустые headerType, path, host
+                  if q.get("headerType", [""])[0] == "" or q.get("path", [""])[0] == "" or u.hostname is None:
+                      return None
+
+                  sni = q.get("sni", [""])[0].lower()
+                  # фильтр спецсимволов/эмодзи в #tag
+                  tag = u.fragment or ""
+                  if re.search(r"[^\w\-]", tag):
+                      return None
+
                   return {
                       "link": link.strip(),
                       "host": u.hostname,
                       "port": port,
                       "security": q.get("security", [""])[0],
-                      "sni": q.get("sni", [""])[0].lower(),
+                      "sni": sni,
                       "flow": q.get("flow", [""])[0],
                       "fp": fp
                   }
