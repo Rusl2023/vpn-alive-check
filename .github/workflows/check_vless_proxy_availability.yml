@@ -77,8 +77,6 @@ jobs:
               'https://www.instagram.com/'
           ]
 
-          # ================= Функции =================
-
           geo_cache = {}
           asn_cache = {}
 
@@ -144,8 +142,8 @@ jobs:
 
                   exit_ip = None
                   proxies = {'http':'socks5h://127.0.0.1:1080','https':'socks5h://127.0.0.1:1080'}
+                  import requests
                   for url in TEST_URLS:
-                      import requests
                       try:
                           r = requests.get(url, proxies=proxies, timeout=3)
                           if r.status_code == 200:
@@ -172,7 +170,6 @@ jobs:
               except:
                   return None
 
-          # ================= Main =================
           if not os.path.exists(INPUT):
               raise SystemExit(0)
 
