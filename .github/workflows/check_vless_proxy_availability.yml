@@ -60,18 +60,21 @@ jobs:
           OUTPUT_FILE = 'githubmirror/26_proxy_subscription_raw.txt'
           RUNNER_IP = os.environ.get('RUNNER_IP', '')
 
-          # Подключение GeoLite2
-          reader = geoip2.database.Reader('GeoLite2-Country.mmdb')
+          # Используем локальные файлы GeoLite2 из репозитория
+          reader = geoip2.database.Reader('geolite2/GeoLite2-Country.mmdb')
 
-          def get_country_flag(ip):
+          FLAGS = {
+              'RU':'🇷🇺','KZ':'🇰🇿','PL':'🇵🇱','HU':'🇭🇺',
+              'US':'🇺🇸','NL':'🇳🇱','DE':'🇩🇪','FR':'🇫🇷'
+          }
+
+          def get_country_flag(ip_or_hostname):
               try:
+                  # ip_or_hostname может быть hostname или IP
+                  import socket
+                  ip = socket.gethostbyname(ip_or_hostname)
                   response = reader.country(ip)
-                  code = response.country.iso_code
-                  FLAGS = {
-                      'RU':'🇷🇺','KZ':'🇰🇿','PL':'🇵🇱','HU':'🇭🇺',
-                      'US':'🇺🇸','NL':'🇳🇱','DE':'🇩🇪','FR':'🇫🇷'
-                  }
-                  return FLAGS.get(code,'🏳️')
+                  return FLAGS.get(response.country.iso_code, '🏳️')
               except:
                   return '🏳️'
 
@@ -176,24 +179,13 @@ jobs:
 
       - name: Encode subscription to Base64
         run: |
-          base64 -w 0 githubmirror/26_proxy_subscription_raw.txt \
-            > githubmirror/26_proxy_subscription_base64.txt
-
-      - name: Debug output
-        run: |
-          echo "RAW lines:"
-          wc -l githubmirror/26_proxy_subscription_raw.txt
-          echo "BASE64 size:"
-          wc -c githubmirror/26_proxy_subscription_base64.txt
+          base64 -w 0 githubmirror/26_proxy_subscription_raw.txt > githubmirror/26_proxy_subscription_base64.txt
 
       - name: Commit and push
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-
-          git add githubmirror/26_proxy_subscription_raw.txt \
-                  githubmirror/26_proxy_subscription_base64.txt
-
+          git add githubmirror/26_proxy_subscription_raw.txt githubmirror/26_proxy_subscription_base64.txt
           git commit -m "Auto update VLESS subscription ($(date -u))" || exit 0
           git pull --rebase origin main || true
           git push
