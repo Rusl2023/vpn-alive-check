@@ -46,7 +46,7 @@ jobs:
         run: |
           echo "RUNNER_IP=$(curl -s https://api.ipify.org)" >> $GITHUB_ENV
 
-      - name: Check VLESS via Xray and build raw subscription (10 threads, all 4 sites must respond)
+      - name: Check VLESS via Xray and build raw subscription (10 threads)
         run: |
           python3 <<'EOF'
           import subprocess
@@ -67,7 +67,7 @@ jobs:
 
           reader = geoip2.database.Reader('geolite2/GeoLite2-Country.mmdb')
 
-          FLAGS = {  # флаги стран
+          FLAGS = {
               'AF':'🇦🇫','AL':'🇦🇱','DZ':'🇩🇿','AS':'🇦🇸','AD':'🇦🇩','AO':'🇦🇴','AI':'🇦🇮','AG':'🇦🇬','AR':'🇦🇷','AM':'🇦🇲',
               'AU':'🇦🇺','AT':'🇦🇹','AZ':'🇦🇿','BS':'🇧🇸','BH':'🇧🇭','BD':'🇧🇩','BB':'🇧🇧','BY':'🇧🇾','BE':'🇧🇪','BZ':'🇧🇿',
               'BJ':'🇧🇯','BM':'🇧🇲','BT':'🇧🇹','BO':'🇧🇴','BA':'🇧🇦','BW':'🇧🇼','BR':'🇧🇷','BN':'🇧🇳','BG':'🇧🇬','BF':'🇧🇫',
@@ -139,24 +139,21 @@ jobs:
                                        stdout=subprocess.DEVNULL,
                                        stderr=subprocess.DEVNULL)
                   time.sleep(2)
-
-                  all_ok = True
+                  success = False
                   for test_url in TEST_URLS:
                       try:
                           out_ip = subprocess.check_output(
-                              ['curl','-s','--max-time','8','--socks5-hostname',f'127.0.0.1:{port}', test_url],
+                              ['curl','-s','--max-time','6',f'--socks5-hostname',f'127.0.0.1:{port}', test_url],
                               text=True
                           ).strip()
-                          if not out_ip or out_ip == RUNNER_IP:
-                              all_ok = False
+                          if out_ip and out_ip != RUNNER_IP:
+                              success = True
                               break
                       except:
-                          all_ok = False
-                          break
-
+                          continue
                   p.terminate()
                   time.sleep(1)
-                  if not all_ok:
+                  if not success:
                       return None
 
                   in_flag = get_country_flag(u.hostname)
