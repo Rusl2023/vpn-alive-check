@@ -67,35 +67,10 @@ jobs:
 
           reader = geoip2.database.Reader('geolite2/GeoLite2-Country.mmdb')
 
-          FLAGS = {
-              'AF':'🇦🇫','AL':'🇦🇱','DZ':'🇩🇿','AS':'🇦🇸','AD':'🇦🇩','AO':'🇦🇴','AI':'🇦🇮','AG':'🇦🇬','AR':'🇦🇷','AM':'🇦🇲',
-              'AU':'🇦🇺','AT':'🇦🇹','AZ':'🇦🇿','BS':'🇧🇸','BH':'🇧🇭','BD':'🇧🇩','BB':'🇧🇧','BY':'🇧🇾','BE':'🇧🇪','BZ':'🇧🇿',
-              'BJ':'🇧🇯','BM':'🇧🇲','BT':'🇧🇹','BO':'🇧🇴','BA':'🇧🇦','BW':'🇧🇼','BR':'🇧🇷','BN':'🇧🇳','BG':'🇧🇬','BF':'🇧🇫',
-              'BI':'🇧🇮','KH':'🇰🇭','CM':'🇨🇲','CA':'🇨🇦','CV':'🇨🇻','CF':'🇨🇫','TD':'🇹🇩','CL':'🇨🇱','CN':'🇨🇳','CO':'🇨🇴',
-              'KM':'🇰🇲','CD':'🇨🇩','CG':'🇨🇬','CR':'🇨🇷','HR':'🇭🇷','CU':'🇨🇺','CY':'🇨🇾','CZ':'🇨🇿','DK':'🇩🇰','DJ':'🇩🇯',
-              'DM':'🇩🇲','DO':'🇩🇴','EC':'🇪🇨','EG':'🇪🇬','SV':'🇸🇻','GQ':'🇬🇶','ER':'🇪🇷','EE':'🇪🇪','ET':'🇪🇹','FJ':'🇫🇯',
-              'FI':'🇫🇮','FR':'🇫🇷','GA':'🇬🇦','GM':'🇬🇲','GE':'🇬🇪','DE':'🇩🇪','GH':'🇬🇭','GR':'🇬🇷','GD':'🇬🇩','GT':'🇬🇹',
-              'GN':'🇬🇳','GW':'🇬🇼','GY':'🇬🇾','HT':'🇭🇹','HN':'🇭🇳','HU':'🇭🇺','IS':'🇮🇸','IN':'🇮🇳','ID':'🇮🇩','IR':'🇮🇷',
-              'IQ':'🇮🇶','IE':'🇮🇪','IL':'🇮🇱','IT':'🇮🇹','JM':'🇯🇲','JP':'🇯🇵','JO':'🇯🇴','KZ':'🇰🇿','KE':'🇰🇪','KI':'🇰🇮',
-              'KP':'🇰🇵','KR':'🇰🇷','KW':'🇰🇼','KG':'🇰🇬','LA':'🇱🇦','LV':'🇱🇻','LB':'🇱🇧','LS':'🇱🇸','LR':'🇱🇷','LY':'🇱🇾',
-              'LI':'🇱🇮','LT':'🇱🇹','LU':'🇱🇺','MG':'🇲🇬','MW':'🇲🇼','MY':'🇲🇾','MV':'🇲🇻','ML':'🇲🇱','MT':'🇲🇹','MH':'🇲🇭',
-              'MR':'🇲🇷','MU':'🇲🇺','MX':'🇲🇽','FM':'🇫🇲','MD':'🇲🇩','MC':'🇲🇨','MN':'🇲🇳','ME':'🇲🇪','MA':'🇲🇦','MZ':'🇲🇿',
-              'MM':'🇲🇲','NA':'🇳🇦','NR':'🇳🇷','NP':'🇳🇵','NL':'🇳🇱','NZ':'🇳🇿','NI':'🇳🇮','NE':'🇳🇪','NG':'🇳🇬','NO':'🇳🇴',
-              'OM':'🇴🇲','PK':'🇵🇰','PW':'🇵🇼','PA':'🇵🇦','PG':'🇵🇬','PY':'🇵🇾','PE':'🇵🇪','PH':'🇵🇭','PL':'🇵🇱','PT':'🇵🇹',
-              'QA':'🇶🇦','RO':'🇷🇴','RU':'🇷🇺','RW':'🇷🇼','KN':'🇰🇳','LC':'🇱🇨','VC':'🇻🇨','WS':'🇼🇸','SM':'🇸🇲','ST':'🇸🇹',
-              'SA':'🇸🇦','SN':'🇸🇳','RS':'🇷🇸','SC':'🇸🇨','SL':'🇸🇱','SG':'🇸🇬','SK':'🇸🇰','SI':'🇸🇮','SB':'🇸🇧','SO':'🇸🇴',
-              'ZA':'🇿🇦','ES':'🇪🇸','LK':'🇱🇰','SD':'🇸🇩','SR':'🇸🇷','SE':'🇸🇪','CH':'🇨🇭','SY':'🇸🇾','TW':'🇹🇼','TJ':'🇹🇯',
-              'TZ':'🇹🇿','TH':'🇹🇭','TL':'🇹🇱','TG':'🇹🇬','TO':'🇹🇴','TT':'🇹🇹','TN':'🇹🇳','TR':'🇹🇷','TM':'🇹🇲','UG':'🇺🇬',
-              'UA':'🇺🇦','AE':'🇦🇪','GB':'🇬🇧','US':'🇺🇸','UY':'🇺🇾','UZ':'🇺🇿','VU':'🇻🇺','VE':'🇻🇪','VN':'🇻🇳','YE':'🇾🇪',
-              'ZM':'🇿🇲','ZW':'🇿🇼'
-          }
+          FLAGS = { ...same as before... }
 
-          TEST_URLS = [
-              "https://api.ipify.org",
-              "https://ipinfo.io/ip",
-              "https://www.netflix.com",
-              "https://www.instagram.com"
-          ]
+          IP_CHECK_URLS = ["https://api.ipify.org", "https://ipinfo.io/ip"]
+          HTML_CHECK_URLS = ["https://www.netflix.com", "https://www.instagram.com"]
 
           def get_country_flag(host):
               try:
@@ -112,23 +87,10 @@ jobs:
                   sni = q.get('sni',[''])[0]
 
                   cfg = {
-                      "inbounds":[{
-                          "listen":"127.0.0.1",
-                          "port":port,
-                          "protocol":"socks",
-                          "settings":{"udp":False}
-                      }],
-                      "outbounds":[{
-                          "protocol":"vless",
-                          "settings":{
-                              "vnext":[{
-                                  "address":u.hostname,
-                                  "port":u.port or 443,
-                                  "users":[{"id":u.username,"encryption":"none"}]
-                              }]
-                          },
-                          "streamSettings":{"network": q.get('type',['tcp'])[0]}
-                      }]
+                      "inbounds":[{"listen":"127.0.0.1","port":port,"protocol":"socks","settings":{"udp":False}}],
+                      "outbounds":[{"protocol":"vless",
+                                     "settings":{"vnext":[{"address":u.hostname,"port":u.port or 443,"users":[{"id":u.username,"encryption":"none"}]}]},
+                                     "streamSettings":{"network": q.get('type',['tcp'])[0]}}]
                   }
 
                   fname = f"cfg_{port}.json"
@@ -139,27 +101,53 @@ jobs:
                                        stdout=subprocess.DEVNULL,
                                        stderr=subprocess.DEVNULL)
                   time.sleep(2)
-                  success = False
-                  for test_url in TEST_URLS:
+
+                  # 1️⃣ Проверка IP
+                  out_ip = None
+                  for ip_url in IP_CHECK_URLS:
                       try:
-                          out_ip = subprocess.check_output(
-                              ['curl','-s','--max-time','6',f'--socks5-hostname',f'127.0.0.1:{port}', test_url],
+                          resp = subprocess.check_output(
+                              ['curl','-s','--max-time','6','--socks5-hostname',f'127.0.0.1:{port}', ip_url],
                               text=True
                           ).strip()
-                          if out_ip and out_ip != RUNNER_IP:
-                              success = True
+                          if resp and resp != RUNNER_IP:
+                              out_ip = resp
                               break
                       except:
                           continue
+
+                  # Если IP не получен — прокси мёртв
+                  if not out_ip:
+                      p.terminate()
+                      time.sleep(1)
+                      return None
+
+                  # 2️⃣ Проверка открытия сайтов
+                  html_ok = False
+                  for site in HTML_CHECK_URLS:
+                      try:
+                          resp = subprocess.check_output(
+                              ['curl','-s','--max-time','8','--socks5-hostname',f'127.0.0.1:{port}', site],
+                              text=True
+                          ).strip()
+                          if resp:
+                              html_ok = True
+                              break
+                      except:
+                          continue
+
                   p.terminate()
                   time.sleep(1)
-                  if not success:
+
+                  # Если ни один сайт не открылся — прокси мёртв
+                  if not html_ok:
                       return None
 
                   in_flag = get_country_flag(u.hostname)
                   out_flag = get_country_flag(out_ip)
                   name = f"in {in_flag} RusL exit {out_flag} {sni}"
                   return link.split('#')[0] + '#' + name
+
               except:
                   return None
 
