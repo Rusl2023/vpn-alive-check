@@ -26,7 +26,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y curl jq unzip python3 python3-pip
+          sudo apt-get install -y unzip python3 python3-pip
           python3 -m pip install --upgrade pip
           pip install geoip2
 
@@ -42,10 +42,6 @@ jobs:
           mkdir -p githubmirror
           echo "# updated $(date -u)" > githubmirror/26_proxy_subscription_raw.txt
 
-      - name: Get runner IP
-        run: |
-          echo "RUNNER_IP=$(curl -s https://api.ipify.org)" >> $GITHUB_ENV
-
       - name: Check VLESS via Xray and build raw subscription (10 threads)
         run: |
           python3 <<'EOF'
@@ -60,20 +56,16 @@ jobs:
 
           INPUT_FILE = 'githubmirror/26_ru_whitelist.txt'
           OUTPUT_FILE = 'githubmirror/26_proxy_subscription_raw.txt'
-          RUNNER_IP = os.environ.get('RUNNER_IP', '')
 
           THREADS = 10
           BASE_PORT = 1080
 
-          reader = geoip2.database.Reader('geolite2/GeoLite2-Country.mmdb')
-
           FLAGS = {
-              'RU':'🇷🇺','US':'🇺🇸','GB':'🇬🇧','CN':'🇨🇳','JP':'🇯🇵','KR':'🇰🇷','DE':'🇩🇪','FR':'🇫🇷','IN':'🇮🇳','CA':'🇨🇦'
-              # добавьте остальные страны при необходимости
+              "RU":"🇷🇺","US":"🇺🇸","DE":"🇩🇪","FR":"🇫🇷","NL":"🇳🇱","PL":"🇵🇱",
+              "TR":"🇹🇷","FI":"🇫🇮","LV":"🇱🇻","EE":"🇪🇪","NO":"🇳🇴","KZ":"🇰🇿"
           }
 
-          IP_CHECK_URLS = ["https://api.ipify.org", "https://ipinfo.io/ip"]
-          HTML_CHECK_URLS = ["https://www.netflix.com", "https://www.instagram.com"]
+          reader = geoip2.database.Reader('geolite2/GeoLite2-Country.mmdb')
 
           def get_country_flag(host):
               try:
@@ -82,18 +74,37 @@ jobs:
               except:
                   return '🏳️'
 
+          def is_proxy_alive(host, port, timeout=10):
+              """Простая TCP проверка подключения"""
+              import ssl
+              s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+              s.settimeout(timeout)
+              try:
+                  s.connect((host, port))
+                  # Если порт 443 — пробуем TLS handshake
+                  if port == 443:
+                      ctx = ssl.create_default_context()
+                      ctx.check_hostname = False
+                      ctx.verify_mode = ssl.CERT_NONE
+                      ctx.wrap_socket(s, server_hostname=host)
+                  return True
+              except:
+                  return False
+              finally:
+                  s.close()
+
           def test_proxy(link, idx):
-              port = BASE_PORT + idx
               try:
                   u = urllib.parse.urlparse(link)
                   q = urllib.parse.parse_qs(u.query)
-                  sni = q.get('sni',[''])[0]
+                  port = BASE_PORT + idx
+                  stream_type = q.get('type',['tcp'])[0]
 
                   cfg = {
                       "inbounds":[{"listen":"127.0.0.1","port":port,"protocol":"socks","settings":{"udp":False}}],
                       "outbounds":[{"protocol":"vless",
                                      "settings":{"vnext":[{"address":u.hostname,"port":u.port or 443,"users":[{"id":u.username,"encryption":"none"}]}]},
-                                     "streamSettings":{"network": q.get('type',['tcp'])[0]}}]
+                                     "streamSettings":{"network":stream_type}}]
                   }
 
                   fname = f"cfg_{port}.json"
@@ -103,61 +114,20 @@ jobs:
                   p = subprocess.Popen(['./xray','-c',fname],
                                        stdout=subprocess.DEVNULL,
                                        stderr=subprocess.DEVNULL)
-                  time.sleep(2)
+                  time.sleep(15)  # буфер запуска Xray
 
-                  # 1️⃣ Проверка IP
-                  out_ip = None
-                  for ip_url in IP_CHECK_URLS:
-                      try:
-                          resp = subprocess.check_output(
-                              ['curl','-v','--max-time','15','--socks5-hostname',f'127.0.0.1:{port}', ip_url],
-                              text=True, stderr=subprocess.STDOUT
-                          ).strip()
-                          print(f"[IP CHECK] {link} -> {ip_url}: {resp}")
-                          if resp and resp != RUNNER_IP:
-                              out_ip = resp
-                              break
-                      except Exception as e:
-                          print(f"[IP ERROR] {link} -> {ip_url}: {e}")
-                          continue
-
-                  if not out_ip:
+                  alive = is_proxy_alive(u.hostname, u.port or 443)
+                  if not alive:
                       p.terminate()
                       time.sleep(1)
-                      print(f"[DEAD] {link} (no IP)")
-                      return None
-
-                  # 2️⃣ Проверка открытия сайтов
-                  html_ok = False
-                  for site in HTML_CHECK_URLS:
-                      try:
-                          resp = subprocess.check_output(
-                              ['curl','-v','--max-time','15','--socks5-hostname',f'127.0.0.1:{port}', site],
-                              text=True, stderr=subprocess.STDOUT
-                          ).strip()
-                          print(f"[HTML CHECK] {link} -> {site}: {len(resp)} bytes")
-                          if resp:
-                              html_ok = True
-                              break
-                      except Exception as e:
-                          print(f"[HTML ERROR] {link} -> {site}: {e}")
-                          continue
-
-                  p.terminate()
-                  time.sleep(1)
-
-                  if not html_ok:
-                      print(f"[DEAD] {link} (HTML failed)")
                       return None
 
                   in_flag = get_country_flag(u.hostname)
-                  out_flag = get_country_flag(out_ip)
-                  name = f"in {in_flag} RusL exit {out_flag} {sni}"
-                  print(f"[ALIVE] {link} -> {name}")
+                  name = f"in {in_flag} RusL {u.hostname}"
+                  p.terminate()
+                  time.sleep(1)
                   return link.split('#')[0] + '#' + name
-
-              except Exception as e:
-                  print(f"[EXCEPTION] {link}: {e}")
+              except:
                   return None
 
           if not os.path.exists(INPUT_FILE):
