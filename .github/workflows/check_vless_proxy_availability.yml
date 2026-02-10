@@ -45,24 +45,35 @@ jobs:
       - name: Check VLESS via Xray and build raw subscription (10 threads)
         run: |
           python3 <<'EOF'
-          import subprocess
-          import time
-          import json
-          import urllib.parse
-          import os
-          import geoip2.database
-          import socket
+          import subprocess, time, json, urllib.parse, os, geoip2.database, socket
           from concurrent.futures import ThreadPoolExecutor, as_completed
 
           INPUT_FILE = 'githubmirror/26_ru_whitelist.txt'
           OUTPUT_FILE = 'githubmirror/26_proxy_subscription_raw.txt'
-
           THREADS = 10
           BASE_PORT = 1080
 
           FLAGS = {
-              "RU":"🇷🇺","US":"🇺🇸","DE":"🇩🇪","FR":"🇫🇷","NL":"🇳🇱","PL":"🇵🇱",
-              "TR":"🇹🇷","FI":"🇫🇮","LV":"🇱🇻","EE":"🇪🇪","NO":"🇳🇴","KZ":"🇰🇿"
+              'AF':'🇦🇫','AL':'🇦🇱','DZ':'🇩🇿','AS':'🇦🇸','AD':'🇦🇩','AO':'🇦🇴','AI':'🇦🇮','AG':'🇦🇬','AR':'🇦🇷','AM':'🇦🇲',
+              'AU':'🇦🇺','AT':'🇦🇹','AZ':'🇦🇿','BS':'🇧🇸','BH':'🇧🇭','BD':'🇧🇩','BB':'🇧🇧','BY':'🇧🇾','BE':'🇧🇪','BZ':'🇧🇿',
+              'BJ':'🇧🇯','BM':'🇧🇲','BT':'🇧🇹','BO':'🇧🇴','BA':'🇧🇦','BW':'🇧🇼','BR':'🇧🇷','BN':'🇧🇳','BG':'🇧🇬','BF':'🇧🇫',
+              'BI':'🇧🇮','KH':'🇰🇭','CM':'🇨🇲','CA':'🇨🇦','CV':'🇨🇻','CF':'🇨🇫','TD':'🇹🇩','CL':'🇨🇱','CN':'🇨🇳','CO':'🇨🇴',
+              'KM':'🇰🇲','CD':'🇨🇩','CG':'🇨🇬','CR':'🇨🇷','HR':'🇭🇷','CU':'🇨🇺','CY':'🇨🇾','CZ':'🇨🇿','DK':'🇩🇰','DJ':'🇩🇯',
+              'DM':'🇩🇲','DO':'🇩🇴','EC':'🇪🇨','EG':'🇪🇬','SV':'🇸🇻','GQ':'🇬🇶','ER':'🇪🇷','EE':'🇪🇪','ET':'🇪🇹','FJ':'🇫🇯',
+              'FI':'🇫🇮','FR':'🇫🇷','GA':'🇬🇦','GM':'🇬🇲','GE':'🇬🇪','DE':'🇩🇪','GH':'🇬🇭','GR':'🇬🇷','GD':'🇬🇩','GT':'🇬🇹',
+              'GN':'🇬🇳','GW':'🇬🇼','GY':'🇬🇾','HT':'🇭🇹','HN':'🇭🇳','HU':'🇭🇺','IS':'🇮🇸','IN':'🇮🇳','ID':'🇮🇩','IR':'🇮🇷',
+              'IQ':'🇮🇶','IE':'🇮🇪','IL':'🇮🇱','IT':'🇮🇹','JM':'🇯🇲','JP':'🇯🇵','JO':'🇯🇴','KZ':'🇰🇿','KE':'🇰🇪','KI':'🇰🇮',
+              'KP':'🇰🇵','KR':'🇰🇷','KW':'🇰🇼','KG':'🇰🇬','LA':'🇱🇦','LV':'🇱🇻','LB':'🇱🇧','LS':'🇱🇸','LR':'🇱🇷','LY':'🇱🇾',
+              'LI':'🇱🇮','LT':'🇱🇹','LU':'🇱🇺','MG':'🇲🇬','MW':'🇲🇼','MY':'🇲🇾','MV':'🇲🇻','ML':'🇲🇱','MT':'🇲🇹','MH':'🇲🇭',
+              'MR':'🇲🇷','MU':'🇲🇺','MX':'🇲🇽','FM':'🇫🇲','MD':'🇲🇩','MC':'🇲🇨','MN':'🇲🇳','ME':'🇲🇪','MA':'🇲🇦','MZ':'🇲🇿',
+              'MM':'🇲🇲','NA':'🇳🇦','NR':'🇳🇷','NP':'🇳🇵','NL':'🇳🇱','NZ':'🇳🇿','NI':'🇳🇮','NE':'🇳🇪','NG':'🇳🇬','NO':'🇳🇴',
+              'OM':'🇴🇲','PK':'🇵🇰','PW':'🇵🇼','PA':'🇵🇦','PG':'🇵🇬','PY':'🇵🇾','PE':'🇵🇪','PH':'🇵🇭','PL':'🇵🇱','PT':'🇵🇹',
+              'QA':'🇶🇦','RO':'🇷🇴','RU':'🇷🇺','RW':'🇷🇼','KN':'🇰🇳','LC':'🇱🇨','VC':'🇻🇨','WS':'🇼🇸','SM':'🇸🇲','ST':'🇸🇹',
+              'SA':'🇸🇦','SN':'🇸🇳','RS':'🇷🇸','SC':'🇸🇨','SL':'🇸🇱','SG':'🇸🇬','SK':'🇸🇰','SI':'🇸🇮','SB':'🇸🇧','SO':'🇸🇴',
+              'ZA':'🇿🇦','ES':'🇪🇸','LK':'🇱🇰','SD':'🇸🇩','SR':'🇸🇷','SE':'🇸🇪','CH':'🇨🇭','SY':'🇸🇾','TW':'🇹🇼','TJ':'🇹🇯',
+              'TZ':'🇹🇿','TH':'🇹🇭','TL':'🇹🇱','TG':'🇹🇬','TO':'🇹🇴','TT':'🇹🇹','TN':'🇹🇳','TR':'🇹🇷','TM':'🇹🇲','UG':'🇺🇬',
+              'UA':'🇺🇦','AE':'🇦🇪','GB':'🇬🇧','US':'🇺🇸','UY':'🇺🇾','UZ':'🇺🇿','VU':'🇻🇺','VE':'🇻🇪','VN':'🇻🇳','YE':'🇾🇪',
+              'ZM':'🇿🇲','ZW':'🇿🇼'
           }
 
           reader = geoip2.database.Reader('geolite2/GeoLite2-Country.mmdb')
@@ -75,13 +86,11 @@ jobs:
                   return '🏳️'
 
           def is_proxy_alive(host, port, timeout=10):
-              """Простая TCP проверка подключения"""
               import ssl
               s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
               s.settimeout(timeout)
               try:
                   s.connect((host, port))
-                  # Если порт 443 — пробуем TLS handshake
                   if port == 443:
                       ctx = ssl.create_default_context()
                       ctx.check_hostname = False
@@ -114,7 +123,7 @@ jobs:
                   p = subprocess.Popen(['./xray','-c',fname],
                                        stdout=subprocess.DEVNULL,
                                        stderr=subprocess.DEVNULL)
-                  time.sleep(15)  # буфер запуска Xray
+                  time.sleep(15)
 
                   alive = is_proxy_alive(u.hostname, u.port or 443)
                   if not alive:
@@ -122,8 +131,11 @@ jobs:
                       time.sleep(1)
                       return None
 
-                  in_flag = get_country_flag(u.hostname)
-                  name = f"in {in_flag} RusL {u.hostname}"
+                  in_flag = FLAGS.get(u.username.upper(), '🏳️')
+                  exit_flag = get_country_flag(u.hostname)
+                  sni_flag = get_country_flag(u.hostname)  # sni берем как exit proxy
+                  name = f"in {in_flag} RusL exit {exit_flag} sni"
+
                   p.terminate()
                   time.sleep(1)
                   return link.split('#')[0] + '#' + name
