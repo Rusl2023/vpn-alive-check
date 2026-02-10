@@ -68,26 +68,8 @@ jobs:
           reader = geoip2.database.Reader('geolite2/GeoLite2-Country.mmdb')
 
           FLAGS = {
-              'AF':'🇦🇫','AL':'🇦🇱','DZ':'🇩🇿','AS':'🇦🇸','AD':'🇦🇩','AO':'🇦🇴','AI':'🇦🇮','AG':'🇦🇬','AR':'🇦🇷','AM':'🇦🇲',
-              'AU':'🇦🇺','AT':'🇦🇹','AZ':'🇦🇿','BS':'🇧🇸','BH':'🇧🇭','BD':'🇧🇩','BB':'🇧🇧','BY':'🇧🇾','BE':'🇧🇪','BZ':'🇧🇿',
-              'BJ':'🇧🇯','BM':'🇧🇲','BT':'🇧🇹','BO':'🇧🇴','BA':'🇧🇦','BW':'🇧🇼','BR':'🇧🇷','BN':'🇧🇳','BG':'🇧🇬','BF':'🇧🇫',
-              'BI':'🇧🇮','KH':'🇰🇭','CM':'🇨🇲','CA':'🇨🇦','CV':'🇨🇻','CF':'🇨🇫','TD':'🇹🇩','CL':'🇨🇱','CN':'🇨🇳','CO':'🇨🇴',
-              'KM':'🇰🇲','CD':'🇨🇩','CG':'🇨🇬','CR':'🇨🇷','HR':'🇭🇷','CU':'🇨🇺','CY':'🇨🇾','CZ':'🇨🇿','DK':'🇩🇰','DJ':'🇩🇯',
-              'DM':'🇩🇲','DO':'🇩🇴','EC':'🇪🇨','EG':'🇪🇬','SV':'🇸🇻','GQ':'🇬🇶','ER':'🇪🇷','EE':'🇪🇪','ET':'🇪🇹','FJ':'🇫🇯',
-              'FI':'🇫🇮','FR':'🇫🇷','GA':'🇬🇦','GM':'🇬🇲','GE':'🇬🇪','DE':'🇩🇪','GH':'🇬🇭','GR':'🇬🇷','GD':'🇬🇩','GT':'🇬🇹',
-              'GN':'🇬🇳','GW':'🇬🇼','GY':'🇬🇾','HT':'🇭🇹','HN':'🇭🇳','HU':'🇭🇺','IS':'🇮🇸','IN':'🇮🇳','ID':'🇮🇩','IR':'🇮🇷',
-              'IQ':'🇮🇶','IE':'🇮🇪','IL':'🇮🇱','IT':'🇮🇹','JM':'🇯🇲','JP':'🇯🇵','JO':'🇯🇴','KZ':'🇰🇿','KE':'🇰🇪','KI':'🇰🇮',
-              'KP':'🇰🇵','KR':'🇰🇷','KW':'🇰🇼','KG':'🇰🇬','LA':'🇱🇦','LV':'🇱🇻','LB':'🇱🇧','LS':'🇱🇸','LR':'🇱🇷','LY':'🇱🇾',
-              'LI':'🇱🇮','LT':'🇱🇹','LU':'🇱🇺','MG':'🇲🇬','MW':'🇲🇼','MY':'🇲🇾','MV':'🇲🇻','ML':'🇲🇱','MT':'🇲🇹','MH':'🇲🇭',
-              'MR':'🇲🇷','MU':'🇲🇺','MX':'🇲🇽','FM':'🇫🇲','MD':'🇲🇩','MC':'🇲🇨','MN':'🇲🇳','ME':'🇲🇪','MA':'🇲🇦','MZ':'🇲🇿',
-              'MM':'🇲🇲','NA':'🇳🇦','NR':'🇳🇷','NP':'🇳🇵','NL':'🇳🇱','NZ':'🇳🇿','NI':'🇳🇮','NE':'🇳🇪','NG':'🇳🇬','NO':'🇳🇴',
-              'OM':'🇴🇲','PK':'🇵🇰','PW':'🇵🇼','PA':'🇵🇦','PG':'🇵🇬','PY':'🇵🇾','PE':'🇵🇪','PH':'🇵🇭','PL':'🇵🇱','PT':'🇵🇹',
-              'QA':'🇶🇦','RO':'🇷🇴','RU':'🇷🇺','RW':'🇷🇼','KN':'🇰🇳','LC':'🇱🇨','VC':'🇻🇨','WS':'🇼🇸','SM':'🇸🇲','ST':'🇸🇹',
-              'SA':'🇸🇦','SN':'🇸🇳','RS':'🇷🇸','SC':'🇸🇨','SL':'🇸🇱','SG':'🇸🇬','SK':'🇸🇰','SI':'🇸🇮','SB':'🇸🇧','SO':'🇸🇴',
-              'ZA':'🇿🇦','ES':'🇪🇸','LK':'🇱🇰','SD':'🇸🇩','SR':'🇸🇷','SE':'🇸🇪','CH':'🇨🇭','SY':'🇸🇾','TW':'🇹🇼','TJ':'🇹🇯',
-              'TZ':'🇹🇿','TH':'🇹🇭','TL':'🇹🇱','TG':'🇹🇬','TO':'🇹🇴','TT':'🇹🇹','TN':'🇹🇳','TR':'🇹🇷','TM':'🇹🇲','UG':'🇺🇬',
-              'UA':'🇺🇦','AE':'🇦🇪','GB':'🇬🇧','US':'🇺🇸','UY':'🇺🇾','UZ':'🇺🇿','VU':'🇻🇺','VE':'🇻🇪','VN':'🇻🇳','YE':'🇾🇪',
-              'ZM':'🇿🇲','ZW':'🇿🇼'
+              'RU':'🇷🇺','US':'🇺🇸','GB':'🇬🇧','CN':'🇨🇳','JP':'🇯🇵','KR':'🇰🇷','DE':'🇩🇪','FR':'🇫🇷','IN':'🇮🇳','CA':'🇨🇦'
+              # добавьте остальные страны при необходимости
           }
 
           IP_CHECK_URLS = ["https://api.ipify.org", "https://ipinfo.io/ip"]
@@ -123,51 +105,59 @@ jobs:
                                        stderr=subprocess.DEVNULL)
                   time.sleep(2)
 
-                  # Проверка IP
+                  # 1️⃣ Проверка IP
                   out_ip = None
                   for ip_url in IP_CHECK_URLS:
                       try:
                           resp = subprocess.check_output(
-                              ['curl','-s','--max-time','6','--socks5-hostname',f'127.0.0.1:{port}', ip_url],
-                              text=True
+                              ['curl','-v','--max-time','15','--socks5-hostname',f'127.0.0.1:{port}', ip_url],
+                              text=True, stderr=subprocess.STDOUT
                           ).strip()
+                          print(f"[IP CHECK] {link} -> {ip_url}: {resp}")
                           if resp and resp != RUNNER_IP:
                               out_ip = resp
                               break
-                      except:
+                      except Exception as e:
+                          print(f"[IP ERROR] {link} -> {ip_url}: {e}")
                           continue
 
                   if not out_ip:
                       p.terminate()
                       time.sleep(1)
+                      print(f"[DEAD] {link} (no IP)")
                       return None
 
-                  # Проверка HTML
+                  # 2️⃣ Проверка открытия сайтов
                   html_ok = False
                   for site in HTML_CHECK_URLS:
                       try:
                           resp = subprocess.check_output(
-                              ['curl','-s','--max-time','8','--socks5-hostname',f'127.0.0.1:{port}', site],
-                              text=True
+                              ['curl','-v','--max-time','15','--socks5-hostname',f'127.0.0.1:{port}', site],
+                              text=True, stderr=subprocess.STDOUT
                           ).strip()
+                          print(f"[HTML CHECK] {link} -> {site}: {len(resp)} bytes")
                           if resp:
                               html_ok = True
                               break
-                      except:
+                      except Exception as e:
+                          print(f"[HTML ERROR] {link} -> {site}: {e}")
                           continue
 
                   p.terminate()
                   time.sleep(1)
 
                   if not html_ok:
+                      print(f"[DEAD] {link} (HTML failed)")
                       return None
 
                   in_flag = get_country_flag(u.hostname)
                   out_flag = get_country_flag(out_ip)
                   name = f"in {in_flag} RusL exit {out_flag} {sni}"
+                  print(f"[ALIVE] {link} -> {name}")
                   return link.split('#')[0] + '#' + name
 
-              except:
+              except Exception as e:
+                  print(f"[EXCEPTION] {link}: {e}")
                   return None
 
           if not os.path.exists(INPUT_FILE):
