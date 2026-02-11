@@ -23,7 +23,7 @@ jobs:
           mkdir -p geolite2
           curl -L -o geolite2/GeoLite2-Country.mmdb https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-Country.mmdb
           curl -L -o geolite2/GeoLite2-ASN.mmdb https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-ASN.mmdb
-          echo "✅ GeoLite databases downloaded"
+          echo "✅ GeoLite databases ready"
           ls -la geolite2/
 
       - name: Setup Python
@@ -48,7 +48,6 @@ jobs:
 
           print("🚀 VLESS RU Whitelist Scanner v4.0")
 
-          # GeoLite databases
           COUNTRY_DB = "geolite2/GeoLite2-Country.mmdb"
           ASN_DB = "geolite2/GeoLite2-ASN.mmdb"
 
@@ -67,7 +66,6 @@ jobs:
               print(f"❌ Database load error: {e}")
               sys.exit(1)
 
-          # RU SNI Whitelist
           headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
           RU_SNI_URL = "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/refs/heads/main/whitelist.txt"
           
@@ -80,7 +78,6 @@ jobs:
               print(f"❌ RU SNI error: {e}")
               sys.exit(1)
 
-          # Config sources (fresh every 5-15min)
           URLS = [
               "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/refs/heads/main/subscriptions/v2ray/all_sub.txt",
               "https://raw.githubusercontent.com/barry-far/V2ray-configs/main/All_Configs_Sub.txt",
@@ -90,8 +87,9 @@ jobs:
               "https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt"
           ]
 
-          # Caches & locks
-          dns_cache, geo_cache, asn_cache = {}, {}, {}
+          dns_cache = {}
+          geo_cache = {}
+          asn_cache = {}
           seen = set()
           lock = Lock()
 
@@ -160,7 +158,6 @@ jobs:
               except:
                   return None
 
-          # Download configs
           print("📥 Downloading configs...")
           all_lines = []
           for url in URLS:
@@ -176,7 +173,6 @@ jobs:
           vless_links = [l for l in all_lines if l.strip().startswith("vless://")]
           print(f"📊 Total VLESS: {len(vless_links)}")
 
-          # Scan servers
           def check_server(link):
               d = parse_vless(link)
               if not d: return None
@@ -195,7 +191,7 @@ jobs:
               tag = f"{d['security'].upper()[0]}-{d['port']}"
               return d["link"] + f"#{tag}"
 
-          print(f"🔍 Scanning {len(vless_links)} links (100 workers)...")
+          print(f"🔍 Scanning {len(vless_links)} links...")
           results = []
           with ThreadPoolExecutor(max_workers=100) as executor:
               futures = [executor.submit(check_server, link) for link in vless_links[:5000]]
@@ -207,7 +203,6 @@ jobs:
 
           print(f"🎉 LIVE keys found: {len(results)}")
 
-          # Save results
           os.makedirs("githubmirror", exist_ok=True)
           
           with open("githubmirror/26_ru_whitelist.txt", "w") as f:
@@ -220,25 +215,6 @@ Total lines: {len(all_lines)}
 VLESS links: {len(vless_links)}
 RU SNI checked: {ru_sni_checked}
 🔥 LIVE keys: {len(results)}
-DNS cache: {len(dns_cache)} | GeoIP: {len(geo_cache)} | ASN: {len(asn_cache)}
+DNS: {len(dns_cache)} | GeoIP: {len(geo_cache)} | ASN: {len(asn_cache)}
 """
-          with open("githubmirror/ru_stats.txt", "w") as f:
-              f.write(stats)
-
-          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
-              f.write(f"count={len(results)}\n")
-          EOF
-
-      - name: Commit and push results
-        if: always()
-        run: |
-          git config --local user.name "github-actions[bot]"
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git add githubmirror/
-          if git diff --staged --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "🔥 RU Whitelist: ${{ steps.check_alive.outputs.count }} LIVE keys"
-            git pull --rebase origin main
-            git push origin main || echo "Push failed, continuing"
-          fi
+          with open("github
