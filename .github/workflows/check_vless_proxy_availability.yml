@@ -34,10 +34,7 @@ jobs:
       - name: Prepare files
         run: |
           mkdir -p githubmirror
-          # Очищаем файлы перед новым запуском
-          > githubmirror/26_proxy_subscription_raw.txt
-          > githubmirror/26_proxy_subscription_base64.txt
-          echo "# updated $(date -u)" > githubmirror/26_proxy_subscription_raw.txt
+          # НЕ очищаем здесь! Только создаем папку
 
       - name: Check VLESS via Xray
         run: |
@@ -216,6 +213,11 @@ jobs:
           print(f"⏱️  MAX TIME: {MAX_TOTAL_TIME}s")
           print(f"{'='*50}\n")
 
+          # >>>>> ИСПРАВЛЕНИЕ ЗДЕСЬ <<<<<
+          # Очищаем файл и пишем заголовок ТОЛЬКО в Python скрипте
+          with open(OUTPUT_RAW, 'w') as f:
+              f.write(f"# updated {datetime.utcnow().strftime('%a %b %d %H:%M:%S UTC %Y')}\n")
+
           start_time = time.time()
           futures = []
 
@@ -249,9 +251,8 @@ jobs:
           finally:
               cleanup()
 
-          # Записываем ТОЛЬКО живые прокси с этого запуска
-          with open(OUTPUT_RAW, 'a') as f:  # 'a' - добавляем после заголовка
-              # Заголовок уже есть от Prepare files
+          # Добавляем живые прокси
+          with open(OUTPUT_RAW, 'a') as f:
               for l in alive_links:
                   f.write(l + '\n')
 
@@ -282,24 +283,18 @@ jobs:
           GH_PAT: ${{ secrets.GH_PAT }}
         run: |
           if [ -s githubmirror/26_proxy_subscription_raw.txt ]; then
-            # Проверяем есть ли изменения (исключаем строку с датой)
-            if [ $(git diff --cached githubmirror/26_proxy_subscription_raw.txt | grep -c "^+vless://") -gt 0 ] || \
-               [ -s githubmirror/26_proxy_subscription_base64.txt ]; then
-              
-              git config user.name "github-actions"
-              git config user.email "github-actions@github.com"
+            git config user.name "github-actions"
+            git config user.email "github-actions@github.com"
 
-              git fetch origin main
-              git reset --hard origin/main
+            git fetch origin main
+            git reset --hard origin/main
 
-              git add githubmirror/26_proxy_subscription_raw.txt githubmirror/26_proxy_subscription_base64.txt
-              git diff --cached --quiet || git commit -m "Update proxies [$(date +'%Y-%m-%d %H:%M UTC')]"
+            git add githubmirror/26_proxy_subscription_raw.txt githubmirror/26_proxy_subscription_base64.txt
+            git diff --cached --quiet || git commit -m "Update proxies [$(date +'%Y-%m-%d %H:%M UTC')]"
 
-              git push https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY} HEAD:main
-              echo "✅ Changes pushed: $(tail -n +2 githubmirror/26_proxy_subscription_raw.txt | wc -l) working proxies"
-            else
-              echo "⚠️ No new working proxies found"
-            fi
+            git push https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY} HEAD:main
+            COUNT=$(tail -n +2 githubmirror/26_proxy_subscription_raw.txt | wc -l)
+            echo "✅ Changes pushed: $COUNT working proxies"
           else
             echo "⚠️ No proxies to commit"
           fi
