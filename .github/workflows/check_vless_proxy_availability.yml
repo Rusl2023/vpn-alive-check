@@ -48,11 +48,15 @@ jobs:
           XRAY_PATH = os.path.join(os.getcwd(), "xray")
           INPUT = 'githubmirror/26_ru_whitelist.txt'
           OUTPUT_RAW = 'githubmirror/26_proxy_subscription_raw.txt'
-          TEST_URL = 'https://api.ipify.org'
+          
+          # ✅ ТЕСТЫ 10s каждый
+          IP_TEST_URL = 'https://api.ipify.org'
+          HTTP_TEST_URL = 'http://example.com'
+          HTTPS_TEST_URL = 'https://www.cloudflare.com/cdn-cgi/trace'
 
           MAX_WORKERS = 8
           MAX_TOTAL_TIME = 1800
-          FUTURE_TIMEOUT = 40  # на каждый future
+          FUTURE_TIMEOUT = 40  # 12+10+10+10=42s
 
           process_lock = Lock()
           print_lock = Lock()
@@ -77,25 +81,61 @@ jobs:
               s.close()
               return port
 
-          def wait_port(port, timeout=25):
+          def wait_port(port, timeout=12):
               start = time.time()
               while time.time() - start < timeout:
                   try:
-                      with socket.create_connection(("127.0.0.1", port), timeout=2):
+                      with socket.create_connection(("127.0.0.1", port), timeout=1):
                           return True
                   except:
-                      time.sleep(0.5)
+                      time.sleep(0.2)
               return False
 
-          def exit_ip(port):
+          def test_proxy_robust(port):
+              """⭐ 3 теста по 10s: продолжаем если прошёл"""
+              
+              # 1. IP тест (10s)
               try:
-                  out = subprocess.check_output(
-                      ['curl','-s','--max-time','20','-x',f'socks5h://127.0.0.1:{port}',TEST_URL],
-                      text=True, stderr=subprocess.DEVNULL
+                  ip = subprocess.check_output(
+                      ['curl', '-s', '--max-time', '10', '-x', f'socks5h://127.0.0.1:{port}', IP_TEST_URL],
+                      text=True, stderr=subprocess.DEVNULL, timeout=12
                   ).strip()
-                  return out if out else None
-              except:
-                  return None
+                  if not ip or len(ip) < 7: 
+                      return False, None
+                  print_via_lock(f"  ✅ IP: {ip}")
+              except: 
+                  return False, None
+
+              # 2. HTTP example.com (10s) - продолжаем если прошёл
+              try:
+                  http_code = subprocess.check_output(
+                      ['curl', '-s', '--max-time', '10', '-x', f'socks5h://127.0.0.1:{port}', 
+                       '-o', '/dev/null', '-w', '%{http_code}', HTTP_TEST_URL],
+                      text=True, stderr=subprocess.DEVNULL, timeout=12
+                  ).strip()
+                  if http_code != '200': 
+                      return False, None
+                  print_via_lock(f"  ✅ HTTP: {http_code}")
+              except: 
+                  return False, None
+
+              # 3. HTTPS Cloudflare (10s) - продолжаем если прошёл
+              try:
+                  https_code = subprocess.check_output(
+                      ['curl', '-s', '--max-time', '10', '-x', f'socks5h://127.0.0.1:{port}', 
+                       '-o', '/dev/null', '-w', '%{http_code}', HTTPS_TEST_URL],
+                      text=True, stderr=subprocess.DEVNULL, timeout=12
+                  ).strip()
+                  if https_code not in ['200', '403']: 
+                      return False, None
+                  print_via_lock(f"  ✅ HTTPS: {https_code}")
+                  return True, ip
+              except: 
+                  return False, None
+
+          def print_via_lock(msg):
+              with print_lock:
+                  print(msg)
 
           def check_one(link):
               port = get_free_port()
@@ -167,20 +207,21 @@ jobs:
               host = f"{u.hostname}:{u.port or 443}"
 
               if wait_port(port):
-                  ip = exit_ip(port)
-                  if ip:
+                  # ⭐ ПОСЛЕДОВАТЕЛЬНЫЕ ТЕСТЫ 10s каждый
+                  success, ip = test_proxy_robust(port)
+                  if success:
                       result = link
                       with print_lock:
-                          print(f"✓ {host} -> {ip}")
+                          print(f"⭐ {host} SUPER (IP+HTTP+HTTPS: {ip})")
                   else:
                       with print_lock:
-                          print(f"✗ {host} no-ip")
+                          print(f"✗ {host} test fail")
               else:
                   with print_lock:
                       print(f"✗ {host} timeout")
 
               try:
-                  p.terminate(); p.wait(timeout=1)
+                  p.terminate(); p.wait(timeout=2)
               except:
                   try: p.kill()
                   except: pass
@@ -202,7 +243,7 @@ jobs:
               links = [l.strip() for l in f if l.strip().startswith('vless://')]
 
           total_links = len(links)
-          print(f"TOTAL: {total_links}")
+          print(f"TOTAL: {total_links} | Tests: IP(10s)+HTTP(10s)+HTTPS(10s)")
 
           with open(OUTPUT_RAW, 'w') as f:
               f.write(f"# updated {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}\n")
@@ -212,27 +253,23 @@ jobs:
           processed = 0
 
           with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
-              # ✅ БЕЗОПАСНЫЙ СЛОВАРЬ futures
               futures = {ex.submit(check_one, l): l for l in links}
               
               for future in as_completed(futures):
                   try:
-                      # ✅ ИНДИВИДУАЛЬНЫЙ таймаут 40s на future
                       r = future.result(timeout=FUTURE_TIMEOUT)
                       if r:
                           alive.append(r)
                   except:
-                      # ✅ ЛОВИМ ВСЕ ОШИБКИ/ТАЙМАУТЫ
                       pass
                   
                   processed += 1
-                  if processed % 20 == 0:
+                  if processed % 10 == 0:
                       with print_lock:
-                          print(f"📊 Progress: {processed}/{total_links}")
+                          print(f"📊 {processed}/{total_links} ({len(alive)} SUPER)")
                   
-                  # ✅ ГЛОБАЛЬНЫЙ таймаут
                   if time.time() - start > MAX_TOTAL_TIME:
-                      print("⏰ GLOBAL TIMEOUT REACHED")
+                      print("⏰ GLOBAL TIMEOUT")
                       break
 
           cleanup()
@@ -242,10 +279,10 @@ jobs:
                   f.write(l+"\n")
 
           elapsed = time.time() - start
-          print(f"\n{'='*50}")
-          print(f"✅ FINAL | Total: {total_links} | Alive: {len(alive)} | Time: {elapsed:.1f}s")
+          print(f"\n{'='*60}")
+          print(f"⭐ SUPER PROXIES | Total: {total_links} | Alive: {len(alive)} | Time: {elapsed:.1f}s")
           print(f"📁 Raw file: {len(open(OUTPUT_RAW).readlines())} lines")
-          print(f"{'='*50}")
+          print(f"{'='*60}")
           EOF
 
       - name: Encode Base64
@@ -255,10 +292,10 @@ jobs:
           if [ $(wc -l < "$RAW") -gt 1 ]; then
             tail -n +2 "$RAW" | base64 -w 0 > "$B64"
             COUNT=$(tail -n +2 "$RAW" | wc -l)
-            echo "✅ Encoded: $COUNT proxies"
+            echo "✅ SUPER proxies: $COUNT (IP+HTTP+HTTPS 10s each)"
           else
             : > "$B64"
-            echo "⚠️ No proxies"
+            echo "⚠️ No SUPER proxies"
           fi
           ls -la githubmirror/*.txt
 
@@ -272,10 +309,10 @@ jobs:
             git config user.email "github-actions@github.com"
             git add githubmirror/*.txt
             COUNT=$(tail -n +2 "$RAW" | wc -l)
-            git diff --cached --quiet || git commit -m "Update $COUNT proxies [$(date +'%Y-%m-%d %H:%M UTC')]"
+            git diff --cached --quiet || git commit -m "⭐ Update $COUNT SUPER proxies [$(date +'%Y-%m-%d %H:%M UTC')]"
             git pull --rebase origin main || true
             git push "https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY}" HEAD:main
-            echo "✅ Pushed: $COUNT proxies"
+            echo "✅ Pushed $COUNT SUPER proxies"
           else
-            echo "⚠️ No proxies to commit"
+            echo "⚠️ No SUPER proxies to commit"
           fi
