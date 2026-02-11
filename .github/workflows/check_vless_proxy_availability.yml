@@ -61,11 +61,9 @@ jobs:
           MAX_WORKERS = 6
           MAX_TOTAL_TIME = 1500
 
-          # ✅ ГЛОБАЛЬНЫЙ GEO READER - 1 раз для 250 прокси
           print("Loading GeoLite2 database...")
           GEO_READER = geoip2.database.Reader(COUNTRY_DB)
 
-          # ✅ ФЛАГИ СТРАН БЕЗ ДУБЛЕЙ
           FLAGS = {
               'AD': '🇦🇩AD', 'AE': '🇦🇪AE', 'AF': '🇦🇫AF', 'AG': '🇦🇬AG', 'AI': '🇦🇮AI',
               'AL': '🇦🇱AL', 'AM': '🇦🇲AM', 'AO': '🇦🇴AO', 'AQ': '🇦🇶AQ', 'AR': '🇦🇷AR',
@@ -118,20 +116,24 @@ jobs:
               'VN': '🇻🇳VN', 'VU': '🇻🇺VU', 'WF': '🇼🇫WF', 'WS': '🇼🇸WS', 'YE': '🇾🇪YE',
               'YT': '🇾🇹YT', 'ZA': '🇿🇦ZA', 'ZM': '🇿🇲ZM', 'ZW': '🇿🇼ZW'
           }
+          
+          # ✅ СЧЕТЧИК СТРАН (только для первой страны)
+          country_counters = {}
+          def get_country_number(country_code):
+              if country_code not in country_counters:
+                  country_counters[country_code] = len(country_counters) + 1
+              return f"→{country_counters[country_code]}→"
 
           def is_ip_address(host):
-              """✅ ПРАВИЛЬНАЯ проверка IP vs домен"""
               return re.match(r'^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$', host) is not None
 
           def resolve_hostname_to_ip(hostname):
-              """Разрешаем домен → IP"""
               try:
                   return socket.gethostbyname(hostname)
               except:
-                  return hostname  # fallback
+                  return hostname
 
           def get_country_from_ip(ip_or_host):
-              """⚡ ИСПРАВЛЕННАЯ логика IP/домен"""
               try:
                   if is_ip_address(ip_or_host):
                       ip = ip_or_host
@@ -279,12 +281,17 @@ jobs:
               if wait_port(port):
                   success, exit_ip = test_proxy_robust(port)
                   if success:
-                      # ✅ ИСПРАВЛЕННАЯ логика - реальные страны!
+                      # ✅ ТОЧНЫЕ СТРАНЫ
                       server_country = get_country_from_ip(u.hostname)
                       exit_country = get_country_from_ip(exit_ip)
                       
-                      new_name = f"{server_country}→{exit_country} SNI: {sni}"
+                      # ✅ НОМЕР ТОЛЬКО для первой страны
+                      server_num = get_country_number('RU' if 'RU' in server_country else server_country[-2:])
                       
+                      # ✅ ТОЧНЫЙ ФОРМАТ: страна1→№1→страна2 SNI: домен
+                      new_name = f"{server_country}{server_num}{exit_country} SNI: {sni}"
+                      
+                      # Заменяем комментарий
                       old_comment_start = link.find('#')
                       if old_comment_start != -1:
                           link = link[:old_comment_start] + f"#{new_name}"
@@ -356,10 +363,8 @@ jobs:
               cleanup()
 
           print(f"Done. Alive: {len(alive)}")
-          
-          # ✅ ЗАКРЫВАЕМ READER
           GEO_READER.close()
-          print("GeoLite2 database closed")
+          print("GeoLite2 closed")
 
           if alive:
               with open(OUTPUT_RAW, 'a') as f:
