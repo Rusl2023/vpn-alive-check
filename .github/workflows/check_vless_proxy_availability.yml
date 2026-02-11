@@ -41,14 +41,31 @@ jobs:
         run: |
           python3 << 'EOF'
           import subprocess, time, json, urllib.parse, os, socket
+          from concurrent.futures import ThreadPoolExecutor, wait, FIRST_COMPLETED
+          from threading import Lock
 
-          WORKDIR = os.getcwd()
-          XRAY_PATH = os.path.join(WORKDIR, "xray")
-
+          XRAY_PATH = os.path.join(os.getcwd(), "xray")
           INPUT = 'githubmirror/26_ru_whitelist.txt'
           OUTPUT_RAW = 'githubmirror/26_proxy_subscription_raw.txt'
           TEST_URL = 'https://api.ipify.org'
+
+          MAX_WORKERS = 6
           MAX_TOTAL_TIME = 1500
+
+          alive_links = []
+          active_processes = []
+          process_lock = Lock()
+          print_lock = Lock()
+          processed = 0
+
+          def cleanup():
+              with process_lock:
+                  for p in active_processes:
+                      try:
+                          p.kill()
+                      except:
+                          pass
+                  active_processes.clear()
 
           def get_free_port():
               s = socket.socket()
@@ -57,55 +74,37 @@ jobs:
               s.close()
               return port
 
-          def wait_port(host, port, timeout=15):
+          def wait_port(port, timeout=15):
               start = time.time()
               while time.time() - start < timeout:
                   try:
-                      with socket.create_connection((host, port), timeout=2):
+                      with socket.create_connection(("127.0.0.1", port), timeout=2):
                           return True
-                  except OSError:
+                  except:
                       time.sleep(0.5)
               return False
 
           def exit_ip(port):
               try:
                   out = subprocess.check_output(
-                      ['curl','-s','--max-time','8',
-                       '-x',f'socks5h://127.0.0.1:{port}',TEST_URL],
-                      text=True
+                      ['curl','-s','--max-time','8','-x',f'socks5h://127.0.0.1:{port}',TEST_URL],
+                      text=True, stderr=subprocess.DEVNULL
                   ).strip()
                   return out if out else None
               except:
                   return None
 
-          if not os.path.exists(INPUT):
-              print("INPUT file not found")
-              raise SystemExit(0)
-
-          with open(INPUT) as f:
-              links = [l.strip() for l in f if l.strip().startswith('vless://')]
-
-          total = len(links)
-          alive = 0
-
-          print(f"TOTAL LINKS: {total}")
-          start_time = time.time()
-
-          for link in links:
-              if time.time() - start_time > MAX_TOTAL_TIME:
-                  print("TIME LIMIT REACHED")
-                  break
+          def check_one(link):
+              nonlocal processed
+              port = get_free_port()
 
               u = urllib.parse.urlparse(link)
               q = urllib.parse.parse_qs(u.query)
 
-              port = get_free_port()
-
-              raw_type = q.get('type', ['tcp'])[0]
-              network = 'http' if raw_type == 'xhttp' else raw_type
-              sec = q.get('security', ['none'])[0]
-              sni = q.get('sni', [''])[0]
-              fingerprint = q.get('fp', ['chrome'])[0]
+              network = 'http' if q.get('type',['tcp'])[0]=='xhttp' else q.get('type',['tcp'])[0]
+              sec = q.get('security',['none'])[0]
+              sni = q.get('sni',[''])[0]
+              fingerprint = q.get('fp',['chrome'])[0]
 
               stream = {'network': network}
 
@@ -114,18 +113,21 @@ jobs:
                   stream['realitySettings'] = {
                       'serverName': sni,
                       'publicKey': q['pbk'][0],
-                      'shortId': q.get('sid', [''])[0],
+                      'shortId': q.get('sid',[''])[0],
                       'fingerprint': fingerprint
                   }
               elif sec == 'tls':
                   stream['security'] = 'tls'
                   stream['tlsSettings'] = {
                       'serverName': sni,
-                      'fingerprint': fingerprint,
-                      'allowInsecure': True
+                      'allowInsecure': True,
+                      'fingerprint': fingerprint
                   }
-              else:
-                  stream['security'] = 'none'
+
+              user = {'id': u.username, 'encryption':'none'}
+              flow = q.get('flow',[''])[0]
+              if flow:
+                  user['flow'] = flow
 
               cfg = {
                   'inbounds':[{
@@ -140,59 +142,114 @@ jobs:
                           'vnext':[{
                               'address':u.hostname,
                               'port':u.port or 443,
-                              'users':[{
-                                  'id':u.username,
-                                  'encryption':'none',
-                                  'flow':q.get('flow',[''])[0]
-                              }]
+                              'users':[user]
                           }]
                       },
                       'streamSettings':stream
                   }]
               }
 
-              with open('cfg.json','w') as f:
+              cfg_file = f'cfg_{port}.json'
+              with open(cfg_file,'w') as f:
                   json.dump(cfg,f)
 
-              p = subprocess.Popen(
-                  [XRAY_PATH,'run','-c','cfg.json'],
-                  stdout=subprocess.DEVNULL,
-                  stderr=subprocess.DEVNULL
-              )
+              p = subprocess.Popen([XRAY_PATH,'run','-c',cfg_file],
+                                   stdout=subprocess.DEVNULL,
+                                   stderr=subprocess.DEVNULL)
 
-              if not wait_port("127.0.0.1",port,15):
+              with process_lock:
+                  active_processes.append(p)
+
+              result = None
+              host = f"{u.hostname}:{u.port or 443}"
+
+              if wait_port(port):
+                  ip = exit_ip(port)
+                  if ip:
+                      result = link
+                      with print_lock:
+                          print(f"✓ {host} -> {ip}")
+                  else:
+                      with print_lock:
+                          print(f"✗ {host} -> None")
+              else:
+                  with print_lock:
+                      print(f"✗ {host} -> timeout")
+
+              try:
                   p.kill()
-                  continue
+              except:
+                  pass
 
-              ip = exit_ip(port)
+              with process_lock:
+                  if p in active_processes:
+                      active_processes.remove(p)
 
-              p.terminate()
-              try: p.wait(timeout=5)
-              except: p.kill()
+              try: os.remove(cfg_file)
+              except: pass
 
-              time.sleep(1)
+              with print_lock:
+                  processed += 1
 
-              print(f"{u.hostname}:{u.port or 443} -> {ip}")
+              return result
 
-              if ip:
-                  alive += 1
-                  with open(OUTPUT_RAW,'a') as f:
-                      f.write(link+'\n')
+          if not os.path.exists(INPUT):
+              print("INPUT file not found")
+              raise SystemExit(0)
 
-          if os.path.exists("cfg.json"):
-              os.remove("cfg.json")
+          with open(INPUT) as f:
+              links = [l.strip() for l in f if l.strip().startswith('vless://')]
 
-          print("===================================")
+          total = len(links)
           print(f"TOTAL: {total}")
-          print(f"ALIVE: {alive}")
-          print(f"ADDED TO FILE: {alive}")
-          print("===================================")
+
+          start_time = time.time()
+          futures = []
+
+          try:
+              with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+                  for link in links:
+                      if time.time()-start_time > MAX_TOTAL_TIME:
+                          print("TIME LIMIT")
+                          break
+
+                      futures.append(executor.submit(check_one, link))
+
+                      if len(futures) >= MAX_WORKERS*2:
+                          done, futures = wait(futures, timeout=1, return_when=FIRST_COMPLETED)
+                          for f in done:
+                              try:
+                                  r = f.result()
+                                  if r:
+                                      alive_links.append(r)
+                              except:
+                                  pass
+
+                  for f in futures:
+                      try:
+                          r = f.result(timeout=5)
+                          if r:
+                              alive_links.append(r)
+                      except:
+                          pass
+          finally:
+              cleanup()
+
+          with open(OUTPUT_RAW,'w') as f:
+              for l in alive_links:
+                  f.write(l+'\n')
+
+          print("ALIVE:", len(alive_links))
           print("DONE")
           EOF
 
       - name: Encode subscription to Base64
         run: |
-          base64 -w 0 githubmirror/26_proxy_subscription_raw.txt > githubmirror/26_proxy_subscription_base64.txt
+          if [ -s githubmirror/26_proxy_subscription_raw.txt ]; then
+            base64 -w 0 githubmirror/26_proxy_subscription_raw.txt > githubmirror/26_proxy_subscription_base64.txt
+          else
+            : > githubmirror/26_proxy_subscription_base64.txt
+          fi
 
       - name: Commit and push
         env:
@@ -205,6 +262,6 @@ jobs:
           git reset --hard origin/main
 
           git add githubmirror/26_proxy_subscription_raw.txt githubmirror/26_proxy_subscription_base64.txt
-          git diff --cached --quiet || git commit -m "Update VLESS proxy subscription (raw + base64)"
+          git diff --cached --quiet || git commit -m "Update proxies"
 
           git push https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY} HEAD:main
