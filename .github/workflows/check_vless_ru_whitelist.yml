@@ -2,7 +2,7 @@ name: Check VLESS RU Whitelist + Reality Vision + GeoIP
 
 on:
   schedule:
-    - cron: "*/30 * * * *"
+    - cron: "*/20 * * * *"
   workflow_dispatch:
 
 jobs:
@@ -46,7 +46,7 @@ jobs:
           with open(os.environ["GITHUB_OUTPUT"], "a") as out:
               out.write("count=0\n")
 
-          print("🚀 Starting RU Whitelist check...")
+          print("🚀 RU Whitelist Scanner v2.0 (расширенный)...")
           COUNTRY_DB = "geolite2/GeoLite2-Country.mmdb"
           
           if not os.path.exists(COUNTRY_DB):
@@ -76,14 +76,13 @@ jobs:
           ]
 
           RU_SNI_WHITELIST_URL = "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/refs/heads/main/whitelist.txt"
-          MAX_WORKERS = 30
-          ALLOWED_FP = {"chrome", "firefox", "safari", "edge", "ios", "android"}
+          MAX_WORKERS = 50
+          ALLOWED_FP = {"chrome", "firefox", "safari", "edge", "ios", "android", "random", "randomized"}
           dns_cache = {}
           geo_cache = {}
 
           def resolve_host(host):
-              if host in dns_cache:
-                  return dns_cache[host]
+              if host in dns_cache: return dns_cache[host]
               try:
                   addrs = socket.getaddrinfo(host, None, family=socket.AF_INET6)
                   if addrs:
@@ -97,8 +96,7 @@ jobs:
                   return None
 
           def geo_not_ru(host):
-              if host in geo_cache:
-                  return geo_cache[host]
+              if host in geo_cache: return geo_cache[host]
               ip = resolve_host(host)
               if not ip:
                   geo_cache[host] = False
@@ -117,27 +115,26 @@ jobs:
 
           def load_whitelist():
               try:
-                  r = requests.get(RU_SNI_WHITELIST_URL, timeout=20)
+                  r = requests.get(RU_SNI_WHITELIST_URL, timeout=30)
                   r.raise_for_status()
                   whitelist = set(line.strip().lower() for line in r.text.splitlines() 
                                  if line.strip() and not line.startswith("#"))
                   print(f"✅ Loaded {len(whitelist)} RU SNI whitelists")
                   return whitelist
               except Exception as e:
-                  print(f"❌ Whitelist load error: {e}")
+                  print(f"❌ Whitelist error: {e}")
                   return set()
 
           RU_SNI_WHITELIST = load_whitelist()
           if not RU_SNI_WHITELIST:
-              print("❌ RU SNI whitelist empty, skipping")
+              print("❌ RU SNI whitelist empty!")
               sys.exit(0)
 
           def parse_vless(link):
               try:
                   u = urllib.parse.urlparse(link.strip())
                   q = urllib.parse.parse_qs(u.query)
-                  if not u.hostname:
-                      return None
+                  if not u.hostname: return None
                   port = 443
                   if ":" in u.netloc:
                       port = int(u.netloc.rsplit(":", 1)[1])
@@ -156,34 +153,46 @@ jobs:
                   return None
 
           def match_vless(d):
+              # ✅ ОСНОВНОЙ ФИЛЬТР: RU SNI + не RU IP
               if not d or not d["sni"] or d["sni"] not in RU_SNI_WHITELIST:
                   return None
               if not geo_not_ru(d["host"]):
                   return None
+              
               sec, flow, tp, port, fp = d["security"], d["flow"], d["type"], d["port"], d["fp"]
               
-              if sec == "reality" and fp in ALLOWED_FP:
-                  if tp == "xhttp" and port == 443:
-                      return "XHTTP-REALITY-EXTRA-443"
-                  if flow == "xtls-rprx-vision" and tp in ("tcp", "") and port == 443:
-                      return "RAW-REALITY-VISION-443"
+              # ✅ РАСШИРЕННЫЕ КРИТЕРИИ (10-50+ ключей):
               
+              # 1. Reality (все порты + fp)
+              if sec == "reality":
+                  if port in (443, 8443):
+                      if fp in ALLOWED_FP:
+                          if tp == "xhttp": return f"XHTTP-REALITY-{port}"
+                          if flow == "xtls-rprx-vision": return f"VISION-REALITY-{port}"
+                          return f"REALITY-{port}-{fp[:4]}"
+              
+              # 2. TLS Vision (все порты)
+              if sec == "tls" and flow == "xtls-rprx-vision":
+                  if port in (443, 8443):
+                      return f"TLS-VISION-{port}"
+              
+              # 3. TLS + хорошие FP + популярные порты
+              if sec == "tls" and fp in ALLOWED_FP:
+                  if port in (443, 8443, 2053, 2083, 2087, 2096):
+                      if tp in ("tcp", "", "ws", "grpc"):
+                          return f"TLS-{tp.upper()}-{port}-{fp[:4]}"
+              
+              # 4. Любые TLS на RU whitelist SNI
               if sec == "tls":
-                  if flow == "xtls-rprx-vision" and tp in ("tcp", "") and port == 8443:
-                      return "RAW-TLS-VISION-8443"
-                  if tp == "xhttp" and port == 8443:
-                      return "XHTTP-TLS-EXTRA-8443"
-                  if tp == "ws" and port == 8443:
-                      return "WS-TLS-8443"
-                  if tp == "grpc" and port == 8443:
-                      return "GRPC-TLS-8443"
+                  if port in (443, 8443):
+                      return f"TLS-ANY-{port}"
+              
               return None
 
           def match_socks(line):
               try:
                   u = urllib.parse.urlparse(line.strip())
-                  if u.scheme.lower() != "socks5":
-                      return None
+                  if u.scheme.lower() != "socks5": return None
                   port = int(u.netloc.rsplit(":", 1)[1])
                   if port == 10443 and geo_not_ru(u.hostname):
                       return line.split("#")[0] + "#SOCKS5-10443"
@@ -193,17 +202,24 @@ jobs:
 
           print("📥 Loading configs...")
           lines = []
+          ru_sni_count = 0
           for url in URLS:
               try:
-                  r = requests.get(url, timeout=20, stream=True)
+                  r = requests.get(url, timeout=30, stream=True)
                   r.raise_for_status()
                   for line in r.iter_lines(decode_unicode=True):
                       if line:
                           lines.append(line)
-              except:
-                  pass
+                          # Счетчик RU SNI для статистики
+                          if line.strip().startswith("vless://"):
+                              d = parse_vless(line.strip())
+                              if d and d["sni"] in RU_SNI_WHITELIST:
+                                  ru_sni_count += 1
+              except Exception as e:
+                  print(f"❌ URL {url}: {e}")
 
-          print(f"📊 Total lines loaded: {len(lines)}")
+          print(f"📊 {len(lines)} строк загружено")
+          print(f"🔍 Найдено RU SNI ссылок: {ru_sni_count}")
 
           results = []
           seen = set()
@@ -222,7 +238,7 @@ jobs:
                       return ("socks", s), s
               return None
 
-          print(f"⚡ Processing {len(lines)} lines with {MAX_WORKERS} workers...")
+          print(f"⚡ Обработка {len(lines)} строк с {MAX_WORKERS} workers...")
           with ThreadPoolExecutor(max_workers=MAX_WORKERS) as exe:
               futures = [exe.submit(process, l) for l in lines]
               for f in as_completed(futures):
@@ -232,29 +248,46 @@ jobs:
                       if key not in seen:
                           seen.add(key)
                           results.append(link)
+                          print(f"✅ НАЙДЕН: {link.split('#')[1]}")
 
-          print(f"📈 Cache stats - DNS: {len(dns_cache)} | GeoIP: {len(geo_cache)}")
-          print(f"🎉 Found {len(results)} unique RU whitelist configs!")
+          print(f"📈 Статистика:")
+          print(f"   DNS кэш: {len(dns_cache)}")
+          print(f"   GeoIP кэш: {len(geo_cache)}") 
+          print(f"   🎉 Найдено УНИКАЛЬНЫХ ключей: {len(results)}")
 
           os.makedirs("githubmirror", exist_ok=True)
+          
+          # ✅ 3 файла: все ключи + статистика + топ-10
           with open("githubmirror/26_ru_whitelist.txt", "w") as f:
               for link in results:
                   f.write(link + "\n")
+          
+          with open("githubmirror/ru_whitelist_stats.txt", "w") as f:
+              f.write(f"Дата: {os.environ.get('GITHUB_RUN_ID', 'local')}\n")
+              f.write(f"Всего строк: {len(lines)}\n")
+              f.write(f"RU SNI ссылок: {ru_sni_count}\n")
+              f.write(f"Рабочих ключей: {len(results)}\n")
+              f.write(f"DNS lookups: {len(dns_cache)}\n")
+              f.write(f"GeoIP checks: {len(geo_cache)}\n\n")
+              f.write("ТОП КЛЮЧИ:\n")
+              for i, link in enumerate(results[:10], 1):
+                  f.write(f"{i}. {link}\n")
 
           with open(os.environ["GITHUB_OUTPUT"], "a") as out:
               out.write(f"count={len(results)}\n")
-          print("✅ COMPLETED SUCCESSFULLY!")
+          print("✅ ✅ ✅ ЗАВЕРШЕНО УСПЕШНО!")
           EOF
 
       - name: Commit and push
-        if: steps.check_alive.outputs.count != '0'
+        if: always()
         run: |
           git config --local user.name "github-actions[bot]"
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git add githubmirror/26_ru_whitelist.txt
+          git add githubmirror/
           if git diff --staged --quiet; then
-            echo "No changes to commit"
+            echo "Нет изменений для коммита"
+            exit 0
           else
-            git commit -m "RU whitelist: ${{ steps.check_alive.outputs.count }} configs"
-            git push origin main
+            git commit -m "RU Whitelist: ${{ steps.check_alive.outputs.count }} ключей (v2.0)"
+            git push origin main || echo "Push failed"
           fi
