@@ -25,7 +25,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests geoip2
 
-      - name: Check VLESS servers
+      - name: Check configs
         id: check_alive
         run: |
           python - <<'EOF'
@@ -34,7 +34,6 @@ jobs:
           import urllib.parse
           import requests
           import uuid
-          import re
           from concurrent.futures import ThreadPoolExecutor, as_completed
           import geoip2.database
 
@@ -58,20 +57,31 @@ jobs:
           ]
 
           RU_SNI_WHITELIST_URL = "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/refs/heads/main/whitelist.txt"
-          MAX_WORKERS = 120
           COUNTRY_DB = "geolite2/GeoLite2-Country.mmdb"
+          MAX_WORKERS = 120
+
+          ALLOWED_FP = {"chrome", "firefox", "safari", "edge", "ios", "android"}
 
           if not os.path.exists(COUNTRY_DB):
               print("GeoLite DB not found")
               exit(0)
 
-          reader_country = geoip2.database.Reader(COUNTRY_DB)
+          reader = geoip2.database.Reader(COUNTRY_DB)
+
+          def geo_not_ru(host):
+              try:
+                  ip = socket.gethostbyname(host)
+                  country = reader.country(ip).country.iso_code
+                  return country != "RU"
+              except:
+                  return False
 
           def load_whitelist():
               try:
                   r = requests.get(RU_SNI_WHITELIST_URL, timeout=20)
                   r.raise_for_status()
-                  return set(line.strip().lower() for line in r.text.splitlines() if line.strip() and not line.startswith("#"))
+                  return set(line.strip().lower() for line in r.text.splitlines()
+                             if line.strip() and not line.startswith("#"))
               except:
                   return set()
 
@@ -80,79 +90,86 @@ jobs:
               print("Whitelist empty")
               exit(0)
 
-          def is_valid_flow(link):
-              u = urllib.parse.urlparse(link)
-              q = urllib.parse.parse_qs(u.query)
-              flow = q.get("flow", [""])[0]
-              return flow == "xtls-rprx-vision" and "xhttp" not in flow
-
-          def geo_country(host):
-              try:
-                  ip = socket.gethostbyname(host)
-                  c = reader_country.country(ip).country.iso_code
-                  return c != "RU", c
-              except:
-                  return False, "??"
-
-          def flag(code):
-              try:
-                  return "".join(chr(0x1F1E6 + ord(c.upper()) - ord('A')) for c in code)
-              except:
-                  return "🏳️"
-
           def parse_vless(link):
               try:
-                  link = link.strip().replace(" ", "")
-                  u = urllib.parse.urlparse(link)
+                  u = urllib.parse.urlparse(link.strip())
                   q = urllib.parse.parse_qs(u.query)
-
-                  port = 443
-                  if u.netloc and ":" in u.netloc:
-                      try:
-                          port = int(u.netloc.rsplit(":", 1)[1])
-                      except:
-                          pass
-
-                  fp = q.get("fp", [""])[0].lower()
-                  uid = u.username
-
-                  try:
-                      uuid.UUID(uid)
-                  except:
-                      return None
 
                   if not u.hostname:
                       return None
 
-                  sni = q.get("sni", [""])[0].lower()
-                  tag = u.fragment or ""
-                  tag = re.sub(r"[^\w\-]", "", tag)
+                  port = 443
+                  if ":" in u.netloc:
+                      port = int(u.netloc.rsplit(":", 1)[1])
+
+                  uuid.UUID(u.username)
 
                   return {
-                      "link": f"{link}#{tag}" if tag else link,
+                      "raw": link.split("#")[0],
                       "host": u.hostname,
                       "port": port,
-                      "security": q.get("security", [""])[0],
-                      "sni": sni,
-                      "flow": q.get("flow", [""])[0],
-                      "fp": fp
+                      "security": q.get("security", [""])[0].lower(),
+                      "flow": q.get("flow", [""])[0].lower(),
+                      "type": q.get("type", ["tcp"])[0].lower(),
+                      "sni": q.get("sni", [""])[0].lower(),
+                      "fp": q.get("fp", [""])[0].lower()
                   }
               except:
                   return None
 
-          def check(link):
-              d = parse_vless(link)
-              if not d: return None
-              if d["security"] != "reality": return None
-              if d["fp"] != "chrome": return None
-              if d["port"] not in (80, 443): return None
-              if not d["sni"] or d["sni"] not in RU_SNI_WHITELIST: return None
-              if not is_valid_flow(d["link"]): return None
+          def match_vless(d):
+              if not d:
+                  return None
 
-              geo_ok, country = geo_country(d["host"])
-              if not geo_ok: return None
+              if not d["sni"] or d["sni"] not in RU_SNI_WHITELIST:
+                  return None
 
-              return d, country
+              if not geo_not_ru(d["host"]):
+                  return None
+
+              sec = d["security"]
+              flow = d["flow"]
+              tp = d["type"]
+              port = d["port"]
+              fp = d["fp"]
+
+              # ----- REALITY (приоритет) -----
+              if sec == "reality" and fp in ALLOWED_FP:
+
+                  if tp == "xhttp" and port == 443:
+                      return "XHTTP-REALITY-EXTRA-443"
+
+                  if flow == "xtls-rprx-vision" and tp in ("tcp", "") and port == 443:
+                      return "RAW-REALITY-VISION-443"
+
+              # ----- TLS -----
+              if sec == "tls":
+
+                  if flow == "xtls-rprx-vision" and tp in ("tcp", "") and port == 8443:
+                      return "RAW-TLS-VISION-8443"
+
+                  if tp == "xhttp" and port == 8443:
+                      return "XHTTP-TLS-EXTRA-8443"
+
+                  if tp == "ws" and port == 8443:
+                      return "WS-TLS-8443"
+
+                  if tp == "grpc" and port == 8443:
+                      return "GRPC-TLS-8443"
+
+              return None
+
+          def match_socks(link):
+              try:
+                  u = urllib.parse.urlparse(link.strip())
+                  if u.scheme.lower() != "socks5":
+                      return None
+                  port = int(u.netloc.rsplit(":", 1)[1])
+                  if port == 10443 and geo_not_ru(u.hostname):
+                      return link.split("#")[0] + "#SOCKS5-10443"
+              except:
+                  pass
+              return None
 
           lines = []
           for url in URLS:
@@ -163,29 +180,39 @@ jobs:
               except:
                   pass
 
-          vless_links = [l.strip() for l in lines if l.strip().startswith("vless://")]
-
           results = []
           seen = set()
 
+          def process(line):
+              line = line.strip()
+              if line.startswith("vless://"):
+                  d = parse_vless(line)
+                  tag = match_vless(d)
+                  if tag:
+                      key = (d["host"], d["port"], d["sni"], tag)
+                      return key, d["raw"] + f"#{tag}"
+
+              elif line.lower().startswith("socks5://"):
+                  s = match_socks(line)
+                  if s:
+                      return ("socks", s), s
+
+              return None
+
           with ThreadPoolExecutor(max_workers=MAX_WORKERS) as exe:
-              futures = {exe.submit(check, v): v for v in vless_links}
+              futures = [exe.submit(process, l) for l in lines]
               for f in as_completed(futures):
                   r = f.result()
                   if not r:
                       continue
-
-                  d, country = r
-                  key = (d["host"], d["port"], d["sni"])
+                  key, link = r
                   if key in seen:
                       continue
                   seen.add(key)
-
-                  name = f"in {flag(country)} Rusl {d['sni']}"
-                  link = d["link"].split("#")[0] + f"#{name}"
                   results.append(link)
 
           os.makedirs("githubmirror", exist_ok=True)
+
           with open("githubmirror/26_ru_whitelist.txt", "w") as f:
               for link in results:
                   f.write(link + "\n")
@@ -204,5 +231,6 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add githubmirror/26_ru_whitelist.txt
-          git diff --cached --quiet || git commit -m "Update RU whitelist"
+          git diff --cached --quiet || git commit -m "Update RU whitelist advanced filter (Reality priority)"
           git push https://x-access-token:${GH_PAT}@github.com/${{ github.repository }} HEAD:main
+          
