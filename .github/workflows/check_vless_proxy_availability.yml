@@ -42,8 +42,10 @@ jobs:
           echo "RUNNER_IP=$(curl -s --max-time 10 https://api.ipify.org)" >> $GITHUB_ENV
 
       - name: Check VLESS via Xray
+        env:
+          RUNNER_IP: ${{ env.RUNNER_IP }}
         run: |
-          python3 <<'EOF'
+          python3 << 'EOF'
           import subprocess
           import time
           import json
@@ -57,7 +59,7 @@ jobs:
 
           INPUT = 'githubmirror/26_ru_whitelist.txt'
           OUTPUT_RAW = 'githubmirror/26_proxy_subscription_raw.txt'
-          RUNNER_IP = os.environ.get('RUNNER_IP', '')
+          RUNNER_IP = os.environ.get('RUNNER_IP', '').strip()
           TEST_URL = 'https://api.ipify.org'
           MAX_TOTAL_TIME = 1500
 
@@ -76,30 +78,36 @@ jobs:
                   try:
                       with socket.create_connection((host, port), timeout=2):
                           return True
-                  except:
+                  except OSError:
                       time.sleep(0.5)
               return False
 
           def exit_ip(port):
               try:
                   out = subprocess.check_output(
-                      ['curl','-s','--max-time','6','-x',f'socks5h://127.0.0.1:{port}',TEST_URL],
+                      ['curl', '-s', '--max-time', '8',
+                       '-x', f'socks5h://127.0.0.1:{port}', TEST_URL],
                       text=True
                   ).strip()
                   return out if out else None
-              except:
+              except subprocess.CalledProcessError:
+                  return None
+              except Exception:
                   return None
 
           def country(ip):
               if ip in country_cache:
                   return country_cache[ip]
               try:
-                  with urllib.request.urlopen(f'http://ip-api.com/json/{ip}?fields=countryCode', timeout=5) as r:
+                  with urllib.request.urlopen(
+                      f'http://ip-api.com/json/{ip}?fields=countryCode',
+                      timeout=5
+                  ) as r:
                       data = json.loads(r.read().decode())
                       cc = data.get("countryCode", "Unknown")
                       country_cache[ip] = cc
                       return cc
-              except:
+              except Exception:
                   return "Unknown"
 
           if not os.path.exists(INPUT):
@@ -122,12 +130,17 @@ jobs:
 
               port = get_free_port()
 
-              network = q.get('type', ['tcp'])[0]
+              # type=xhttp трактуем как http
+              raw_type = q.get('type', ['tcp'])[0]
+              if raw_type == 'xhttp':
+                  network = 'http'
+              else:
+                  network = raw_type
+
               sec = q.get('security', ['none'])[0]
               sni = q.get('sni', [''])[0]
               fingerprint = q.get('fp', ['chrome'])[0]
 
-              # ALPN
               alpn_raw = q.get('alpn', [])
               alpn = alpn_raw[0].split(',') if alpn_raw and alpn_raw[0] else []
 
@@ -136,11 +149,8 @@ jobs:
               host_header = q.get('host', [''])[0]
               service_name = q.get('serviceName', [''])[0]
 
-              stream = {
-                  'network': network
-              }
+              stream = {'network': network}
 
-              # REALITY
               if sec == 'reality' and 'pbk' in q:
                   stream['security'] = 'reality'
                   stream['realitySettings'] = {
@@ -149,8 +159,6 @@ jobs:
                       'shortId': q.get('sid', [''])[0],
                       'fingerprint': fingerprint
                   }
-
-              # TLS
               elif sec == 'tls':
                   stream['security'] = 'tls'
                   stream['tlsSettings'] = {
@@ -159,11 +167,9 @@ jobs:
                       'alpn': alpn,
                       'allowInsecure': allow_insecure
                   }
-
               else:
                   stream['security'] = 'none'
 
-              # WS
               if network == 'ws':
                   stream['wsSettings'] = {
                       'path': path,
@@ -172,13 +178,11 @@ jobs:
                   if host_header:
                       stream['wsSettings']['headers']['Host'] = host_header
 
-              # gRPC
               if network == 'grpc':
                   stream['grpcSettings'] = {
                       'serviceName': service_name
                   }
 
-              # HTTP
               if network == 'http':
                   stream['httpSettings'] = {
                       'path': path,
@@ -228,16 +232,16 @@ jobs:
               p.terminate()
               try:
                   p.wait(timeout=5)
-              except:
+              except Exception:
                   p.kill()
 
               time.sleep(1)
 
-              print(f"{u.hostname}:{u.port} ({network}/{sec}) -> {ip}")
+              print(f"{u.hostname}:{u.port or 443} ({network}/{sec}) -> {ip}")
 
               if not ip:
                   continue
-              if ip == RUNNER_IP:
+              if RUNNER_IP and ip == RUNNER_IP:
                   continue
               if country(ip) == 'RU':
                   continue
@@ -245,7 +249,6 @@ jobs:
               with open(OUTPUT_RAW, 'a') as f:
                   f.write(link + '\n')
 
-          # Удаляем временный cfg
           if os.path.exists("cfg.json"):
               os.remove("cfg.json")
 
