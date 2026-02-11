@@ -56,7 +56,9 @@ jobs:
           active_processes = []
           process_lock = Lock()
           print_lock = Lock()
+          progress_lock = Lock()
           processed = 0
+          total = 0
 
           def cleanup():
               with process_lock:
@@ -87,7 +89,7 @@ jobs:
           def exit_ip(port):
               try:
                   out = subprocess.check_output(
-                      ['curl','-s','--max-time','8','-x',f'socks5h://127.0.0.1:{port}',TEST_URL],
+                      ['curl', '-s', '--max-time', '8', '-x', f'socks5h://127.0.0.1:{port}', TEST_URL],
                       text=True, stderr=subprocess.DEVNULL
                   ).strip()
                   return out if out else None
@@ -95,16 +97,16 @@ jobs:
                   return None
 
           def check_one(link):
-              nonlocal processed
+              global processed
               port = get_free_port()
 
               u = urllib.parse.urlparse(link)
               q = urllib.parse.parse_qs(u.query)
 
-              network = 'http' if q.get('type',['tcp'])[0]=='xhttp' else q.get('type',['tcp'])[0]
-              sec = q.get('security',['none'])[0]
-              sni = q.get('sni',[''])[0]
-              fingerprint = q.get('fp',['chrome'])[0]
+              network = 'http' if q.get('type', ['tcp'])[0] == 'xhttp' else q.get('type', ['tcp'])[0]
+              sec = q.get('security', ['none'])[0]
+              sni = q.get('sni', [''])[0]
+              fingerprint = q.get('fp', ['chrome'])[0]
 
               stream = {'network': network}
 
@@ -113,7 +115,7 @@ jobs:
                   stream['realitySettings'] = {
                       'serverName': sni,
                       'publicKey': q['pbk'][0],
-                      'shortId': q.get('sid',[''])[0],
+                      'shortId': q.get('sid', [''])[0],
                       'fingerprint': fingerprint
                   }
               elif sec == 'tls':
@@ -124,36 +126,36 @@ jobs:
                       'fingerprint': fingerprint
                   }
 
-              user = {'id': u.username, 'encryption':'none'}
-              flow = q.get('flow',[''])[0]
+              user = {'id': u.username, 'encryption': 'none'}
+              flow = q.get('flow', [''])[0]
               if flow:
                   user['flow'] = flow
 
               cfg = {
-                  'inbounds':[{
-                      'listen':'127.0.0.1',
-                      'port':port,
-                      'protocol':'socks',
-                      'settings':{'udp':False}
+                  'inbounds': [{
+                      'listen': '127.0.0.1',
+                      'port': port,
+                      'protocol': 'socks',
+                      'settings': {'udp': False}
                   }],
-                  'outbounds':[{
-                      'protocol':'vless',
-                      'settings':{
-                          'vnext':[{
-                              'address':u.hostname,
-                              'port':u.port or 443,
-                              'users':[user]
+                  'outbounds': [{
+                      'protocol': 'vless',
+                      'settings': {
+                          'vnext': [{
+                              'address': u.hostname,
+                              'port': u.port or 443,
+                              'users': [user]
                           }]
                       },
-                      'streamSettings':stream
+                      'streamSettings': stream
                   }]
               }
 
               cfg_file = f'cfg_{port}.json'
-              with open(cfg_file,'w') as f:
-                  json.dump(cfg,f)
+              with open(cfg_file, 'w') as f:
+                  json.dump(cfg, f)
 
-              p = subprocess.Popen([XRAY_PATH,'run','-c',cfg_file],
+              p = subprocess.Popen([XRAY_PATH, 'run', '-c', cfg_file],
                                    stdout=subprocess.DEVNULL,
                                    stderr=subprocess.DEVNULL)
 
@@ -185,23 +187,31 @@ jobs:
                   if p in active_processes:
                       active_processes.remove(p)
 
-              try: os.remove(cfg_file)
-              except: pass
+              try:
+                  os.remove(cfg_file)
+              except:
+                  pass
 
-              with print_lock:
+              with progress_lock:
                   processed += 1
+                  if processed % 10 == 0:
+                      print(f"📊 Progress: {processed}/{total}")
 
               return result
 
           if not os.path.exists(INPUT):
-              print("INPUT file not found")
+              print("❌ INPUT file not found")
               raise SystemExit(0)
 
           with open(INPUT) as f:
               links = [l.strip() for l in f if l.strip().startswith('vless://')]
 
           total = len(links)
-          print(f"TOTAL: {total}")
+          print(f"\n{'='*50}")
+          print(f"🔍 TOTAL LINKS: {total}")
+          print(f"⚡ PARALLEL WORKERS: {MAX_WORKERS}")
+          print(f"⏱️  MAX TIME: {MAX_TOTAL_TIME}s")
+          print(f"{'='*50}\n")
 
           start_time = time.time()
           futures = []
@@ -209,17 +219,17 @@ jobs:
           try:
               with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
                   for link in links:
-                      if time.time()-start_time > MAX_TOTAL_TIME:
-                          print("TIME LIMIT")
+                      if time.time() - start_time > MAX_TOTAL_TIME:
+                          print("\n⏰ TIME LIMIT REACHED")
                           break
 
                       futures.append(executor.submit(check_one, link))
 
-                      if len(futures) >= MAX_WORKERS*2:
-                          done, futures = wait(futures, timeout=1, return_when=FIRST_COMPLETED)
+                      if len(futures) >= MAX_WORKERS * 2:
+                          done, futures = wait(futures, timeout=0.5, return_when=FIRST_COMPLETED)
                           for f in done:
                               try:
-                                  r = f.result()
+                                  r = f.result(timeout=0.1)
                                   if r:
                                       alive_links.append(r)
                               except:
@@ -227,7 +237,7 @@ jobs:
 
                   for f in futures:
                       try:
-                          r = f.result(timeout=5)
+                          r = f.result(timeout=2)
                           if r:
                               alive_links.append(r)
                       except:
@@ -235,19 +245,27 @@ jobs:
           finally:
               cleanup()
 
-          with open(OUTPUT_RAW,'w') as f:
+          with open(OUTPUT_RAW, 'w') as f:
               for l in alive_links:
-                  f.write(l+'\n')
+                  f.write(l + '\n')
 
-          print("ALIVE:", len(alive_links))
-          print("DONE")
+          elapsed = time.time() - start_time
+          print(f"\n{'='*50}")
+          print(f"✅ RESULTS")
+          print(f"   • Total: {total}")
+          print(f"   • Alive: {len(alive_links)}")
+          print(f"   • Time: {elapsed:.1f}s")
+          print(f"{'='*50}")
+          print("🎯 DONE")
           EOF
 
       - name: Encode subscription to Base64
         run: |
           if [ -s githubmirror/26_proxy_subscription_raw.txt ]; then
             base64 -w 0 githubmirror/26_proxy_subscription_raw.txt > githubmirror/26_proxy_subscription_base64.txt
+            echo "✅ Base64 encoded: $(wc -l < githubmirror/26_proxy_subscription_raw.txt) proxies"
           else
+            echo "⚠️ No working proxies found"
             : > githubmirror/26_proxy_subscription_base64.txt
           fi
 
@@ -255,13 +273,18 @@ jobs:
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
         run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
+          if [ -s githubmirror/26_proxy_subscription_raw.txt ] || [ -s githubmirror/26_proxy_subscription_base64.txt ]; then
+            git config user.name "github-actions"
+            git config user.email "github-actions@github.com"
 
-          git fetch origin main
-          git reset --hard origin/main
+            git fetch origin main
+            git reset --hard origin/main
 
-          git add githubmirror/26_proxy_subscription_raw.txt githubmirror/26_proxy_subscription_base64.txt
-          git diff --cached --quiet || git commit -m "Update proxies"
+            git add githubmirror/26_proxy_subscription_raw.txt githubmirror/26_proxy_subscription_base64.txt
+            git diff --cached --quiet || git commit -m "Update proxies [$(date +'%Y-%m-%d %H:%M')]"
 
-          git push https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY} HEAD:main
+            git push https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY} HEAD:main
+            echo "✅ Changes pushed"
+          else
+            echo "⚠️ No changes to commit"
+          fi
