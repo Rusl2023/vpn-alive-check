@@ -1,13 +1,13 @@
 name: Check VLESS proxy availability via Xray (base64 subscription)
 on:
   schedule:
-    - cron: '*/59 * * * *'
+    - cron: '0 * * * *'  # ✅ Каждый час ровно
   workflow_dispatch:
 
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 45  # ✅ Запас до 60 мин
     permissions:
       contents: write
 
@@ -49,14 +49,13 @@ jobs:
           INPUT = 'githubmirror/26_ru_whitelist.txt'
           OUTPUT_RAW = 'githubmirror/26_proxy_subscription_raw.txt'
           
-          # ✅ ТЕСТЫ 10s каждый
           IP_TEST_URL = 'https://api.ipify.org'
           HTTP_TEST_URL = 'http://example.com'
           HTTPS_TEST_URL = 'https://www.cloudflare.com/cdn-cgi/trace'
 
-          MAX_WORKERS = 8
-          MAX_TOTAL_TIME = 1800
-          FUTURE_TIMEOUT = 40  # 12+10+10+10=42s
+          MAX_WORKERS = 6
+          MAX_TOTAL_TIME = 1500
+          FUTURE_TIMEOUT = 40
 
           process_lock = Lock()
           print_lock = Lock()
@@ -92,50 +91,37 @@ jobs:
               return False
 
           def test_proxy_robust(port):
-              """⭐ 3 теста по 10s: продолжаем если прошёл"""
+              """⭐ 3x10s: IP → HTTP → HTTPS"""
               
-              # 1. IP тест (10s)
+              # 1. IP (10s)
               try:
                   ip = subprocess.check_output(
                       ['curl', '-s', '--max-time', '10', '-x', f'socks5h://127.0.0.1:{port}', IP_TEST_URL],
                       text=True, stderr=subprocess.DEVNULL, timeout=12
                   ).strip()
-                  if not ip or len(ip) < 7: 
-                      return False, None
-                  print_via_lock(f"  ✅ IP: {ip}")
-              except: 
-                  return False, None
+                  if not ip or len(ip) < 7: return False, None
+              except: return False, None
 
-              # 2. HTTP example.com (10s) - продолжаем если прошёл
+              # 2. HTTP (10s)
               try:
                   http_code = subprocess.check_output(
                       ['curl', '-s', '--max-time', '10', '-x', f'socks5h://127.0.0.1:{port}', 
                        '-o', '/dev/null', '-w', '%{http_code}', HTTP_TEST_URL],
                       text=True, stderr=subprocess.DEVNULL, timeout=12
                   ).strip()
-                  if http_code != '200': 
-                      return False, None
-                  print_via_lock(f"  ✅ HTTP: {http_code}")
-              except: 
-                  return False, None
+                  if http_code != '200': return False, None
+              except: return False, None
 
-              # 3. HTTPS Cloudflare (10s) - продолжаем если прошёл
+              # 3. HTTPS (10s)
               try:
                   https_code = subprocess.check_output(
                       ['curl', '-s', '--max-time', '10', '-x', f'socks5h://127.0.0.1:{port}', 
                        '-o', '/dev/null', '-w', '%{http_code}', HTTPS_TEST_URL],
                       text=True, stderr=subprocess.DEVNULL, timeout=12
                   ).strip()
-                  if https_code not in ['200', '403']: 
-                      return False, None
-                  print_via_lock(f"  ✅ HTTPS: {https_code}")
+                  if https_code not in ['200', '403']: return False, None
                   return True, ip
-              except: 
-                  return False, None
-
-          def print_via_lock(msg):
-              with print_lock:
-                  print(msg)
+              except: return False, None
 
           def check_one(link):
               port = get_free_port()
@@ -207,7 +193,6 @@ jobs:
               host = f"{u.hostname}:{u.port or 443}"
 
               if wait_port(port):
-                  # ⭐ ПОСЛЕДОВАТЕЛЬНЫЕ ТЕСТЫ 10s каждый
                   success, ip = test_proxy_robust(port)
                   if success:
                       result = link
@@ -236,14 +221,19 @@ jobs:
               return result
 
           if not os.path.exists(INPUT):
-              print("❌ INPUT not found")
+              print("❌ INPUT file not found")
               raise SystemExit(0)
 
           with open(INPUT) as f:
+              # ✅ FAIL-SAFE: проверка пустого списка
               links = [l.strip() for l in f if l.strip().startswith('vless://')]
+              
+          if not links:
+              print("❌ No VLESS links found in file")
+              raise SystemExit(0)
 
           total_links = len(links)
-          print(f"TOTAL: {total_links} | Tests: IP(10s)+HTTP(10s)+HTTPS(10s)")
+          print(f"TOTAL: {total_links} | Tests: IP(10s)+HTTP(10s)+HTTPS(10s) | Workers: {MAX_WORKERS}")
 
           with open(OUTPUT_RAW, 'w') as f:
               f.write(f"# updated {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}\n")
@@ -269,7 +259,7 @@ jobs:
                           print(f"📊 {processed}/{total_links} ({len(alive)} SUPER)")
                   
                   if time.time() - start > MAX_TOTAL_TIME:
-                      print("⏰ GLOBAL TIMEOUT")
+                      print("⏰ GLOBAL TIMEOUT (25min)")
                       break
 
           cleanup()
@@ -292,7 +282,7 @@ jobs:
           if [ $(wc -l < "$RAW") -gt 1 ]; then
             tail -n +2 "$RAW" | base64 -w 0 > "$B64"
             COUNT=$(tail -n +2 "$RAW" | wc -l)
-            echo "✅ SUPER proxies: $COUNT (IP+HTTP+HTTPS 10s each)"
+            echo "✅ SUPER proxies: $COUNT (IP+HTTP+HTTPS)"
           else
             : > "$B64"
             echo "⚠️ No SUPER proxies"
@@ -310,6 +300,9 @@ jobs:
             git add githubmirror/*.txt
             COUNT=$(tail -n +2 "$RAW" | wc -l)
             git diff --cached --quiet || git commit -m "⭐ Update $COUNT SUPER proxies [$(date +'%Y-%m-%d %H:%M UTC')]"
+            # ✅ RACE CONDITION защита
+            git fetch origin main
+            git reset --hard origin/main || true
             git pull --rebase origin main || true
             git push "https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY}" HEAD:main
             echo "✅ Pushed $COUNT SUPER proxies"
