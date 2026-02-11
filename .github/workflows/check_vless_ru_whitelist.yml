@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           persist-credentials: false
-          fetch-depth: 0  # ✅ Все файлы включая geolite2/
+          fetch-depth: 0
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -26,7 +26,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install requests geoip2 --no-cache-dir  # ✅ Стабильная установка
+          pip install requests geoip2 --no-cache-dir
 
       - name: Check configs
         id: check_alive
@@ -42,7 +42,7 @@ jobs:
           import geoip2.database
           import geoip2.errors
 
-          # ✅ ГАРАНТИРОВАННЫЙ OUTPUT ПЕРВЫМ ДЕЛОМ
+          # ✅ ГАРАНТИРОВАННЫЙ OUTPUT ПЕРВЫМ ДЕЛОМ (БЕЗ экранирования!)
           with open(os.environ["GITHUB_OUTPUT"], "a") as out:
               out.write("count=0\n")
           
@@ -126,7 +126,7 @@ jobs:
               try:
                   r = requests.get(RU_SNI_WHITELIST_URL, timeout=20)
                   r.raise_for_status()
-                  whitelist = set(line.strip().lower() for line in r.text.splitlines()
+                  whitelist = set(line.strip().lower() for line in r.text.splitlines() 
                                  if line.strip() and not line.startswith("#"))
                   print(f"✅ Loaded {len(whitelist)} RU SNI whitelists")
                   return whitelist
@@ -169,14 +169,12 @@ jobs:
                   return None
               sec, flow, tp, port, fp = d["security"], d["flow"], d["type"], d["port"], d["fp"]
               
-              # REALITY (приоритет)
               if sec == "reality" and fp in ALLOWED_FP:
                   if tp == "xhttp" and port == 443:
                       return "XHTTP-REALITY-EXTRA-443"
                   if flow == "xtls-rprx-vision" and tp in ("tcp", "") and port == 443:
                       return "RAW-REALITY-VISION-443"
               
-              # TLS
               if sec == "tls":
                   if flow == "xtls-rprx-vision" and tp in ("tcp", "") and port == 8443:
                       return "RAW-TLS-VISION-8443"
@@ -200,7 +198,6 @@ jobs:
                   pass
               return None
 
-          # Загрузка данных (stream=True)
           print("📥 Loading configs...")
           lines = []
           for url in URLS:
@@ -213,7 +210,7 @@ jobs:
               except:
                   pass
 
-          print(f"📊 Total lines: {len(lines)}")
+          print(f"📊 Total lines loaded: {len(lines)}")
 
           results = []
           seen = set()
@@ -232,7 +229,7 @@ jobs:
                       return ("socks", s), s
               return None
 
-          print(f"⚡ Processing with {MAX_WORKERS} workers...")
+          print(f"⚡ Processing {len(lines)} lines with {MAX_WORKERS} workers...")
           with ThreadPoolExecutor(max_workers=MAX_WORKERS) as exe:
               futures = [exe.submit(process, l) for l in lines]
               for f in as_completed(futures):
@@ -249,9 +246,9 @@ jobs:
           os.makedirs("githubmirror", exist_ok=True)
           with open("githubmirror/26_ru_whitelist.txt", "w") as f:
               for link in results:
-                  f.write(link + "\n")
+                  f.write(link + "\n")  # ✅ Правильные переводы строк
 
-          # ✅ Финальный output
+          # ✅ Финальный OUTPUT (БЕЗ экранирования!)
           with open(os.environ["GITHUB_OUTPUT"], "a") as out:
               out.write(f"count={len(results)}\n")
 
@@ -264,5 +261,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add githubmirror/26_ru_whitelist.txt
-          git diff --cached --quiet || git commit -m "Update RU whitelist: {{ steps.check_alive.outputs.count }} Reality/Vision configs"
-          git push origin HEAD:main --follow-tags
+          git diff --cached --quiet || git commit -m "Update RU whitelist: ${{ steps.check_alive.outputs.count }} Reality/Vision configs"
+          git push origin HEAD:main --follow-tags  # ✅ ПРОСТОЙ push (GITHUB_TOKEN автоматом)
