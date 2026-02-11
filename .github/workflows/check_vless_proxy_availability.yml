@@ -37,33 +37,18 @@ jobs:
           : > githubmirror/26_proxy_subscription_raw.txt
           : > githubmirror/26_proxy_subscription_base64.txt
 
-      - name: Get runner IP
-        run: |
-          echo "RUNNER_IP=$(curl -s --max-time 10 https://api.ipify.org)" >> $GITHUB_ENV
-
       - name: Check VLESS via Xray
-        env:
-          RUNNER_IP: ${{ env.RUNNER_IP }}
         run: |
           python3 << 'EOF'
-          import subprocess
-          import time
-          import json
-          import urllib.parse
-          import os
-          import socket
-          import urllib.request
+          import subprocess, time, json, urllib.parse, os, socket
 
           WORKDIR = os.getcwd()
           XRAY_PATH = os.path.join(WORKDIR, "xray")
 
           INPUT = 'githubmirror/26_ru_whitelist.txt'
           OUTPUT_RAW = 'githubmirror/26_proxy_subscription_raw.txt'
-          RUNNER_IP = os.environ.get('RUNNER_IP', '').strip()
           TEST_URL = 'https://api.ipify.org'
           MAX_TOTAL_TIME = 1500
-
-          country_cache = {}
 
           def get_free_port():
               s = socket.socket()
@@ -85,44 +70,30 @@ jobs:
           def exit_ip(port):
               try:
                   out = subprocess.check_output(
-                      ['curl', '-s', '--max-time', '8',
-                       '-x', f'socks5h://127.0.0.1:{port}', TEST_URL],
+                      ['curl','-s','--max-time','8',
+                       '-x',f'socks5h://127.0.0.1:{port}',TEST_URL],
                       text=True
                   ).strip()
                   return out if out else None
-              except subprocess.CalledProcessError:
+              except:
                   return None
-              except Exception:
-                  return None
-
-          def country(ip):
-              if ip in country_cache:
-                  return country_cache[ip]
-              try:
-                  with urllib.request.urlopen(
-                      f'http://ip-api.com/json/{ip}?fields=countryCode',
-                      timeout=5
-                  ) as r:
-                      data = json.loads(r.read().decode())
-                      cc = data.get("countryCode", "Unknown")
-                      country_cache[ip] = cc
-                      return cc
-              except Exception:
-                  return "Unknown"
 
           if not os.path.exists(INPUT):
-              print(f"{INPUT} not found")
+              print("INPUT file not found")
               raise SystemExit(0)
 
           with open(INPUT) as f:
               links = [l.strip() for l in f if l.strip().startswith('vless://')]
 
-          print(f"Total links: {len(links)}")
+          total = len(links)
+          alive = 0
+
+          print(f"TOTAL LINKS: {total}")
           start_time = time.time()
 
           for link in links:
               if time.time() - start_time > MAX_TOTAL_TIME:
-                  print("Global time limit reached")
+                  print("TIME LIMIT REACHED")
                   break
 
               u = urllib.parse.urlparse(link)
@@ -130,24 +101,11 @@ jobs:
 
               port = get_free_port()
 
-              # type=xhttp трактуем как http
               raw_type = q.get('type', ['tcp'])[0]
-              if raw_type == 'xhttp':
-                  network = 'http'
-              else:
-                  network = raw_type
-
+              network = 'http' if raw_type == 'xhttp' else raw_type
               sec = q.get('security', ['none'])[0]
               sni = q.get('sni', [''])[0]
               fingerprint = q.get('fp', ['chrome'])[0]
-
-              alpn_raw = q.get('alpn', [])
-              alpn = alpn_raw[0].split(',') if alpn_raw and alpn_raw[0] else []
-
-              allow_insecure = q.get('allowInsecure', ['0'])[0] == '1'
-              path = q.get('path', [''])[0]
-              host_header = q.get('host', [''])[0]
-              service_name = q.get('serviceName', [''])[0]
 
               stream = {'network': network}
 
@@ -164,95 +122,72 @@ jobs:
                   stream['tlsSettings'] = {
                       'serverName': sni,
                       'fingerprint': fingerprint,
-                      'alpn': alpn,
-                      'allowInsecure': allow_insecure
+                      'allowInsecure': True
                   }
               else:
                   stream['security'] = 'none'
 
-              if network == 'ws':
-                  stream['wsSettings'] = {
-                      'path': path,
-                      'headers': {}
-                  }
-                  if host_header:
-                      stream['wsSettings']['headers']['Host'] = host_header
-
-              if network == 'grpc':
-                  stream['grpcSettings'] = {
-                      'serviceName': service_name
-                  }
-
-              if network == 'http':
-                  stream['httpSettings'] = {
-                      'path': path,
-                      'host': [host_header] if host_header else []
-                  }
-
               cfg = {
-                  'inbounds': [{
-                      'listen': '127.0.0.1',
-                      'port': port,
-                      'protocol': 'socks',
-                      'settings': {'udp': False}
+                  'inbounds':[{
+                      'listen':'127.0.0.1',
+                      'port':port,
+                      'protocol':'socks',
+                      'settings':{'udp':False}
                   }],
-                  'outbounds': [{
-                      'protocol': 'vless',
-                      'settings': {
-                          'vnext': [{
-                              'address': u.hostname,
-                              'port': u.port or 443,
-                              'users': [{
-                                  'id': u.username,
-                                  'encryption': 'none',
-                                  'flow': q.get('flow', [''])[0]
+                  'outbounds':[{
+                      'protocol':'vless',
+                      'settings':{
+                          'vnext':[{
+                              'address':u.hostname,
+                              'port':u.port or 443,
+                              'users':[{
+                                  'id':u.username,
+                                  'encryption':'none',
+                                  'flow':q.get('flow',[''])[0]
                               }]
                           }]
                       },
-                      'streamSettings': stream,
-                      'domainStrategy': 'UseIP'
+                      'streamSettings':stream
                   }]
               }
 
-              with open('cfg.json', 'w') as f:
-                  json.dump(cfg, f)
+              with open('cfg.json','w') as f:
+                  json.dump(cfg,f)
 
               p = subprocess.Popen(
-                  [XRAY_PATH, 'run', '-c', 'cfg.json'],
+                  [XRAY_PATH,'run','-c','cfg.json'],
                   stdout=subprocess.DEVNULL,
                   stderr=subprocess.DEVNULL
               )
 
-              if not wait_port("127.0.0.1", port, timeout=15):
+              if not wait_port("127.0.0.1",port,15):
                   p.kill()
                   continue
 
               ip = exit_ip(port)
 
               p.terminate()
-              try:
-                  p.wait(timeout=5)
-              except Exception:
-                  p.kill()
+              try: p.wait(timeout=5)
+              except: p.kill()
 
               time.sleep(1)
 
-              print(f"{u.hostname}:{u.port or 443} ({network}/{sec}) -> {ip}")
+              print(f"{u.hostname}:{u.port or 443} -> {ip}")
 
-              if not ip:
-                  continue
-              if RUNNER_IP and ip == RUNNER_IP:
-                  continue
-              if country(ip) == 'RU':
-                  continue
-
-              with open(OUTPUT_RAW, 'a') as f:
-                  f.write(link + '\n')
+              if ip:
+                  alive += 1
+                  with open(OUTPUT_RAW,'a') as f:
+                      f.write(link+'\n')
 
           if os.path.exists("cfg.json"):
               os.remove("cfg.json")
 
-          print("Done.")
+          print("===================================")
+          print(f"TOTAL: {total}")
+          print(f"ALIVE: {alive}")
+          print(f"ADDED TO FILE: {alive}")
+          print("===================================")
+          print("DONE")
           EOF
 
       - name: Encode subscription to Base64
