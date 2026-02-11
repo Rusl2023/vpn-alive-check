@@ -1,14 +1,14 @@
 name: Check VLESS RU Whitelist + Reality Vision + GeoIP + ASN
 on:
   schedule:
-    - cron: '*/20 * * * *'  # каждые 20мин
+    - cron: '*/20 * * * *'
   workflow_dispatch:
 
 jobs:
   check:
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # ✅ Git push!
+      contents: write
     outputs:
       count: ${{ steps.check_alive.outputs.count }}
 
@@ -16,7 +16,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # ✅ Git history
+          fetch-depth: 0
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -37,7 +37,6 @@ jobs:
 
           print("🚀 VLESS RU Whitelist Scanner v3.0")
           
-          # БАЗЫ
           COUNTRY_DB = "geolite2/GeoLite2-Country.mmdb"
           ASN_DB = "geolite2/GeoLite2-ASN.mmdb"
           
@@ -47,16 +46,15 @@ jobs:
           country_reader = geoip2.database.Reader(COUNTRY_DB)
           asn_reader = geoip2.database.Reader(ASN_DB)
 
-          # RU SNI (719 доменов)
           RU_SNI_URL = "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/refs/heads/main/whitelist.txt"
           ru_sni = set()
           try:
               r = requests.get(RU_SNI_URL, timeout=15)
               ru_sni = set(l.strip().lower() for l in r.text.splitlines() if l.strip() and not l.startswith('#'))
               print(f"✅ RU SNI: {len(ru_sni)}")
-          except: print("❌ RU SNI fail"); sys.exit(0)
+          except: 
+              print("❌ RU SNI fail"); sys.exit(0)
 
-          # ИСТОЧНИКИ (ТОП свежие)
           URLS = [
               "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/refs/heads/main/subscriptions/v2ray/all_sub.txt",
               "https://raw.githubusercontent.com/barry-far/V2ray-configs/main/All_Configs_Sub.txt",
@@ -65,16 +63,19 @@ jobs:
               "https://raw.githubusercontent.com/zealis/v2ray-subscription/master/vless.txt"
           ]
 
-          # Функции
-          dns_cache,geo_cache,asn_cache = {},{},{}
-          
+          dns_cache = {}
+          geo_cache = {}
+          asn_cache = {}
+
           def resolve_host(host):
               if host in dns_cache: return dns_cache[host]
               try:
                   ip = socket.gethostbyname(host)
                   dns_cache[host] = ip
                   return ip
-              except: dns_cache[host]=None; return None
+              except: 
+                  dns_cache[host] = None
+                  return None
 
           def not_ru_geo(host):
               if host in geo_cache: return geo_cache[host]
@@ -82,9 +83,12 @@ jobs:
               if not ip: return False
               try:
                   country = country_reader.country(ip).country.iso_code
-                  geo_cache[host] = country != "RU"
-                  return country != "RU"
-              except: geo_cache[host]=False; return False
+                  result = country != "RU"
+                  geo_cache[host] = result
+                  return result
+              except: 
+                  geo_cache[host] = False
+                  return False
 
           def not_ru_asn(host):
               if host in asn_cache: return asn_cache[host]
@@ -93,9 +97,12 @@ jobs:
               try:
                   org = asn_reader.asn(ip).autonomous_system_organization.lower()
                   ru_asns = {"rostelecom","mts","megafon","beeline","tele2","yandex","rt"}
-                  asn_cache[host] = not any(asn in org for asn in ru_asns)
-                  return not any(asn in org for asn in ru_asns)
-              except: asn_cache[host]=True; return True
+                  result = not any(asn in org for asn in ru_asns)
+                  asn_cache[host] = result
+                  return result
+              except: 
+                  asn_cache[host] = True
+                  return True
 
           def tcp_ping(host,port=443,timeout=1):
               try:
@@ -113,7 +120,7 @@ jobs:
                   q = urllib.parse.parse_qs(u.query)
                   
                   port = 443
-                  if ":" in u.netloc: 
+                  if u.netloc and ":" in u.netloc:
                       port = int(u.netloc.rsplit(":",1)[1])
                   
                   return {
@@ -127,20 +134,18 @@ jobs:
                   }
               except: return None
 
-          # Загрузка
           print("📥 Загрузка...")
           all_lines = []
           for url in URLS:
               try:
                   r = requests.get(url, timeout=20)
                   all_lines.extend(r.text.splitlines())
-                  print(f"  {url.split('/')[-1]}: {len(r.text.splitlines())}")
+                  print(f"  {url.split('/')[-1]}: {len(r.text.splitlines())} строк")
               except: pass
 
           vless_links = [l for l in all_lines if l.strip().startswith("vless://")]
           print(f"📊 Всего VLESS: {len(vless_links)}")
 
-          # ПАРАЛЛЕЛЬНАЯ проверка
           results = []
           seen = set()
           MAX_WORKERS = 100
@@ -149,13 +154,11 @@ jobs:
               d = parse_vless(link)
               if not d: return None
               
-              # ✅ БАЗОВЫЕ ФИЛЬТРЫ (ослаблены)
-              if d["sni"] not in ru_sni: return None  # RU SNI
-              if not not_ru_geo(d["host"]): return None  # не RU
-              if not not_ru_asn(d["host"]): return None  # не RU ASN
-              if not tcp_ping(d["host"], d["port"]): return None  # LIVE
+              if d["sni"] not in ru_sni: return None
+              if not not_ru_geo(d["host"]): return None
+              if not not_ru_asn(d["host"]): return None
+              if not tcp_ping(d["host"], d["port"]): return None
               
-              # ✅ РЕЖИМЫ (ВСЕ рабочие)
               tag = ""
               if d["security"] == "reality":
                   tag = f"R-{d['port']}"
@@ -165,12 +168,11 @@ jobs:
               
               key = (d["host"], d["port"], d["sni"])
               if key in seen: return None
-              seen.add(key)
               
               return {
                   "link": d["link"] + f"#{tag}",
                   "host": d["host"],
-                  "ping": "LIVE",
+                  "port": d["port"],
                   "sni": d["sni"]
               }
 
@@ -181,22 +183,21 @@ jobs:
                   result = future.result()
                   if result:
                       results.append(result)
-                      print(f"✅ LIVE: {result['host']}:{result['port']} ({result['sni'][:30]}...)")
+                      print(f"✅ LIVE: {result['host']}:{result['port']} sni={result['sni'][:30]}...")
 
-          # СОХРАНЕНИЕ
           os.makedirs("githubmirror", exist_ok=True)
           final_links = [r["link"] for r in results]
           
           with open("githubmirror/26_ru_whitelist.txt", "w") as f:
-              for link in final_links: f.write(link + "\n")
+              for link in final_links: 
+                  f.write(link + "\n")
           
-          # СТАТИСТИКА
           stats = f"""📊 СТАТИСТИКА {time.strftime('%Y-%m-%d %H:%M')}
 Всего строк: {len(all_lines)}
 VLESS ссылок: {len(vless_links)}
 RU SNI проверено: {len([l for l in vless_links if parse_vless(l) and parse_vless(l)["sni"] in ru_sni])}
 🔥 LIVE ключей: {len(final_links)}
-DNS кэш: {len(dns_cache)}
+DNS: {len(dns_cache)} GeoIP: {len(geo_cache)} ASN: {len(asn_cache)}
 ---
 ТОП КЛЮЧИ:
 """
@@ -206,7 +207,6 @@ DNS кэш: {len(dns_cache)}
           with open("githubmirror/ru_stats.txt", "w") as f:
               f.write(stats)
 
-          # OUTPUT
           with open(os.environ["GITHUB_OUTPUT"],"a") as f:
               f.write(f"count={len(final_links)}\n")
           
@@ -217,7 +217,7 @@ DNS кэш: {len(dns_cache)}
         if: always()
         run: |
           git config --local user.name "github-actions[bot]"
-          git config user.email "github-actions[users.noreply.github.com"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git add githubmirror/
           if git diff --staged --quiet; then
             echo "Нет новых ключей"
