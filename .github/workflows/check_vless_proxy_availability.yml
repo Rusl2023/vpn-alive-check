@@ -1,13 +1,13 @@
 name: Check VLESS proxy availability via Xray (base64 subscription)
 on:
   schedule:
-    - cron: '0 * * * *'  # ✅ Каждый час ровно
+    - cron: '0 * * * *'  # Каждый час ровно
   workflow_dispatch:
 
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 45  # ✅ Запас до 60 мин
+    timeout-minutes: 45
     permissions:
       contents: write
 
@@ -92,8 +92,6 @@ jobs:
 
           def test_proxy_robust(port):
               """⭐ 3x10s: IP → HTTP → HTTPS"""
-              
-              # 1. IP (10s)
               try:
                   ip = subprocess.check_output(
                       ['curl', '-s', '--max-time', '10', '-x', f'socks5h://127.0.0.1:{port}', IP_TEST_URL],
@@ -102,7 +100,6 @@ jobs:
                   if not ip or len(ip) < 7: return False, None
               except: return False, None
 
-              # 2. HTTP (10s)
               try:
                   http_code = subprocess.check_output(
                       ['curl', '-s', '--max-time', '10', '-x', f'socks5h://127.0.0.1:{port}', 
@@ -112,7 +109,6 @@ jobs:
                   if http_code != '200': return False, None
               except: return False, None
 
-              # 3. HTTPS (10s)
               try:
                   https_code = subprocess.check_output(
                       ['curl', '-s', '--max-time', '10', '-x', f'socks5h://127.0.0.1:{port}', 
@@ -225,7 +221,6 @@ jobs:
               raise SystemExit(0)
 
           with open(INPUT) as f:
-              # ✅ FAIL-SAFE: проверка пустого списка
               links = [l.strip() for l in f if l.strip().startswith('vless://')]
               
           if not links:
@@ -270,42 +265,93 @@ jobs:
 
           elapsed = time.time() - start
           print(f"\n{'='*60}")
-          print(f"⭐ SUPER PROXIES | Total: {total_links} | Alive: {len(alive)} | Time: {elapsed:.1f}s")
-          print(f"📁 Raw file: {len(open(OUTPUT_RAW).readlines())} lines")
+          print(f"⭐ FINAL RESULT | Total: {total_links} | Alive: {len(alive)} | Time: {elapsed:.1f}s")
+          print(f"📁 Raw file now has: {len(open(OUTPUT_RAW).readlines())} lines")
+          print(f"📁 SUPER proxies saved: {len(alive)}")
           print(f"{'='*60}")
           EOF
+
+      - name: Debug files before commit
+        run: |
+          echo "=== RAW FILE DEBUG ==="
+          echo "Lines in RAW: $(wc -l < githubmirror/26_proxy_subscription_raw.txt)"
+          echo "Content preview:"
+          head -10 githubmirror/26_proxy_subscription_raw.txt
+          echo "Tail preview:"
+          tail -5 githubmirror/26_proxy_subscription_raw.txt
+          echo "=== ALL FILES ==="
+          ls -la githubmirror/*.txt
 
       - name: Encode Base64
         run: |
           RAW="githubmirror/26_proxy_subscription_raw.txt"
           B64="githubmirror/26_proxy_subscription_base64.txt"
+          
           if [ $(wc -l < "$RAW") -gt 1 ]; then
+            PROXY_COUNT=$(tail -n +2 "$RAW" | wc -l)
+            echo "📊 Found $PROXY_COUNT SUPER proxies"
             tail -n +2 "$RAW" | base64 -w 0 > "$B64"
-            COUNT=$(tail -n +2 "$RAW" | wc -l)
-            echo "✅ SUPER proxies: $COUNT (IP+HTTP+HTTPS)"
+            echo "✅ Base64 created: $PROXY_COUNT lines"
           else
+            echo "⚠️ No SUPER proxies found"
             : > "$B64"
-            echo "⚠️ No SUPER proxies"
           fi
+          echo "Final file sizes:"
           ls -la githubmirror/*.txt
 
-      - name: Commit & Push
+      - name: ✅ Safe Git Commit & Push
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
         run: |
           RAW="githubmirror/26_proxy_subscription_raw.txt"
-          if [ $(wc -l < "$RAW") -gt 1 ]; then
-            git config user.name "github-actions"
-            git config user.email "github-actions@github.com"
+          
+          # Проверяем наличие рабочих прокси
+          PROXY_COUNT=$(tail -n +2 "$RAW" 2>/dev/null | wc -l || echo "0")
+          
+          if [ "$PROXY_COUNT" -gt 0 ]; then
+            echo "🚀 Preparing to commit $PROXY_COUNT SUPER proxies"
+            
+            # ✅ 1. Настраиваем git
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            
+            # ✅ 2. ЧИСТЫЙ checkout текущего состояния main
+            git checkout main 2>/dev/null || git checkout -b main
+            git fetch origin
+            git reset --hard origin/main
+            
+            # ✅ 3. Добавляем файлы
             git add githubmirror/*.txt
-            COUNT=$(tail -n +2 "$RAW" | wc -l)
-            git diff --cached --quiet || git commit -m "⭐ Update $COUNT SUPER proxies [$(date +'%Y-%m-%d %H:%M UTC')]"
-            # ✅ RACE CONDITION защита
-            git fetch origin main
-            git reset --hard origin/main || true
-            git pull --rebase origin main || true
-            git push "https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY}" HEAD:main
-            echo "✅ Pushed $COUNT SUPER proxies"
+            
+            # ✅ 4. Проверяем изменения
+            if git diff --cached --quiet; then
+              echo "⚠️ No changes to commit (files unchanged)"
+              exit 0
+            fi
+            
+            # ✅ 5. Commit с точным счетчиком
+            git commit -m "⭐ Update: $PROXY_COUNT SUPER VLESS proxies
+$(date +'%Y-%m-%d %H:%M UTC')
+
+📊 Tested: $(wc -l < "$RAW") lines total
+✅ Alive: $PROXY_COUNT SUPER (IP+HTTP+HTTPS)
+📁 Files: githubmirror/*.txt"
+            
+            # ✅ 6. Безопасный push с force (перезапись)
+            git push https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY}.git HEAD:main --force-with-lease
+            
+            echo "✅ SUCCESS: Pushed $PROXY_COUNT SUPER proxies to main"
           else
-            echo "⚠️ No SUPER proxies to commit"
+            echo "⚠️ No SUPER proxies to commit (RAW has $(wc -l < "$RAW") lines)"
           fi
+
+      - name: Final verification
+        if: always()
+        run: |
+          echo "=== FINAL STATE ==="
+          ls -la githubmirror/
+          echo "RAW preview:"
+          head -3 githubmirror/26_proxy_subscription_raw.txt || echo "RAW empty/missing"
+          echo "=== Git status ==="
+          git status
+          git log --oneline -3 || echo "No commits"
