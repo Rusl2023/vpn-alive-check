@@ -91,7 +91,6 @@ jobs:
               return False
 
           def test_proxy_robust(port):
-              """⭐ 3x10s: IP → HTTP → HTTPS"""
               try:
                   ip = subprocess.check_output(
                       ['curl', '-s', '--max-time', '10', '-x', f'socks5h://127.0.0.1:{port}', IP_TEST_URL],
@@ -299,50 +298,52 @@ jobs:
           echo "Final file sizes:"
           ls -la githubmirror/*.txt
 
-      - name: ✅ Safe Git Commit & Push
+      - name: Safe Git Commit & Push
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
         run: |
           RAW="githubmirror/26_proxy_subscription_raw.txt"
           
-          # Проверяем наличие рабочих прокси
+          # ✅ КРИТИЧНАЯ ПРОВЕРКА GH_PAT
+          if [ -z "$GH_PAT" ] || [ "$GH_PAT" = "null" ] || [ "$GH_PAT" = "" ]; then
+            echo "❌ ERROR: GH_PAT secret is not set or empty!"
+            echo "   Create GH_PAT in repo Settings > Secrets and variables > Actions"
+            echo "   Token needs: repo (full control)"
+            exit 1
+          fi
+          
           PROXY_COUNT=$(tail -n +2 "$RAW" 2>/dev/null | wc -l || echo "0")
           
           if [ "$PROXY_COUNT" -gt 0 ]; then
             echo "🚀 Preparing to commit $PROXY_COUNT SUPER proxies"
             
-            # ✅ 1. Настраиваем git
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
             
-            # ✅ 2. ЧИСТЫЙ checkout текущего состояния main
             git checkout main 2>/dev/null || git checkout -b main
             git fetch origin
             git reset --hard origin/main
             
-            # ✅ 3. Добавляем файлы
             git add githubmirror/*.txt
             
-            # ✅ 4. Проверяем изменения
             if git diff --cached --quiet; then
-              echo "⚠️ No changes to commit (files unchanged)"
+              echo "⚠️ No changes to commit"
               exit 0
             fi
             
-            # ✅ 5. Commit с точным счетчиком
-            git commit -m "⭐ Update: $PROXY_COUNT SUPER VLESS proxies
-$(date +'%Y-%m-%d %H:%M UTC')
-
-📊 Tested: $(wc -l < "$RAW") lines total
-✅ Alive: $PROXY_COUNT SUPER (IP+HTTP+HTTPS)
-📁 Files: githubmirror/*.txt"
+            git commit -m "⭐ Update: $PROXY_COUNT SUPER VLESS proxies ($(date +'%Y-%m-%d %H:%M UTC')) | IP+HTTP+HTTPS"
             
-            # ✅ 6. Безопасный push с force (перезапись)
-            git push https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY}.git HEAD:main --force-with-lease
-            
-            echo "✅ SUCCESS: Pushed $PROXY_COUNT SUPER proxies to main"
+            echo "🔐 Testing PAT before push..."
+            if git push https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY}.git HEAD:main --force-with-lease --dry-run; then
+              echo "✅ PAT works! Pushing..."
+              git push https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY}.git HEAD:main --force-with-lease
+              echo "✅ SUCCESS: Pushed $PROXY_COUNT SUPER proxies"
+            else
+              echo "❌ PAT push failed - check token permissions!"
+              exit 1
+            fi
           else
-            echo "⚠️ No SUPER proxies to commit (RAW has $(wc -l < "$RAW") lines)"
+            echo "⚠️ No SUPER proxies to commit ($(wc -l < "$RAW") lines total)"
           fi
 
       - name: Final verification
@@ -353,5 +354,5 @@ $(date +'%Y-%m-%d %H:%M UTC')
           echo "RAW preview:"
           head -3 githubmirror/26_proxy_subscription_raw.txt || echo "RAW empty/missing"
           echo "=== Git status ==="
-          git status
+          git status --porcelain || echo "Clean"
           git log --oneline -3 || echo "No commits"
