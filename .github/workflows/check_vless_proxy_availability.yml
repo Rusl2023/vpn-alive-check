@@ -34,8 +34,10 @@ jobs:
       - name: Prepare files
         run: |
           mkdir -p githubmirror
-          : > githubmirror/26_proxy_subscription_raw.txt
-          : > githubmirror/26_proxy_subscription_base64.txt
+          # Очищаем файлы перед новым запуском
+          > githubmirror/26_proxy_subscription_raw.txt
+          > githubmirror/26_proxy_subscription_base64.txt
+          echo "# updated $(date -u)" > githubmirror/26_proxy_subscription_raw.txt
 
       - name: Check VLESS via Xray
         run: |
@@ -43,6 +45,7 @@ jobs:
           import subprocess, time, json, urllib.parse, os, socket
           from concurrent.futures import ThreadPoolExecutor, wait, FIRST_COMPLETED
           from threading import Lock
+          from datetime import datetime
 
           XRAY_PATH = os.path.join(os.getcwd(), "xray")
           INPUT = 'githubmirror/26_ru_whitelist.txt'
@@ -226,7 +229,6 @@ jobs:
                       futures.append(executor.submit(check_one, link))
 
                       if len(futures) >= MAX_WORKERS * 2:
-                          # ИСПРАВЛЕНО: не перезаписываем futures, используем разные переменные
                           done, pending = wait(futures, timeout=0.5, return_when=FIRST_COMPLETED)
                           for f in done:
                               try:
@@ -235,9 +237,8 @@ jobs:
                                       alive_links.append(r)
                               except:
                                   pass
-                          futures = list(pending)  # Преобразуем set в list
+                          futures = list(pending)
 
-                  # Обрабатываем оставшиеся задачи
                   for f in futures:
                       try:
                           r = f.result(timeout=2)
@@ -248,7 +249,9 @@ jobs:
           finally:
               cleanup()
 
-          with open(OUTPUT_RAW, 'w') as f:
+          # Записываем ТОЛЬКО живые прокси с этого запуска
+          with open(OUTPUT_RAW, 'a') as f:  # 'a' - добавляем после заголовка
+              # Заголовок уже есть от Prepare files
               for l in alive_links:
                   f.write(l + '\n')
 
@@ -265,8 +268,10 @@ jobs:
       - name: Encode subscription to Base64
         run: |
           if [ -s githubmirror/26_proxy_subscription_raw.txt ]; then
-            base64 -w 0 githubmirror/26_proxy_subscription_raw.txt > githubmirror/26_proxy_subscription_base64.txt
-            echo "✅ Base64 encoded: $(wc -l < githubmirror/26_proxy_subscription_raw.txt) proxies"
+            # Удаляем первую строку (заголовок) перед кодированием
+            tail -n +2 githubmirror/26_proxy_subscription_raw.txt | base64 -w 0 > githubmirror/26_proxy_subscription_base64.txt
+            COUNT=$(tail -n +2 githubmirror/26_proxy_subscription_raw.txt | wc -l)
+            echo "✅ Base64 encoded: $COUNT proxies"
           else
             echo "⚠️ No working proxies found"
             : > githubmirror/26_proxy_subscription_base64.txt
@@ -276,18 +281,25 @@ jobs:
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
         run: |
-          if [ -s githubmirror/26_proxy_subscription_raw.txt ] || [ -s githubmirror/26_proxy_subscription_base64.txt ]; then
-            git config user.name "github-actions"
-            git config user.email "github-actions@github.com"
+          if [ -s githubmirror/26_proxy_subscription_raw.txt ]; then
+            # Проверяем есть ли изменения (исключаем строку с датой)
+            if [ $(git diff --cached githubmirror/26_proxy_subscription_raw.txt | grep -c "^+vless://") -gt 0 ] || \
+               [ -s githubmirror/26_proxy_subscription_base64.txt ]; then
+              
+              git config user.name "github-actions"
+              git config user.email "github-actions@github.com"
 
-            git fetch origin main
-            git reset --hard origin/main
+              git fetch origin main
+              git reset --hard origin/main
 
-            git add githubmirror/26_proxy_subscription_raw.txt githubmirror/26_proxy_subscription_base64.txt
-            git diff --cached --quiet || git commit -m "Update proxies [$(date +'%Y-%m-%d %H:%M')]"
+              git add githubmirror/26_proxy_subscription_raw.txt githubmirror/26_proxy_subscription_base64.txt
+              git diff --cached --quiet || git commit -m "Update proxies [$(date +'%Y-%m-%d %H:%M UTC')]"
 
-            git push https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY} HEAD:main
-            echo "✅ Changes pushed"
+              git push https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY} HEAD:main
+              echo "✅ Changes pushed: $(tail -n +2 githubmirror/26_proxy_subscription_raw.txt | wc -l) working proxies"
+            else
+              echo "⚠️ No new working proxies found"
+            fi
           else
-            echo "⚠️ No changes to commit"
+            echo "⚠️ No proxies to commit"
           fi
