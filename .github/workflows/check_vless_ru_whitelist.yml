@@ -31,9 +31,15 @@ jobs:
         id: check_alive
         run: |
           python - <<'EOF'
-          import os,sys,socket,urllib.parse,requests,time,json
+          import os
+          import sys
+          import socket
+          import urllib.parse
+          import requests
+          import time
           from concurrent.futures import ThreadPoolExecutor,as_completed
-          import geoip2.database,geoip2.errors
+          import geoip2.database
+          import geoip2.errors
 
           print("🚀 VLESS RU Whitelist Scanner v3.0")
           
@@ -41,7 +47,8 @@ jobs:
           ASN_DB = "geolite2/GeoLite2-ASN.mmdb"
           
           if not os.path.exists(COUNTRY_DB) or not os.path.exists(ASN_DB):
-              print("❌ GeoLite2 DB missing"); sys.exit(0)
+              print("❌ GeoLite2 DB missing")
+              sys.exit(0)
               
           country_reader = geoip2.database.Reader(COUNTRY_DB)
           asn_reader = geoip2.database.Reader(ASN_DB)
@@ -53,7 +60,8 @@ jobs:
               ru_sni = set(l.strip().lower() for l in r.text.splitlines() if l.strip() and not l.startswith('#'))
               print(f"✅ RU SNI: {len(ru_sni)}")
           except: 
-              print("❌ RU SNI fail"); sys.exit(0)
+              print("❌ RU SNI fail")
+              sys.exit(0)
 
           URLS = [
               "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/refs/heads/main/subscriptions/v2ray/all_sub.txt",
