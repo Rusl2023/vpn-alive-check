@@ -9,7 +9,7 @@ jobs:
   check:
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # ✅ Обязательно для git push
+      contents: write
     outputs:
       count: ${{ steps.check_alive.outputs.count }}
 
@@ -17,7 +17,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # ✅ Все файлы repo + git credentials
+          fetch-depth: 0
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -33,120 +33,219 @@ jobs:
         id: check_alive
         run: |
           python - <<'EOF'
-          import os, sys, socket, urllib.parse, requests, uuid
+          import os
+          import sys
+          import socket
+          import urllib.parse
+          import requests
+          import uuid
           from concurrent.futures import ThreadPoolExecutor, as_completed
-          import geoip2.database, geoip2.errors
+          import geoip2.database
+          import geoip2.errors
 
-          with open(os.environ["GITHUB_OUTPUT"], "a") as out: out.write("count=0\n")
+          with open(os.environ["GITHUB_OUTPUT"], "a") as out:
+              out.write("count=0\n")
 
+          print("🚀 Starting RU Whitelist check...")
           COUNTRY_DB = "geolite2/GeoLite2-Country.mmdb"
+          
           if not os.path.exists(COUNTRY_DB):
-              print("❌ GeoLite2 NOT FOUND!"); sys.exit(1)
-          reader = geoip2.database.Reader(COUNTRY_DB); print("✅ GeoLite2 OK")
+              print("❌ GeoLite2 NOT FOUND!")
+              sys.exit(1)
+              
+          reader = geoip2.database.Reader(COUNTRY_DB)
+          print("✅ GeoLite2 LOADED!")
 
           URLS = [
               "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/refs/heads/main/subscriptions/v2ray/all_sub.txt",
-              "https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/1.txt","https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/23.txt",
-              "https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/24.txt","https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/25.txt",
-              "https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt","https://raw.githubusercontent.com/zieng2/wl/refs/heads/main/vless_lite.txt",
-              "https://bp.wl.free.nf/confs/wl.txt","https://raw.githubusercontent.com/sakha1370/OpenRay/refs/heads/main/output/country/XX.txt",
-              "https://raw.githubusercontent.com/SilentGhostCodes/WhiteListVpn/refs/heads/main/Whitelist.txt","https://raw.githubusercontent.com/SilentGhostCodes/WhiteListVpn/refs/heads/main/Whitelist%20%E2%84%962.txt",
-              "https://raw.githubusercontent.com/whoahaow/rjsxrd/refs/heads/main/githubmirror/bypass/bypass-all.txt","https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list/refs/heads/main/vless_configs.txt",
-              "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/WHITE-SNI-RU-all.txt","https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/WHITE-CIDR-RU-checked.txt",
+              "https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/1.txt",
+              "https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/23.txt",
+              "https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/24.txt",
+              "https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/25.txt",
+              "https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt",
+              "https://raw.githubusercontent.com/zieng2/wl/refs/heads/main/vless_lite.txt",
+              "https://bp.wl.free.nf/confs/wl.txt",
+              "https://raw.githubusercontent.com/sakha1370/OpenRay/refs/heads/main/output/country/XX.txt",
+              "https://raw.githubusercontent.com/SilentGhostCodes/WhiteListVpn/refs/heads/main/Whitelist.txt",
+              "https://raw.githubusercontent.com/SilentGhostCodes/WhiteListVpn/refs/heads/main/Whitelist ②.txt",
+              "https://raw.githubusercontent.com/whoahaow/rjsxrd/refs/heads/main/githubmirror/bypass/bypass-all.txt",
+              "https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list/refs/heads/main/vless_configs.txt",
+              "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/WHITE-SNI-RU-all.txt",
+              "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/WHITE-CIDR-RU-checked.txt",
               "https://raw.githubusercontent.com/hamedcode/port-based-v2ray-configs/main/sub/vless.txt"
           ]
-          RU_SNI_WHITELIST_URL = "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/refs/heads/main/whitelist.txt"
-          MAX_WORKERS = 30; ALLOWED_FP = {"chrome","firefox","safari","edge","ios","android"}; dns_cache={}; geo_cache={}
 
-          def resolve_host(host): 
-              if host in dns_cache: return dns_cache[host]
+          RU_SNI_WHITELIST_URL = "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/refs/heads/main/whitelist.txt"
+          MAX_WORKERS = 30
+          ALLOWED_FP = {"chrome", "firefox", "safari", "edge", "ios", "android"}
+          dns_cache = {}
+          geo_cache = {}
+
+          def resolve_host(host):
+              if host in dns_cache:
+                  return dns_cache[host]
               try:
-                  addrs = socket.getaddrinfo(host,None,family=socket.AF_INET6)
-                  if addrs: dns_cache[host] = addrs[0][4][0]; return addrs[0][4][0]
-                  ip = socket.gethostbyname(host); dns_cache[host] = ip; return ip
-              except: dns_cache[host] = None; return None
+                  addrs = socket.getaddrinfo(host, None, family=socket.AF_INET6)
+                  if addrs:
+                      dns_cache[host] = addrs[0][4][0]
+                      return addrs[0][4][0]
+                  ip = socket.gethostbyname(host)
+                  dns_cache[host] = ip
+                  return ip
+              except:
+                  dns_cache[host] = None
+                  return None
 
           def geo_not_ru(host):
-              if host in geo_cache: return geo_cache[host]
-              ip = resolve_host(host); if not ip: geo_cache[host] = False; return False
-              try: country = reader.country(ip).country.iso_code; result = country != "RU"; geo_cache[host] = result; return result
-              except geoip2.errors.AddressNotFoundError: geo_cache[host] = True; return True
-              except: geo_cache[host] = False; return False
+              if host in geo_cache:
+                  return geo_cache[host]
+              ip = resolve_host(host)
+              if not ip:
+                  geo_cache[host] = False
+                  return False
+              try:
+                  country = reader.country(ip).country.iso_code
+                  result = country != "RU"
+                  geo_cache[host] = result
+                  return result
+              except geoip2.errors.AddressNotFoundError:
+                  geo_cache[host] = True
+                  return True
+              except:
+                  geo_cache[host] = False
+                  return False
 
           def load_whitelist():
               try:
-                  r = requests.get(RU_SNI_WHITELIST_URL, timeout=20); r.raise_for_status()
-                  whitelist = set(line.strip().lower() for line in r.text.splitlines() if line.strip() and not line.startswith("#"))
-                  print(f"✅ {len(whitelist)} RU SNI"); return whitelist
-              except: return set()
+                  r = requests.get(RU_SNI_WHITELIST_URL, timeout=20)
+                  r.raise_for_status()
+                  whitelist = set(line.strip().lower() for line in r.text.splitlines() 
+                                 if line.strip() and not line.startswith("#"))
+                  print(f"✅ Loaded {len(whitelist)} RU SNI whitelists")
+                  return whitelist
+              except Exception as e:
+                  print(f"❌ Whitelist load error: {e}")
+                  return set()
 
-          RU_SNI_WHITELIST = load_whitelist(); if not RU_SNI_WHITELIST: print("❌ Whitelist empty"); sys.exit(0)
+          RU_SNI_WHITELIST = load_whitelist()
+          if not RU_SNI_WHITELIST:
+              print("❌ RU SNI whitelist empty, skipping")
+              sys.exit(0)
 
           def parse_vless(link):
               try:
-                  u = urllib.parse.urlparse(link.strip()); q = urllib.parse.parse_qs(u.query)
-                  if not u.hostname: return None
-                  port = 443; if ":" in u.netloc: port = int(u.netloc.rsplit(":",1)[1])
+                  u = urllib.parse.urlparse(link.strip())
+                  q = urllib.parse.parse_qs(u.query)
+                  if not u.hostname:
+                      return None
+                  port = 443
+                  if ":" in u.netloc:
+                      port = int(u.netloc.rsplit(":", 1)[1])
                   uuid.UUID(u.username)
-                  return {"raw":link.split("#")[0],"host":u.hostname,"port":port,"security":q.get("security",[""])[0].lower(),
-                          "flow":q.get("flow",[""])[0].lower(),"type":q.get("type",["tcp"])[0].lower(),"sni":q.get("sni",[""])[0].lower(),"fp":q.get("fp",[""])[0].lower()}
-              except: return None
+                  return {
+                      "raw": link.split("#")[0],
+                      "host": u.hostname,
+                      "port": port,
+                      "security": q.get("security", [""])[0].lower(),
+                      "flow": q.get("flow", [""])[0].lower(),
+                      "type": q.get("type", ["tcp"])[0].lower(),
+                      "sni": q.get("sni", [""])[0].lower(),
+                      "fp": q.get("fp", [""])[0].lower()
+                  }
+              except:
+                  return None
 
           def match_vless(d):
-              if not d or not d["sni"] or d["sni"] not in RU_SNI_WHITELIST: return None
-              if not geo_not_ru(d["host"]): return None
-              sec,flow,tp,port,fp = d["security"],d["flow"],d["type"],d["port"],d["fp"]
+              if not d or not d["sni"] or d["sni"] not in RU_SNI_WHITELIST:
+                  return None
+              if not geo_not_ru(d["host"]):
+                  return None
+              sec, flow, tp, port, fp = d["security"], d["flow"], d["type"], d["port"], d["fp"]
+              
               if sec == "reality" and fp in ALLOWED_FP:
-                  if tp == "xhttp" and port == 443: return "XHTTP-REALITY-EXTRA-443"
-                  if flow == "xtls-rprx-vision" and tp in ("tcp","") and port == 443: return "RAW-REALITY-VISION-443"
+                  if tp == "xhttp" and port == 443:
+                      return "XHTTP-REALITY-EXTRA-443"
+                  if flow == "xtls-rprx-vision" and tp in ("tcp", "") and port == 443:
+                      return "RAW-REALITY-VISION-443"
+              
               if sec == "tls":
-                  if flow == "xtls-rprx-vision" and tp in ("tcp","") and port == 8443: return "RAW-TLS-VISION-8443"
-                  if tp == "xhttp" and port == 8443: return "XHTTP-TLS-EXTRA-8443"
-                  if tp == "ws" and port == 8443: return "WS-TLS-8443"
-                  if tp == "grpc" and port == 8443: return "GRPC-TLS-8443"
+                  if flow == "xtls-rprx-vision" and tp in ("tcp", "") and port == 8443:
+                      return "RAW-TLS-VISION-8443"
+                  if tp == "xhttp" and port == 8443:
+                      return "XHTTP-TLS-EXTRA-8443"
+                  if tp == "ws" and port == 8443:
+                      return "WS-TLS-8443"
+                  if tp == "grpc" and port == 8443:
+                      return "GRPC-TLS-8443"
               return None
 
           def match_socks(line):
               try:
                   u = urllib.parse.urlparse(line.strip())
-                  if u.scheme.lower() != "socks5": return None
-                  port = int(u.netloc.rsplit(":",1)[1])
-                  if port == 10443 and geo_not_ru(u.hostname): return line.split("#")[0] + "#SOCKS5-10443"
-              except: pass
+                  if u.scheme.lower() != "socks5":
+                      return None
+                  port = int(u.netloc.rsplit(":", 1)[1])
+                  if port == 10443 and geo_not_ru(u.hostname):
+                      return line.split("#")[0] + "#SOCKS5-10443"
+              except:
+                  pass
               return None
 
-          print("📥 Loading..."); lines=[]
+          print("📥 Loading configs...")
+          lines = []
           for url in URLS:
-              try: r=requests.get(url,timeout=20,stream=True); r.raise_for_status()
-                  for line in r.iter_lines(decode_unicode=True): if line: lines.append(line)
-              except: pass
-          print(f"📊 {len(lines)} lines")
+              try:
+                  r = requests.get(url, timeout=20, stream=True)
+                  r.raise_for_status()
+                  for line in r.iter_lines(decode_unicode=True):
+                      if line:
+                          lines.append(line)
+              except:
+                  pass
 
-          results,seen = [],set()
+          print(f"📊 Total lines loaded: {len(lines)}")
+
+          results = []
+          seen = set()
+
           def process(line):
-              line=line.strip()
+              line = line.strip()
               if line.startswith("vless://"):
-                  d=parse_vless(line); tag=match_vless(d)
-                  if tag: key=(d["host"],d["port"],d["sni"],tag); return key, d["raw"]+f"#{tag}"
+                  d = parse_vless(line)
+                  tag = match_vless(d)
+                  if tag:
+                      key = (d["host"], d["port"], d["sni"], tag)
+                      return key, d["raw"] + f"#{tag}"
               elif line.lower().startswith("socks5://"):
-                  s=match_socks(line); if s: return ("socks",s),s
+                  s = match_socks(line)
+                  if s:
+                      return ("socks", s), s
               return None
 
-          print(f"⚡ {MAX_WORKERS} workers...")
+          print(f"⚡ Processing {len(lines)} lines with {MAX_WORKERS} workers...")
           with ThreadPoolExecutor(max_workers=MAX_WORKERS) as exe:
-              futures = [exe.submit(process,l) for l in lines]
+              futures = [exe.submit(process, l) for l in lines]
               for f in as_completed(futures):
-                  r=f.result(); if r: key,link=r; if key not in seen: seen.add(key); results.append(link)
+                  r = f.result()
+                  if r:
+                      key, link = r
+                      if key not in seen:
+                          seen.add(key)
+                          results.append(link)
 
-          print(f"📈 DNS:{len(dns_cache)} Geo:{len(geo_cache)} Found:{len(results)}")
+          print(f"📈 Cache stats - DNS: {len(dns_cache)} | GeoIP: {len(geo_cache)}")
+          print(f"🎉 Found {len(results)} unique RU whitelist configs!")
+
           os.makedirs("githubmirror", exist_ok=True)
-          with open("githubmirror/26_ru_whitelist.txt","w") as f: [f.write(link+"\n") for link in results]
+          with open("githubmirror/26_ru_whitelist.txt", "w") as f:
+              for link in results:
+                  f.write(link + "\n")
 
-          with open(os.environ["GITHUB_OUTPUT"],"a") as out: out.write(f"count={len(results)}\n")
-          print("✅ DONE!")
+          with open(os.environ["GITHUB_OUTPUT"], "a") as out:
+              out.write(f"count={len(results)}\n")
+          print("✅ COMPLETED SUCCESSFULLY!")
           EOF
 
-      # ✅ ИДЕАЛЬНЫЙ git push блок (ваш вариант)
       - name: Commit and push
         if: steps.check_alive.outputs.count != '0'
         run: |
@@ -157,5 +256,5 @@ jobs:
             echo "No changes to commit"
           else
             git commit -m "RU whitelist: ${{ steps.check_alive.outputs.count }} configs"
-            git push origin main --follow-tags || echo "Push failed, but continuing"
+            git push origin main
           fi
