@@ -17,6 +17,7 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}  # ✅ Правильная авторизация
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -42,7 +43,6 @@ jobs:
           import geoip2.database
           import geoip2.errors
 
-          # ✅ ГАРАНТИРОВАННЫЙ OUTPUT ПЕРВЫМ ДЕЛОМ (БЕЗ экранирования!)
           with open(os.environ["GITHUB_OUTPUT"], "a") as out:
               out.write("count=0\n")
           
@@ -116,7 +116,7 @@ jobs:
                   geo_cache[host] = result
                   return result
               except geoip2.errors.AddressNotFoundError:
-                  geo_cache[host] = True  # Неизвестный IP = не RU
+                  geo_cache[host] = True
                   return True
               except:
                   geo_cache[host] = False
@@ -246,9 +246,8 @@ jobs:
           os.makedirs("githubmirror", exist_ok=True)
           with open("githubmirror/26_ru_whitelist.txt", "w") as f:
               for link in results:
-                  f.write(link + "\n")  # ✅ Правильные переводы строк
+                  f.write(link + "\n")
 
-          # ✅ Финальный OUTPUT (БЕЗ экранирования!)
           with open(os.environ["GITHUB_OUTPUT"], "a") as out:
               out.write(f"count={len(results)}\n")
 
@@ -258,8 +257,8 @@ jobs:
       - name: Commit and push result
         if: steps.check_alive.outputs.count != '0' && steps.check_alive.outputs.count != ''
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git add githubmirror/26_ru_whitelist.txt
           git diff --cached --quiet || git commit -m "Update RU whitelist: ${{ steps.check_alive.outputs.count }} Reality/Vision configs"
-          git push origin HEAD:main --follow-tags  # ✅ ПРОСТОЙ push (GITHUB_TOKEN автоматом)
+          git push origin HEAD:main --follow-tags
