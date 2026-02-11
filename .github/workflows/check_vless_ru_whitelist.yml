@@ -16,6 +16,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           persist-credentials: false
+          fetch-depth: 0  # ✅ Все файлы включая geolite2/
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -25,19 +26,41 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install requests geoip2
+          pip install requests geoip2 --no-cache-dir  # ✅ Стабильная установка
 
       - name: Check configs
         id: check_alive
         run: |
           python - <<'EOF'
           import os
+          import sys
           import socket
           import urllib.parse
           import requests
           import uuid
           from concurrent.futures import ThreadPoolExecutor, as_completed
           import geoip2.database
+          import geoip2.errors
+
+          # ✅ ГАРАНТИРОВАННЫЙ OUTPUT ПЕРВЫМ ДЕЛОМ
+          with open(os.environ["GITHUB_OUTPUT"], "a") as out:
+              out.write("count=0\n")
+          
+          print("🚀 Starting RU Whitelist check...")
+          
+          COUNTRY_DB = "geolite2/GeoLite2-Country.mmdb"
+          
+          print("🔍 Checking GeoLite DB...")
+          if not os.path.exists(COUNTRY_DB):
+              print("❌ ERROR: geolite2/GeoLite2-Country.mmdb NOT FOUND!")
+              sys.exit(1)
+
+          try:
+              reader = geoip2.database.Reader(COUNTRY_DB)
+              print("✅ GeoLite2-Country.mmdb LOADED!")
+          except geoip2.errors.InvalidDatabaseError:
+              print("❌ ERROR: Invalid GeoLite2 database!")
+              sys.exit(1)
 
           URLS = [
               "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/refs/heads/main/subscriptions/v2ray/all_sub.txt",
@@ -59,18 +82,11 @@ jobs:
           ]
 
           RU_SNI_WHITELIST_URL = "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/refs/heads/main/whitelist.txt"
-          COUNTRY_DB = "geolite2/GeoLite2-Country.mmdb"
           MAX_WORKERS = 30
 
           ALLOWED_FP = {"chrome", "firefox", "safari", "edge", "ios", "android"}
           dns_cache = {}
           geo_cache = {}
-
-          if not os.path.exists(COUNTRY_DB):
-              print("GeoLite DB not found")
-              exit(0)
-
-          reader = geoip2.database.Reader(COUNTRY_DB)
 
           def resolve_host(host):
               if host in dns_cache:
@@ -99,6 +115,9 @@ jobs:
                   result = country != "RU"
                   geo_cache[host] = result
                   return result
+              except geoip2.errors.AddressNotFoundError:
+                  geo_cache[host] = True  # Неизвестный IP = не RU
+                  return True
               except:
                   geo_cache[host] = False
                   return False
@@ -107,15 +126,18 @@ jobs:
               try:
                   r = requests.get(RU_SNI_WHITELIST_URL, timeout=20)
                   r.raise_for_status()
-                  return set(line.strip().lower() for line in r.text.splitlines()
-                             if line.strip() and not line.startswith("#"))
-              except:
+                  whitelist = set(line.strip().lower() for line in r.text.splitlines()
+                                 if line.strip() and not line.startswith("#"))
+                  print(f"✅ Loaded {len(whitelist)} RU SNI whitelists")
+                  return whitelist
+              except Exception as e:
+                  print(f"❌ Whitelist load error: {e}")
                   return set()
 
           RU_SNI_WHITELIST = load_whitelist()
           if not RU_SNI_WHITELIST:
-              print("Whitelist empty")
-              exit(0)
+              print("❌ RU SNI whitelist empty, skipping")
+              sys.exit(0)
 
           def parse_vless(link):
               try:
@@ -146,11 +168,15 @@ jobs:
               if not geo_not_ru(d["host"]):
                   return None
               sec, flow, tp, port, fp = d["security"], d["flow"], d["type"], d["port"], d["fp"]
+              
+              # REALITY (приоритет)
               if sec == "reality" and fp in ALLOWED_FP:
                   if tp == "xhttp" and port == 443:
                       return "XHTTP-REALITY-EXTRA-443"
                   if flow == "xtls-rprx-vision" and tp in ("tcp", "") and port == 443:
                       return "RAW-REALITY-VISION-443"
+              
+              # TLS
               if sec == "tls":
                   if flow == "xtls-rprx-vision" and tp in ("tcp", "") and port == 8443:
                       return "RAW-TLS-VISION-8443"
@@ -174,10 +200,11 @@ jobs:
                   pass
               return None
 
+          # Загрузка данных (stream=True)
+          print("📥 Loading configs...")
           lines = []
           for url in URLS:
               try:
-                  # ✅ stream=True + лимит памяти для больших файлов
                   r = requests.get(url, timeout=20, stream=True)
                   r.raise_for_status()
                   for line in r.iter_lines(decode_unicode=True):
@@ -185,6 +212,8 @@ jobs:
                           lines.append(line)
               except:
                   pass
+
+          print(f"📊 Total lines: {len(lines)}")
 
           results = []
           seen = set()
@@ -203,8 +232,7 @@ jobs:
                       return ("socks", s), s
               return None
 
-          print(f"Processing {len(lines)} lines with {MAX_WORKERS} workers...")
-
+          print(f"⚡ Processing with {MAX_WORKERS} workers...")
           with ThreadPoolExecutor(max_workers=MAX_WORKERS) as exe:
               futures = [exe.submit(process, l) for l in lines]
               for f in as_completed(futures):
@@ -215,18 +243,19 @@ jobs:
                           seen.add(key)
                           results.append(link)
 
-          print(f"DNS cache: {len(dns_cache)} entries")
-          print(f"Geo cache: {len(geo_cache)} entries")
-          print(f"Found {len(results)} unique configs")
+          print(f"📈 Cache stats - DNS: {len(dns_cache)} | GeoIP: {len(geo_cache)}")
+          print(f"🎉 Found {len(results)} unique RU whitelist configs!")
 
           os.makedirs("githubmirror", exist_ok=True)
           with open("githubmirror/26_ru_whitelist.txt", "w") as f:
               for link in results:
                   f.write(link + "\n")
 
+          # ✅ Финальный output
           with open(os.environ["GITHUB_OUTPUT"], "a") as out:
               out.write(f"count={len(results)}\n")
 
+          print("✅ COMPLETED SUCCESSFULLY!")
           EOF
 
       - name: Commit and push result
@@ -235,6 +264,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add githubmirror/26_ru_whitelist.txt
-          git diff --cached --quiet || git commit -m "Update RU whitelist: Reality Vision + GeoIP ({{ steps.check_alive.outputs.count }} configs)"
-          # ✅ GITHUB_TOKEN автоматически + follow-tags
+          git diff --cached --quiet || git commit -m "Update RU whitelist: {{ steps.check_alive.outputs.count }} Reality/Vision configs"
           git push origin HEAD:main --follow-tags
