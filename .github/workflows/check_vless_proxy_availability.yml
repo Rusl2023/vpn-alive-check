@@ -226,7 +226,8 @@ jobs:
                       futures.append(executor.submit(check_one, link))
 
                       if len(futures) >= MAX_WORKERS * 2:
-                          done, futures = wait(futures, timeout=0.5, return_when=FIRST_COMPLETED)
+                          # ИСПРАВЛЕНО: не перезаписываем futures, используем разные переменные
+                          done, pending = wait(futures, timeout=0.5, return_when=FIRST_COMPLETED)
                           for f in done:
                               try:
                                   r = f.result(timeout=0.1)
@@ -234,7 +235,9 @@ jobs:
                                       alive_links.append(r)
                               except:
                                   pass
+                          futures = list(pending)  # Преобразуем set в list
 
+                  # Обрабатываем оставшиеся задачи
                   for f in futures:
                       try:
                           r = f.result(timeout=2)
