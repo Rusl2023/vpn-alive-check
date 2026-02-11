@@ -298,61 +298,57 @@ jobs:
           echo "Final file sizes:"
           ls -la githubmirror/*.txt
 
-      - name: Safe Git Commit & Push
+      - name: ✅ FORCE Commit & Push
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
         run: |
           RAW="githubmirror/26_proxy_subscription_raw.txt"
           
-          # ✅ КРИТИЧНАЯ ПРОВЕРКА GH_PAT
-          if [ -z "$GH_PAT" ] || [ "$GH_PAT" = "null" ] || [ "$GH_PAT" = "" ]; then
-            echo "❌ ERROR: GH_PAT secret is not set or empty!"
-            echo "   Create GH_PAT in repo Settings > Secrets and variables > Actions"
-            echo "   Token needs: repo (full control)"
+          # ✅ ПРОВЕРКА GH_PAT
+          if [ -z "$GH_PAT" ] || [ "$GH_PAT" = "null" ]; then
+            echo "❌ GH_PAT missing! Add to Settings > Secrets > GH_PAT (repo scope)"
             exit 1
           fi
           
-          PROXY_COUNT=$(tail -n +2 "$RAW" 2>/dev/null | wc -l || echo "0")
+          PROXY_COUNT=$(tail -n +2 "$RAW" | wc -l)
+          echo "📊 $PROXY_COUNT SUPER proxies ready"
           
           if [ "$PROXY_COUNT" -gt 0 ]; then
-            echo "🚀 Preparing to commit $PROXY_COUNT SUPER proxies"
+            # ✅ 1. Чистый checkout
+            git checkout main || git checkout -b main
+            git fetch origin main
             
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
+            # ✅ 2. КОПИРУЕМ НОВЫЕ ФАЙЛЫ В КОРЕНЬ РЕПОЗИТОРИЯ
+            cp -f githubmirror/26_proxy_subscription_raw.txt .
+            cp -f githubmirror/26_proxy_subscription_base64.txt .
             
-            git checkout main 2>/dev/null || git checkout -b main
-            git fetch origin
-            git reset --hard origin/main
+            # ✅ 3. Git видит изменения СРАЗУ
+            git add 26_proxy_subscription_raw.txt 26_proxy_subscription_base64.txt
             
-            git add githubmirror/*.txt
-            
-            if git diff --cached --quiet; then
-              echo "⚠️ No changes to commit"
-              exit 0
-            fi
-            
-            git commit -m "⭐ Update: $PROXY_COUNT SUPER VLESS proxies ($(date +'%Y-%m-%d %H:%M UTC')) | IP+HTTP+HTTPS"
-            
-            echo "🔐 Testing PAT before push..."
-            if git push https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY}.git HEAD:main --force-with-lease --dry-run; then
-              echo "✅ PAT works! Pushing..."
-              git push https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY}.git HEAD:main --force-with-lease
-              echo "✅ SUCCESS: Pushed $PROXY_COUNT SUPER proxies"
+            # ✅ 4. Проверка изменений (теперь точно есть!)
+            if ! git diff --cached --quiet; then
+              git config user.name "github-actions[bot]"
+              git config user.email "github-actions[bot]@users.noreply.github.com"
+              
+              git commit -m "⭐ $PROXY_COUNT SUPER VLESS proxies | $(date +'%Y-%m-%d %H:%M UTC')"
+              
+              echo "🔗 Pushing with PAT..."
+              git push https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY}.git HEAD:main --force
+              echo "✅ ✅ ✅ $PROXY_COUNT прокси ЗАГРУЖЕНЫ В РЕПОЗИТОРИЙ!"
             else
-              echo "❌ PAT push failed - check token permissions!"
-              exit 1
+              echo "⚠️ Файлы идентичны текущим в репозитории"
             fi
           else
-            echo "⚠️ No SUPER proxies to commit ($(wc -l < "$RAW") lines total)"
+            echo "⚠️ Нет SUPER прокси для коммита"
           fi
 
       - name: Final verification
         if: always()
         run: |
           echo "=== FINAL STATE ==="
-          ls -la githubmirror/
+          ls -la *.txt 2>/dev/null || echo "No txt files in root"
           echo "RAW preview:"
-          head -3 githubmirror/26_proxy_subscription_raw.txt || echo "RAW empty/missing"
+          head -3 26_proxy_subscription_raw.txt 2>/dev/null || echo "RAW missing"
           echo "=== Git status ==="
           git status --porcelain || echo "Clean"
           git log --oneline -3 || echo "No commits"
