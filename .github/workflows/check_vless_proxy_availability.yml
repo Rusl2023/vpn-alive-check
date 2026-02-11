@@ -1,5 +1,4 @@
 name: Check VLESS proxy availability via Xray (base64 subscription)
-
 on:
   schedule:
     - cron: '*/59 * * * *'
@@ -17,24 +16,26 @@ jobs:
         uses: actions/checkout@v4
         with:
           persist-credentials: false
+          fetch-depth: 1
 
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y curl jq unzip python3 python3-pip
-          python3 -m pip install --upgrade pip
 
       - name: Download Xray
         run: |
           XRAY_VER=$(curl -s https://api.github.com/repos/XTLS/Xray-core/releases/latest | jq -r .tag_name)
-          curl -L -o xray.zip https://github.com/XTLS/Xray-core/releases/download/${XRAY_VER}/Xray-linux-64.zip
+          curl -L -o xray.zip "https://github.com/XTLS/Xray-core/releases/download/${XRAY_VER}/Xray-linux-64.zip"
           unzip -o xray.zip xray geoip.dat geosite.dat
           chmod +x xray
+          ls -la xray
 
       - name: Prepare files
         run: |
           mkdir -p githubmirror
-          # НЕ очищаем здесь! Только создаем папку
+          : > githubmirror/26_proxy_subscription_raw.txt
+          : > githubmirror/26_proxy_subscription_base64.txt
 
       - name: Check VLESS via Xray
         run: |
@@ -42,32 +43,31 @@ jobs:
           import subprocess, time, json, urllib.parse, os, socket
           from concurrent.futures import ThreadPoolExecutor, wait, FIRST_COMPLETED
           from threading import Lock
-          from datetime import datetime
+          from datetime import datetime, timezone
 
           XRAY_PATH = os.path.join(os.getcwd(), "xray")
           INPUT = 'githubmirror/26_ru_whitelist.txt'
           OUTPUT_RAW = 'githubmirror/26_proxy_subscription_raw.txt'
           TEST_URL = 'https://api.ipify.org'
-
-          MAX_WORKERS = 6
-          MAX_TOTAL_TIME = 1500
+          MAX_WORKERS = 8   # 8 потоков для скорости
+          MAX_TOTAL_TIME = 1800  # 30 минут на всё
 
           alive_links = []
           active_processes = []
           process_lock = Lock()
           print_lock = Lock()
-          progress_lock = Lock()
-          processed = 0
+          processed = [0]
           total = 0
 
           def cleanup():
               with process_lock:
-                  for p in active_processes:
-                      try:
+                  for p in active_processes[:]:
+                      try: 
+                          p.terminate()
+                          p.wait(timeout=1)
+                      except: 
                           p.kill()
-                      except:
-                          pass
-                  active_processes.clear()
+                      if p in active_processes: active_processes.remove(p)
 
           def get_free_port():
               s = socket.socket()
@@ -76,30 +76,26 @@ jobs:
               s.close()
               return port
 
-          def wait_port(port, timeout=15):
+          def wait_port(port, timeout=12):
               start = time.time()
               while time.time() - start < timeout:
                   try:
-                      with socket.create_connection(("127.0.0.1", port), timeout=2):
+                      with socket.create_connection(("127.0.0.1", port), timeout=1):
                           return True
-                  except:
-                      time.sleep(0.5)
+                  except: time.sleep(0.2)
               return False
 
           def exit_ip(port):
               try:
                   out = subprocess.check_output(
-                      ['curl', '-s', '--max-time', '8', '-x', f'socks5h://127.0.0.1:{port}', TEST_URL],
+                      ['curl', '-s', '--max-time', '5', '-x', f'socks5h://127.0.0.1:{port}', TEST_URL],
                       text=True, stderr=subprocess.DEVNULL
                   ).strip()
                   return out if out else None
-              except:
-                  return None
+              except: return None
 
           def check_one(link):
-              global processed
               port = get_free_port()
-
               u = urllib.parse.urlparse(link)
               q = urllib.parse.parse_qs(u.query)
 
@@ -109,192 +105,150 @@ jobs:
               fingerprint = q.get('fp', ['chrome'])[0]
 
               stream = {'network': network}
-
               if sec == 'reality' and 'pbk' in q:
-                  stream['security'] = 'reality'
-                  stream['realitySettings'] = {
-                      'serverName': sni,
-                      'publicKey': q['pbk'][0],
-                      'shortId': q.get('sid', [''])[0],
-                      'fingerprint': fingerprint
-                  }
+                  stream.update({
+                      'security': 'reality',
+                      'realitySettings': {
+                          'serverName': sni, 
+                          'publicKey': q['pbk'][0],
+                          'shortId': q.get('sid', [''])[0], 
+                          'fingerprint': fingerprint
+                      }
+                  })
               elif sec == 'tls':
-                  stream['security'] = 'tls'
-                  stream['tlsSettings'] = {
-                      'serverName': sni,
-                      'allowInsecure': True,
-                      'fingerprint': fingerprint
-                  }
-
-              user = {'id': u.username, 'encryption': 'none'}
-              flow = q.get('flow', [''])[0]
-              if flow:
-                  user['flow'] = flow
+                  stream.update({
+                      'security': 'tls',
+                      'tlsSettings': {
+                          'serverName': sni, 
+                          'allowInsecure': True, 
+                          'fingerprint': fingerprint
+                      }
+                  })
 
               cfg = {
-                  'inbounds': [{
-                      'listen': '127.0.0.1',
-                      'port': port,
-                      'protocol': 'socks',
-                      'settings': {'udp': False}
-                  }],
+                  'inbounds': [{'listen': '127.0.0.1', 'port': port, 'protocol': 'socks', 'settings': {'udp': False}}],
                   'outbounds': [{
-                      'protocol': 'vless',
-                      'settings': {
-                          'vnext': [{
-                              'address': u.hostname,
-                              'port': u.port or 443,
-                              'users': [user]
-                          }]
-                      },
+                      'protocol': 'vless', 
+                      'settings': {'vnext': [{
+                          'address': u.hostname, 
+                          'port': u.port or 443,
+                          'users': [{'id': u.username, 'encryption': 'none', 'flow': q.get('flow', [''])[0]}]
+                      }]},
                       'streamSettings': stream
                   }]
               }
 
               cfg_file = f'cfg_{port}.json'
-              with open(cfg_file, 'w') as f:
-                  json.dump(cfg, f)
+              with open(cfg_file, 'w') as f: json.dump(cfg, f)
 
-              p = subprocess.Popen([XRAY_PATH, 'run', '-c', cfg_file],
-                                   stdout=subprocess.DEVNULL,
-                                   stderr=subprocess.DEVNULL)
-
-              with process_lock:
-                  active_processes.append(p)
+              p = subprocess.Popen([XRAY_PATH, 'run', '-c', cfg_file], 
+                                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+              with process_lock: active_processes.append(p)
 
               result = None
               host = f"{u.hostname}:{u.port or 443}"
-
+              
               if wait_port(port):
                   ip = exit_ip(port)
                   if ip:
                       result = link
-                      with print_lock:
-                          print(f"✓ {host} -> {ip}")
-                  else:
-                      with print_lock:
-                          print(f"✗ {host} -> None")
-              else:
-                  with print_lock:
-                      print(f"✗ {host} -> timeout")
+                      with print_lock: print(f"✓ {host} -> {ip}")
+                  else: 
+                      with print_lock: print(f"✗ {host}")
+              else: 
+                  with print_lock: print(f"✗ {host} timeout")
 
-              try:
+              try: 
+                  p.terminate(); p.wait(timeout=1)
+              except: 
                   p.kill()
-              except:
-                  pass
+              with process_lock: 
+                  if p in active_processes: active_processes.remove(p)
+              try: os.remove(cfg_file)
+              except: pass
 
-              with process_lock:
-                  if p in active_processes:
-                      active_processes.remove(p)
-
-              try:
-                  os.remove(cfg_file)
-              except:
-                  pass
-
-              with progress_lock:
-                  processed += 1
-                  if processed % 10 == 0:
-                      print(f"📊 Progress: {processed}/{total}")
-
+              processed[0] += 1
+              if processed[0] % 20 == 0: 
+                  with print_lock: print(f"📊 {processed[0]}/{total}")
               return result
 
-          if not os.path.exists(INPUT):
-              print("❌ INPUT file not found")
-              raise SystemExit(0)
+          # Проверки
+          if not os.path.exists(XRAY_PATH): 
+              print("❌ Xray not found"); raise SystemExit(1)
+          if not os.path.exists(INPUT): 
+              print("❌ INPUT not found"); raise SystemExit(0)
 
           with open(INPUT) as f:
               links = [l.strip() for l in f if l.strip().startswith('vless://')]
-
           total = len(links)
-          print(f"\n{'='*50}")
-          print(f"🔍 TOTAL LINKS: {total}")
-          print(f"⚡ PARALLEL WORKERS: {MAX_WORKERS}")
-          print(f"⏱️  MAX TIME: {MAX_TOTAL_TIME}s")
-          print(f"{'='*50}\n")
 
-          # >>>>> ИСПРАВЛЕНИЕ ЗДЕСЬ <<<<<
-          # Очищаем файл и пишем заголовок ТОЛЬКО в Python скрипте
+          print(f"\n{'='*60}")
+          print(f"🔍 TOTAL LINKS: {total} | WORKERS: {MAX_WORKERS} | TIME: {MAX_TOTAL_TIME}s")
+          print(f"{'='*60}")
+
+          # ✅ Заголовок в файл
           with open(OUTPUT_RAW, 'w') as f:
-              f.write(f"# updated {datetime.utcnow().strftime('%a %b %d %H:%M:%S UTC %Y')}\n")
+              f.write(f"# updated {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}\n")
 
           start_time = time.time()
-          futures = []
+          alive_links = []
+          
+          with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+              # ✅ ВСЕ ключи БЕЗ ЛИМИТА!
+              futures = [executor.submit(check_one, link) for link in links]
+              
+              # Ждём завершения всех
+              done, _ = wait(futures, timeout=MAX_TOTAL_TIME, return_when=FIRST_COMPLETED)
+              for future in done:
+                  try:
+                      result = future.result(timeout=1)
+                      if result: alive_links.append(result)
+                  except: pass
 
-          try:
-              with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-                  for link in links:
-                      if time.time() - start_time > MAX_TOTAL_TIME:
-                          print("\n⏰ TIME LIMIT REACHED")
-                          break
+          cleanup()
 
-                      futures.append(executor.submit(check_one, link))
-
-                      if len(futures) >= MAX_WORKERS * 2:
-                          done, pending = wait(futures, timeout=0.5, return_when=FIRST_COMPLETED)
-                          for f in done:
-                              try:
-                                  r = f.result(timeout=0.1)
-                                  if r:
-                                      alive_links.append(r)
-                              except:
-                                  pass
-                          futures = list(pending)
-
-                  for f in futures:
-                      try:
-                          r = f.result(timeout=2)
-                          if r:
-                              alive_links.append(r)
-                      except:
-                          pass
-          finally:
-              cleanup()
-
-          # Добавляем живые прокси
+          # ✅ Записываем живые ключи
           with open(OUTPUT_RAW, 'a') as f:
-              for l in alive_links:
-                  f.write(l + '\n')
+              for link in alive_links: 
+                  f.write(link + '\n')
 
           elapsed = time.time() - start_time
-          print(f"\n{'='*50}")
-          print(f"✅ RESULTS")
-          print(f"   • Total: {total}")
-          print(f"   • Alive: {len(alive_links)}")
-          print(f"   • Time: {elapsed:.1f}s")
-          print(f"{'='*50}")
-          print("🎯 DONE")
+          print(f"\n{'='*60}")
+          print(f"✅ RESULTS | Total: {total} | Alive: {len(alive_links)} | Time: {elapsed:.1f}s")
+          print(f"📁 Raw file lines: {len(open(OUTPUT_RAW).readlines())}")
+          print(f"{'='*60}\n🎯 DONE")
           EOF
 
-      - name: Encode subscription to Base64
+      - name: Encode Base64
         run: |
-          if [ -s githubmirror/26_proxy_subscription_raw.txt ]; then
-            # Удаляем первую строку (заголовок) перед кодированием
-            tail -n +2 githubmirror/26_proxy_subscription_raw.txt | base64 -w 0 > githubmirror/26_proxy_subscription_base64.txt
-            COUNT=$(tail -n +2 githubmirror/26_proxy_subscription_raw.txt | wc -l)
-            echo "✅ Base64 encoded: $COUNT proxies"
+          RAW="githubmirror/26_proxy_subscription_raw.txt"
+          B64="githubmirror/26_proxy_subscription_base64.txt"
+          LINES=$(wc -l < "$RAW")
+          if [ "$LINES" -gt 1 ]; then
+            tail -n +2 "$RAW" | base64 -w 0 > "$B64"
+            COUNT=$(tail -n +2 "$RAW" | wc -l)
+            echo "✅ Base64: $COUNT proxies | Raw lines: $LINES"
           else
-            echo "⚠️ No working proxies found"
-            : > githubmirror/26_proxy_subscription_base64.txt
+            echo "⚠️ No proxies"
+            : > "$B64"
           fi
+          ls -la githubmirror/*.txt
 
-      - name: Commit and push
+      - name: Commit & Push
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
         run: |
-          if [ -s githubmirror/26_proxy_subscription_raw.txt ]; then
+          RAW="githubmirror/26_proxy_subscription_raw.txt"
+          LINES=$(wc -l < "$RAW")
+          if [ "$LINES" -gt 1 ]; then
             git config user.name "github-actions"
             git config user.email "github-actions@github.com"
-
-            git fetch origin main
-            git reset --hard origin/main
-
-            git add githubmirror/26_proxy_subscription_raw.txt githubmirror/26_proxy_subscription_base64.txt
-            git diff --cached --quiet || git commit -m "Update proxies [$(date +'%Y-%m-%d %H:%M UTC')]"
-
-            git push https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY} HEAD:main
-            COUNT=$(tail -n +2 githubmirror/26_proxy_subscription_raw.txt | wc -l)
-            echo "✅ Changes pushed: $COUNT working proxies"
+            git add githubmirror/*.txt
+            COUNT=$(tail -n +2 "$RAW" | wc -l)
+            git diff --cached --quiet || git commit -m "Update $COUNT proxies [$(date +'%Y-%m-%d %H:%M UTC')]"
+            git pull --rebase origin main || true
+            git push "https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY}" HEAD:main
+            echo "✅ Pushed: $COUNT proxies"
           else
             echo "⚠️ No proxies to commit"
           fi
