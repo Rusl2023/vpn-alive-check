@@ -1,7 +1,7 @@
 name: Check VLESS proxy availability via Xray (base64 subscription)
 on:
   schedule:
-    - cron: '0 * * * *'  # Каждый час ровно
+    - cron: '0 * * * *'
   workflow_dispatch:
 
 jobs:
@@ -14,9 +14,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-          fetch-depth: 1
 
       - name: Install dependencies
         run: |
@@ -48,14 +45,13 @@ jobs:
           XRAY_PATH = os.path.join(os.getcwd(), "xray")
           INPUT = 'githubmirror/26_ru_whitelist.txt'
           OUTPUT_RAW = 'githubmirror/26_proxy_subscription_raw.txt'
-          
+
           IP_TEST_URL = 'https://api.ipify.org'
           HTTP_TEST_URL = 'http://example.com'
           HTTPS_TEST_URL = 'https://www.cloudflare.com/cdn-cgi/trace'
 
           MAX_WORKERS = 6
           MAX_TOTAL_TIME = 1500
-          FUTURE_TIMEOUT = 40
 
           process_lock = Lock()
           print_lock = Lock()
@@ -75,12 +71,13 @@ jobs:
 
           def get_free_port():
               s = socket.socket()
+              s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
               s.bind(('', 0))
               port = s.getsockname()[1]
               s.close()
               return port
 
-          def wait_port(port, timeout=12):
+          def wait_port(port, timeout=15):
               start = time.time()
               while time.time() - start < timeout:
                   try:
@@ -129,6 +126,7 @@ jobs:
               fingerprint = q.get('fp', ['chrome'])[0]
 
               stream = {'network': network}
+
               if sec == 'reality' and 'pbk' in q:
                   stream.update({
                       'security': 'reality',
@@ -149,6 +147,11 @@ jobs:
                       }
                   })
 
+              user = {'id': u.username, 'encryption': 'none'}
+              flow = q.get('flow', [''])[0]
+              if flow:
+                  user['flow'] = flow
+
               cfg = {
                   'inbounds': [{
                       'listen': '127.0.0.1',
@@ -162,11 +165,7 @@ jobs:
                           'vnext': [{
                               'address': u.hostname,
                               'port': u.port or 443,
-                              'users': [{
-                                  'id': u.username,
-                                  'encryption': 'none',
-                                  'flow': q.get('flow', [''])[0]
-                              }]
+                              'users': [user]
                           }]
                       },
                       'streamSettings': stream
@@ -192,13 +191,13 @@ jobs:
                   if success:
                       result = link
                       with print_lock:
-                          print(f"⭐ {host} SUPER (IP+HTTP+HTTPS: {ip})")
+                          print(f"⭐ {host} OK {ip}")
                   else:
                       with print_lock:
                           print(f"✗ {host} test fail")
               else:
                   with print_lock:
-                      print(f"✗ {host} timeout")
+                      print(f"✗ {host} start timeout")
 
               try:
                   p.terminate(); p.wait(timeout=2)
@@ -216,18 +215,18 @@ jobs:
               return result
 
           if not os.path.exists(INPUT):
-              print("❌ INPUT file not found")
+              print("INPUT file not found")
               raise SystemExit(0)
 
           with open(INPUT) as f:
               links = [l.strip() for l in f if l.strip().startswith('vless://')]
-              
+
           if not links:
-              print("❌ No VLESS links found in file")
+              print("No VLESS links found")
               raise SystemExit(0)
 
           total_links = len(links)
-          print(f"TOTAL: {total_links} | Tests: IP(10s)+HTTP(10s)+HTTPS(10s) | Workers: {MAX_WORKERS}")
+          print(f"TOTAL: {total_links} | workers={MAX_WORKERS}")
 
           with open(OUTPUT_RAW, 'w') as f:
               f.write(f"# updated {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}\n")
@@ -236,5 +235,47 @@ jobs:
           start = time.time()
           processed = 0
 
-          with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
-              futures
+          try:
+              with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
+                  futures = [ex.submit(check_one, link) for link in links]
+                  for future in as_completed(futures):
+                      processed += 1
+                      result = future.result()
+                      if result:
+                          alive.append(result)
+                      if processed % 10 == 0:
+                          print(f"Processed {processed}/{total_links}")
+                      if time.time() - start > MAX_TOTAL_TIME:
+                          print("MAX TOTAL TIME reached")
+                          break
+          finally:
+              cleanup()
+
+          print(f"Done. Alive: {len(alive)}")
+
+          if alive:
+              with open(OUTPUT_RAW, 'a') as f:
+                  f.write('\n'.join(alive) + '\n')
+              print(f"Saved {len(alive)} proxies")
+          EOF
+
+      - name: Create base64 subscription
+        run: |
+          if grep -q "^vless://" githubmirror/26_proxy_subscription_raw.txt; then
+            base64 -w 0 githubmirror/26_proxy_subscription_raw.txt > githubmirror/26_proxy_subscription_base64.txt
+            echo "Base64 created"
+          else
+            echo "No working proxies"
+          fi
+
+      - name: Commit results
+        run: |
+          git config user.name "GitHub Action"
+          git config user.email "action@github.com"
+          git add githubmirror/*.txt
+          if git diff --staged --quiet; then
+            echo "No changes"
+          else
+            git commit -m "Update proxy subscriptions [$(date -u +'%Y-%m-%d %H:%M UTC')]"
+            git push
+          fi
