@@ -13,56 +13,232 @@ jobs:
       count: ${{ steps.check_alive.outputs.count }}
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Download GeoLite databases
+        run: |
+          mkdir -p geolite2
+          curl -L -o geolite2/GeoLite2-Country.mmdb https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-Country.mmdb
+          curl -L -o geolite2/GeoLite2-ASN.mmdb https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-ASN.mmdb
+          echo "✅ GeoLite databases downloaded"
+          ls -la geolite2/
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Install deps
+      - name: Install dependencies
         run: |
+          python -m pip install --upgrade pip
           pip install requests geoip2 --no-cache-dir
 
-      - name: Check VLESS
+      - name: Check VLESS servers
         id: check_alive
         run: |
-          python - <<'EOF'
-          import os
-          import sys
-          import socket
-          import urllib.parse
-          import requests
-          import time
+          python3 <<'EOF'
+          import os, sys, socket, urllib.parse, requests, time
           from concurrent.futures import ThreadPoolExecutor, as_completed
+          from threading import Lock
           import geoip2.database
           import geoip2.errors
 
-          print("🚀 VLESS RU Whitelist Scanner v3.0")
-          
+          print("🚀 VLESS RU Whitelist Scanner v4.0")
+
+          # GeoLite databases
           COUNTRY_DB = "geolite2/GeoLite2-Country.mmdb"
           ASN_DB = "geolite2/GeoLite2-ASN.mmdb"
-          
-          if not os.path.exists(COUNTRY_DB) or not os.path.exists(ASN_DB):
-              print("❌ GeoLite2 DB missing")
-              sys.exit(0)
-              
-          country_reader = geoip2.database.Reader(COUNTRY_DB)
-          asn_reader = geoip2.database.Reader(ASN_DB)
 
-          RU_SNI_URL = "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/refs/heads/main/whitelist.txt"
-          ru_sni = set()
+          if not os.path.exists(COUNTRY_DB):
+              print("❌ ERROR: Country database missing")
+              sys.exit(1)
+          if not os.path.exists(ASN_DB):
+              print("❌ ERROR: ASN database missing")
+              sys.exit(1)
+
           try:
-              r = requests.get(RU_SNI_URL, timeout=15)
-              ru_sni = set(l.strip().lower() for l in r.text.splitlines() if l.strip() and not l.startswith('#'))
-              print(f"✅ RU SNI: {len(ru_sni)}")
-          except: 
-              print("❌ RU SNI fail")
-              sys.exit(0)
+              country_reader = geoip2.database.Reader(COUNTRY_DB)
+              asn_reader = geoip2.database.Reader(ASN_DB)
+              print("✅ GeoLite databases loaded")
+          except Exception as e:
+              print(f"❌ Database load error: {e}")
+              sys.exit(1)
 
+          # RU SNI Whitelist
+          headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
+          RU_SNI_URL = "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/refs/heads/main/whitelist.txt"
+          
+          try:
+              r = requests.get(RU_SNI_URL, timeout=15, headers=headers)
+              r.raise_for_status()
+              ru_sni = set(l.strip().lower() for l in r.text.splitlines() if l.strip() and not l.startswith('#'))
+              print(f"✅ RU SNI whitelist: {len(ru_sni)} domains")
+          except Exception as e:
+              print(f"❌ RU SNI error: {e}")
+              sys.exit(1)
+
+          # Config sources (fresh every 5-15min)
           URLS = [
               "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/refs/heads/main/subscriptions/v2ray/all_sub.txt",
-              "https://raw.githubusercontent.com/barry-far/V2ray
+              "https://raw.githubusercontent.com/barry-far/V2ray-configs/main/All_Configs_Sub.txt",
+              "https://raw.githubusercontent.com/EbrahimFakhrahmani/free-v2ray-configs/main/configs/vless.txt",
+              "https://raw.githubusercontent.com/MrPooyaX/IranProxy/main/Sub1.txt",
+              "https://raw.githubusercontent.com/zealis/v2ray-subscription/master/vless.txt",
+              "https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt"
+          ]
+
+          # Caches & locks
+          dns_cache, geo_cache, asn_cache = {}, {}, {}
+          seen = set()
+          lock = Lock()
+
+          def resolve_host(host):
+              if host in dns_cache: return dns_cache[host]
+              try:
+                  ip = socket.gethostbyname(host)
+                  dns_cache[host] = ip
+                  return ip
+              except:
+                  dns_cache[host] = None
+                  return None
+
+          def not_ru_geo(host):
+              if host in geo_cache: return geo_cache[host]
+              ip = resolve_host(host)
+              if not ip: return False
+              try:
+                  country = country_reader.country(ip).country.iso_code
+                  result = country != "RU"
+                  geo_cache[host] = result
+                  return result
+              except:
+                  geo_cache[host] = False
+                  return False
+
+          def not_ru_asn(host):
+              if host in asn_cache: return asn_cache[host]
+              ip = resolve_host(host)
+              if not ip: return True
+              try:
+                  org = asn_reader.asn(ip).autonomous_system_organization.lower()
+                  ru_asns = {"rostelecom","mts","megafon","beeline","tele2","yandex","rt"}
+                  result = not any(asn in org for asn in ru_asns)
+                  asn_cache[host] = result
+                  return result
+              except:
+                  asn_cache[host] = True
+                  return True
+
+          def tcp_ping(host, port=443, timeout=1):
+              try:
+                  s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                  s.settimeout(timeout)
+                  s.connect((host, port))
+                  s.close()
+                  return True
+              except:
+                  return False
+
+          def parse_vless(link):
+              try:
+                  u = urllib.parse.urlparse(link.strip())
+                  if u.scheme != "vless": return None
+                  q = urllib.parse.parse_qs(u.query)
+                  port = 443
+                  if u.netloc and ":" in u.netloc:
+                      port = int(u.netloc.rsplit(":", 1)[1])
+                  return {
+                      "link": link.strip(),
+                      "host": u.hostname,
+                      "port": port,
+                      "security": q.get("security", [""])[0],
+                      "sni": q.get("sni", [""])[0].lower()
+                  }
+              except:
+                  return None
+
+          # Download configs
+          print("📥 Downloading configs...")
+          all_lines = []
+          for url in URLS:
+              try:
+                  r = requests.get(url, timeout=20, headers=headers)
+                  r.raise_for_status()
+                  lines = r.text.splitlines()
+                  all_lines.extend(lines)
+                  print(f"  ✓ {url.split('/')[-1]}: {len(lines)} lines")
+              except Exception as e:
+                  print(f"  ✗ {url.split('/')[-1]}: {e}")
+
+          vless_links = [l for l in all_lines if l.strip().startswith("vless://")]
+          print(f"📊 Total VLESS: {len(vless_links)}")
+
+          # Scan servers
+          def check_server(link):
+              d = parse_vless(link)
+              if not d: return None
+
+              if d["sni"] not in ru_sni: return None
+              if not not_ru_geo(d["host"]): return None
+              if not not_ru_asn(d["host"]): return None
+              if not tcp_ping(d["host"], d["port"]): return None
+              if d["security"] not in ("reality", "tls"): return None
+
+              key = (d["host"], d["port"], d["sni"])
+              with lock:
+                  if key in seen: return None
+                  seen.add(key)
+
+              tag = f"{d['security'].upper()[0]}-{d['port']}"
+              return d["link"] + f"#{tag}"
+
+          print(f"🔍 Scanning {len(vless_links)} links (100 workers)...")
+          results = []
+          with ThreadPoolExecutor(max_workers=100) as executor:
+              futures = [executor.submit(check_server, link) for link in vless_links[:5000]]
+              for future in as_completed(futures):
+                  result = future.result()
+                  if result:
+                      results.append(result)
+                      print(f"✅ {result.split('#')[-1]}")
+
+          print(f"🎉 LIVE keys found: {len(results)}")
+
+          # Save results
+          os.makedirs("githubmirror", exist_ok=True)
+          
+          with open("githubmirror/26_ru_whitelist.txt", "w") as f:
+              for link in results:
+                  f.write(link + "\n")
+
+          ru_sni_checked = len([l for l in vless_links if parse_vless(l) and parse_vless(l)["sni"] in ru_sni])
+          stats = f"""📊 STATS {time.strftime('%Y-%m-%d %H:%M')}
+Total lines: {len(all_lines)}
+VLESS links: {len(vless_links)}
+RU SNI checked: {ru_sni_checked}
+🔥 LIVE keys: {len(results)}
+DNS cache: {len(dns_cache)} | GeoIP: {len(geo_cache)} | ASN: {len(asn_cache)}
+"""
+          with open("githubmirror/ru_stats.txt", "w") as f:
+              f.write(stats)
+
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write(f"count={len(results)}\n")
+          EOF
+
+      - name: Commit and push results
+        if: always()
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git add githubmirror/
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "🔥 RU Whitelist: ${{ steps.check_alive.outputs.count }} LIVE keys"
+            git pull --rebase origin main
+            git push origin main || echo "Push failed, continuing"
+          fi
