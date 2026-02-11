@@ -8,6 +8,8 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
+    outputs:
+      count: ${{ steps.check_alive.outputs.count }}
 
     steps:
       - name: Checkout repository
@@ -58,9 +60,11 @@ jobs:
 
           RU_SNI_WHITELIST_URL = "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/refs/heads/main/whitelist.txt"
           COUNTRY_DB = "geolite2/GeoLite2-Country.mmdb"
-          MAX_WORKERS = 120
+          MAX_WORKERS = 30
 
           ALLOWED_FP = {"chrome", "firefox", "safari", "edge", "ios", "android"}
+          dns_cache = {}
+          geo_cache = {}
 
           if not os.path.exists(COUNTRY_DB):
               print("GeoLite DB not found")
@@ -68,12 +72,35 @@ jobs:
 
           reader = geoip2.database.Reader(COUNTRY_DB)
 
-          def geo_not_ru(host):
+          def resolve_host(host):
+              if host in dns_cache:
+                  return dns_cache[host]
               try:
+                  addrs = socket.getaddrinfo(host, None, family=socket.AF_INET6)
+                  if addrs:
+                      dns_cache[host] = addrs[0][4][0]
+                      return addrs[0][4][0]
                   ip = socket.gethostbyname(host)
-                  country = reader.country(ip).country.iso_code
-                  return country != "RU"
+                  dns_cache[host] = ip
+                  return ip
               except:
+                  dns_cache[host] = None
+                  return None
+
+          def geo_not_ru(host):
+              if host in geo_cache:
+                  return geo_cache[host]
+              ip = resolve_host(host)
+              if not ip:
+                  geo_cache[host] = False
+                  return False
+              try:
+                  country = reader.country(ip).country.iso_code
+                  result = country != "RU"
+                  geo_cache[host] = result
+                  return result
+              except:
+                  geo_cache[host] = False
                   return False
 
           def load_whitelist():
@@ -94,16 +121,12 @@ jobs:
               try:
                   u = urllib.parse.urlparse(link.strip())
                   q = urllib.parse.parse_qs(u.query)
-
                   if not u.hostname:
                       return None
-
                   port = 443
                   if ":" in u.netloc:
                       port = int(u.netloc.rsplit(":", 1)[1])
-
                   uuid.UUID(u.username)
-
                   return {
                       "raw": link.split("#")[0],
                       "host": u.hostname,
@@ -118,55 +141,35 @@ jobs:
                   return None
 
           def match_vless(d):
-              if not d:
+              if not d or not d["sni"] or d["sni"] not in RU_SNI_WHITELIST:
                   return None
-
-              if not d["sni"] or d["sni"] not in RU_SNI_WHITELIST:
-                  return None
-
               if not geo_not_ru(d["host"]):
                   return None
-
-              sec = d["security"]
-              flow = d["flow"]
-              tp = d["type"]
-              port = d["port"]
-              fp = d["fp"]
-
-              # ----- REALITY (приоритет) -----
+              sec, flow, tp, port, fp = d["security"], d["flow"], d["type"], d["port"], d["fp"]
               if sec == "reality" and fp in ALLOWED_FP:
-
                   if tp == "xhttp" and port == 443:
                       return "XHTTP-REALITY-EXTRA-443"
-
                   if flow == "xtls-rprx-vision" and tp in ("tcp", "") and port == 443:
                       return "RAW-REALITY-VISION-443"
-
-              # ----- TLS -----
               if sec == "tls":
-
                   if flow == "xtls-rprx-vision" and tp in ("tcp", "") and port == 8443:
                       return "RAW-TLS-VISION-8443"
-
                   if tp == "xhttp" and port == 8443:
                       return "XHTTP-TLS-EXTRA-8443"
-
                   if tp == "ws" and port == 8443:
                       return "WS-TLS-8443"
-
                   if tp == "grpc" and port == 8443:
                       return "GRPC-TLS-8443"
-
               return None
 
-          def match_socks(link):
+          def match_socks(line):
               try:
-                  u = urllib.parse.urlparse(link.strip())
+                  u = urllib.parse.urlparse(line.strip())
                   if u.scheme.lower() != "socks5":
                       return None
                   port = int(u.netloc.rsplit(":", 1)[1])
                   if port == 10443 and geo_not_ru(u.hostname):
-                      return link.split("#")[0] + "#SOCKS5-10443"
+                      return line.split("#")[0] + "#SOCKS5-10443"
               except:
                   pass
               return None
@@ -174,9 +177,12 @@ jobs:
           lines = []
           for url in URLS:
               try:
-                  r = requests.get(url, timeout=20)
+                  # ✅ stream=True + лимит памяти для больших файлов
+                  r = requests.get(url, timeout=20, stream=True)
                   r.raise_for_status()
-                  lines.extend(r.text.splitlines())
+                  for line in r.iter_lines(decode_unicode=True):
+                      if line:
+                          lines.append(line)
               except:
                   pass
 
@@ -191,28 +197,29 @@ jobs:
                   if tag:
                       key = (d["host"], d["port"], d["sni"], tag)
                       return key, d["raw"] + f"#{tag}"
-
               elif line.lower().startswith("socks5://"):
                   s = match_socks(line)
                   if s:
                       return ("socks", s), s
-
               return None
+
+          print(f"Processing {len(lines)} lines with {MAX_WORKERS} workers...")
 
           with ThreadPoolExecutor(max_workers=MAX_WORKERS) as exe:
               futures = [exe.submit(process, l) for l in lines]
               for f in as_completed(futures):
                   r = f.result()
-                  if not r:
-                      continue
-                  key, link = r
-                  if key in seen:
-                      continue
-                  seen.add(key)
-                  results.append(link)
+                  if r:
+                      key, link = r
+                      if key not in seen:
+                          seen.add(key)
+                          results.append(link)
+
+          print(f"DNS cache: {len(dns_cache)} entries")
+          print(f"Geo cache: {len(geo_cache)} entries")
+          print(f"Found {len(results)} unique configs")
 
           os.makedirs("githubmirror", exist_ok=True)
-
           with open("githubmirror/26_ru_whitelist.txt", "w") as f:
               for link in results:
                   f.write(link + "\n")
@@ -220,17 +227,14 @@ jobs:
           with open(os.environ["GITHUB_OUTPUT"], "a") as out:
               out.write(f"count={len(results)}\n")
 
-          print("Done:", len(results))
           EOF
 
       - name: Commit and push result
-        if: steps.check_alive.outputs.count != '0'
-        env:
-          GH_PAT: ${{ secrets.GH_PAT }}
+        if: steps.check_alive.outputs.count != '0' && steps.check_alive.outputs.count != ''
         run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           git add githubmirror/26_ru_whitelist.txt
-          git diff --cached --quiet || git commit -m "Update RU whitelist advanced filter (Reality priority)"
-          git push https://x-access-token:${GH_PAT}@github.com/${{ github.repository }} HEAD:main
-          
+          git diff --cached --quiet || git commit -m "Update RU whitelist: Reality Vision + GeoIP ({{ steps.check_alive.outputs.count }} configs)"
+          # ✅ GITHUB_TOKEN автоматически + follow-tags
+          git push origin HEAD:main --follow-tags
