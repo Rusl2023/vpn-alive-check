@@ -18,17 +18,19 @@ jobs:
     timeout-minutes: 60
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v4
 
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y unzip python3 python3-pip
+          sudo apt-get install -y unzip jq python3 python3-pip
           python3 -m pip install --upgrade pip
-          pip install geoip2
+          pip install geoip2 requests pysocks
+
+      - name: Download GeoLite database
+        run: |
+          mkdir -p geoip
+          curl -L -o geoip/GeoLite2-Country.mmdb https://raw.githubusercontent.com/P3TERX/GeoLite.mmdb/download/GeoLite2-Country.mmdb
 
       - name: Download Xray
         run: |
@@ -37,116 +39,143 @@ jobs:
           unzip -o xray.zip xray geoip.dat geosite.dat
           chmod +x xray
 
-      - name: Prepare output files
+      - name: Prepare output
         run: |
           mkdir -p githubmirror
           echo "# updated $(date -u)" > githubmirror/26_proxy_subscription_raw.txt
 
-      - name: Check VLESS via Xray and build raw subscription (10 threads)
+      - name: Check VLESS via Xray
         run: |
           python3 <<'EOF'
-          import subprocess, time, json, urllib.parse, os, geoip2.database, socket
+          import subprocess, time, json, urllib.parse, os, socket, requests, geoip2.database, socks
           from concurrent.futures import ThreadPoolExecutor, as_completed
 
           INPUT_FILE = 'githubmirror/26_ru_whitelist.txt'
           OUTPUT_FILE = 'githubmirror/26_proxy_subscription_raw.txt'
-          THREADS = 10
-          BASE_PORT = 1080
+          THREADS = 8
+          BASE_PORT = 12000
 
           FLAGS = {
-              'AF':'🇦🇫','AL':'🇦🇱','DZ':'🇩🇿','AS':'🇦🇸','AD':'🇦🇩','AO':'🇦🇴','AI':'🇦🇮','AG':'🇦🇬','AR':'🇦🇷','AM':'🇦🇲',
-              'AU':'🇦🇺','AT':'🇦🇹','AZ':'🇦🇿','BS':'🇧🇸','BH':'🇧🇭','BD':'🇧🇩','BB':'🇧🇧','BY':'🇧🇾','BE':'🇧🇪','BZ':'🇧🇿',
-              'BJ':'🇧🇯','BM':'🇧🇲','BT':'🇧🇹','BO':'🇧🇴','BA':'🇧🇦','BW':'🇧🇼','BR':'🇧🇷','BN':'🇧🇳','BG':'🇧🇬','BF':'🇧🇫',
-              'BI':'🇧🇮','KH':'🇰🇭','CM':'🇨🇲','CA':'🇨🇦','CV':'🇨🇻','CF':'🇨🇫','TD':'🇹🇩','CL':'🇨🇱','CN':'🇨🇳','CO':'🇨🇴',
-              'KM':'🇰🇲','CD':'🇨🇩','CG':'🇨🇬','CR':'🇨🇷','HR':'🇭🇷','CU':'🇨🇺','CY':'🇨🇾','CZ':'🇨🇿','DK':'🇩🇰','DJ':'🇩🇯',
-              'DM':'🇩🇲','DO':'🇩🇴','EC':'🇪🇨','EG':'🇪🇬','SV':'🇸🇻','GQ':'🇬🇶','ER':'🇪🇷','EE':'🇪🇪','ET':'🇪🇹','FJ':'🇫🇯',
-              'FI':'🇫🇮','FR':'🇫🇷','GA':'🇬🇦','GM':'🇬🇲','GE':'🇬🇪','DE':'🇩🇪','GH':'🇬🇭','GR':'🇬🇷','GD':'🇬🇩','GT':'🇬🇹',
-              'GN':'🇬🇳','GW':'🇬🇼','GY':'🇬🇾','HT':'🇭🇹','HN':'🇭🇳','HU':'🇭🇺','IS':'🇮🇸','IN':'🇮🇳','ID':'🇮🇩','IR':'🇮🇷',
-              'IQ':'🇮🇶','IE':'🇮🇪','IL':'🇮🇱','IT':'🇮🇹','JM':'🇯🇲','JP':'🇯🇵','JO':'🇯🇴','KZ':'🇰🇿','KE':'🇰🇪','KI':'🇰🇮',
-              'KP':'🇰🇵','KR':'🇰🇷','KW':'🇰🇼','KG':'🇰🇬','LA':'🇱🇦','LV':'🇱🇻','LB':'🇱🇧','LS':'🇱🇸','LR':'🇱🇷','LY':'🇱🇾',
-              'LI':'🇱🇮','LT':'🇱🇹','LU':'🇱🇺','MG':'🇲🇬','MW':'🇲🇼','MY':'🇲🇾','MV':'🇲🇻','ML':'🇲🇱','MT':'🇲🇹','MH':'🇲🇭',
-              'MR':'🇲🇷','MU':'🇲🇺','MX':'🇲🇽','FM':'🇫🇲','MD':'🇲🇩','MC':'🇲🇨','MN':'🇲🇳','ME':'🇲🇪','MA':'🇲🇦','MZ':'🇲🇿',
-              'MM':'🇲🇲','NA':'🇳🇦','NR':'🇳🇷','NP':'🇳🇵','NL':'🇳🇱','NZ':'🇳🇿','NI':'🇳🇮','NE':'🇳🇪','NG':'🇳🇬','NO':'🇳🇴',
-              'OM':'🇴🇲','PK':'🇵🇰','PW':'🇵🇼','PA':'🇵🇦','PG':'🇵🇬','PY':'🇵🇾','PE':'🇵🇪','PH':'🇵🇭','PL':'🇵🇱','PT':'🇵🇹',
-              'QA':'🇶🇦','RO':'🇷🇴','RU':'🇷🇺','RW':'🇷🇼','KN':'🇰🇳','LC':'🇱🇨','VC':'🇻🇨','WS':'🇼🇸','SM':'🇸🇲','ST':'🇸🇹',
-              'SA':'🇸🇦','SN':'🇸🇳','RS':'🇷🇸','SC':'🇸🇨','SL':'🇸🇱','SG':'🇸🇬','SK':'🇸🇰','SI':'🇸🇮','SB':'🇸🇧','SO':'🇸🇴',
-              'ZA':'🇿🇦','ES':'🇪🇸','LK':'🇱🇰','SD':'🇸🇩','SR':'🇸🇷','SE':'🇸🇪','CH':'🇨🇭','SY':'🇸🇾','TW':'🇹🇼','TJ':'🇹🇯',
-              'TZ':'🇹🇿','TH':'🇹🇭','TL':'🇹🇱','TG':'🇹🇬','TO':'🇹🇴','TT':'🇹🇹','TN':'🇹🇳','TR':'🇹🇷','TM':'🇹🇲','UG':'🇺🇬',
-              'UA':'🇺🇦','AE':'🇦🇪','GB':'🇬🇧','US':'🇺🇸','UY':'🇺🇾','UZ':'🇺🇿','VU':'🇻🇺','VE':'🇻🇪','VN':'🇻🇳','YE':'🇾🇪',
-              'ZM':'🇿🇲','ZW':'🇿🇼'
+              'RU':'🇷🇺','US':'🇺🇸','NL':'🇳🇱','DE':'🇩🇪','FR':'🇫🇷',
+              'GB':'🇬🇧','CA':'🇨🇦','JP':'🇯🇵','SG':'🇸🇬','PL':'🇵🇱',
+              'UA':'🇺🇦','FI':'🇫🇮','SE':'🇸🇪','CH':'🇨🇭','IT':'🇮🇹'
           }
 
-          reader = geoip2.database.Reader('geolite2/GeoLite2-Country.mmdb')
+          reader = geoip2.database.Reader('geoip/GeoLite2-Country.mmdb')
 
-          def get_country_flag(host):
+          def flag_from_ip(ip):
               try:
-                  ip = socket.gethostbyname(host)
-                  return FLAGS.get(reader.country(ip).country.iso_code, '🏳️')
+                  iso = reader.country(ip).country.iso_code
+                  return FLAGS.get(iso, '🏳️')
               except:
                   return '🏳️'
 
-          def is_proxy_alive(host, port, timeout=10):
-              import ssl
-              s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-              s.settimeout(timeout)
+          def get_self_flag():
               try:
-                  s.connect((host, port))
-                  if port == 443:
-                      ctx = ssl.create_default_context()
-                      ctx.check_hostname = False
-                      ctx.verify_mode = ssl.CERT_NONE
-                      ctx.wrap_socket(s, server_hostname=host)
-                  return True
+                  ip = requests.get("https://api.ipify.org", timeout=10).text.strip()
+                  return flag_from_ip(ip)
               except:
-                  return False
-              finally:
-                  s.close()
+                  return '🏳️'
 
-          def test_proxy(link, idx):
+          SELF_FLAG = get_self_flag()
+
+          def get_exit_flag(port):
               try:
-                  u = urllib.parse.urlparse(link)
-                  q = urllib.parse.parse_qs(u.query)
-                  port = BASE_PORT + idx
-                  stream_type = q.get('type',['tcp'])[0]
-
-                  cfg = {
-                      "inbounds":[{"listen":"127.0.0.1","port":port,"protocol":"socks","settings":{"udp":False}}],
-                      "outbounds":[{"protocol":"vless",
-                                     "settings":{"vnext":[{"address":u.hostname,"port":u.port or 443,"users":[{"id":u.username,"encryption":"none"}]}]},
-                                     "streamSettings":{"network":stream_type}}]
-                  }
-
-                  fname = f"cfg_{port}.json"
-                  with open(fname,"w") as f:
-                      json.dump(cfg,f)
-
-                  p = subprocess.Popen(['./xray','-c',fname],
-                                       stdout=subprocess.DEVNULL,
-                                       stderr=subprocess.DEVNULL)
-                  time.sleep(15)
-
-                  alive = is_proxy_alive(u.hostname, u.port or 443)
-                  if not alive:
-                      p.terminate()
-                      time.sleep(1)
-                      return None
-
-                  in_flag = FLAGS.get(u.username.upper(), '🏳️')
-                  exit_flag = get_country_flag(u.hostname)
-                  sni_flag = get_country_flag(u.hostname)  # sni берем как exit proxy
-                  name = f"in {in_flag} RusL exit {exit_flag} sni"
-
-                  p.terminate()
-                  time.sleep(1)
-                  return link.split('#')[0] + '#' + name
+                  s = socks.socksocket()
+                  s.set_proxy(socks.SOCKS5, "127.0.0.1", port)
+                  s.settimeout(10)
+                  s.connect(("api.ipify.org", 80))
+                  s.send(b"GET / HTTP/1.1\r\nHost: api.ipify.org\r\n\r\n")
+                  data = s.recv(4096).decode()
+                  ip = data.split("\r\n\r\n")[1].strip()
+                  return flag_from_ip(ip)
               except:
                   return None
+
+          def build_config(link, port):
+              u = urllib.parse.urlparse(link)
+              q = urllib.parse.parse_qs(u.query)
+
+              network = q.get("type", ["tcp"])[0]
+              security = q.get("security", ["none"])[0]
+              sni = q.get("sni", [""])[0]
+
+              stream_settings = {
+                  "network": network
+              }
+
+              if security == "tls":
+                  stream_settings["security"] = "tls"
+                  stream_settings["tlsSettings"] = {
+                      "serverName": sni or u.hostname,
+                      "allowInsecure": True
+                  }
+
+              return {
+                  "inbounds": [{
+                      "listen": "127.0.0.1",
+                      "port": port,
+                      "protocol": "socks",
+                      "settings": {"udp": False}
+                  }],
+                  "outbounds": [{
+                      "protocol": "vless",
+                      "settings": {
+                          "vnext": [{
+                              "address": u.hostname,
+                              "port": u.port or 443,
+                              "users": [{
+                                  "id": u.username,
+                                  "encryption": "none"
+                              }]
+                          }]
+                      },
+                      "streamSettings": stream_settings
+                  }]
+              }
+
+          def test_proxy(link, idx):
+              port = BASE_PORT + idx
+              cfg_file = f"cfg_{port}.json"
+
+              try:
+                  cfg = build_config(link, port)
+                  with open(cfg_file, "w") as f:
+                      json.dump(cfg, f)
+
+                  proc = subprocess.Popen(
+                      ["./xray", "-c", cfg_file],
+                      stdout=subprocess.DEVNULL,
+                      stderr=subprocess.DEVNULL
+                  )
+
+                  time.sleep(5)
+
+                  exit_flag = get_exit_flag(port)
+                  if not exit_flag:
+                      proc.kill()
+                      return None
+
+                  u = urllib.parse.urlparse(link)
+                  q = urllib.parse.parse_qs(u.query)
+                  sni = q.get("sni", [""])[0] or u.hostname
+
+                  name = f"{SELF_FLAG} → {exit_flag} | SNI: {sni}"
+
+                  proc.kill()
+                  return link.split("#")[0] + "#" + name
+
+              except:
+                  return None
+              finally:
+                  if os.path.exists(cfg_file):
+                      os.remove(cfg_file)
 
           if not os.path.exists(INPUT_FILE):
               raise SystemExit(0)
 
           with open(INPUT_FILE) as f:
-              links = [l.strip() for l in f if l.startswith('vless://')]
+              links = [l.strip() for l in f if l.startswith("vless://")]
 
           results = []
           with ThreadPoolExecutor(max_workers=THREADS) as ex:
@@ -156,11 +185,11 @@ jobs:
                   if r:
                       results.append(r)
 
-          with open(OUTPUT_FILE,'a') as f:
+          with open(OUTPUT_FILE, "a") as f:
               for r in results:
-                  f.write(r+'\n')
+                  f.write(r + "\n")
 
-          print("OK proxies:", len(results))
+          print("Alive proxies:", len(results))
           reader.close()
           EOF
 
@@ -176,3 +205,4 @@ jobs:
           git commit -m "Auto update VLESS subscription ($(date -u))" || exit 0
           git pull --rebase origin main || true
           git push
+          
