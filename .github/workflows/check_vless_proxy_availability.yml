@@ -41,7 +41,12 @@ jobs:
       - name: Check VLESS via Xray (FAST VERSION)
         run: |
           python3 <<'EOF'
-          import subprocess, time, json, urllib.parse, os, threading
+          import subprocess
+          import time
+          import json
+          import urllib.parse
+          import os
+          import threading
           from concurrent.futures import ThreadPoolExecutor, as_completed
           from datetime import datetime, timezone
 
@@ -67,7 +72,10 @@ jobs:
                           p.terminate()
                           p.wait(timeout=1)
                       except:
-                          p.kill()
+                          try:
+                              p.kill()
+                          except:
+                              pass
                   active_processes.clear()
           
           def exit_ip(port):
@@ -77,7 +85,7 @@ jobs:
                           ['curl', '-s', '--max-time', '2', '-x', f'socks5h://127.0.0.1:{port}', url],
                           text=True, timeout=3
                       ).strip()
-                      if out and len(out) > 5:  # Валидный IP
+                      if out and len(out) > 5:  # Valid IP
                           return out
                   except:
                       pass
@@ -86,7 +94,7 @@ jobs:
           def is_good_ip(ip):
               if not ip or ip == RUNNER_IP:
                   return False
-              # Быстрая фильтрация RU IP по префиксам (как в быстром логе)
+              # Quick RU IP filtering by prefixes
               ru_prefixes = {'5.', '31.', '37.', '46.', '77.', '78.', '79.', '80.', '81.', '82.', '83.', 
                             '84.', '85.', '86.', '87.', '88.', '89.', '90.', '91.', '92.', '93.', '94.', '95.'}
               return ip[:ip.find('.')+3] not in ru_prefixes
@@ -94,7 +102,9 @@ jobs:
           def country(ip):
               try:
                   import urllib.request
-                  with urllib.request.urlopen(f'https://ipapi.co/{ip}/country/', timeout=3) as r:
+                  req = urllib.request.Request(f'https://ipapi.co/{ip}/country/', 
+                                               headers={'User-Agent': 'Mozilla/5.0'})
+                  with urllib.request.urlopen(req, timeout=3) as r:
                       return r.read().decode().strip()
               except:
                   return 'Unknown'
@@ -107,22 +117,41 @@ jobs:
                   u = urllib.parse.urlparse(link)
                   q = urllib.parse.parse_qs(u.query)
                   
-                  stream = {'network': q.get('type', ['tcp'])[0]}
+                  # Extract network type
+                  network = q.get('type', ['tcp'])[0]
+                  if network == 'tcp':
+                      network = 'tcp'
+                  elif network == 'ws':
+                      network = 'ws'
+                  elif network == 'grpc':
+                      network = 'grpc'
+                  
+                  stream = {'network': network}
                   sec = q.get('security', ['none'])[0]
                   sni = q.get('sni', [''])[0]
                   
                   if sec == 'reality' and 'pbk' in q:
                       stream['security'] = 'reality'
                       stream['realitySettings'] = {
-                          'serverName': sni,
+                          'serverName': sni or u.hostname,
                           'publicKey': q['pbk'][0],
                           'shortId': q.get('sid', [''])[0],
                           'fingerprint': 'chrome'
                       }
                   
-                  # Уникальный порт для каждого потока
+                  # Unique port for each thread
                   port_num = 10800 + (hash(link) % 900) + 100
                   port = port_num
+                  
+                  # Extract host and port
+                  host = u.hostname
+                  port_num = u.port or 443
+                  
+                  # Extract user ID
+                  user_id = u.username or ''
+                  
+                  # Extract flow
+                  flow = q.get('flow', [''])[0]
                   
                   cfg = {
                       'inbounds': [{
@@ -135,12 +164,12 @@ jobs:
                           'protocol': 'vless',
                           'settings': {
                               'vnext': [{
-                                  'address': u.hostname,
-                                  'port': u.port or 443,
+                                  'address': host,
+                                  'port': port_num,
                                   'users': [{
-                                      'id': u.username,
+                                      'id': user_id,
                                       'encryption': 'none',
-                                      'flow': q.get('flow', [''])[0]
+                                      'flow': flow
                                   }]
                               }]
                           },
@@ -148,7 +177,7 @@ jobs:
                       }]
                   }
                   
-                  cfg_file = f'cfg_{hash(link) % 10000}.json'
+                  cfg_file = f'cfg_{abs(hash(link)) % 10000}.json'
                   with open(cfg_file, 'w') as f:
                       json.dump(cfg, f)
                   
@@ -161,7 +190,7 @@ jobs:
                   with lock:
                       active_processes.append(process)
                   
-                  time.sleep(1.5)  # Быстрее чем 4 сек
+                  time.sleep(1.5)  # Faster than 4 sec
                   
                   ip = exit_ip(port)
                   if process:
@@ -171,39 +200,49 @@ jobs:
                   if ip and is_good_ip(ip):
                       country_code = country(ip)
                       if country_code != 'RU':
-                          print(f"⭐ {u.hostname}:{u.port or 443} OK {ip} → {country_code}")
+                          print(f"⭐ {host}:{port_num} OK {ip} → {country_code}")
                           return link
                       else:
-                          print(f"✗ {u.hostname}:{u.port or 443} RU {ip}")
+                          print(f"✗ {host}:{port_num} RU {ip}")
                   else:
-                      print(f"✗ {u.hostname}:{u.port or 443} no IP")
+                      print(f"✗ {host}:{port_num} no IP")
                   
               except Exception as e:
-                  print(f"✗ {link[:50]}... error")
+                  print(f"✗ {link[:50]}... error: {str(e)[:50]}")
               finally:
                   if process:
                       try:
                           process.terminate()
                           process.wait(timeout=0.5)
                       except:
-                          process.kill()
+                          try:
+                              process.kill()
+                          except:
+                              pass
                   with lock:
                       if process and process in active_processes:
-                          active_processes.remove(process)
+                          try:
+                              active_processes.remove(process)
+                          except:
+                              pass
                   if cfg_file and os.path.exists(cfg_file):
-                      os.remove(cfg_file)
+                      try:
+                          os.remove(cfg_file)
+                      except:
+                          pass
               return None
           
           if not os.path.exists(INPUT):
-              print("Input file not found")
+              print(f"Input file {INPUT} not found")
               raise SystemExit(0)
           
-          with open(INPUT) as f:
-              links = [l.strip() for l in f if l.startswith('vless://')]
+          with open(INPUT, 'r') as f:
+              links = [l.strip() for l in f if l.strip().startswith('vless://')]
           
           total_links = len(links)
           print(f"TOTAL: {total_links} | workers={MAX_WORKERS}")
           
+          # Write header
           with open(OUTPUT_RAW, 'w') as f:
               f.write(f"# updated {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}\n")
           
@@ -216,15 +255,18 @@ jobs:
                   futures = [ex.submit(check_one, link) for link in links]
                   for future in as_completed(futures):
                       processed += 1
-                      result = future.result()
-                      if result:
-                          alive.append(result)
+                      try:
+                          result = future.result(timeout=10)
+                          if result:
+                              alive.append(result)
+                      except Exception as e:
+                          print(f"Future error: {e}")
                       
                       if processed % 10 == 0:
                           elapsed = time.time() - start_time
                           print(f"Processed {processed}/{total_links} ({processed/total_links*100:.0f}%) in {elapsed:.0f}s")
                       
-                      if time.time() - start_time > 600:  # 10 мин макс
+                      if time.time() - start_time > 600:  # 10 min max
                           print("MAX TOTAL TIME reached")
                           break
                           
@@ -250,7 +292,7 @@ jobs:
           echo "BASE64 size:"
           wc -c githubmirror/26_proxy_subscription_base64.txt
           echo "First 3 lines:"
-          head -3 githubmirror/26_proxy_subscription_raw.txt
+          head -3 githubmirror/26_proxy_subscription_raw.txt || echo "File empty"
 
       - name: Commit & push results
         run: |
@@ -262,6 +304,6 @@ jobs:
             echo "❌ No changes to commit"
           else
             git commit -m "Update NON-RU proxy subscriptions [$(date -u +'%Y-%m-%d %H:%M UTC')]"
-            git push || true
+            git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} HEAD:main || true
             echo "✅ Pushed NON-RU updates"
           fi
