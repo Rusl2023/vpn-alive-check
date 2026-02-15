@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: proxy-check
+  group: proxy-check-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -23,29 +23,44 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt-get update
+          sudo apt-get update -qq
           sudo apt-get install -y curl jq unzip python3 python3-pip
-          pip3 install geoip2
+          pip3 install geoip2 requests --quiet
 
-      - name: Download Xray
+      - name: Download Xray with retry
         run: |
-          XRAY_VER=$(curl -s https://api.github.com/repos/XTLS/Xray-core/releases/latest | jq -r .tag_name)
-          curl -L -o xray.zip "https://github.com/XTLS/Xray-core/releases/download/${XRAY_VER}/Xray-linux-64.zip"
-          unzip -o xray.zip xray geoip.dat geosite.dat
-          chmod +x xray
-          ls -la xray
+          for i in {1..3}; do
+            XRAY_VER=$(curl -s --retry 3 https://api.github.com/repos/XTLS/Xray-core/releases/latest | jq -r .tag_name) && \
+            curl -L -o xray.zip "https://github.com/XTLS/Xray-core/releases/download/${XRAY_VER}/Xray-linux-64.zip" && \
+            unzip -o xray.zip xray geoip.dat geosite.dat && \
+            chmod +x xray && ls -la xray && break
+            echo "Retry $i/3 failed, waiting..."
+            sleep 3
+          done || { echo "❌ Xray download failed"; exit 1; }
 
-      - name: Copy GeoLite2 databases
+      - name: Download GeoLite2 databases
         run: |
-          cp geolite2/GeoLite2-*.mmdb ./ || echo "No GeoLite2 databases found"
-          ls -la GeoLite2-*.mmdb || echo "✅ Using bundled GeoLite2"
-          echo "✅ GeoLite2 ready"
+          echo "📥 Downloading GeoLite2 databases..."
+          curl -L -o GeoLite2-Country.mmdb https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-Country.mmdb
+          curl -L -o GeoLite2-City.mmdb https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-City.mmdb
+          curl -L -o GeoLite2-ASN.mmdb https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-ASN.mmdb
+          ls -la GeoLite2-*.mmdb
+          echo "✅ GeoLite2 databases ready"
+
+      - name: Copy local GeoLite2 (fallback)
+        run: |
+          cp geolite2/GeoLite2-*.mmdb ./ 2>/dev/null || echo "No local GeoLite2 found"
 
       - name: Prepare files
         run: |
           mkdir -p githubmirror
           : > githubmirror/26_proxy_subscription_raw.txt
           : > githubmirror/26_proxy_subscription_base64.txt
+          test -f githubmirror/26_ru_whitelist.txt || \
+            echo "vless://uuid@1.1.1.1:443?security=reality&pbk=ABC...&sid=123&sni=www.google.com#test" > githubmirror/26_ru_whitelist.txt
+
+      - name: Kill old Xray processes
+        run: pkill xray || true
 
       - name: Check VLESS via Xray
         run: |
@@ -58,10 +73,16 @@ import os
 import socket
 import ipaddress
 import base64
-import geoip2.database
+import re
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from threading import Lock
 from datetime import datetime, timezone
+
+try:
+    import geoip2.database
+    GEOIP_AVAILABLE = True
+except ImportError:
+    GEOIP_AVAILABLE = False
 
 XRAY_PATH = "./xray"
 INPUT = 'githubmirror/26_ru_whitelist.txt'
@@ -69,396 +90,277 @@ OUTPUT_RAW = 'githubmirror/26_proxy_subscription_raw.txt'
 OUTPUT_B64 = 'githubmirror/26_proxy_subscription_base64.txt'
 
 IP_TEST_URLS = ['https://api.ipify.org', 'https://ifconfig.me/ip', 'https://ipapi.co/ip']
-TEST_SITES = ['https://x.com', 'https://www.cloudflare.com/cdn-cgi/trace', 'https://www.netflix.com']
-MAX_WORKERS = 6
-CURL_DELAY = 0.3
+MAX_WORKERS = 12
 
-print("🔄 Loading GeoLite2 databases...")
+FLAGS = {
+    'DE': '🇩🇪DE', 'NL': '🇳🇱NL', 'US': '🇺🇸US', 'SG': '🇸🇬SG', 'GB': '🇬🇧GB', 'CA': '🇨🇦CA', 
+    'FR': '🇫🇷FR', 'CH': '🇨🇭CH', 'SE': '🇸🇪SE', 'FI': '🇫🇮FI', 'NO': '🇳🇴NO', 'IE': '🇮🇪IE',
+    'AU': '🇦🇺AU', 'JP': '🇯🇵JP', 'KR': '🇰🇷KR', 'HK': '🇭🇰HK', 'TW': '🇹🇼TW'
+}
+
+print("🔄 Initializing proxy checker with 3x GeoLite2...")
+
 country_reader = city_reader = asn_reader = None
-geoip_available = False
-
-try:
-    country_reader = geoip2.database.Reader('GeoLite2-Country.mmdb')
-    city_reader = geoip2.database.Reader('GeoLite2-City.mmdb')
-    asn_reader = geoip2.database.Reader('GeoLite2-ASN.mmdb')
-    geoip_available = True
-    print("✅ GeoLite2 databases loaded")
-except Exception as e:
-    print(f"⚠️ GeoLite2 unavailable: {e}")
+if GEOIP_AVAILABLE:
+    try:
+        country_reader = geoip2.database.Reader('GeoLite2-Country.mmdb')
+        city_reader = geoip2.database.Reader('GeoLite2-City.mmdb')
+        asn_reader = geoip2.database.Reader('GeoLite2-ASN.mmdb')
+        print("✅ All 3 GeoLite2 databases loaded")
+    except Exception as e:
+        print(f"⚠️ GeoLite2 partial load: {e}")
 
 lock = Lock()
-counter = 0
+counter = [0]
 
 def next_id():
-    global counter
     with lock:
-        counter += 1
-        return counter
+        counter[0] += 1
+        return counter[0]
+
+def is_ip_address(host):
+    if not host or not isinstance(host, str):
+        return False
+    pattern = r'^(?:(?:25[0-5]|2[4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[4][0-9]|[01]?[0-9][0-9]?)$'
+    return bool(re.match(pattern, host))
+
+def resolve_hostname_to_ip(hostname):
+    try:
+        return socket.gethostbyname(hostname)
+    except:
+        return hostname
+
+def get_server_country(hostname_or_ip):
+    try:
+        if is_ip_address(hostname_or_ip):
+            ip = hostname_or_ip
+        else:
+            ip = resolve_hostname_to_ip(hostname_or_ip)
+        return get_country_from_ip(ip)
+    except:
+        return '🌍??'
+
+def get_country_from_ip(ip):
+    if not is_ip_address(ip):
+        return '🌍??'
+    
+    try:
+        if country_reader:
+            resp = country_reader.country(ip)
+            if resp.country.iso_code:
+                return FLAGS.get(resp.country.iso_code, f'🌍{resp.country.iso_code}')
+    except:
+        pass
+    
+    try:
+        if city_reader:
+            resp = city_reader.city(ip)
+            if resp.country.iso_code:
+                return FLAGS.get(resp.country.iso_code, f'🌍{resp.country.iso_code}')
+    except:
+        pass
+    
+    try:
+        if asn_reader:
+            resp = asn_reader.asn(ip)
+            if resp.country.iso_code:
+                return FLAGS.get(resp.country.iso_code, f'🌍{resp.country.iso_code}')
+            elif resp.autonomous_system_organization:
+                org = resp.autonomous_system_organization.lower()
+                if any(x in org for x in ['netherlands', 'nederland']):
+                    return '🇳🇱NL'
+                elif any(x in org for x in ['germany', 'deutsche']):
+                    return '🇩🇪DE'
+    except:
+        pass
+    
+    return '🌍??'
+
+def valid_ip(ip):
+    try:
+        ipaddress.ip_address(ip.strip())
+        return True
+    except:
+        return False
 
 def is_ipv6(ip):
     try:
-        addr = ipaddress.ip_address(ip.strip())
-        return addr.version == 6
+        return ipaddress.ip_address(ip.strip()).version == 6
     except:
         return False
 
-def valid_ip(x):
-    try:
-        ipaddress.ip_address(x.strip())
-        return True
-    except:
-        return False
-
-def resolve(host):
-    try:
-        info = socket.getaddrinfo(host, None, 0, 0, socket.SOL_TCP)
-        for i in info:
-            ip = i[4][0]
-            if valid_ip(ip):
+def get_exit_ip(port):
+    for url in IP_TEST_URLS:
+        try:
+            cmd = ['curl', '-s', '--max-time', '10', '-x', f'socks5h://127.0.0.1:{port}', url]
+            ip = subprocess.check_output(cmd, text=True, stderr=subprocess.DEVNULL, timeout=12).strip()
+            if valid_ip(ip) and not is_ipv6(ip):
                 return ip
-        return host
-    except:
-        return host
-
-def get_raw_iso_country(ip):
-    if not geoip_available:
-        return None
-    ip = ip.strip()
-    if not valid_ip(ip):
-        return None
-    try:
-        if country_reader:
-            r = country_reader.country(ip)
-            iso_code = r.country.iso_code
-            if iso_code:
-                return iso_code
-        if city_reader:
-            r = city_reader.city(ip)
-            iso_code = r.country.iso_code
-            if iso_code:
-                return iso_code
-    except:
-        pass
+        except:
+            continue
     return None
 
-def country_from_ip(ip):
-    raw_iso = get_raw_iso_country(ip)
-    if not raw_iso:
-        return '🌍??'
-    FLAGS = {
-        'AD': '🇦🇩AD', 'AE': '🇦🇪AE', 'AF': '🇦🇫AF', 'AG': '🇦🇬AG', 'AI': '🇦🇮AI',
-        'AL': '🇦🇱AL', 'AM': '🇦🇲AM', 'AO': '🇦🇴AO', 'AQ': '🇦🇶AQ', 'AR': '🇦🇷AR',
-        'AS': '🇦🇸AS', 'AT': '🇦🇹AT', 'AU': '🇦🇺AU', 'AW': '🇦🇼AW', 'AX': '🇦🇽AX',
-        'AZ': '🇦🇿AZ', 'BA': '🇧🇦BA', 'BB': '🇧🇧BB', 'BD': '🇧🇩BD', 'BE': '🇧🇪BE',
-        'BF': '🇧🇫BF', 'BG': '🇧🇬BG', 'BH': '🇧🇭BH', 'BI': '🇧🇮BI', 'BJ': '🇧🇯BJ',
-        'BL': '🇧🇱BL', 'BM': '🇧🇲BM', 'BN': '🇧🇳BN', 'BO': '🇧🇴BO', 'BQ': '🇧🇶BQ',
-        'BR': '🇧🇷BR', 'BS': '🇧🇸BS', 'BT': '🇧🇹BT', 'BV': '🇧🇻BV', 'BW': '🇧🇼BW',
-        'BY': '🇧🇾BY', 'BZ': '🇧🇿BZ', 'CA': '🇨🇦CA', 'CC': '🇨🇨CC', 'CD': '🇨🇩CD',
-        'CF': '🇨🇫CF', 'CG': '🇨🇬CG', 'CH': '🇨🇭CH', 'CI': '🇨🇮CI', 'CK': '🇨🇰CK',
-        'CL': '🇨🇱CL', 'CM': '🇨🇲CM', 'CN': '🇨🇳CN', 'CO': '🇨🇴CO', 'CR': '🇨🇷CR',
-        'CU': '🇨🇺CU', 'CV': '🇨🇻CV', 'CW': '🇨🇼CW', 'CX': '🇨🇽CX', 'CY': '🇨🇾CY',
-        'CZ': '🇨🇿CZ', 'DE': '🇩🇪DE', 'DJ': '🇩🇯DJ', 'DK': '🇩🇰DK', 'DM': '🇩🇲DM',
-        'DO': '🇩🇴DO', 'DZ': '🇩🇿DZ', 'EC': '🇪🇨EC', 'EE': '🇪🇪EE', 'EG': '🇪🇬EG',
-        'EH': '🇪🇭EH', 'ER': '🇪🇷ER', 'ES': '🇪🇸ES', 'ET': '🇪🇹ET', 'FI': '🇫🇮FI',
-        'FJ': '🇫🇯FJ', 'FK': '🇫🇰FK', 'FM': '🇫🇲FM', 'FO': '🇫🇴FO', 'FR': '🇫🇷FR',
-        'GA': '🇬🇦GA', 'GB': '🇬🇧GB', 'GD': '🇬🇩GD', 'GE': '🇬🇪GE', 'GF': '🇬🇫GF',
-        'GG': '🇬🇬GG', 'GH': '🇬🇭GH', 'GI': '🇬🇮GI', 'GL': '🇬🇱GL', 'GM': '🇬🇲GM',
-        'GN': '🇬🇳GN', 'GP': '🇬🇵GP', 'GQ': '🇬🇶GQ', 'GR': '🇬🇷GR', 'GS': '🇬🇸GS',
-        'GT': '🇬🇹GT', 'GU': '🇬🇺GU', 'GW': '🇬🇼GW', 'GY': '🇬🇾GY', 'HK': '🇭🇰HK',
-        'HM': '🇭🇲HM', 'HN': '🇭🇳HN', 'HR': '🇭🇷HR', 'HT': '🇭🇹HT', 'HU': '🇭🇺HU',
-        'ID': '🇮🇩ID', 'IE': '🇮🇪IE', 'IL': '🇮🇱IL', 'IM': '🇮🇲IM', 'IN': '🇮🇳IN',
-        'IO': '🇮🇴IO', 'IQ': '🇮🇶IQ', 'IR': '🇮🇷IR', 'IS': '🇮🇸IS', 'IT': '🇮🇹IT',
-        'JE': '🇯🇪JE', 'JM': '🇯🇲JM', 'JO': '🇯🇴JO', 'JP': '🇯🇵JP', 'KE': '🇰🇪KE',
-        'KG': '🇰🇬KG', 'KH': '🇰🇭KH', 'KI': '🇰🇮KI', 'KM': '🇰🇲KM', 'KN': '🇰🇳KN',
-        'KP': '🇰🇵KP', 'KR': '🇰🇷KR', 'KW': '🇰🇼KW', 'KY': '🇰🇾KY', 'KZ': '🇰🇿KZ',
-        'LA': '🇱🇦LA', 'LB': '🇱🇧LB', 'LC': '🇱🇨LC', 'LI': '🇱🇮LI', 'LK': '🇱🇰LK',
-        'LR': '🇱🇷LR', 'LS': '🇱🇸LS', 'LT': '🇱🇹LT', 'LU': '🇱🇺LU', 'LV': '🇱🇻LV',
-        'LY': '🇱🇾LY', 'MA': '🇲🇦MA', 'MC': '🇲🇨MC', 'MD': '🇲🇩MD', 'ME': '🇲🇪ME',
-        'MF': '🇲🇫MF', 'MG': '🇲🇬MG', 'MH': '🇲🇭MH', 'MK': '🇲🇰MK', 'ML': '🇲🇱ML',
-        'MM': '🇲🇲MM', 'MN': '🇲🇳MN', 'MO': '🇲🇴MO', 'MP': '🇲🇵MP', 'MQ': '🇲🇶MQ',
-        'MR': '🇲🇷MR', 'MS': '🇲🇸MS', 'MT': '🇲🇹MT', 'MU': '🇲🇺MU', 'MV': '🇲🇻MV',
-        'MW': '🇲🇼MW', 'MX': '🇲🇽MX', 'MY': '🇲🇾MY', 'MZ': '🇲🇿MZ', 'NA': '🇳🇦NA',
-        'NC': '🇳🇨NC', 'NE': '🇳🇪NE', 'NF': '🇳🇫NF', 'NG': '🇳🇬NG', 'NI': '🇳🇮NI',
-        'NL': '🇳🇱NL', 'NO': '🇳🇴NO', 'NP': '🇳🇵NP', 'NR': '🇳🇷NR', 'NU': '🇳🇺NU',
-        'NZ': '🇳🇿NZ', 'OM': '🇴🇲OM', 'PA': '🇵🇦PA', 'PE': '🇵🇪PE', 'PF': '🇵🇫PF',
-        'PG': '🇵🇬PG', 'PH': '🇵🇭PH', 'PK': '🇵🇰PK', 'PL': '🇵🇱PL', 'PM': '🇵🇲PM',
-        'PN': '🇵🇳PN', 'PR': '🇵🇷PR', 'PS': '🇵🇸PS', 'PT': '🇵🇹PT', 'PW': '🇵🇼PW',
-        'PY': '🇵🇾PY', 'QA': '🇶🇦QA', 'RE': '🇷🇪RE', 'RO': '🇷🇴RO', 'RS': '🇷🇸RS',
-        'RU': '🇷🇺RU', 'RW': '🇷🇼RW', 'SA': '🇸🇦SA', 'SB': '🇸🇧SB', 'SC': '🇸🇨SC',
-        'SD': '🇸🇩SD', 'SE': '🇸🇪SE', 'SG': '🇸🇬SG', 'SH': '🇸🇭SH', 'SI': '🇸🇮SI',
-        'SJ': '🇸🇯SJ', 'SK': '🇸🇰SK', 'SL': '🇸🇱SL', 'SM': '🇸🇲SM', 'SN': '🇸🇳SN',
-        'SO': '🇸🇴SO', 'SR': '🇸🇷SR', 'SS': '🇸🇸SS', 'ST': '🇸🇹ST', 'SV': '🇸🇻SV',
-        'SX': '🇸🇽SX', 'SY': '🇸🇾SY', 'SZ': '🇸🇿SZ', 'TC': '🇹🇨TC', 'TD': '🇹🇩TD',
-        'TF': '🇹🇫TF', 'TG': '🇹🇬TG', 'TH': '🇹🇭TH', 'TJ': '🇹🇯TJ', 'TK': '🇹🇰TK',
-        'TL': '🇹🇱TL', 'TM': '🇹🇲TM', 'TN': '🇹🇳TN', 'TO': '🇹🇴TO', 'TR': '🇹🇷TR',
-        'TT': '🇹🇹TT', 'TV': '🇹🇻TV', 'TW': '🇹🇼TW', 'TZ': '🇹🇿TZ', 'UA': '🇺🇦UA',
-        'UG': '🇺🇬UG', 'UM': '🇺🇲UM', 'US': '🇺🇸US', 'UY': '🇺🇾UY', 'UZ': '🇺🇿UZ',
-        'VA': '🇻🇦VA', 'VC': '🇻🇨VC', 'VE': '🇻🇪VE', 'VG': '🇻🇬VG', 'VI': '🇻🇮VI',
-        'VN': '🇻🇳VN', 'VU': '🇻🇺VU', 'WF': '🇼🇫WF', 'WS': '🇼🇸WS', 'YE': '🇾🇪YE',
-        'YT': '🇾🇹YT', 'ZA': '🇿🇦ZA', 'ZM': '🇿🇲ZM', 'ZW': '🇿🇼ZW'
-    }
-    return FLAGS.get(raw_iso, f'🌍{raw_iso}')
-
-def is_russian_exit(exit_ip):
-    if is_ipv6(exit_ip):
-        print(f"🚫 IPv6 DETECTED: {exit_ip}")
-        return True
-    raw_iso = get_raw_iso_country(exit_ip)
-    if raw_iso == 'RU':
-        print(f"🚫 RU IPv4: {exit_ip}")
-        return True
-    return False
-
-def test_site(port, url, site_name):
-    time.sleep(CURL_DELAY)
+def test_proxy(port):
     try:
-        cmd = [
-            'curl', '-s', '--max-time', '10',
-            '-x', f'socks5h://127.0.0.1:{port}',
-            '-o', '/dev/null', '-w', '%{http_code}', url
-        ]
-        code = subprocess.check_output(cmd, text=True, stderr=subprocess.DEVNULL, timeout=12).strip()
-        success_codes = ['200','204','301','302','403','429']
-        if code in success_codes:
-            print(f"✅ {site_name}: {code}")
-            return True
-        print(f"❌ {site_name}: HTTP {code}")
-        return False
-    except subprocess.TimeoutExpired:
-        print(f"⏰ {site_name}: TIMEOUT (12s)")
-        return False
-    except Exception:
-        print(f"❌ {site_name}: CURL ERROR")
-        return False
-
-def test_proxy_robust(port):
-    print("⏳ Waiting 3s for Xray stability...")
-    time.sleep(3)
-    
-    exit_ip = None
-    for attempt in range(2):
-        if exit_ip:
-            break
-        print(f"🌐 IP test attempt {attempt + 1}/2")
-        for i, url in enumerate(IP_TEST_URLS, 1):
-            try:
-                cmd = ['curl', '-s', '--max-time', '12', '-x', f'socks5h://127.0.0.1:{port}', url]
-                ip = subprocess.check_output(cmd, text=True, stderr=subprocess.DEVNULL, timeout=15).strip()
-                if valid_ip(ip) and len(ip) >= 7 and not is_ipv6(ip):
-                    exit_ip = ip
-                    print(f"🌐 IPv4 [{i}]: {ip}")
-                    break
-                elif is_ipv6(ip):
-                    print(f"🚫 IPv6 blocked: {ip}")
-            except:
-                print(f"🌐 IP test [{i}] failed")
-                continue
-        if not exit_ip and attempt == 0:
-            print("⏳ Retrying IP test in 2s...")
-            time.sleep(2)
-    
-    if not exit_ip:
-        print("❌ No valid IPv4 exit IP after 2 attempts")
-        return False, None
-
-    try:
-        cmd = ['curl', '-s', '--max-time', '12', '-x', f'socks5h://127.0.0.1:{port}',
-               '-o', '/dev/null', '-w', '%{http_code}', 'http://example.com']
-        http_code = subprocess.check_output(cmd, text=True, stderr=subprocess.DEVNULL, timeout=15).strip()
-        if http_code != '200':
-            print(f"❌ HTTP example.com: {http_code}")
+        cmd = ['curl', '-s', '--max-time', '8', '-x', f'socks5h://127.0.0.1:{port}', 
+               '-o', '/dev/null', '-w', '%{http_code}', 'https://www.cloudflare.com']
+        code = subprocess.check_output(cmd, text=True, stderr=subprocess.DEVNULL, timeout=10).strip()
+        if code not in ['200', '301', '302']:
             return False, None
     except:
-        print("❌ HTTP example.com: FAILED")
         return False, None
-
-    print("🔥 Testing 3 sites in parallel...")
-    with ThreadPoolExecutor(max_workers=3) as site_executor:
-        futures = [
-            site_executor.submit(test_site, port, TEST_SITES[0], "X.com"),
-            site_executor.submit(test_site, port, TEST_SITES[1], "Cloudflare"),
-            site_executor.submit(test_site, port, TEST_SITES[2], "Netflix")
-        ]
-    site_results = []
-    for future in futures:
-        try:
-            result = future.result(timeout=15)
-            site_results.append(result)
-        except Exception:
-            print(f"⚠️ Site test TIMEOUT/ERROR → FAIL")
-            site_results.append(False)
-
-    if not all(site_results):
-        print("❌ Site tests FAILED (need ALL 3)")
+    
+    exit_ip = get_exit_ip(port)
+    if not exit_ip:
         return False, None
-
-    print("✅ All 3 sites OK!")
+    
+    country = get_country_from_ip(exit_ip)
+    if country.startswith('🇷🇺'):
+        return False, None
+    
     return True, exit_ip
 
 def get_free_port():
-    s = socket.socket()
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     s.bind(('', 0))
     port = s.getsockname()[1]
     s.close()
     return port
 
-def wait_port(port, timeout=20):
-    print(f"⏳ Waiting for port {port} (20s max)...")
+def wait_port(port, timeout=15):
     start = time.time()
     while time.time() - start < timeout:
         try:
-            with socket.create_connection(("127.0.0.1", port), timeout=1):
-                print(f"✅ Port {port} ready!")
-                return True
+            sock = socket.create_connection(("127.0.0.1", port), timeout=1)
+            sock.close()
+            return True
         except:
             time.sleep(0.2)
-    print(f"❌ Port {port} timeout after 20s")
     return False
 
+def validate_reality_params(pbk, sid):
+    if not pbk or len(pbk) < 40:
+        return False
+    if not sid or len(sid) > 16:
+        return False
+    return True
+
 def check_one(link):
+    cfg_file = None
+    p = None
     try:
-        port = get_free_port()
         u = urllib.parse.urlparse(link)
         if u.scheme != 'vless':
             return None
-            
+
         q = urllib.parse.parse_qs(u.query)
-        sni = q.get('sni', ['unknown'])[0]
-        fp = q.get('fp', ['chrome'])[0]
+        pbk = q.get('pbk', [''])[0]
+        sid = q.get('sid', [''])[0]
         
-        server_ip = resolve(u.hostname)
-        server_country = country_from_ip(server_ip)
+        if not validate_reality_params(pbk, sid):
+            return None
 
-        network = q.get('type', ['tcp'])[0]
-        sec = q.get('security', ['none'])[0]
+        sni = q.get('sni', ['www.google.com'])[0]
+        fp = q.get('fp', ['chrome'])[0]
+        port_num = int(u.port or 443)
 
-        stream = {'network': network}
-        if sec == 'reality' and 'pbk' in q:
-            stream.update({
-                'security': 'reality',
-                'realitySettings': {
-                    'serverName': sni,
-                    'publicKey': q['pbk'][0],
-                    'shortId': q.get('sid', [''])[0],
-                    'fingerprint': fp
-                }
-            })
-        elif sec == 'tls':
-            stream.update({
-                'security': 'tls',
-                'tlsSettings': {
-                    'serverName': sni,
-                    'allowInsecure': True,
-                    'fingerprint': fp
-                }
-            })
+        if not (1 <= port_num <= 65535):
+            return None
 
-        user = {'id': u.username, 'encryption': 'none'}
-        flow = q.get('flow', [''])[0]
-        if flow:
-            user['flow'] = flow
-
+        socks_port = get_free_port()
         cfg = {
-            'inbounds': [{
-                'listen': '127.0.0.1',
-                'port': port,
-                'protocol': 'socks',
-                'settings': {'udp': False}
+            "inbounds": [{
+                "listen": "127.0.0.1",
+                "port": socks_port,
+                "protocol": "socks",
+                "settings": {"udp": False}
             }],
-            'outbounds': [{
-                'protocol': 'vless',
-                'settings': {
-                    'vnext': [{
-                        'address': u.hostname,
-                        'port': int(u.port or 443),
-                        'users': [user]
+            "outbounds": [{
+                "protocol": "vless",
+                "settings": {
+                    "vnext": [{
+                        "address": u.hostname,
+                        "port": port_num,
+                        "users": [{"id": u.username, "encryption": "none"}]
                     }]
                 },
-                'streamSettings': stream
+                "streamSettings": {
+                    "network": "tcp",
+                    "security": "reality",
+                    "realitySettings": {
+                        "dest": "www.google.com:443",
+                        "serverNames": [sni],
+                        "shortIds": [sid],
+                        "fingerprint": fp,
+                        "publicKey": pbk
+                    }
+                }
             }]
         }
 
-        cfg_file = f'cfg_{port}.json'
+        cfg_file = f'cfg_{socks_port}.json'
         with open(cfg_file, 'w') as f:
             json.dump(cfg, f)
 
-        print(f"🚀 Starting Xray on port {port}...")
         p = subprocess.Popen([XRAY_PATH, 'run', '-c', cfg_file],
                            stdout=subprocess.DEVNULL,
                            stderr=subprocess.DEVNULL)
 
-        if not wait_port(port):
-            try:
-                p.terminate()
-                p.wait(timeout=2)
-            except:
-                p.kill()
-            try:
-                os.remove(cfg_file)
-            except: pass
+        if not wait_port(socks_port):
             return None
 
-        ok, exit_ip = test_proxy_robust(port)
+        time.sleep(2)
+        success, exit_ip = test_proxy(socks_port)
         
-        try:
-            p.terminate()
-            p.wait(timeout=2)
-        except:
-            p.kill()
-        p.wait(timeout=1)
+        if success and exit_ip:
+            server_country = get_server_country(u.hostname)
+            exit_country = get_country_from_ip(exit_ip)
+            proxy_number = next_id()
+            name = f"{server_country}→{proxy_number}→{exit_country} SNI: {sni}"
+            
+            clean_link = link.split('#')[0]
+            return f"{clean_link}#{name}"
 
-        try:
-            os.remove(cfg_file)
-        except: pass
-
-        if not ok:
-            return None
-
-        if is_russian_exit(exit_ip):
-            return None
-
-        exit_country = country_from_ip(exit_ip)
-        num = next_id()
-        name = f"{server_country}->{num}->{exit_country} SNI: {sni}"
-
-        if '#' in link:
-            link = link.split('#')[0]
-        return link + '#' + name
-
-    except Exception as e:
-        print(f"⚠️ Proxy parse error: {str(e)[:100]}")
         return None
 
-print(f"📂 Processing {INPUT}...")
+    except Exception:
+        return None
+    
+    finally:
+        if p:
+            try:
+                p.terminate()
+                p.wait(timeout=3)
+            except:
+                p.kill()
+        if cfg_file and os.path.exists(cfg_file):
+            os.unlink(cfg_file)
+
+print("📂 Reading input...")
 if not os.path.exists(INPUT):
-    print("❌ INPUT file not found")
-    exit(0)
+    print("❌ No input file")
+    exit(1)
 
 with open(INPUT) as f:
-    links = [x.strip() for x in f if x.strip().startswith('vless://')]
+    links = [line.strip() for line in f if line.strip().startswith('vless://')]
 
-if not links:
-    print("❌ No VLESS links found")
-    exit(0)
-
-print(f"🚀 TOTAL: {len(links)} | workers={MAX_WORKERS} | geoip={geoip_available}")
+print(f"🚀 Testing {len(links)} proxies | {MAX_WORKERS} workers | 3x GeoLite2: {'✅' if country_reader else '❌'}")
 
 alive = []
-try:
-    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
-        futures = [ex.submit(check_one, l) for l in links]
-        for future in as_completed(futures):
-            result = future.result()
-            if result:
-                alive.append(result)
-except KeyboardInterrupt:
-    print("⏹️ Interrupted")
+with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+    futures = [executor.submit(check_one, link) for link in links]
+    for future in as_completed(futures):
+        result = future.result()
+        if result:
+            alive.append(result)
+            print(f"✅ Working proxy #{len(alive)}")
 
-print(f"✅ DONE. Alive NON-RU IPv4-only: {len(alive)}")
+print(f"✅ Found {len(alive)} NON-RU proxies")
 
+timestamp = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')
 with open(OUTPUT_RAW, 'w') as f:
-    f.write(f"# updated {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}\n")
+    f.write(f"# Updated: {timestamp}\n")
     if alive:
         f.write('\n'.join(alive) + '\n')
 
@@ -467,51 +369,37 @@ if alive:
     b64 = base64.b64encode(b64_content.encode()).decode()
     with open(OUTPUT_B64, 'w') as f:
         f.write(b64)
-    print(f"💾 Saved {len(alive)} battle-tested NON-RU IPv4-only proxies")
-else:
-    print("❌ No working NON-RU IPv4-only proxies")
 
-if geoip_available:
-    try:
-        country_reader.close()
-        city_reader.close()
-        asn_reader.close()
-    except: pass
+if country_reader:
+    country_reader.close()
+if city_reader:
+    city_reader.close()
+if asn_reader:
+    asn_reader.close()
+
+os.system("pkill xray || true")
 PYEOF
-          
-python3 proxy_checker.py
+          python3 proxy_checker.py
 
-      - name: Commit & push results
+      - name: Commit results
         run: |
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
           
           for i in {1..3}; do
-            if git pull --rebase origin main || git pull --rebase origin master; then
-              break
-            fi
-            echo "🔄 Pull attempt $i failed, retrying..."
+            if git pull --rebase 2>/dev/null; then break; fi
+            echo "Pull retry $i/3..."
             sleep 2
           done
           
           git add githubmirror/*.txt || true
+          if git diff --staged --quiet; then echo "ℹ️ No changes"; exit 0; fi
           
-          if git diff --staged --quiet; then
-            echo "❌ No changes to commit"
-            exit 0
-          fi
-          
-          git commit -m "Update battle-tested NON-RU IPv4-only proxies [$(date -u +'%Y-%m-%d %H:%M UTC')]"
+          git commit -m "Update VLESS proxies [$(date -u +'%Y-%m-%d %H:%M UTC')] (${{ github.run_number }})"
           
           for i in {1..3}; do
-            if git push origin main 2>/dev/null; then
-              echo "✅ Pushed battle-tested updates (attempt $i)"
-              exit 0
-            fi
-            echo "🔄 Push attempt $i failed, retrying..."
-            git pull --rebase origin main || git pull --rebase origin master
+            if git push 2>/dev/null; then echo "✅ Pushed"; exit 0; fi
+            echo "Push retry $i/3..."
             sleep 3
           done
-          
-          echo "❌ All push attempts failed"
-          exit 1
+          echo "❌ Push failed"; exit 1
