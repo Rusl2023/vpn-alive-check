@@ -257,7 +257,7 @@ jobs:
           print(f"🚀 TOTAL: {len(links)} proxies | 25 workers + FULL GeoLite2")
 
           with open(OUTPUT, 'w') as f:
-              f.write(f"# Updated {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')} (FULL GeoLite2 RU-filter)\n")
+              f.write(f"# Updated {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')} (FULL GeoLite2 RU-filter)\\n")
 
           alive = []
           start = time.time()
@@ -281,10 +281,21 @@ jobs:
                       break
 
           if alive:
+              # 🔥 ПЕРЕИМЕНОВАНИЕ КЛЮЧЕЙ ПО ПОРЯДКУ 1.2.3.4.5...
+              print(f"🔄 Renaming {len(alive)} proxies with numbered keys...")
+              numbered_proxies = []
+              for i, proxy in enumerate(alive, 1):
+                  base_link = proxy.split('#')[0]
+                  new_name = f"{i}"
+                  numbered_proxy = f"{base_link}#{new_name}"
+                  numbered_proxies.append(numbered_proxy)
+                  print(f"📝 {i}: {new_name}")
+              
+              # Запись финального файла с пронумерованными ключами
               with open(OUTPUT, 'a') as f:
-                  f.write('\n'.join(alive) + '\n')
+                  f.write('\\n'.join(numbered_proxies) + '\\n')
           
-          print(f"✅ Alive: {len(alive)} ULTRA-PREMIUM proxies (NO RU)")
+          print(f"✅ Alive: {len(alive)} ULTRA-PREMIUM proxies (NO RU) - NUMBERED 1.2.3...")
           EOF
 
       - name: Base64
@@ -298,7 +309,7 @@ jobs:
         run: |
           echo "📋 RESULTS:"
           wc -l githubmirror/26_proxy_subscription_raw.txt
-          head -5 githubmirror/26_proxy_subscription_raw.txt
+          head -10 githubmirror/26_proxy_subscription_raw.txt
 
       - name: ✅ Git Commit & Push
         run: |
@@ -313,8 +324,8 @@ jobs:
           fi
           
           COUNT=$(tail -n +2 githubmirror/26_proxy_subscription_raw.txt 2>/dev/null | wc -l || echo 0)
-          git commit -m "🚀 ULTRA-PREMIUM: ${COUNT} proxies (NO RU) | FULL GeoLite2 [$(date -u +'%Y-%m-%d %H:%M UTC')]"
+          git commit -m "🚀 ULTRA-PREMIUM: ${COUNT} proxies (NO RU, NUMBERED 1.2.3...) | FULL GeoLite2 [$(date -u +'%Y-%m-%d %H:%M UTC')]"
           
           git pull origin main --rebase || git pull origin main
           git push origin main
-          echo "✅ SUCCESS: Pushed ${COUNT} CLEAN proxies!"
+          echo "✅ SUCCESS: Pushed ${COUNT} NUMBERED CLEAN proxies!"
