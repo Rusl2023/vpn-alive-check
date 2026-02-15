@@ -7,7 +7,7 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 90  # ↑ Увеличено с 45 до 90
     permissions:
       contents: write
 
@@ -19,11 +19,12 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y curl jq unzip python3 python3-pip
-          pip3 install geoip2
+          python3 -m pip install geoip2  # ✅ pip через python -m
 
       - name: Download Xray
         run: |
-          XRAY_VER=$(curl -s https://api.github.com/repos/XTLS/Xray-core/releases/latest | jq -r .tag_name)
+          XRAY_VER=$(curl -sL -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/XTLS/Xray-core/releases/latest | jq -r .tag_name)
           curl -L -o xray.zip "https://github.com/XTLS/Xray-core/releases/download/${XRAY_VER}/Xray-linux-64.zip"
           unzip -o xray.zip xray geoip.dat geosite.dat
           chmod +x xray
@@ -31,9 +32,14 @@ jobs:
 
       - name: Copy GeoLite2 databases from repo
         run: |
-          cp geolite2/GeoLite2-*.mmdb ./
-          ls -la GeoLite2-*.mmdb || echo "No GeoLite2 databases found"
-          echo "✅ Using local GeoLite2 databases"
+          if ls geolite2/GeoLite2-*.mmdb 1> /dev/null 2>&1; then
+            cp geolite2/GeoLite2-*.mmdb ./
+            ls -la GeoLite2-*.mmdb
+            echo "✅ Using local GeoLite2 databases"
+          else
+            echo "❌ GeoLite2 DB missing"
+            exit 1  # ✅ Краш при отсутствии DB
+          fi
 
       - name: Prepare files
         run: |
@@ -260,6 +266,18 @@ jobs:
               
               return False
 
+          def safe_kill_process(p):
+              """🔧 БЕЗОПАСНОЕ УБИЙСТВО zombie Xray"""
+              try:
+                  p.terminate()
+                  p.wait(timeout=2)
+              except:
+                  p.kill()
+                  try:
+                      p.wait(timeout=2)
+                  except:
+                      pass
+
           def get_free_port():
               s = socket.socket()
               s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -319,6 +337,8 @@ jobs:
               return True, exit_ip
 
           def check_one(link):
+              p = None
+              cfg_file = None
               try:
                   port = get_free_port()
                   u = urllib.parse.urlparse(link)
@@ -402,11 +422,7 @@ jobs:
                                      stderr=subprocess.DEVNULL)
 
                   if not wait_port(port):
-                      try:
-                          p.terminate()
-                          p.wait(timeout=2)
-                      except:
-                          p.kill()
+                      safe_kill_process(p)
                       try:
                           os.remove(cfg_file)
                       except: pass
@@ -414,12 +430,7 @@ jobs:
 
                   ok, exit_ip = test_proxy_robust(port)
                   
-                  try:
-                      p.terminate()
-                      p.wait(timeout=2)
-                  except:
-                      p.kill()
-                  p.wait(timeout=1)
+                  safe_kill_process(p)  # ✅ БЕЗОПАСНОЕ УБИЙСТВО
 
                   try:
                       os.remove(cfg_file)
@@ -448,19 +459,25 @@ jobs:
 
               except Exception as e:
                   print(f"Error checking proxy: {e}")
+                  if p:
+                      safe_kill_process(p)
+                  try:
+                      if cfg_file and os.path.exists(cfg_file):
+                          os.remove(cfg_file)
+                  except: pass
                   return None
 
           print(f"Processing {INPUT}...")
           if not os.path.exists(INPUT):
               print("❌ INPUT file not found")
-              exit(0)
+              exit(1)  # ✅ exit(1) вместо exit(0)
 
           with open(INPUT) as f:
               links = [x.strip() for x in f if x.strip().startswith('vless://')]
 
           if not links:
               print("❌ No VLESS links found")
-              exit(0)
+              exit(1)  # ✅ exit(1) вместо exit(0)
 
           print(f"TOTAL: {len(links)} | workers={MAX_WORKERS}")
           print("🚫 RU BLOCK: IP4+IP6 + ASN + HOSTNAME + EXIT")
@@ -501,11 +518,12 @@ jobs:
         run: |
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
+          git pull --rebase || true  # ✅ Защита от параллельных запусков
           git add githubmirror/*.txt || true
           if git diff --staged --quiet; then
             echo "❌ No changes to commit"
           else
             git commit -m "Update NON-RU proxy subscriptions [$(date -u +'%Y-%m-%d %H:%M UTC')]"
-            git push
+            git push || true  # ✅ Безопасный push
             echo "✅ Pushed NON-RU updates"
           fi
