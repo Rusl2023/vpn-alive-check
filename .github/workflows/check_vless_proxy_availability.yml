@@ -1,4 +1,4 @@
-name: Check VLESS proxy availability via Xray (base64 subscription)
+name: Check VLESS proxy availability via Xray (IP+HTML verified)
 on:
   schedule:
     - cron: '*/59 * * * *'
@@ -8,6 +8,7 @@ permissions:
 concurrency:
   group: vless-subscription-update
   cancel-in-progress: true
+
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -17,85 +18,127 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install deps
+      - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y curl jq unzip python3
+          sudo apt-get install -y curl jq unzip python3 python3-pip
+          pip3 install requests
 
-      - name: Download Xray
+      - name: Download latest Xray
         run: |
           XRAY_VER=$(curl -s https://api.github.com/repos/XTLS/Xray-core/releases/latest | jq -r .tag_name)
-          curl -L -o xray.zip https://github.com/XTLS/Xray-core/releases/download/${XRAY_VER}/Xray-linux-64.zip
+          curl -L -o xray.zip "https://github.com/XTLS/Xray-core/releases/download/${XRAY_VER}/Xray-linux-64.zip"
           unzip -o xray.zip xray geoip.dat geosite.dat
           chmod +x xray
 
-      - name: Prepare output files
+      - name: Prepare directories and output files
         run: |
           mkdir -p githubmirror
-          echo "# updated $(date -u)" > githubmirror/26_proxy_subscription_raw.txt
+          echo "# Updated $(date -u +'%Y-%m-%d %H:%M UTC')" > githubmirror/26_proxy_subscription_raw.txt
+          echo "# Updated $(date -u +'%Y-%m-%d %H:%M UTC')" > githubmirror/26_proxy_subscription_base64.txt
 
       - name: Get runner IP
         run: |
           echo "RUNNER_IP=$(curl -s https://api.ipify.org)" >> $GITHUB_ENV
 
-      - name: Check VLESS via Xray (FAST VERSION)
+      - name: Check VLESS proxies (IP+HTML validation)
         run: |
           python3 <<'EOF'
-          import subprocess, time, json, urllib.parse, os, threading
+          import subprocess, time, json, urllib.parse, os, threading, re
           from concurrent.futures import ThreadPoolExecutor, as_completed
           from datetime import datetime, timezone
-
+          
           INPUT = 'githubmirror/26_ru_whitelist.txt'
           OUTPUT_RAW = 'githubmirror/26_proxy_subscription_raw.txt'
           RUNNER_IP = os.environ.get('RUNNER_IP', '')
           
-          TEST_URLS = [
+          # ✅ IP-тесты (только чистый IP-ответ)
+          TEST_URLS_IP = [
               'https://api.ipify.org?format=text',
-              'http://cp.cloudflare.com',
-              'https://www.instagram.com/'
+              'https://icanhazip.com',
+              'http://cp.cloudflare.com'
           ]
+          
+          # ✅ HTML-тесты (проверка загрузки страниц)
+          TEST_URLS_HTML = [
+              'https://www.google.com',
+              'https://httpbin.org/html'
+          ]
+          
           XRAY = './xray'
           MAX_WORKERS = 8
           
           active_processes = []
           lock = threading.Lock()
           
+          # ✅ Регулярка для строгой IPv4 валидации
+          IP_REGEX = re.compile(r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$')
+          
           def cleanup():
+              """Очистка всех Xray процессов"""
               with lock:
-                  for p in active_processes:
+                  for p in active_processes[:]:
                       try:
                           p.terminate()
                           p.wait(timeout=1)
                       except:
-                          p.kill()
-                  active_processes.clear()
+                          try:
+                              p.kill()
+                          except:
+                              pass
+                      if p in active_processes:
+                          active_processes.remove(p)
           
-          def exit_ip(port):
-              for url in TEST_URLS:
+          def get_exit_ip(port):
+              """1️⃣ Строгая проверка IP - только IPv4"""
+              for url in TEST_URLS_IP:
                   try:
                       out = subprocess.check_output(
-                          ['curl', '-s', '--max-time', '2', '-x', f'socks5h://127.0.0.1:{port}', url],
-                          text=True, timeout=3
+                          ['curl', '-s', '--max-time', '3', '-x', f'socks5h://127.0.0.1:{port}', url],
+                          text=True, stderr=subprocess.DEVNULL, timeout=5
                       ).strip()
-                      if out and len(out) > 5:  # Валидный IP
+                      
+                      if (IP_REGEX.match(out) and 
+                          7 < len(out) < 16 and
+                          all(0 <= int(x) <= 255 for x in out.split('.'))):
                           return out
                   except:
-                      pass
+                      continue
               return None
           
+          def check_html_loading(port):
+              """2️⃣ Проверка загрузки HTML-страниц"""
+              for url in TEST_URLS_HTML:
+                  try:
+                      out = subprocess.check_output(
+                          ['curl', '-s', '--max-time', '4', '-x', f'socks5h://127.0.0.1:{port}', url],
+                          timeout=6
+                      )
+                      # Проверяем HTML маркеры
+                      html_markers = [b'<!DOCTYPE', b'<html', b'<HTML', b'<head']
+                      if any(marker in out for marker in html_markers):
+                          return True
+                  except:
+                      continue
+              return False
+          
           def is_good_ip(ip):
+              """Фильтр RU IP по префиксам"""
               if not ip or ip == RUNNER_IP:
                   return False
-              # Быстрая фильтрация RU IP по префиксам (как в быстром логе)
-              ru_prefixes = {'5.', '31.', '37.', '46.', '77.', '78.', '79.', '80.', '81.', '82.', '83.', 
-                            '84.', '85.', '86.', '87.', '88.', '89.', '90.', '91.', '92.', '93.', '94.', '95.'}
-              return ip[:ip.find('.')+3] not in ru_prefixes
+              ru_prefixes = {
+                  '5.', '31.', '37.', '46.', '77.', '78.', '79.', '80.', '81.', '82.', '83.',
+                  '84.', '85.', '86.', '87.', '88.', '89.', '90.', '91.', '92.', '93.', '94.', '95.'
+              }
+              prefix = ip[:ip.find('.')+3]
+              return prefix not in ru_prefixes
           
-          def country(ip):
+          def get_country(ip):
+              """Определение страны IP"""
               try:
                   import urllib.request
-                  with urllib.request.urlopen(f'https://ipapi.co/{ip}/country/', timeout=3) as r:
-                      return r.read().decode().strip()
+                  with urllib.request.urlopen(f'https://ipapi.co/{ip}/country/', timeout=4) as resp:
+                      return resp.read().decode('utf-8').strip()
               except:
                   return 'Unknown'
           
@@ -103,10 +146,15 @@ jobs:
               cfg_file = None
               process = None
               port = None
+              
               try:
                   u = urllib.parse.urlparse(link)
+                  if not u.username or not u.hostname:
+                      return None
+                      
                   q = urllib.parse.parse_qs(u.query)
                   
+                  # Настройка streamSettings
                   stream = {'network': q.get('type', ['tcp'])[0]}
                   sec = q.get('security', ['none'])[0]
                   sni = q.get('sni', [''])[0]
@@ -114,17 +162,19 @@ jobs:
                   if sec == 'reality' and 'pbk' in q:
                       stream['security'] = 'reality'
                       stream['realitySettings'] = {
-                          'serverName': sni,
+                          'serverName': sni or u.hostname,
                           'publicKey': q['pbk'][0],
-                          'shortId': q.get('sid', [''])[0],
+                          'shortId': q.get('sid', [''])[0] or '',
                           'fingerprint': 'chrome'
                       }
                   
-                  # Уникальный порт для каждого потока
+                  # Уникальный порт
                   port_num = 10800 + (hash(link) % 900) + 100
                   port = port_num
                   
+                  # Xray конфигурация
                   cfg = {
+                      'log': {'loglevel': 'warning'},
                       'inbounds': [{
                           'listen': '127.0.0.1',
                           'port': port,
@@ -150,8 +200,9 @@ jobs:
                   
                   cfg_file = f'cfg_{hash(link) % 10000}.json'
                   with open(cfg_file, 'w') as f:
-                      json.dump(cfg, f)
+                      json.dump(cfg, f, indent=2)
                   
+                  # Запуск Xray
                   process = subprocess.Popen(
                       [XRAY, 'run', '-c', cfg_file],
                       stdout=subprocess.DEVNULL,
@@ -161,96 +212,138 @@ jobs:
                   with lock:
                       active_processes.append(process)
                   
-                  time.sleep(1.5)  # Быстрее чем 4 сек
+                  time.sleep(2.2)  # Стабильное время запуска
                   
-                  ip = exit_ip(port)
+                  # 1️⃣ Тест IP
+                  ip = get_exit_ip(port)
+                  
+                  # 2️⃣ Тест HTML (только если IP получен)
+                  html_ok = False
+                  if ip:
+                      html_ok = check_html_loading(port)
+                  
+                  # Остановка Xray
                   if process:
                       process.terminate()
-                      time.sleep(0.3)
+                      time.sleep(0.5)
                   
+                  # Логика принятия решения
                   if ip and is_good_ip(ip):
-                      country_code = country(ip)
+                      country_code = get_country(ip)
                       if country_code != 'RU':
-                          print(f"⭐ {u.hostname}:{u.port or 443} OK {ip} → {country_code}")
-                          return link
+                          status = "HTML✓" if html_ok else "HTML✗"
+                          print(f"⭐ {u.hostname}:{u.port or 443} OK {ip} → {country_code} [{status}]")
+                          # Сохраняем ТОЛЬКО с HTML проверкой
+                          return link if html_ok else None
                       else:
                           print(f"✗ {u.hostname}:{u.port or 443} RU {ip}")
+                  elif ip:
+                      print(f"⚠ {u.hostname}:{u.port or 443} IP {ip} but HTML failed")
                   else:
                       print(f"✗ {u.hostname}:{u.port or 443} no IP")
                   
               except Exception as e:
-                  print(f"✗ {link[:50]}... error")
+                  print(f"✗ {link[:60]}... error: {str(e)[:50]}")
               finally:
+                  # Cleanup
                   if process:
                       try:
-                          process.terminate()
-                          process.wait(timeout=0.5)
+                          if process.poll() is None:
+                              process.terminate()
+                              time.sleep(0.3)
+                              if process.poll() is None:
+                                  process.kill()
+                          process.wait(timeout=1)
                       except:
-                          process.kill()
+                          pass
+                  
                   with lock:
                       if process and process in active_processes:
                           active_processes.remove(process)
+                  
                   if cfg_file and os.path.exists(cfg_file):
-                      os.remove(cfg_file)
+                      try:
+                          os.remove(cfg_file)
+                      except:
+                          pass
+              
               return None
           
+          # Главный цикл
           if not os.path.exists(INPUT):
-              print("Input file not found")
-              raise SystemExit(0)
+              print("❌ Input file not found:", INPUT)
+              exit(1)
           
           with open(INPUT) as f:
-              links = [l.strip() for l in f if l.startswith('vless://')]
+              links = [l.strip() for l in f if l.strip().startswith('vless://')]
           
           total_links = len(links)
-          print(f"TOTAL: {total_links} | workers={MAX_WORKERS}")
+          print(f"🚀 TOTAL: {total_links} links | workers={MAX_WORKERS}")
           
+          # Обновляем заголовок
           with open(OUTPUT_RAW, 'w') as f:
-              f.write(f"# updated {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}\n")
+              f.write(f"# Updated {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}\n")
           
           alive = []
           start_time = time.time()
           processed = 0
           
           try:
-              with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
-                  futures = [ex.submit(check_one, link) for link in links]
+              with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+                  futures = [executor.submit(check_one, link) for link in links]
+                  
                   for future in as_completed(futures):
                       processed += 1
                       result = future.result()
                       if result:
                           alive.append(result)
                       
+                      # Прогресс
                       if processed % 10 == 0:
                           elapsed = time.time() - start_time
-                          print(f"Processed {processed}/{total_links} ({processed/total_links*100:.0f}%) in {elapsed:.0f}s")
+                          rate = processed / elapsed if elapsed > 0 else 0
+                          print(f"📊 Processed {processed}/{total_links} ({processed/total_links*100:.1f}%) "
+                                f"in {elapsed:.0f}s ({rate:.1f} links/s)")
                       
-                      if time.time() - start_time > 600:  # 10 мин макс
-                          print("MAX TOTAL TIME reached")
+                      # Таймаут
+                      if time.time() - start_time > 600:
+                          print("⏰ MAX TOTAL TIME reached (10min)")
                           break
                           
           finally:
               cleanup()
           
-          print(f"Done. Alive: {len(alive)}")
+          print(f"✅ Done. Alive: {len(alive)} (IP+HTML verified)")
           
           if alive:
               with open(OUTPUT_RAW, 'a') as f:
                   f.write('\n'.join(alive) + '\n')
-              print(f"Saved {len(alive)} NON-RU proxies")
+              print(f"💾 Saved {len(alive)} NON-RU proxies to {OUTPUT_RAW}")
+          else:
+              print("❌ No working proxies found")
           EOF
 
-      - name: Encode subscription to Base64
+      - name: Create Base64 subscription
         run: |
-          base64 -w 0 githubmirror/26_proxy_subscription_raw.txt > githubmirror/26_proxy_subscription_base64.txt
+          if [ -s githubmirror/26_proxy_subscription_raw.txt ]; then
+            base64 -w 0 githubmirror/26_proxy_subscription_raw.txt > githubmirror/26_proxy_subscription_base64.txt
+            echo "✅ Base64 subscription created ($(wc -c < githubmirror/26_proxy_subscription_base64.txt) bytes)"
+          else
+            echo "⚠️  Raw file empty, skipping Base64"
+            touch githubmirror/26_proxy_subscription_base64.txt
+          fi
 
       - name: Debug output
         run: |
-          echo "RAW lines:"
-          wc -l githubmirror/26_proxy_subscription_raw.txt
-          echo "BASE64 size:"
-          wc -c githubmirror/26_proxy_subscription_base64.txt
-          echo "First 3 lines:"
-          head -3 githubmirror/26_proxy_subscription_raw.txt
+          echo "📋 RESULTS:"
+          echo "RAW file: $(wc -l < githubmirror/26_proxy_subscription_raw.txt) lines"
+          echo "BASE64: $(wc -c < githubmirror/26_proxy_subscription_base64.txt) bytes"
+          echo ""
+          echo "First 3 RAW lines:"
+          head -3 githubmirror/26_proxy_subscription_raw.txt || echo "Empty"
+          echo ""
+          echo "Sample Base64 (first 100 chars):"
+          head -c 100 githubmirror/26_proxy_subscription_base64.txt || echo "Empty"
 
       - name: Commit & push results
         run: |
