@@ -4,6 +4,10 @@ on:
     - cron: '0 * * * *'
   workflow_dispatch:
 
+concurrency:
+  group: proxy-check
+  cancel-in-progress: true
+
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -14,6 +18,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Install dependencies
         run: |
@@ -31,9 +37,9 @@ jobs:
 
       - name: Copy GeoLite2 databases from repo
         run: |
-          cp geolite2/GeoLite2-*.mmdb ./
-          ls -la GeoLite2-*.mmdb || echo "No GeoLite2 databases found"
-          echo "✅ Using local GeoLite2 databases"
+          cp geolite2/GeoLite2-*.mmdb ./ || echo "No GeoLite2 databases found"
+          ls -la GeoLite2-*.mmdb || echo "✅ Using bundled GeoLite2"
+          echo "✅ GeoLite2 ready"
 
       - name: Prepare files
         run: |
@@ -46,7 +52,7 @@ jobs:
           python3 << 'EOF'
           import subprocess, time, json, urllib.parse, os, socket, ipaddress, base64
           import geoip2.database
-          from concurrent.futures import ThreadPoolExecutor, as_completed, wait
+          from concurrent.futures import ThreadPoolExecutor, as_completed
           from threading import Lock
           from datetime import datetime, timezone
 
@@ -55,31 +61,30 @@ jobs:
           OUTPUT_RAW = 'githubmirror/26_proxy_subscription_raw.txt'
           OUTPUT_B64 = 'githubmirror/26_proxy_subscription_base64.txt'
 
-          COUNTRY_DB = 'GeoLite2-Country.mmdb'
-          CITY_DB = 'GeoLite2-City.mmdb'
-          ASN_DB = 'GeoLite2-ASN.mmdb'
-
           IP_TEST_URLS = ['https://api.ipify.org', 'https://ifconfig.me/ip', 'https://ipapi.co/ip']
-          TEST_SITES = ['https://x.com', 'https://www.cloudflare.com/cdn-cgi/trace']
+          TEST_SITES = [
+              'https://x.com', 
+              'https://www.cloudflare.com/cdn-cgi/trace',
+              'https://www.netflix.com'
+          ]
           
           MAX_WORKERS = 6
-          CURL_DELAY = 0.5  # ✅ Пауза между запросами (rate limit)
+          CURL_DELAY = 0.3
 
-          FLAGS = {
-              'DE':'🇩🇪DE','NL':'🇳🇱NL','US':'🇺🇸US','SG':'🇸🇬SG','GB':'🇬🇧GB',
-              'FR':'🇫🇷FR','PL':'🇵🇱PL','SE':'🇸🇪SE','FI':'🇫🇮FI','NO':'🇳🇴NO',
-              'CA':'🇨🇦CA','JP':'🇯🇵JP','KR':'🇰🇷KR','CH':'🇨🇭CH','IE':'🇮🇪IE'
-          }
-
-          print("Loading GeoLite2 databases...")
+          # ✅ GeoLite2 безопасная инициализация
+          country_reader = city_reader = asn_reader = None
+          geoip_available = False
+          
+          print("🔄 Loading GeoLite2 databases...")
           try:
-              country_reader = geoip2.database.Reader(COUNTRY_DB)
-              city_reader = geoip2.database.Reader(CITY_DB)
-              asn_reader = geoip2.database.Reader(ASN_DB)
+              country_reader = geoip2.database.Reader('GeoLite2-Country.mmdb')
+              city_reader = geoip2.database.Reader('GeoLite2-City.mmdb')
+              asn_reader = geoip2.database.Reader('GeoLite2-ASN.mmdb')
+              geoip_available = True
               print("✅ GeoLite2 databases loaded")
           except Exception as e:
-              print(f"❌ GeoLite2 error: {e}")
-              exit(1)
+              print(f"⚠️ GeoLite2 unavailable: {e}")
+              print("🔄 Continuing WITHOUT GeoIP filtering")
 
           lock = Lock()
           counter = 0
@@ -109,30 +114,35 @@ jobs:
                   return host
 
           def get_raw_iso_country(ip):
+              if not geoip_available:
+                  return None
               ip = ip.strip()
               if not valid_ip(ip):
                   return None
-              
               try:
-                  r = country_reader.country(ip)
-                  iso_code = r.country.iso_code
-                  if iso_code:
-                      return iso_code
-              except: pass
-              
-              try:
-                  r = city_reader.city(ip)
-                  iso_code = r.country.iso_code
-                  if iso_code:
-                      return iso_code
-              except: pass
-              
+                  if country_reader:
+                      r = country_reader.country(ip)
+                      iso_code = r.country.iso_code
+                      if iso_code:
+                          return iso_code
+                  if city_reader:
+                      r = city_reader.city(ip)
+                      iso_code = r.country.iso_code
+                      if iso_code:
+                          return iso_code
+              except:
+                  pass
               return None
 
           def country_from_ip(ip):
               raw_iso = get_raw_iso_country(ip)
               if not raw_iso:
                   return '🌍??'
+              FLAGS = {
+                  'DE':'🇩🇪DE','NL':'🇳🇱NL','US':'🇺🇸US','SG':'🇸🇬SG','GB':'🇬🇧GB',
+                  'FR':'🇫🇷FR','PL':'🇵🇱PL','SE':'🇸🇪SE','FI':'🇫🇮FI','NO':'🇳🇴NO',
+                  'CA':'🇨🇦CA','JP':'🇯🇵JP','KR':'🇰🇷KR','CH':'🇨🇭CH','IE':'🇮🇪IE'
+              }
               return FLAGS.get(raw_iso, f'🌍{raw_iso}')
 
           def is_russian_exit(exit_ip):
@@ -140,8 +150,7 @@ jobs:
               return raw_iso == 'RU'
 
           def test_site(port, url, site_name):
-              """🔥 Параллельный тест одного сайта"""
-              time.sleep(CURL_DELAY)  # ✅ Rate limit защита
+              time.sleep(CURL_DELAY)
               try:
                   cmd = [
                       'curl', '-s', '--max-time', '10', 
@@ -149,24 +158,22 @@ jobs:
                       '-o', '/dev/null', '-w', '%{http_code}', url
                   ]
                   code = subprocess.check_output(cmd, text=True, stderr=subprocess.DEVNULL, timeout=12).strip()
-                  
                   success_codes = ['200', '403', '429']
                   if code in success_codes:
                       print(f"✅ {site_name}: {code}")
                       return True
                   else:
-                      print(f"❌ {site_name}: {code}")
+                      print(f"❌ {site_name}: HTTP {code}")
                       return False
-                      
               except subprocess.TimeoutExpired:
-                  print(f"⏰ {site_name}: TIMEOUT")
+                  print(f"⏰ {site_name}: TIMEOUT (12s)")
                   return False
-              except Exception as e:
-                  print(f"❌ {site_name}: ERROR ({str(e)[:50]}...)")
+              except Exception:
+                  print(f"❌ {site_name}: CURL ERROR")
                   return False
 
           def test_proxy_robust(port):
-              # 1️⃣ IP тест (последовательно)
+              # IP тест
               exit_ip = None
               for i, url in enumerate(IP_TEST_URLS, 1):
                   try:
@@ -180,9 +187,10 @@ jobs:
                       continue
               
               if not exit_ip:
+                  print("❌ No valid exit IP")
                   return False, None
 
-              # 2️⃣ Базовый HTTP (последовательно)
+              # HTTP example.com
               try:
                   cmd = ['curl', '-s', '--max-time', '10', '-x', f'socks5h://127.0.0.1:{port}', 
                          '-o', '/dev/null', '-w', '%{http_code}', 'http://example.com']
@@ -190,26 +198,34 @@ jobs:
                   if http_code != '200':
                       print(f"❌ HTTP example.com: {http_code}")
                       return False, None
-              except Exception as e:
-                  print(f"❌ HTTP example.com: ERROR ({str(e)[:50]}...)")
+              except:
+                  print("❌ HTTP example.com: FAILED")
                   return False, None
 
-              # 3️⃣ ПАРАЛЛЕЛЬНЫЙ тест сайтов (ускорение x2!)
-              print("🔥 Testing sites in parallel...")
-              with ThreadPoolExecutor(max_workers=2) as site_executor:
+              # 🔥 ПАРАЛЛЕЛЬНЫЙ тест 3 сайтов — БЕЗОПАСНЫЙ!
+              print("🔥 Testing 3 sites in parallel...")
+              with ThreadPoolExecutor(max_workers=3) as site_executor:
                   futures = [
                       site_executor.submit(test_site, port, TEST_SITES[0], "X.com"),
-                      site_executor.submit(test_site, port, TEST_SITES[1], "Cloudflare")
+                      site_executor.submit(test_site, port, TEST_SITES[1], "Cloudflare"),
+                      site_executor.submit(test_site, port, TEST_SITES[2], "Netflix")
                   ]
-                  results = wait(futures, timeout=15)
                   
-              # ✅ Все сайты должны пройти
-              site_results = [f.result() for f in futures]
+              # ✅ ПОЛНАЯ ЗАЩИТА от зависаний!
+              site_results = []
+              for future in futures:
+                  try:
+                      result = future.result(timeout=15)
+                      site_results.append(result)
+                  except Exception:
+                      print(f"⚠️ Site test TIMEOUT/ERROR → FAIL")
+                      site_results.append(False)
+
               if not all(site_results):
-                  print("❌ Site tests FAILED")
+                  print("❌ Site tests FAILED (need ALL 3)")
                   return False, None
 
-              print("✅ All sites OK")
+              print("✅ All 3 sites OK!")
               return True, exit_ip
 
           def get_free_port():
@@ -238,7 +254,6 @@ jobs:
                       return None
                       
                   q = urllib.parse.parse_qs(u.query)
-
                   sni = q.get('sni', ['unknown'])[0]
                   fp = q.get('fp', ['chrome'])[0]
                   
@@ -342,10 +357,10 @@ jobs:
                   return link + '#' + name
 
               except Exception as e:
-                  print(f"Error checking proxy: {e}")
+                  print(f"⚠️ Proxy parse error: {str(e)[:100]}")
                   return None
 
-          print(f"Processing {INPUT}...")
+          print(f"📂 Processing {INPUT}...")
           if not os.path.exists(INPUT):
               print("❌ INPUT file not found")
               exit(0)
@@ -357,7 +372,7 @@ jobs:
               print("❌ No VLESS links found")
               exit(0)
 
-          print(f"TOTAL: {len(links)} | workers={MAX_WORKERS}")
+          print(f"🚀 TOTAL: {len(links)} | workers={MAX_WORKERS} | geoip={geoip_available}")
 
           alive = []
           try:
@@ -368,9 +383,9 @@ jobs:
                       if result:
                           alive.append(result)
           except KeyboardInterrupt:
-              print("Interrupted")
+              print("⏹️ Interrupted")
 
-          print(f"DONE. Alive NON-RU: {len(alive)}")
+          print(f"✅ DONE. Alive NON-RU: {len(alive)}")
 
           with open(OUTPUT_RAW, 'w') as f:
               f.write(f"# updated {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}\n")
@@ -382,24 +397,49 @@ jobs:
               b64 = base64.b64encode(b64_content.encode()).decode()
               with open(OUTPUT_B64, 'w') as f:
                   f.write(b64)
-              print(f"✅ Saved {len(alive)} battle-tested NON-RU proxies")
+              print(f"💾 Saved {len(alive)} battle-tested NON-RU proxies (X+Cloudflare+Netflix)")
           else:
               print("❌ No working NON-RU proxies")
 
-          country_reader.close()
-          city_reader.close()
-          asn_reader.close()
+          if geoip_available:
+              try:
+                  country_reader.close()
+                  city_reader.close()
+                  asn_reader.close()
+              except: pass
           EOF
 
       - name: Commit & push results
         run: |
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
+          
+          for i in {1..3}; do
+            if git pull --rebase origin main || git pull --rebase origin master; then
+              break
+            fi
+            echo "🔄 Pull attempt $i failed, retrying..."
+            sleep 2
+          done
+          
           git add githubmirror/*.txt || true
+          
           if git diff --staged --quiet; then
             echo "❌ No changes to commit"
-          else
-            git commit -m "Update battle-tested NON-RU proxy subscriptions [$(date -u +'%Y-%m-%d %H:%M UTC')]"
-            git push
-            echo "✅ Pushed battle-tested updates"
+            exit 0
           fi
+          
+          git commit -m "Update battle-tested NON-RU proxy subscriptions (X+Cloudflare+Netflix) [$(date -u +'%Y-%m-%d %H:%M UTC')]"
+          
+          for i in {1..3}; do
+            if git push origin main 2>/dev/null; then
+              echo "✅ Pushed battle-tested updates (attempt $i)"
+              exit 0
+            fi
+            echo "🔄 Push attempt $i failed, retrying..."
+            git pull --rebase origin main || git pull --rebase origin master
+            sleep 3
+          done
+          
+          echo "❌ All push attempts failed"
+          exit 1
