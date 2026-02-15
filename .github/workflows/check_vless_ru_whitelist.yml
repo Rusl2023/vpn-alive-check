@@ -22,6 +22,12 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip --no-cache-dir
@@ -188,7 +194,7 @@ jobs:
                       if ping:
                           pings.append(ping)
                       time.sleep(0.008)
-                  if len(pings) < 1:
+                  if len(pings) < max(1, CHECK_COUNT // 2):
                       return None
                   median_ping = sorted(pings)[len(pings)//2]
                   return (median_ping, vless_data['link'], vless_data['key'])
@@ -256,10 +262,8 @@ jobs:
 
           results.sort(key=lambda x: x[0])
 
-          # ===== Сравнение с предыдущим файлом по ключам =====
+          # ===== Сравнение с предыдущим файлом =====
           old_links_hash = ""
-          new_links_hash = ""
-
           if os.path.exists(OUTPUT_FILE):
               with open(OUTPUT_FILE, 'r', encoding='utf-8') as f:
                   old_content = f.read()
@@ -267,15 +271,15 @@ jobs:
               old_links_hash = hashlib.md5(''.join(sorted(old_links)).encode()).hexdigest()
               print(f"[OLD] {len(old_links)} links, hash: {old_links_hash[:8]}")
           else:
-              print("[OLD] No previous file")
               old_links_hash = "none"
+              print("[OLD] No previous file")
 
           os.makedirs(os.path.dirname(OUTPUT_FILE), exist_ok=True)
           with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
-              f.write(f"# RU Whitelist Reality Vision ULTRA ✅ SMART PUSH\n")
+              f.write("# RU Whitelist Reality Vision ULTRA ✅ SMART PUSH\n")
               f.write(f"# Processed: {len(all_raw_lines)} -> Live: {len(results)}\n")
               f.write(f"# Ports: 80/443/8443 | Ping: {MIN_LATENCY}-{MAX_LATENCY}ms\n")
-              f.write(f"# Updated: {time.strftime('%Y-%m-%d %H:%M UTC')}\n\n")
+              f.write("# Updated: " + time.strftime('%Y-%m-%d %H:%M UTC') + "\n\n")
               for i, (latency, link) in enumerate(results[:TOP_LIMIT], 1):
                   f.write(f"# {i}. {latency}ms\n{link}\n\n")
 
