@@ -65,10 +65,11 @@ jobs:
                   pass
 
           headers = {"User-Agent": "Mozilla/5.0"}
-
-          RU_SNI_URL = "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/whitelist.txt",
-                       "https://raw.githubusercontent.com/ndsphub/proxy-list/main/proxies/megafon.txt",
-                       "https://api.proxyscrape.com/v2/?request=getproxies&protocol=socks5&country=ru"
+          RU_SNI_URLS = [
+              "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/whitelist.txt",
+              "https://raw.githubusercontent.com/ndsphub/proxy-list/main/proxies/megafon.txt",
+              "https://api.proxyscrape.com/v2/?request=getproxies&protocol=socks5&country=ru"
+          ]
           ru_sni = set()
           try:
               r = requests.get(RU_SNI_URL, timeout=20, headers=headers)
