@@ -50,435 +50,338 @@ jobs:
       - name: Check VLESS via Xray
         run: |
           python3 << 'EOF'
-          import subprocess
-          import time
-          import json
-          import urllib.parse
-          import os
-          import socket
-          import ipaddress
-          import base64
-          import geoip2.database
-          from concurrent.futures import ThreadPoolExecutor, as_completed
-          from threading import Lock
-          from datetime import datetime, timezone
+import subprocess, time, json, urllib.parse, os, socket, ipaddress, base64
+import geoip2.database
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from threading import Lock
+from datetime import datetime, timezone
 
-          XRAY_PATH = "./xray"
-          INPUT = 'githubmirror/26_ru_whitelist.txt'
-          OUTPUT_RAW = 'githubmirror/26_proxy_subscription_raw.txt'
-          OUTPUT_B64 = 'githubmirror/26_proxy_subscription_base64.txt'
+XRAY_PATH = "./xray"
+INPUT = 'githubmirror/26_ru_whitelist.txt'
+OUTPUT_RAW = 'githubmirror/26_proxy_subscription_raw.txt'
+OUTPUT_B64 = 'githubmirror/26_proxy_subscription_base64.txt'
 
-          IP_TEST_URLS = ['https://api.ipify.org', 'https://ifconfig.me/ip', 'https://ipapi.co/ip']
-          TEST_SITES = ['https://x.com', 'https://www.cloudflare.com/cdn-cgi/trace', 'https://www.netflix.com']
-          MAX_WORKERS = 6
-          CURL_DELAY = 0.3
+IP_TEST_URLS = ['https://api.ipify.org', 'https://ifconfig.me/ip', 'https://ipapi.co/ip']
+TEST_SITES = ['https://x.com', 'https://www.cloudflare.com/cdn-cgi/trace', 'https://www.netflix.com']
+MAX_WORKERS = 6
+CURL_DELAY = 0.3
 
-          country_reader = city_reader = asn_reader = None
-          geoip_available = False
-          
-          print("🔄 Loading GeoLite2 databases...")
-          try:
-              country_reader = geoip2.database.Reader('GeoLite2-Country.mmdb')
-              city_reader = geoip2.database.Reader('GeoLite2-City.mmdb')
-              asn_reader = geoip2.database.Reader('GeoLite2-ASN.mmdb')
-              geoip_available = True
-              print("✅ GeoLite2 databases loaded")
-          except Exception as e:
-              print(f"⚠️ GeoLite2 unavailable: {e}")
+print("🔄 Loading GeoLite2 databases...")
+country_reader = city_reader = asn_reader = None
+geoip_available = False
+try:
+    country_reader = geoip2.database.Reader('GeoLite2-Country.mmdb')
+    city_reader = geoip2.database.Reader('GeoLite2-City.mmdb')
+    asn_reader = geoip2.database.Reader('GeoLite2-ASN.mmdb')
+    geoip_available = True
+    print("✅ GeoLite2 databases loaded")
+except Exception as e:
+    print(f"⚠️ GeoLite2 unavailable: {e}")
 
-          lock = Lock()
-          counter = 0
+lock = Lock()
+counter = 0
 
-          def next_id():
-              global counter
-              with lock:
-                  counter += 1
-                  return counter
+def next_id():
+    global counter
+    with lock:
+        counter += 1
+        return counter
 
-          def is_ipv6(ip):
-              try:
-                  addr = ipaddress.ip_address(ip.strip())
-                  return addr.version == 6
-              except:
-                  return False
+def is_ipv6(ip):
+    try:
+        addr = ipaddress.ip_address(ip.strip())
+        return addr.version == 6
+    except:
+        return False
 
-          def valid_ip(x):
-              try:
-                  ipaddress.ip_address(x.strip())
-                  return True
-              except:
-                  return False
+def valid_ip(x):
+    try:
+        ipaddress.ip_address(x.strip())
+        return True
+    except:
+        return False
 
-          def resolve(host):
-              try:
-                  info = socket.getaddrinfo(host, None, 0, 0, socket.SOL_TCP)
-                  for i in info:
-                      ip = i[4][0]
-                      if valid_ip(ip):
-                          return ip
-                  return host
-              except:
-                  return host
+def resolve(host):
+    try:
+        info = socket.getaddrinfo(host, None, 0, 0, socket.SOL_TCP)
+        for i in info:
+            ip = i[4][0]
+            if valid_ip(ip):
+                return ip
+        return host
+    except:
+        return host
 
-          def get_raw_iso_country(ip):
-              if not geoip_available:
-                  return None
-              ip = ip.strip()
-              if not valid_ip(ip):
-                  return None
-              try:
-                  if country_reader:
-                      r = country_reader.country(ip)
-                      iso_code = r.country.iso_code
-                      if iso_code:
-                          return iso_code
-                  if city_reader:
-                      r = city_reader.city(ip)
-                      iso_code = r.country.iso_code
-                      if iso_code:
-                          return iso_code
-              except:
-                  pass
-              return None
+def get_raw_iso_country(ip):
+    if not geoip_available:
+        return None
+    ip = ip.strip()
+    if not valid_ip(ip):
+        return None
+    try:
+        if country_reader:
+            r = country_reader.country(ip)
+            iso_code = r.country.iso_code
+            if iso_code:
+                return iso_code
+        if city_reader:
+            r = city_reader.city(ip)
+            iso_code = r.country.iso_code
+            if iso_code:
+                return iso_code
+    except:
+        pass
+    return None
 
-          def country_from_ip(ip):
-              raw_iso = get_raw_iso_country(ip)
-              if not raw_iso:
-                  return '🌍??'
-          # ✅ ФЛАГИ СТРАН БЕЗ ДУБЛЕЙ
-          FLAGS = {
-              'AD': '🇦🇩AD', 'AE': '🇦🇪AE', 'AF': '🇦🇫AF', 'AG': '🇦🇬AG', 'AI': '🇦🇮AI',
-              'AL': '🇦🇱AL', 'AM': '🇦🇲AM', 'AO': '🇦🇴AO', 'AQ': '🇦🇶AQ', 'AR': '🇦🇷AR',
-              'AS': '🇦🇸AS', 'AT': '🇦🇹AT', 'AU': '🇦🇺AU', 'AW': '🇦🇼AW', 'AX': '🇦🇽AX',
-              'AZ': '🇦🇿AZ', 'BA': '🇧🇦BA', 'BB': '🇧🇧BB', 'BD': '🇧🇩BD', 'BE': '🇧🇪BE',
-              'BF': '🇧🇫BF', 'BG': '🇧🇬BG', 'BH': '🇧🇭BH', 'BI': '🇧🇮BI', 'BJ': '🇧🇯BJ',
-              'BL': '🇧🇱BL', 'BM': '🇧🇲BM', 'BN': '🇧🇳BN', 'BO': '🇧🇴BO', 'BQ': '🇧🇶BQ',
-              'BR': '🇧🇷BR', 'BS': '🇧🇸BS', 'BT': '🇧🇹BT', 'BV': '🇧🇻BV', 'BW': '🇧🇼BW',
-              'BY': '🇧🇾BY', 'BZ': '🇧🇿BZ', 'CA': '🇨🇦CA', 'CC': '🇨🇨CC', 'CD': '🇨🇩CD',
-              'CF': '🇨🇫CF', 'CG': '🇨🇬CG', 'CH': '🇨🇭CH', 'CI': '🇨🇮CI', 'CK': '🇨🇰CK',
-              'CL': '🇨🇱CL', 'CM': '🇨🇲CM', 'CN': '🇨🇳CN', 'CO': '🇨🇴CO', 'CR': '🇨🇷CR',
-              'CU': '🇨🇺CU', 'CV': '🇨🇻CV', 'CW': '🇨🇼CW', 'CX': '🇨🇽CX', 'CY': '🇨🇾CY',
-              'CZ': '🇨🇿CZ', 'DE': '🇩🇪DE', 'DJ': '🇩🇯DJ', 'DK': '🇩🇰DK', 'DM': '🇩🇲DM',
-              'DO': '🇩🇴DO', 'DZ': '🇩🇿DZ', 'EC': '🇪🇨EC', 'EE': '🇪🇪EE', 'EG': '🇪🇬EG',
-              'EH': '🇪🇭EH', 'ER': '🇪🇷ER', 'ES': '🇪🇸ES', 'ET': '🇪🇹ET', 'FI': '🇫🇮FI',
-              'FJ': '🇫🇯FJ', 'FK': '🇫🇰FK', 'FM': '🇫🇲FM', 'FO': '🇫🇴FO', 'FR': '🇫🇷FR',
-              'GA': '🇬🇦GA', 'GB': '🇬🇧GB', 'GD': '🇬🇩GD', 'GE': '🇬🇪GE', 'GF': '🇬🇫GF',
-              'GG': '🇬🇬GG', 'GH': '🇬🇭GH', 'GI': '🇬🇮GI', 'GL': '🇬🇱GL', 'GM': '🇬🇲GM',
-              'GN': '🇬🇳GN', 'GP': '🇬🇵GP', 'GQ': '🇬🇶GQ', 'GR': '🇬🇷GR', 'GS': '🇬🇸GS',
-              'GT': '🇬🇹GT', 'GU': '🇬🇺GU', 'GW': '🇬🇼GW', 'GY': '🇬🇾GY', 'HK': '🇭🇰HK',
-              'HM': '🇭🇲HM', 'HN': '🇭🇳HN', 'HR': '🇭🇷HR', 'HT': '🇭🇹HT', 'HU': '🇭🇺HU',
-              'ID': '🇮🇩ID', 'IE': '🇮🇪IE', 'IL': '🇮🇱IL', 'IM': '🇮🇲IM', 'IN': '🇮🇳IN',
-              'IO': '🇮🇴IO', 'IQ': '🇮🇶IQ', 'IR': '🇮🇷IR', 'IS': '🇮🇸IS', 'IT': '🇮🇹IT',
-              'JE': '🇯🇪JE', 'JM': '🇯🇲JM', 'JO': '🇯🇴JO', 'JP': '🇯🇵JP', 'KE': '🇰🇪KE',
-              'KG': '🇰🇬KG', 'KH': '🇰🇭KH', 'KI': '🇰🇮KI', 'KM': '🇰🇲KM', 'KN': '🇰🇳KN',
-              'KP': '🇰🇵KP', 'KR': '🇰🇷KR', 'KW': '🇰🇼KW', 'KY': '🇰🇾KY', 'KZ': '🇰🇿KZ',
-              'LA': '🇱🇦LA', 'LB': '🇱🇧LB', 'LC': '🇱🇨LC', 'LI': '🇱🇮LI', 'LK': '🇱🇰LK',
-              'LR': '🇱🇷LR', 'LS': '🇱🇸LS', 'LT': '🇱🇹LT', 'LU': '🇱🇺LU', 'LV': '🇱🇻LV',
-              'LY': '🇱🇾LY', 'MA': '🇲🇦MA', 'MC': '🇲🇨MC', 'MD': '🇲🇩MD', 'ME': '🇲🇪ME',
-              'MF': '🇲🇫MF', 'MG': '🇲🇬MG', 'MH': '🇲🇭MH', 'MK': '🇲🇰MK', 'ML': '🇲🇱ML',
-              'MM': '🇲🇲MM', 'MN': '🇲🇳MN', 'MO': '🇲🇴MO', 'MP': '🇲🇵MP', 'MQ': '🇲🇶MQ',
-              'MR': '🇲🇷MR', 'MS': '🇲🇸MS', 'MT': '🇲🇹MT', 'MU': '🇲🇺MU', 'MV': '🇲🇻MV',
-              'MW': '🇲🇼MW', 'MX': '🇲🇽MX', 'MY': '🇲🇾MY', 'MZ': '🇲🇿MZ', 'NA': '🇳🇦NA',
-              'NC': '🇳🇨NC', 'NE': '🇳🇪NE', 'NF': '🇳🇫NF', 'NG': '🇳🇬NG', 'NI': '🇳🇮NI',
-              'NL': '🇳🇱NL', 'NO': '🇳🇴NO', 'NP': '🇳🇵NP', 'NR': '🇳🇷NR', 'NU': '🇳🇺NU',
-              'NZ': '🇳🇿NZ', 'OM': '🇴🇲OM', 'PA': '🇵🇦PA', 'PE': '🇵🇪PE', 'PF': '🇵🇫PF',
-              'PG': '🇵🇬PG', 'PH': '🇵🇭PH', 'PK': '🇵🇰PK', 'PL': '🇵🇱PL', 'PM': '🇵🇲PM',
-              'PN': '🇵🇳PN', 'PR': '🇵🇷PR', 'PS': '🇵🇸PS', 'PT': '🇵🇹PT', 'PW': '🇵🇼PW',
-              'PY': '🇵🇾PY', 'QA': '🇶🇦QA', 'RE': '🇷🇪RE', 'RO': '🇷🇴RO', 'RS': '🇷🇸RS',
-              'RU': '🇷🇺RU', 'RW': '🇷🇼RW', 'SA': '🇸🇦SA', 'SB': '🇸🇧SB', 'SC': '🇸🇨SC',
-              'SD': '🇸🇩SD', 'SE': '🇸🇪SE', 'SG': '🇸🇬SG', 'SH': '🇸🇭SH', 'SI': '🇸🇮SI',
-              'SJ': '🇸🇯SJ', 'SK': '🇸🇰SK', 'SL': '🇸🇱SL', 'SM': '🇸🇲SM', 'SN': '🇸🇳SN',
-              'SO': '🇸🇴SO', 'SR': '🇸🇷SR', 'SS': '🇸🇸SS', 'ST': '🇸🇹ST', 'SV': '🇸🇻SV',
-              'SX': '🇸🇽SX', 'SY': '🇸🇾SY', 'SZ': '🇸🇿SZ', 'TC': '🇹🇨TC', 'TD': '🇹🇩TD',
-              'TF': '🇹🇫TF', 'TG': '🇹🇬TG', 'TH': '🇹🇭TH', 'TJ': '🇹🇯TJ', 'TK': '🇹🇰TK',
-              'TL': '🇹🇱TL', 'TM': '🇹🇲TM', 'TN': '🇹🇳TN', 'TO': '🇹🇴TO', 'TR': '🇹🇷TR',
-              'TT': '🇹🇹TT', 'TV': '🇹🇻TV', 'TW': '🇹🇼TW', 'TZ': '🇹🇿TZ', 'UA': '🇺🇦UA',
-              'UG': '🇺🇬UG', 'UM': '🇺🇲UM', 'US': '🇺🇸US', 'UY': '🇺🇾UY', 'UZ': '🇺🇿UZ',
-              'VA': '🇻🇦VA', 'VC': '🇻🇨VC', 'VE': '🇻🇪VE', 'VG': '🇻🇬VG', 'VI': '🇻🇮VI',
-              'VN': '🇻🇳VN', 'VU': '🇻🇺VU', 'WF': '🇼🇫WF', 'WS': '🇼🇸WS', 'YE': '🇾🇪YE',
-              'YT': '🇾🇹YT', 'ZA': '🇿🇦ZA', 'ZM': '🇿🇲ZM', 'ZW': '🇿🇼ZW'
-          }
-              return FLAGS.get(raw_iso, f'🌍{raw_iso}')
+def country_from_ip(ip):
+    raw_iso = get_raw_iso_country(ip)
+    if not raw_iso:
+        return '🌍??'
+    FLAGS = {'DE':'🇩🇪DE','NL':'🇳🇱NL','US':'🇺🇸US','SG':'🇸🇬SG','GB':'🇬🇧GB','FR':'🇫🇷FR','PL':'🇵🇱PL','SE':'🇸🇪SE','FI':'🇫🇮FI','NO':'🇳🇴NO','CA':'🇨🇦CA','JP':'🇯🇵JP','KR':'🇰🇷KR','CH':'🇨🇭CH','IE':'🇮🇪IE','RU':'🇷🇺RU','UA':'🇺🇦UA','CN':'🇨🇳CN','HK':'🇭🇰HK','TW':'🇹🇼TW'}
+    return FLAGS.get(raw_iso, f'🌍{raw_iso}')
 
-          def is_russian_exit(exit_ip):
-              if is_ipv6(exit_ip):
-                  print(f"🚫 IPv6 DETECTED: {exit_ip}")
-                  return True
-              raw_iso = get_raw_iso_country(exit_ip)
-              if raw_iso == 'RU':
-                  print(f"🚫 RU IPv4: {exit_ip}")
-                  return True
-              return False
+def is_russian_exit(exit_ip):
+    if is_ipv6(exit_ip):
+        print(f"🚫 IPv6 DETECTED: {exit_ip}")
+        return True
+    raw_iso = get_raw_iso_country(exit_ip)
+    if raw_iso == 'RU':
+        print(f"🚫 RU IPv4: {exit_ip}")
+        return True
+    return False
 
-          def test_site(port, url, site_name):
-              time.sleep(CURL_DELAY)
-              try:
-                  cmd = [
-                      'curl', '-s', '--max-time', '10',
-                      '-x', f'socks5h://127.0.0.1:{port}',
-                      '-o', '/dev/null', '-w', '%{http_code}', url
-                  ]
-                  code = subprocess.check_output(cmd, text=True, stderr=subprocess.DEVNULL, timeout=12).strip()
-                  success_codes = ['200', '403', '429']
-                  if code in success_codes:
-                      print(f"✅ {site_name}: {code}")
-                      return True
-                  print(f"❌ {site_name}: HTTP {code}")
-                  return False
-              except subprocess.TimeoutExpired:
-                  print(f"⏰ {site_name}: TIMEOUT (12s)")
-                  return False
-              except Exception:
-                  print(f"❌ {site_name}: CURL ERROR")
-                  return False
+def test_site(port, url, site_name):
+    time.sleep(CURL_DELAY)
+    try:
+        cmd = ['curl', '-s', '--max-time', '10', '-x', f'socks5h://127.0.0.1:{port}', '-o', '/dev/null', '-w', '%{http_code}', url]
+        code = subprocess.check_output(cmd, text=True, stderr=subprocess.DEVNULL, timeout=12).strip()
+        success_codes = ['200', '403', '429']
+        if code in success_codes:
+            print(f"✅ {site_name}: {code}")
+            return True
+        print(f"❌ {site_name}: HTTP {code}")
+        return False
+    except subprocess.TimeoutExpired:
+        print(f"⏰ {site_name}: TIMEOUT (12s)")
+        return False
+    except Exception:
+        print(f"❌ {site_name}: CURL ERROR")
+        return False
 
-          def test_proxy_robust(port):
-              print("⏳ Waiting 3s for Xray stability...")
-              time.sleep(3)
-              
-              exit_ip = None
-              for attempt in range(2):
-                  if exit_ip:
-                      break
-                  print(f"🌐 IP test attempt {attempt + 1}/2")
-                  for i, url in enumerate(IP_TEST_URLS, 1):
-                      try:
-                          cmd = ['curl', '-s', '--max-time', '12', '-x', f'socks5h://127.0.0.1:{port}', url]
-                          ip = subprocess.check_output(cmd, text=True, stderr=subprocess.DEVNULL, timeout=15).strip()
-                          if valid_ip(ip) and len(ip) >= 7 and not is_ipv6(ip):
-                              exit_ip = ip
-                              print(f"🌐 IPv4 [{i}]: {ip}")
-                              break
-                          elif is_ipv6(ip):
-                              print(f"🚫 IPv6 blocked: {ip}")
-                      except:
-                          print(f"🌐 IP test [{i}] failed")
-                          continue
-                  if not exit_ip and attempt == 0:
-                      print("⏳ Retrying IP test in 2s...")
-                      time.sleep(2)
-              
-              if not exit_ip:
-                  print("❌ No valid IPv4 exit IP after 2 attempts")
-                  return False, None
+def test_proxy_robust(port):
+    print("⏳ Waiting 3s for Xray stability...")
+    time.sleep(3)
+    
+    exit_ip = None
+    for attempt in range(2):
+        if exit_ip:
+            break
+        print(f"🌐 IP test attempt {attempt + 1}/2")
+        for i, url in enumerate(IP_TEST_URLS, 1):
+            try:
+                cmd = ['curl', '-s', '--max-time', '12', '-x', f'socks5h://127.0.0.1:{port}', url]
+                ip = subprocess.check_output(cmd, text=True, stderr=subprocess.DEVNULL, timeout=15).strip()
+                if valid_ip(ip) and len(ip) >= 7 and not is_ipv6(ip):
+                    exit_ip = ip
+                    print(f"🌐 IPv4 [{i}]: {ip}")
+                    break
+                elif is_ipv6(ip):
+                    print(f"🚫 IPv6 blocked: {ip}")
+            except:
+                print(f"🌐 IP test [{i}] failed")
+                continue
+        if not exit_ip and attempt == 0:
+            print("⏳ Retrying IP test in 2s...")
+            time.sleep(2)
+    
+    if not exit_ip:
+        print("❌ No valid IPv4 exit IP after 2 attempts")
+        return False, None
 
-              try:
-                  cmd = ['curl', '-s', '--max-time', '12', '-x', f'socks5h://127.0.0.1:{port}',
-                         '-o', '/dev/null', '-w', '%{http_code}', 'http://example.com']
-                  http_code = subprocess.check_output(cmd, text=True, stderr=subprocess.DEVNULL, timeout=15).strip()
-                  if http_code != '200':
-                      print(f"❌ HTTP example.com: {http_code}")
-                      return False, None
-              except:
-                  print("❌ HTTP example.com: FAILED")
-                  return False, None
+    try:
+        cmd = ['curl', '-s', '--max-time', '12', '-x', f'socks5h://127.0.0.1:{port}', '-o', '/dev/null', '-w', '%{http_code}', 'http://example.com']
+        http_code = subprocess.check_output(cmd, text=True, stderr=subprocess.DEVNULL, timeout=15).strip()
+        if http_code != '200':
+            print(f"❌ HTTP example.com: {http_code}")
+            return False, None
+    except:
+        print("❌ HTTP example.com: FAILED")
+        return False, None
 
-              print("🔥 Testing 3 sites in parallel...")
-              with ThreadPoolExecutor(max_workers=3) as site_executor:
-                  futures = [
-                      site_executor.submit(test_site, port, TEST_SITES[0], "X.com"),
-                      site_executor.submit(test_site, port, TEST_SITES[1], "Cloudflare"),
-                      site_executor.submit(test_site, port, TEST_SITES[2], "Netflix")
-                  ]
-              site_results = []
-              for future in futures:
-                  try:
-                      result = future.result(timeout=15)
-                      site_results.append(result)
-                  except Exception:
-                      print(f"⚠️ Site test TIMEOUT/ERROR → FAIL")
-                      site_results.append(False)
+    print("🔥 Testing 3 sites in parallel...")
+    with ThreadPoolExecutor(max_workers=3) as site_executor:
+        futures = [site_executor.submit(test_site, port, TEST_SITES[0], "X.com"), site_executor.submit(test_site, port, TEST_SITES[1], "Cloudflare"), site_executor.submit(test_site, port, TEST_SITES[2], "Netflix")]
+    site_results = []
+    for future in futures:
+        try:
+            result = future.result(timeout=15)
+            site_results.append(result)
+        except Exception:
+            print(f"⚠️ Site test TIMEOUT/ERROR → FAIL")
+            site_results.append(False)
 
-              if not all(site_results):
-                  print("❌ Site tests FAILED (need ALL 3)")
-                  return False, None
+    if not all(site_results):
+        print("❌ Site tests FAILED (need ALL 3)")
+        return False, None
 
-              print("✅ All 3 sites OK!")
-              return True, exit_ip
+    print("✅ All 3 sites OK!")
+    return True, exit_ip
 
-          def get_free_port():
-              s = socket.socket()
-              s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-              s.bind(('', 0))
-              port = s.getsockname()[1]
-              s.close()
-              return port
+def get_free_port():
+    s = socket.socket()
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    s.bind(('', 0))
+    port = s.getsockname()[1]
+    s.close()
+    return port
 
-          def wait_port(port, timeout=20):
-              print(f"⏳ Waiting for port {port} (20s max)...")
-              start = time.time()
-              while time.time() - start < timeout:
-                  try:
-                      with socket.create_connection(("127.0.0.1", port), timeout=1):
-                          print(f"✅ Port {port} ready!")
-                          return True
-                  except:
-                      time.sleep(0.2)
-              print(f"❌ Port {port} timeout after 20s")
-              return False
+def wait_port(port, timeout=20):
+    print(f"⏳ Waiting for port {port} (20s max)...")
+    start = time.time()
+    while time.time() - start < timeout:
+        try:
+            with socket.create_connection(("127.0.0.1", port), timeout=1):
+                print(f"✅ Port {port} ready!")
+                return True
+        except:
+            time.sleep(0.2)
+    print(f"❌ Port {port} timeout after 20s")
+    return False
 
-          def check_one(link):
-              try:
-                  port = get_free_port()
-                  u = urllib.parse.urlparse(link)
-                  if u.scheme != 'vless':
-                      return None
-                      
-                  q = urllib.parse.parse_qs(u.query)
-                  sni = q.get('sni', ['unknown'])[0]
-                  fp = q.get('fp', ['chrome'])[0]
-                  
-                  server_ip = resolve(u.hostname)
-                  server_country = country_from_ip(server_ip)
+def check_one(link):
+    try:
+        port = get_free_port()
+        u = urllib.parse.urlparse(link)
+        if u.scheme != 'vless':
+            return None
+            
+        q = urllib.parse.parse_qs(u.query)
+        sni = q.get('sni', ['unknown'])[0]
+        fp = q.get('fp', ['chrome'])[0]
+        
+        server_ip = resolve(u.hostname)
+        server_country = country_from_ip(server_ip)
 
-                  network = q.get('type', ['tcp'])[0]
-                  sec = q.get('security', ['none'])[0]
+        network = q.get('type', ['tcp'])[0]
+        sec = q.get('security', ['none'])[0]
 
-                  stream = {'network': network}
-                  if sec == 'reality' and 'pbk' in q:
-                      stream.update({
-                          'security': 'reality',
-                          'realitySettings': {
-                              'serverName': sni,
-                              'publicKey': q['pbk'][0],
-                              'shortId': q.get('sid', [''])[0],
-                              'fingerprint': fp
-                          }
-                      })
-                  elif sec == 'tls':
-                      stream.update({
-                          'security': 'tls',
-                          'tlsSettings': {
-                              'serverName': sni,
-                              'allowInsecure': True,
-                              'fingerprint': fp
-                          }
-                      })
+        stream = {'network': network}
+        if sec == 'reality' and 'pbk' in q:
+            stream.update({'security': 'reality', 'realitySettings': {'serverName': sni, 'publicKey': q['pbk'][0], 'shortId': q.get('sid', [''])[0], 'fingerprint': fp}})
+        elif sec == 'tls':
+            stream.update({'security': 'tls', 'tlsSettings': {'serverName': sni, 'allowInsecure': True, 'fingerprint': fp}})
 
-                  user = {'id': u.username, 'encryption': 'none'}
-                  flow = q.get('flow', [''])[0]
-                  if flow:
-                      user['flow'] = flow
+        user = {'id': u.username, 'encryption': 'none'}
+        flow = q.get('flow', [''])[0]
+        if flow:
+            user['flow'] = flow
 
-                  cfg = {
-                      'inbounds': [{
-                          'listen': '127.0.0.1',
-                          'port': port,
-                          'protocol': 'socks',
-                          'settings': {'udp': False}
-                      }],
-                      'outbounds': [{
-                          'protocol': 'vless',
-                          'settings': {
-                              'vnext': [{
-                                  'address': u.hostname,
-                                  'port': int(u.port or 443),
-                                  'users': [user]
-                              }]
-                          },
-                          'streamSettings': stream
-                      }]
-                  }
+        cfg = {
+            'inbounds': [{'listen': '127.0.0.1', 'port': port, 'protocol': 'socks', 'settings': {'udp': False}}],
+            'outbounds': [{
+                'protocol': 'vless',
+                'settings': {'vnext': [{'address': u.hostname, 'port': int(u.port or 443), 'users': [user]}]},
+                'streamSettings': stream
+            }]
+        }
 
-                  cfg_file = f'cfg_{port}.json'
-                  with open(cfg_file, 'w') as f:
-                      json.dump(cfg, f)
+        cfg_file = f'cfg_{port}.json'
+        with open(cfg_file, 'w') as f:
+            json.dump(cfg, f)
 
-                  print(f"🚀 Starting Xray on port {port}...")
-                  p = subprocess.Popen([XRAY_PATH, 'run', '-c', cfg_file],
-                                     stdout=subprocess.DEVNULL,
-                                     stderr=subprocess.DEVNULL)
+        print(f"🚀 Starting Xray on port {port}...")
+        p = subprocess.Popen([XRAY_PATH, 'run', '-c', cfg_file], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-                  if not wait_port(port):
-                      try:
-                          p.terminate()
-                          p.wait(timeout=2)
-                      except:
-                          p.kill()
-                      try:
-                          os.remove(cfg_file)
-                      except: pass
-                      return None
+        if not wait_port(port):
+            try:
+                p.terminate()
+                p.wait(timeout=2)
+            except:
+                p.kill()
+            try:
+                os.remove(cfg_file)
+            except: pass
+            return None
 
-                  ok, exit_ip = test_proxy_robust(port)
-                  
-                  try:
-                      p.terminate()
-                      p.wait(timeout=2)
-                  except:
-                      p.kill()
-                  p.wait(timeout=1)
+        ok, exit_ip = test_proxy_robust(port)
+        
+        try:
+            p.terminate()
+            p.wait(timeout=2)
+        except:
+            p.kill()
+        p.wait(timeout=1)
 
-                  try:
-                      os.remove(cfg_file)
-                  except: pass
+        try:
+            os.remove(cfg_file)
+        except: pass
 
-                  if not ok:
-                      return None
+        if not ok:
+            return None
 
-                  if is_russian_exit(exit_ip):
-                      return None
+        if is_russian_exit(exit_ip):
+            return None
 
-                  exit_country = country_from_ip(exit_ip)
-                  num = next_id()
-                  name = f"{server_country}->{num}->{exit_country} SNI: {sni}"
+        exit_country = country_from_ip(exit_ip)
+        num = next_id()
+        name = f"{server_country}-{num}-{exit_country} SNI: {sni}"
 
-                  if '#' in link:
-                      link = link.split('#')[0]
-                  return link + '#' + name
+        if '#' in link:
+            link = link.split('#')[0]
+        return link + '#' + name
 
-              except Exception as e:
-                  print(f"⚠️ Proxy parse error: {str(e)[:100]}")
-                  return None
+    except Exception as e:
+        print(f"⚠️ Proxy parse error: {str(e)[:100]}")
+        return None
 
-          print(f"📂 Processing {INPUT}...")
-          if not os.path.exists(INPUT):
-              print("❌ INPUT file not found")
-              exit(0)
+print(f"📂 Processing {INPUT}...")
+if not os.path.exists(INPUT):
+    print("❌ INPUT file not found")
+    exit(0)
 
-          with open(INPUT) as f:
-              links = [x.strip() for x in f if x.strip().startswith('vless://')]
+with open(INPUT) as f:
+    links = [x.strip() for x in f if x.strip().startswith('vless://')]
 
-          if not links:
-              print("❌ No VLESS links found")
-              exit(0)
+if not links:
+    print("❌ No VLESS links found")
+    exit(0)
 
-          print(f"🚀 TOTAL: {len(links)} | workers={MAX_WORKERS} | geoip={geoip_available}")
+print(f"🚀 TOTAL: {len(links)} | workers={MAX_WORKERS} | geoip={geoip_available}")
 
-          alive = []
-          try:
-              with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
-                  futures = [ex.submit(check_one, l) for l in links]
-                  for future in as_completed(futures):
-                      result = future.result()
-                      if result:
-                          alive.append(result)
-          except KeyboardInterrupt:
-              print("⏹️ Interrupted")
+alive = []
+try:
+    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
+        futures = [ex.submit(check_one, l) for l in links]
+        for future in as_completed(futures):
+            result = future.result()
+            if result:
+                alive.append(result)
+except KeyboardInterrupt:
+    print("⏹️ Interrupted")
 
-          print(f"✅ DONE. Alive NON-RU IPv4-only: {len(alive)}")
+print(f"✅ DONE. Alive NON-RU IPv4-only: {len(alive)}")
 
-          with open(OUTPUT_RAW, 'w') as f:
-              f.write(f"# updated {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}\n")
-              if alive:
-                  f.write('\n'.join(alive) + '\n')
+with open(OUTPUT_RAW, 'w') as f:
+    f.write(f"# updated {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}\n")
+    if alive:
+        f.write('\n'.join(alive) + '\n')
 
-          if alive:
-              b64_content = '\n'.join(alive)
-              b64 = base64.b64encode(b64_content.encode()).decode()
-              with open(OUTPUT_B64, 'w') as f:
-                  f.write(b64)
-              print(f"💾 Saved {len(alive)} battle-tested NON-RU IPv4-only proxies")
-          else:
-              print("❌ No working NON-RU IPv4-only proxies")
+if alive:
+    b64_content = '\n'.join(alive)
+    b64 = base64.b64encode(b64_content.encode()).decode()
+    with open(OUTPUT_B64, 'w') as f:
+        f.write(b64)
+    print(f"💾 Saved {len(alive)} battle-tested NON-RU IPv4-only proxies")
+else:
+    print("❌ No working NON-RU IPv4-only proxies")
 
-          if geoip_available:
-              try:
-                  country_reader.close()
-                  city_reader.close()
-                  asn_reader.close()
-              except: pass
-          EOF
+if geoip_available:
+    try:
+        country_reader.close()
+        city_reader.close()
+        asn_reader.close()
+    except: pass
+EOF
 
       - name: Commit & push results
         run: |
