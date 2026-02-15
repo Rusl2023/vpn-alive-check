@@ -69,7 +69,7 @@ jobs:
           HTTPS_TEST_URL = 'https://www.cloudflare.com/cdn-cgi/trace'
           MAX_WORKERS = 6
 
-                    # ✅ ФЛАГИ СТРАН БЕЗ ДУБЛЕЙ
+          # ✅ ФЛАГИ СТРАН БЕЗ ДУБЛЕЙ (RU исключен)
           FLAGS = {
               'AD': '🇦🇩AD', 'AE': '🇦🇪AE', 'AF': '🇦🇫AF', 'AG': '🇦🇬AG', 'AI': '🇦🇮AI',
               'AL': '🇦🇱AL', 'AM': '🇦🇲AM', 'AO': '🇦🇴AO', 'AQ': '🇦🇶AQ', 'AR': '🇦🇷AR',
@@ -109,18 +109,18 @@ jobs:
               'PG': '🇵🇬PG', 'PH': '🇵🇭PH', 'PK': '🇵🇰PK', 'PL': '🇵🇱PL', 'PM': '🇵🇲PM',
               'PN': '🇵🇳PN', 'PR': '🇵🇷PR', 'PS': '🇵🇸PS', 'PT': '🇵🇹PT', 'PW': '🇵🇼PW',
               'PY': '🇵🇾PY', 'QA': '🇶🇦QA', 'RE': '🇷🇪RE', 'RO': '🇷🇴RO', 'RS': '🇷🇸RS',
-              'RU': '🇷🇺RU', 'RW': '🇷🇼RW', 'SA': '🇸🇦SA', 'SB': '🇸🇧SB', 'SC': '🇸🇨SC',
-              'SD': '🇸🇩SD', 'SE': '🇸🇪SE', 'SG': '🇸🇬SG', 'SH': '🇸🇭SH', 'SI': '🇸🇮SI',
-              'SJ': '🇸🇯SJ', 'SK': '🇸🇰SK', 'SL': '🇸🇱SL', 'SM': '🇸🇲SM', 'SN': '🇸🇳SN',
-              'SO': '🇸🇴SO', 'SR': '🇸🇷SR', 'SS': '🇸🇸SS', 'ST': '🇸🇹ST', 'SV': '🇸🇻SV',
-              'SX': '🇸🇽SX', 'SY': '🇸🇾SY', 'SZ': '🇸🇿SZ', 'TC': '🇹🇨TC', 'TD': '🇹🇩TD',
-              'TF': '🇹🇫TF', 'TG': '🇹🇬TG', 'TH': '🇹🇭TH', 'TJ': '🇹🇯TJ', 'TK': '🇹🇰TK',
-              'TL': '🇹🇱TL', 'TM': '🇹🇲TM', 'TN': '🇹🇳TN', 'TO': '🇹🇴TO', 'TR': '🇹🇷TR',
-              'TT': '🇹🇹TT', 'TV': '🇹🇻TV', 'TW': '🇹🇼TW', 'TZ': '🇹🇿TZ', 'UA': '🇺🇦UA',
-              'UG': '🇺🇬UG', 'UM': '🇺🇲UM', 'US': '🇺🇸US', 'UY': '🇺🇾UY', 'UZ': '🇺🇿UZ',
-              'VA': '🇻🇦VA', 'VC': '🇻🇨VC', 'VE': '🇻🇪VE', 'VG': '🇻🇬VG', 'VI': '🇻🇮VI',
-              'VN': '🇻🇳VN', 'VU': '🇻🇺VU', 'WF': '🇼🇫WF', 'WS': '🇼🇸WS', 'YE': '🇾🇪YE',
-              'YT': '🇾🇹YT', 'ZA': '🇿🇦ZA', 'ZM': '🇿🇲ZM', 'ZW': '🇿🇼ZW'
+              'RW': '🇷🇼RW', 'SA': '🇸🇦SA', 'SB': '🇸🇧SB', 'SC': '🇸🇨SC', 'SD': '🇸🇩SD',
+              'SE': '🇸🇪SE', 'SG': '🇸🇬SG', 'SH': '🇸🇭SH', 'SI': '🇸🇮SI', 'SJ': '🇸🇯SJ',
+              'SK': '🇸🇰SK', 'SL': '🇸🇱SL', 'SM': '🇸🇲SM', 'SN': '🇸🇳SN', 'SO': '🇸🇴SO',
+              'SR': '🇸🇷SR', 'SS': '🇸🇸SS', 'ST': '🇸🇹ST', 'SV': '🇸🇻SV', 'SX': '🇸🇽SX',
+              'SY': '🇸🇾SY', 'SZ': '🇸🇿SZ', 'TC': '🇹🇨TC', 'TD': '🇹🇩TD', 'TF': '🇹🇫TF',
+              'TG': '🇹🇬TG', 'TH': '🇹🇭TH', 'TJ': '🇹🇯TJ', 'TK': '🇹🇰TK', 'TL': '🇹🇱TL',
+              'TM': '🇹🇲TM', 'TN': '🇹🇳TN', 'TO': '🇹🇴TO', 'TR': '🇹🇷TR', 'TT': '🇹🇹TT',
+              'TV': '🇹🇻TV', 'TW': '🇹🇼TW', 'TZ': '🇹🇿TZ', 'UA': '🇺🇦UA', 'UG': '🇺🇬UG',
+              'UM': '🇺🇲UM', 'US': '🇺🇸US', 'UY': '🇺🇾UY', 'UZ': '🇺🇿UZ', 'VA': '🇻🇦VA',
+              'VC': '🇻🇨VC', 'VE': '🇻🇪VE', 'VG': '🇻🇬VG', 'VI': '🇻🇮VI', 'VN': '🇻🇳VN',
+              'VU': '🇻🇺VU', 'WF': '🇼🇫WF', 'WS': '🇼🇸WS', 'YE': '🇾🇪YE', 'YT': '🇾🇹YT',
+              'ZA': '🇿🇦ZA', 'ZM': '🇿🇲ZM', 'ZW': '🇿🇼ZW'
           }
           
           print("Loading GeoLite2 databases...")
@@ -142,23 +142,37 @@ jobs:
                   counter += 1
                   return counter
 
-          def valid_ip(x):
+          def valid_ipv4(ip):
               try:
-                  ipaddress.ip_address(x.strip())
+                  ipaddress.IPv4Address(ip.strip())
                   return True
               except:
                   return False
 
-          def resolve(host):
+          def valid_ipv6(ip):
+              try:
+                  ipaddress.IPv6Address(ip.strip())
+                  return True
+              except:
+                  return False
+
+          def valid_ip(ip):
+              return valid_ipv4(ip) or valid_ipv6(ip)
+
+          def resolve_all_ips(host):
+              """🔍 РЕЗОЛЬВИТ ВСЕ IP4+IP6 для хоста"""
+              ips = set()
               try:
                   info = socket.getaddrinfo(host, None, 0, 0, socket.SOL_TCP)
                   for i in info:
                       ip = i[4][0]
                       if valid_ip(ip):
-                          return ip
-                  return host
+                          ips.add(ip)
+                  if not ips:
+                      ips.add(host)
               except:
-                  return host
+                  ips.add(host)
+              return ips
 
           def get_raw_iso_country(ip):
               """🔥 МАКСИМАЛЬНАЯ ТОЧНОСТЬ: сырой ISO код из GeoLite2"""
@@ -182,16 +196,69 @@ jobs:
               
               return None
 
+          def get_asn_autonomous_system(ip):
+              """🔍 ASN данные из GeoLite2"""
+              try:
+                  r = asn_reader.asn(ip)
+                  return r.autonomous_system_organization
+              except:
+                  return None
+
+          def is_russian_asn(ip):
+              """🚫 БЛОКИРОВКА RU ASN"""
+              asn_org = get_asn_autonomous_system(ip)
+              if asn_org:
+                  ru_asns = ['Rostelecom', 'PJSC Rostelecom', 'Beeline', 'MTS', 'Megafon', 
+                           'TransTeleCom', 'Vimpelcom', 'Yandex', 'VK', 'T2 Mobile']
+                  return any(ru_asn in asn_org for ru_asn in ru_asns)
+              return False
+
           def country_from_ip(ip):
               raw_iso = get_raw_iso_country(ip)
               if not raw_iso:
                   return '🌍??'
               return FLAGS.get(raw_iso, f'🌍{raw_iso}')
 
-          def is_russian_exit(exit_ip):
-              """🚫 100% ТОЧНЫЙ ФИЛЬТР ПО ISO КОДУ 'RU'"""
-              raw_iso = get_raw_iso_country(exit_ip)
+          def is_russian_ip(ip):
+              """🚫 ПОЛНАЯ БЛОКИРОВКА RU IP"""
+              raw_iso = get_raw_iso_country(ip)
               return raw_iso == 'RU'
+
+          def is_russian_hostname(hostname):
+              """🚫 БЛОКИРОВКА RU HOSTNAME (.ru, .рф, .su)"""
+              hostname_lower = hostname.lower().strip()
+              ru_domains = ['.ru', '.рф', '.su']
+              return any(domain in hostname_lower for domain in ru_domains)
+
+          def is_russian_exit(exit_ip):
+              """🚫 100% ТОЧНЫЙ ФИЛЬТР ПО RU IP"""
+              return is_russian_ip(exit_ip)
+
+          def check_proxy_ru_blocked(server_hostname, exit_ip):
+              """🚫 МАКСИМАЛЬНАЯ БЛОКИРОВКА ВСЕХ RU"""
+              
+              # 1. ✅ БЛОКИРОВКА RU HOSTNAME
+              if is_russian_hostname(server_hostname):
+                  print(f"🚫 RU HOSTNAME BLOCKED: {server_hostname}")
+                  return True
+              
+              # 2. ✅ БЛОКИРОВКА ВСЕХ RU IP сервера (IPv4+IPv6)
+              server_ips = resolve_all_ips(server_hostname)
+              for ip in server_ips:
+                  if valid_ip(ip):
+                      if is_russian_ip(ip):
+                          print(f"🚫 RU SERVER IP BLOCKED: {ip}")
+                          return True
+                      if is_russian_asn(ip):
+                          print(f"🚫 RU ASN BLOCKED: {ip} ({get_asn_autonomous_system(ip)})")
+                          return True
+              
+              # 3. ✅ БЛОКИРОВКА RU EXIT IP
+              if is_russian_exit(exit_ip):
+                  print(f"🚫 RU EXIT IP BLOCKED: {exit_ip}")
+                  return True
+              
+              return False
 
           def get_free_port():
               s = socket.socket()
@@ -263,12 +330,21 @@ jobs:
                   sni = q.get('sni', ['unknown'])[0]
                   fp = q.get('fp', ['chrome'])[0]
                   
-                  server_ip = resolve(u.hostname)
-                  server_country = country_from_ip(server_ip)
-
-                  # ✅ ИСПРАВЛЕНО: ПРЯМАЯ поддержка XHTTP без замены
-                  network = q.get('type', ['tcp'])[0]
+                  server_hostname = u.hostname
+                  server_ips = resolve_all_ips(server_hostname)
                   
+                  # ✅ ПРОВЕРКА RU ДО БЫСТРОГО ОТБОРА
+                  for ip in server_ips:
+                      if valid_ip(ip):
+                          if is_russian_ip(ip) or is_russian_asn(ip):
+                              print(f"🚫 EARLY RU BLOCK: {ip}")
+                              return None
+                  
+                  if is_russian_hostname(server_hostname):
+                      print(f"🚫 RU HOSTNAME: {server_hostname}")
+                      return None
+
+                  network = q.get('type', ['tcp'])[0]
                   sec = q.get('security', ['none'])[0]
 
                   stream = {'network': network}
@@ -308,7 +384,7 @@ jobs:
                           'protocol': 'vless',
                           'settings': {
                               'vnext': [{
-                                  'address': u.hostname,
+                                  'address': server_hostname,
                                   'port': int(u.port or 443),
                                   'users': [user]
                               }]
@@ -352,17 +428,23 @@ jobs:
                   if not ok:
                       return None
 
-                  if is_russian_exit(exit_ip):
-                      print(f"🚫 RU BLOCKED: {exit_ip}")
+                  # 🚫 ПОЛНАЯ БЛОКИРОВКА RU НА ВСЕХ УРОВНЯХ
+                  if check_proxy_ru_blocked(server_hostname, exit_ip):
                       return None
 
+                  # ✅ RU заблокирован - показываем страны NON-RU
+                  server_country = '🌍OK'  # все RU уже отфильтрованы
                   exit_country = country_from_ip(exit_ip)
                   num = next_id()
                   name = f"{server_country}→{num}→{exit_country} SNI: {sni}"
 
                   if '#' in link:
                       link = link.split('#')[0]
-                  return link + '#' + name
+                  clean_link = link + '#' + name
+                  
+                  # ✅ RU НЕ ПОПАДЕТ В base64 И raw
+                  print(f"✅ ACCEPTED: {server_hostname} → {exit_ip}")
+                  return clean_link
 
               except Exception as e:
                   print(f"Error checking proxy: {e}")
@@ -381,6 +463,7 @@ jobs:
               exit(0)
 
           print(f"TOTAL: {len(links)} | workers={MAX_WORKERS}")
+          print("🚫 RU BLOCK: IP4+IP6 + ASN + HOSTNAME + EXIT")
 
           alive = []
           try:
