@@ -279,22 +279,16 @@ jobs:
           git status
 
       - name: Commit RU Whitelist
+        if: steps.scan.outputs.count != '0'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
           git add githubmirror/26_ru_whitelist.txt ru_debug.txt || true
-
           if git diff --staged --quiet; then
             echo "RU whitelist up to date"
             exit 0
           fi
-
           echo "RU whitelist updated!"
-          git commit -m "RU WHITELIST: ${{ steps.scan.outputs.count }} LIVE keys
-RU SNI: ${{ steps.scan.outputs.ru_sni }}
-VLESS: ${{ steps.scan.outputs.total_vless }}
-$(cat ru_debug.txt || echo '')"
-          
+          git commit -m "RU WHITELIST: ${{ steps.scan.outputs.count }} LIVE keys (RU SNI: ${{ steps.scan.outputs.ru_sni }})"
           git push origin ${{ steps.branch.outputs.name }}
           echo "RU whitelist pushed!"
