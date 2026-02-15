@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           persist-credentials: false
-          fetch-depth: 0  # ✅ для git diff сравнения
+          fetch-depth: 0  # Для git diff сравнения
 
       - name: Setup Python 3.12
         uses: actions/setup-python@v5
@@ -47,18 +47,15 @@ jobs:
           import urllib.parse
           import requests
           import geoip2.database
-          import ujson as json
-          import re
+          import hashlib
           from concurrent.futures import ThreadPoolExecutor, as_completed
           from functools import lru_cache
-          from collections import defaultdict
-          import hashlib
 
           HEADERS = {
               "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
           }
 
-          # ====== НАСТРОЙКИ ======
+          # Настройки
           MAX_WORKERS = 60
           TIMEOUT = 0.8
           CHECK_COUNT = 2
@@ -72,7 +69,7 @@ jobs:
           ASN_DB = "geolite2/GeoLite2-ASN.mmdb"
           OUTPUT_FILE = "githubmirror/26_ru_whitelist_ultra.txt"
 
-          # ====== SNI WHITELIST ======
+          # ===== SNI WHITELIST =====
           def load_ru_sni_whitelist():
               sources = [
                   "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/whitelist.txt",
@@ -123,10 +120,8 @@ jobs:
                   country = reader_country.country(ip).country.iso_code
                   if country == "RU":
                       return False
-                  
                   asn_data = reader_asn.asn(ip)
                   org = (asn_data.autonomous_system_organization or "").lower()
-                  
                   cdn_keywords = {
                       "cloudflare", "amazon", "google", "microsoft", "akamai",
                       "fastly", "facebook", "apple", "edgedns", "level3",
@@ -137,7 +132,6 @@ jobs:
                       "rostelecom", "mts", "megafon", "beeline", "tele2", 
                       "yandex", "mail.ru", "rt", "roscosmos", "rostec"
                   }
-                  
                   is_cdn = any(kw in org for kw in cdn_keywords)
                   is_ru = any(kw in org for kw in ru_blacklist)
                   return is_cdn and not is_ru
@@ -163,7 +157,6 @@ jobs:
                   u = urllib.parse.urlparse(line.strip())
                   if u.scheme != "vless" or not u.hostname:
                       return None
-                  
                   q = urllib.parse.parse_qs(u.query)
                   port = 443
                   if ':' in u.netloc:
@@ -173,24 +166,13 @@ jobs:
                           pass
                   if port not in ALLOWED_PORTS:
                       return None
-                  
                   sni = q.get("sni", [""])[0].lower().strip()
                   security = q.get("security", [""])[0]
                   flow = q.get("flow", [""])[0]
-                  
-                  if (security != "reality" or 
-                      flow != "xtls-rprx-vision" or 
-                      not sni or len(sni) < 3):
+                  if (security != "reality" or flow != "xtls-rprx-vision" or not sni or len(sni) < 3):
                       return None
-                  
                   key = f"{u.hostname}:{port}:{sni}"
-                  return {
-                      'host': u.hostname,
-                      'port': port,
-                      'sni': sni,
-                      'link': line.strip(),
-                      'key': key
-                  }
+                  return {'host': u.hostname, 'port': port, 'sni': sni, 'link': line.strip(), 'key': key}
               except:
                   return None
 
@@ -198,26 +180,22 @@ jobs:
               try:
                   if not sni_allowed(vless_data['sni']):
                       return None
-                  
                   if not check_cdn_ip(vless_data['host']):
                       return None
-                  
                   pings = []
                   for _ in range(CHECK_COUNT):
                       ping = ultra_fast_ping(vless_data['host'], vless_data['port'])
                       if ping:
                           pings.append(ping)
                       time.sleep(0.008)
-                  
                   if len(pings) < 1:
                       return None
-                  
                   median_ping = sorted(pings)[len(pings)//2]
                   return (median_ping, vless_data['link'], vless_data['key'])
               except:
                   return None
 
-          # ====== ✅ СКАНИРОВАНИЕ ======
+          # ===== Сканирование источников =====
           SOURCES = [
               "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/refs/heads/main/subscriptions/v2ray/all_sub.txt",
               "https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/1.txt",
@@ -236,7 +214,7 @@ jobs:
               "https://raw.githubusercontent.com/hamedcode/port-based-v2ray-configs/main/sub/vless.txt"
           ]
 
-          print("[52K+] Scanning...")
+          print("[INFO] Scanning sources...")
           all_raw_lines = []
           for i, url in enumerate(SOURCES, 1):
               try:
@@ -246,13 +224,14 @@ jobs:
                       if line and line.startswith('vless://'):
                           all_raw_lines.append(line)
                           count += 1
-                  print(f"[SOURCE {i}/{len(SOURCES)}] {count}")
+                  print(f"[SOURCE {i}/{len(SOURCES)}] {count} VLESS")
               except:
-                  pass
+                  continue
 
-          print(f"[RAW] {len(all_raw_lines)}")
+          print(f"[RAW TOTAL] {len(all_raw_lines)}")
 
-          candidates = [fast_parse_vless(line) for line in all_raw_lines if fast_parse_vless(line)]
+          candidates = [fast_parse_vless(line) for line in all_raw_lines]
+          candidates = [c for c in candidates if c]
           print(f"[CANDIDATES] {len(candidates)}")
 
           results = []
@@ -262,7 +241,6 @@ jobs:
               for batch_i in range(0, len(candidates), BATCH_SIZE):
                   batch = candidates[batch_i:batch_i + BATCH_SIZE]
                   futures = {executor.submit(ultimate_filter, cand): cand for cand in batch}
-                  
                   for future in as_completed(futures):
                       try:
                           result = future.result()
@@ -273,49 +251,40 @@ jobs:
                                   results.append((latency, link))
                       except:
                           continue
-                  
                   if len(results) >= TOP_LIMIT:
                       break
 
           results.sort(key=lambda x: x[0])
-          
-          # ====== ✅ СРАВНЕНИЕ С ПРЕДЫДУЩИМ ФАЙЛОМ ======
+
+          # ===== Сравнение с предыдущим файлом по ключам =====
           old_links_hash = ""
           new_links_hash = ""
-          
-          # Хэш старого файла (если есть)
-          try:
-              if os.path.exists(OUTPUT_FILE):
-                  with open(OUTPUT_FILE, 'r', encoding='utf-8') as f:
-                      old_content = f.read()
-                  old_links = [line.strip() for line in old_content.splitlines() 
-                              if line.strip().startswith('vless://')]
-                  old_links_hash = hashlib.md5(''.join(sorted(old_links)).encode()).hexdigest()
-                  print(f"[OLD] {len(old_links)} links, hash: {old_links_hash[:8]}")
-          except:
-              old_links_hash = "none"
-              print("[OLD] No previous file")
 
-          # Создание нового файла
+          if os.path.exists(OUTPUT_FILE):
+              with open(OUTPUT_FILE, 'r', encoding='utf-8') as f:
+                  old_content = f.read()
+              old_links = [line.strip() for line in old_content.splitlines() if line.strip().startswith('vless://')]
+              old_links_hash = hashlib.md5(''.join(sorted(old_links)).encode()).hexdigest()
+              print(f"[OLD] {len(old_links)} links, hash: {old_links_hash[:8]}")
+          else:
+              print("[OLD] No previous file")
+              old_links_hash = "none"
+
           os.makedirs(os.path.dirname(OUTPUT_FILE), exist_ok=True)
-          with open(OUTPUT_FILE, "w", encoding='utf-8') as f:
+          with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
               f.write(f"# RU Whitelist Reality Vision ULTRA ✅ SMART PUSH\n")
               f.write(f"# Processed: {len(all_raw_lines)} -> Live: {len(results)}\n")
               f.write(f"# Ports: 80/443/8443 | Ping: {MIN_LATENCY}-{MAX_LATENCY}ms\n")
               f.write(f"# Updated: {time.strftime('%Y-%m-%d %H:%M UTC')}\n\n")
-              
               for i, (latency, link) in enumerate(results[:TOP_LIMIT], 1):
                   f.write(f"# {i}. {latency}ms\n{link}\n\n")
 
-          # Хэш нового файла
           with open(OUTPUT_FILE, 'r', encoding='utf-8') as f:
               new_content = f.read()
-          new_links = [line.strip() for line in new_content.splitlines() 
-                      if line.strip().startswith('vless://')]
+          new_links = [line.strip() for line in new_content.splitlines() if line.strip().startswith('vless://')]
           new_links_hash = hashlib.md5(''.join(sorted(new_links)).encode()).hexdigest()
           print(f"[NEW] {len(new_links)} links, hash: {new_links_hash[:8]}")
 
-          # ✅ ПРОВЕРКА ИЗМЕНЕНИЙ ПО КЛЮЧАМ (НЕ timestamp)
           has_real_changes = old_links_hash != new_links_hash or old_links_hash == "none"
           print(f"[COMPARE] Real changes: {has_real_changes}")
 
@@ -325,10 +294,8 @@ jobs:
               out.write(f"best_ping={results[0][0] if results else 0}\n")
               out.write(f"total_scanned={len(all_raw_lines)}\n")
               out.write(f"conversion_rate={len(results)/max(1,len(all_raw_lines))*100:.2f}\n")
-              out.write(f"has_changes={has_real_changes}\n")
+              out.write(f"has_changes={str(has_real_changes).lower()}\n")
 
-          rate = len(results)/max(1,len(all_raw_lines))*100
-          print(f"[✅ SUCCESS] {len(results)}/{len(all_raw_lines)} = {rate:.2f}%")
           EOF
 
       - name: Commit ONLY Real Changes ✅
@@ -339,7 +306,6 @@ jobs:
           git config user.name "RU-Ultra-SmartPush-Bot"
           git config user.email "ru-smartpush@users.noreply.github.com"
           git add githubmirror/26_ru_whitelist_ultra.txt
-          
           if git diff --cached --quiet; then
             echo "❌ No content changes (only metadata)"
           else
@@ -350,7 +316,6 @@ jobs:
 
 🔄 NEW KEYS DETECTED (hash changed)
 🛡️ Crash-proof | Wildcard SNI | CDN-only"
-            
             git push https://x-access-token:${GH_PAT}@github.com/${{ github.repository }} HEAD:main
             echo "✅ REAL CHANGES PUSHED!"
           fi
