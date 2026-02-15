@@ -35,7 +35,7 @@ jobs:
           chmod +x xray
           ls -la xray
 
-      - name: Copy GeoLite2 databases from repo
+      - name: Copy GeoLite2 databases
         run: |
           cp geolite2/GeoLite2-*.mmdb ./ || echo "No GeoLite2 databases found"
           ls -la GeoLite2-*.mmdb || echo "✅ Using bundled GeoLite2"
@@ -49,7 +49,7 @@ jobs:
 
       - name: Check VLESS via Xray
         run: |
-          python3 << 'EOF'
+          cat > proxy_checker.py << 'PYEOF'
 import subprocess, time, json, urllib.parse, os, socket, ipaddress, base64
 import geoip2.database
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -155,7 +155,7 @@ def test_site(port, url, site_name):
     try:
         cmd = ['curl', '-s', '--max-time', '10', '-x', f'socks5h://127.0.0.1:{port}', '-o', '/dev/null', '-w', '%{http_code}', url]
         code = subprocess.check_output(cmd, text=True, stderr=subprocess.DEVNULL, timeout=12).strip()
-        success_codes = ['200', '403', '429']
+        success_codes = ['200','204','301','302','403','429']
         if code in success_codes:
             print(f"✅ {site_name}: {code}")
             return True
@@ -381,7 +381,9 @@ if geoip_available:
         city_reader.close()
         asn_reader.close()
     except: pass
-EOF
+PYEOF
+
+          python3 proxy_checker.py
 
       - name: Commit & push results
         run: |
