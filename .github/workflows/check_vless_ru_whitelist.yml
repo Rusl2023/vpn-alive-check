@@ -26,11 +26,11 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip --no-cache-dir
+          python -m pip install --upgrade pip
           pip install requests==2.31.0 geoip2==4.8.0 dnspython==2.6.1 ujson==5.10.0
 
       - name: Download RU GeoIP databases
@@ -277,11 +277,11 @@ jobs:
           os.makedirs(os.path.dirname(OUTPUT_FILE), exist_ok=True)
           with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
               f.write("# RU Whitelist Reality Vision ULTRA ✅ SMART PUSH\n")
-              f.write(f"# Processed: {len(all_raw_lines)} -> Live: {len(results)}\n")
-              f.write(f"# Ports: 80/443/8443 | Ping: {MIN_LATENCY}-{MAX_LATENCY}ms\n")
+              f.write("# Processed: " + str(len(all_raw_lines)) + " -> Live: " + str(len(results)) + "\n")
+              f.write("# Ports: 80/443/8443 | Ping: " + str(MIN_LATENCY) + "-" + str(MAX_LATENCY) + "ms\n")
               f.write("# Updated: " + time.strftime('%Y-%m-%d %H:%M UTC') + "\n\n")
               for i, (latency, link) in enumerate(results[:TOP_LIMIT], 1):
-                  f.write(f"# {i}. {latency}ms\n{link}\n\n")
+                  f.write("# " + str(i) + ". " + str(latency) + "ms\n" + link + "\n\n")
 
           with open(OUTPUT_FILE, 'r', encoding='utf-8') as f:
               new_content = f.read()
@@ -294,11 +294,11 @@ jobs:
 
           # GITHUB OUTPUT
           with open(os.environ["GITHUB_OUTPUT"], "a") as out:
-              out.write(f"count={len(results)}\n")
-              out.write(f"best_ping={results[0][0] if results else 0}\n")
-              out.write(f"total_scanned={len(all_raw_lines)}\n")
-              out.write(f"conversion_rate={len(results)/max(1,len(all_raw_lines))*100:.2f}\n")
-              out.write(f"has_changes={str(has_real_changes).lower()}\n")
+              out.write("count=" + str(len(results)) + "\n")
+              out.write("best_ping=" + str(results[0][0] if results else 0) + "\n")
+              out.write("total_scanned=" + str(len(all_raw_lines)) + "\n")
+              out.write("conversion_rate=" + str(len(results)/max(1,len(all_raw_lines))*100) + "\n")
+              out.write("has_changes=" + str(has_real_changes).lower() + "\n")
 
           EOF
 
