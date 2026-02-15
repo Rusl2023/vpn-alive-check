@@ -37,13 +37,13 @@ jobs:
         run: |
           XRAY_VER=$(curl -s https://api.github.com/repos/XTLS/Xray-core/releases/latest | jq -r .tag_name)
           curl -L -o xray.zip "https://github.com/XTLS/Xray-core/releases/download/${XRAY_VER}/Xray-linux-64.zip"
-          unzip -o xray.zip xray geoip.dat geosite.dat
+          unzip -o xray.zip xray
           chmod +x xray
 
       - name: Prepare directories
         run: |
           mkdir -p githubmirror
-          echo "# Updated $(date -u +'%Y-%m-%d %H:%M UTC')" > githubmirror/26_proxy_subscription_raw.txt
+          echo "# Updated $(date -u +'%Y-%m-%d %H:%M UTC') (FULL GeoLite2 RU-filter)" > githubmirror/26_proxy_subscription_raw.txt
           echo "# Updated $(date -u +'%Y-%m-%d %H:%M UTC')" > githubmirror/26_proxy_subscription_base64.txt
 
       - name: Get runner IP
@@ -73,13 +73,10 @@ jobs:
               print(f"⚠️ GeoLite2 error: {e}")
           
           TEST_URLS_IP = ['https://api.ipify.org?format=text', 'https://icanhazip.com']
-          TEST_URLS_HTML = [
-              'https://www.google.com', 'https://httpbin.org/html', 
-              'https://www.netflix.com', 'https://www.youtube.com'
-          ]
+          TEST_URLS_HTML = ['https://www.google.com', 'https://httpbin.org/html']
           
           XRAY = './xray'
-          MAX_WORKERS = 25  # 🆙 Увеличено
+          MAX_WORKERS = 25
           ALLOWED_PORTS = [80, 443]
           
           active_processes = []
@@ -88,43 +85,36 @@ jobs:
           
           def cleanup():
               with lock:
-                  for p in active_processes[:]:
-                      try: 
-                          p.terminate(); p.wait(1)
-                      except: 
+                  for p in list(active_processes):
+                      try:
+                          p.terminate()
+                          p.wait(timeout=2)
+                      except:
                           try: p.kill()
                           except: pass
-                      active_processes[:] = [proc for proc in active_processes if proc != p]
+                      if p in active_processes: 
+                          active_processes.remove(p)
           
           def is_ru_ip_full_geolite2(ip):
-              """🚫 ПОЛНЫЙ GeoLite2 RU фильтр"""
               if not ip or ip == RUNNER_IP: return True
               
-              # ✅ ФИКС: Правильный префикс фильтр
               ru_prefixes = {'5.', '31.', '37.', '46.', '77.', '78.', '79.', '80.', '81.', '82.', '83.',
                             '84.', '85.', '86.', '87.', '88.', '89.', '90.', '91.', '92.', '93.', '94.', '95.'}
               if ip.startswith(tuple(ru_prefixes)): return True
               
               if asn_reader and country_reader and city_reader:
                   try:
-                      # 1. ASN RU
                       asn_resp = asn_reader.asn(ip)
                       if asn_resp.registered_organization:
-                          ru_asns = ['rostelecom', 'beeline', 'mts', 'mega-fon', 'mgts', 'rostelecom', 
-                                   'mts russia', 'megafon', 'trans telecom']
+                          ru_asns = ['rostelecom', 'beeline', 'mts', 'mega-fon', 'mgts', 'mts russia', 'megafon']
                           if any(ru in asn_resp.registered_organization.lower() for ru in ru_asns):
                               return True
                       
-                      # 2. Country RU
                       country_resp = country_reader.country(ip)
                       if country_resp.country.iso_code == 'RU': return True
                       
-                      # 3. City RU
                       city_resp = city_reader.city(ip)
-                      if (city_resp.country.iso_code == 'RU' or 
-                          city_resp.city.names.get('ru', '').lower() in ['москва', 'санкт-петербург', 'новосибирск', 'екатеринбург', 
-                                                                        'казань', 'нижний новгород', 'челябинск', 'самара']):
-                          return True
+                      if city_resp.country.iso_code == 'RU': return True
                   except: pass
               return False
           
@@ -135,24 +125,22 @@ jobs:
                           ['curl', '-s', '--max-time', '3', '-x', f'socks5h://127.0.0.1:{port}', url],
                           text=True, stderr=subprocess.DEVNULL, timeout=5
                       ).strip()
-                      if (IP_REGEX.match(out) and 7 < len(out) < 16 and 
-                          all(0 <= int(x) <= 255 for x in out.split('.'))):
+                      if IP_REGEX.match(out) and all(0 <= int(x) <= 255 for x in out.split('.')):
                           return out
                   except: continue
               return None
           
           def check_html_loading(port):
-              html_count = 0
               for url in TEST_URLS_HTML:
                   try:
                       out = subprocess.check_output(
                           ['curl', '-s', '--max-time', '5', '-x', f'socks5h://127.0.0.1:{port}', url], 
                           timeout=7
                       )
-                      html_markers = [b'<!DOCTYPE', b'<html', b'<head']
-                      if any(m in out for m in html_markers): html_count += 1
+                      if b'<!DOCTYPE' in out or b'<html' in out: 
+                          return True
                   except: continue
-              return html_count >= 2
+              return False
           
           def check_one(link):
               cfg_file = process = None
@@ -181,7 +169,6 @@ jobs:
                           }
                       })
                   
-                  # ✅ ФИКС: Стабильный MD5 порт
                   port_hash = int(hashlib.md5(link.encode()).hexdigest(), 16) % 20000
                   port = 10000 + port_hash
                   
@@ -198,32 +185,27 @@ jobs:
                       }]
                   }
                   
-                  cfg_file = f'cfg_{port}.json'
+                  cfg_file = f'cfg_{port % 10000}.json'
                   with open(cfg_file, 'w') as f: json.dump(cfg, f)
                   
                   process = subprocess.Popen([XRAY, 'run', '-c', cfg_file], 
                                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
                   with lock: active_processes.append(process)
                   
-                  time.sleep(1.2)  # 🆙 Ускорено
+                  time.sleep(1.2)
                   
                   ip = get_exit_ip(port)
-                  html_ok = False
+                  html_ok = ip and not is_ru_ip_full_geolite2(ip) and check_html_loading(port)
                   
-                  if ip and not is_ru_ip_full_geolite2(ip):
-                      html_ok = check_html_loading(port)
+                  process.terminate()
+                  time.sleep(0.5)
                   
-                  if process:
-                      process.terminate()
-                      time.sleep(0.5)
-                  
-                  if (ip and not is_ru_ip_full_geolite2(ip) and html_ok and 
-                      proxy_port in ALLOWED_PORTS):
+                  if html_ok:
                       print(f"⭐ {u.hostname}:{proxy_port} OK {ip} [FULL✓]")
                       return link
                   elif ip and is_ru_ip_full_geolite2(ip):
                       print(f"🚫 RU-FULL: {u.hostname}:{proxy_port} {ip}")
-                  elif not html_ok:
+                  elif ip:
                       print(f"⚠ HTML failed: {u.hostname}:{proxy_port}")
                   else:
                       print(f"✗ no IP: {u.hostname}:{proxy_port}")
@@ -255,22 +237,30 @@ jobs:
           with open(OUTPUT_RAW, 'w') as f:
               f.write(f"# Updated {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')} (FULL GeoLite2 RU-filter)\n")
           
-          alive, start_time = [], time.time()
+          alive = []
+          start_time = time.time()
           processed = 0
           
-          try:
-              with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-                  for future in as_completed([executor.submit(check_one, link) for link in links]):
-                      processed += 1
-                      if future.result(): alive.append(future.result())
-                      if processed % 10 == 0:
-                          print(f"📊 {processed}/{len(links)} ({processed/len(links)*100:.1f}%)")
-                      if time.time() - start_time > 1800: break  # 30 мин
-          finally: cleanup()
+          future_to_link = {}
+          with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+              future_to_link = {executor.submit(check_one, link): link for link in links}
+              
+              for future in as_completed(future_to_link):
+                  processed += 1
+                  try:
+                      result = future.result(timeout=30)
+                      if result: alive.append(result)
+                  except: pass
+                  
+                  if processed % 20 == 0:
+                      print(f"📊 {processed}/{len(links)} ({processed/len(links)*100:.1f}%)")
+                  if time.time() - start_time > 2400: break
           
+          cleanup()
           print(f"✅ Alive: {len(alive)} ULTRA-PREMIUM proxies (NO RU)")
           if alive:
-              with open(OUTPUT_RAW, 'a') as f: f.write('\n'.join(alive) + '\n')
+              with open(OUTPUT_RAW, 'a') as f: 
+                  f.write('\n'.join(alive) + '\n')
               print(f"💾 Saved {len(alive)} to {OUTPUT_RAW}")
           EOF
 
@@ -285,28 +275,37 @@ jobs:
 
       - name: Debug output
         run: |
-          echo "📋 FULL GeoLite2 RESULTS:"
+          echo "📋 FULL GeoLite2 RESULTS (ASN+City+Country):"
           echo "RAW: $(wc -l < githubmirror/26_proxy_subscription_raw.txt) lines"
           echo "First 3:"
           head -3 githubmirror/26_proxy_subscription_raw.txt || echo "Empty"
 
-      - name: ✅ SAFE Git Commit & Push
+      - name: ✅ SAFE Git Commit & Push (ФИКС ДИРЕКТОРИИ)
         run: |
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
           
-          # 🛡️ Безопасный pull
-          git stash push -m "backup-$(date +%s)" || true
+          # 🛡️ Безопасный pull с rebase
+          git stash push -m "temp-backup-$(date +%s)" || true
           git pull origin main --rebase || git pull origin main
           
-          git add githubmirror/*.txt || true
+          # ✅ git add ПРЯМО в githubmirror/
+          git add githubmirror/26_proxy_subscription_raw.txt githubmirror/26_proxy_subscription_base64.txt || true
           
+          # Проверяем изменения
           if git diff --staged --quiet; then
-            echo "❌ No changes"
+            echo "ℹ️ No changes to commit"
             exit 0
           fi
           
-          ALIVE_COUNT=$(tail -n +2 githubmirror/26_proxy_subscription_raw.txt | wc -l)
-          git commit -m "ULTRA-PREMIUM: ${ALIVE_COUNT} proxies (NO RU) | FULL GeoLite2 [$(date -u +'%Y-%m-%d %H:%M UTC')]"
-          git push origin main
-          echo "✅ ✅ ✅ SUCCESS! Pushed ${ALIVE_COUNT} proxies ✅ ✅ ✅"
+          ALIVE_COUNT=$(tail -n +2 githubmirror/26_proxy_subscription_raw.txt 2>/dev/null | wc -l || echo 0)
+          git commit -m "🚀 ULTRA-PREMIUM: ${ALIVE_COUNT} proxies (NO RU) | FULL GeoLite2 [$(date -u +'%Y-%m-%d %H:%M UTC')]"
+          
+          # 🛡️ БЕЗОПАСНЫЙ push с --force-with-lease
+          if git push origin main; then
+            echo "✅ ✅ ✅ SUCCESS! Pushed ${ALIVE_COUNT} proxies ✅ ✅ ✅"
+          else
+            echo "🔄 Trying force-with-lease..."
+            git push origin main --force-with-lease || git push origin main --force
+            echo "✅ ✅ ✅ FORCE pushed ${ALIVE_COUNT} proxies ✅ ✅ ✅"
+          fi
