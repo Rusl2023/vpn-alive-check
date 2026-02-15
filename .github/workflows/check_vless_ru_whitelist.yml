@@ -42,11 +42,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests geoip2
 
-      - name: Scan VLESS
+      - name: Scan VLESS RU WHITELIST ONLY
         id: scan
         run: |
           python3 <<'EOF'
-          import os, socket, urllib.parse, requests
+          import os, socket, urllib.parse, requests, time, random
           from concurrent.futures import ThreadPoolExecutor, as_completed
           from threading import Lock
           import geoip2.database
@@ -64,26 +64,50 @@ jobs:
               except:
                   pass
 
-          headers = {"User-Agent": "Mozilla/5.0"}
+          headers = {
+              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+          }
+
+          # 🇷🇺 ТОЛЬКО РОССИЙСКИЕ БЕЛЫЕ СПИСКИ операторов (2026)
           RU_SNI_URLS = [
+              # МегаФон, МТС, Билайн, Tele2, Ростелеком
               "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/whitelist.txt",
               "https://raw.githubusercontent.com/ndsphub/proxy-list/main/proxies/megafon.txt",
-              "https://api.proxyscrape.com/v2/?request=getproxies&protocol=socks5&country=ru"
+              "https://raw.githubusercontent.com/ssrsub/ssr/master/V2Ray.txt",
+              "https://checkvpn.net/wiki/SNI_-_списки_под_сотовые_операторы_РФ",
+              # Дополнительные РФ источники
+              "https://raw.githubusercontent.com/aleskxyz/reality-ezpz/main/sni_ru.txt",
+              "https://teletype.in/@derryt/AIuVV9ptxW8/raw"
           ]
+          
           ru_sni = set()
-          try:
-              r = requests.get(RU_SNI_URL, timeout=20, headers=headers)
-              ru_sni = set(x.strip().lower() for x in r.text.splitlines() if x.strip() and not x.startswith("#"))
-          except:
-              pass
+          print("🇷🇺 Loading RU operator whitelists...")
+          for url in RU_SNI_URLS:
+              try:
+                  print(f"📡 RU SNI: {url}")
+                  r = requests.get(url, timeout=15, headers=headers)
+                  new_sni = [x.strip().lower() for x in r.text.splitlines() if x.strip() and not x.startswith("#")]
+                  ru_sni.update(new_sni)
+                  print(f"✅ Added {len(new_sni)} RU SNI")
+                  time.sleep(random.uniform(0.5, 1.2))
+              except Exception as e:
+                  print(f"❌ RU SNI failed: {e}")
+                  continue
 
+          print(f"🇷🇺 TOTAL RU WHITELIST SNI: {len(ru_sni)}")
+
+          # 🇷🇺 Источники VLESS с фокусом на РФ обход (не международные)
           URLS = [
-              "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/v2ray/all_sub.txt",
-              "https://raw.githubusercontent.com/barry-far/V2ray-configs/main/All_Configs_Sub.txt",
-              "https://raw.githubusercontent.com/EbrahimFakhrahmani/free-v2ray-configs/main/configs/vless.txt",
-              "https://raw.githubusercontent.com/MrPooyaX/IranProxy/main/Sub1.txt",
+              # Основные коллекции с RU-ориентированными ключами
+              "https://raw.githubusercontent.com/barry-far/V2ray-Configs/main/All_Configs_Sub.txt",
+              "https://raw.githubusercontent.com/MrPooyaX/IranProxy/main/Sub1.txt", 
               "https://raw.githubusercontent.com/zealis/v2ray-subscription/master/vless.txt",
-              "https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/main/githubmirror/26.txt"
+              
+              # Специфичные для РФ белых списков
+              "https://raw.githubusercontent.com/STR97/STRUGOV/refs/heads/main/STR.BYPASS",
+              "https://telegra.ph/List-konfigov-iz-whitedeadvpnbot-11-15",
+              "https://raw.githubusercontent.com/aleskxyz/reality-ezpz/main/configs_ru.txt",
+              "https://raw.githubusercontent.com/whitel41/white_list/main/vless.txt"
           ]
 
           dns_cache = {}
@@ -102,24 +126,27 @@ jobs:
               dns_cache[host] = ip
               return ip
 
-          def not_ru_geo(host):
+          def is_not_ru_geo(host):
+              # СТРОГО РФ: RU IP = отсев
               if not country_reader:
-                  return True
+                  return False  # Без базы = не пропускаем
               if host in geo_cache:
                   return geo_cache[host]
               ip = resolve(host)
               if not ip:
                   return False
               try:
-                  ok = country_reader.country(ip).country.iso_code != "RU"
+                  is_ru = country_reader.country(ip).country.iso_code == "RU"
+                  ok = not is_ru  # Только НЕ РФ
               except:
                   ok = False
               geo_cache[host] = ok
               return ok
 
-          def not_ru_asn(host):
+          def is_not_ru_asn(host):
+              # СТРОГО РФ операторы = отсев
               if not asn_reader:
-                  return True
+                  return False
               if host in asn_cache:
                   return asn_cache[host]
               ip = resolve(host)
@@ -127,62 +154,86 @@ jobs:
                   return False
               try:
                   org = asn_reader.asn(ip).autonomous_system_organization.lower()
-                  bad = {"rostelecom","mts","megafon","beeline","tele2","yandex"}
-                  ok = not any(x in org for x in bad)
+                  # 🇷🇺 РФ операторы (строго)
+                  ru_asns = {
+                      "rostelecom", "mts", "megafon", "beeline", "veon", "tele2",
+                      "mgts", "ttk", "yaroslavl", "trans telecom", "ertelecom"
+                  }
+                  is_ru_asn = any(asn in org for asn in ru_asns)
+                  ok = not is_ru_asn  # Только НЕ РФ операторы
               except:
-                  ok = True
+                  ok = False
               asn_cache[host] = ok
               return ok
 
           def tcp_ping(host, port):
               try:
-                  s = socket.create_connection((host, port), 1)
+                  s = socket.create_connection((host, port), timeout=2.5)
                   s.close()
                   return True
               except:
                   return False
 
-          def parse(link):
+          def parse_vless(link):
               try:
                   u = urllib.parse.urlparse(link.strip())
                   if u.scheme != "vless":
                       return None
                   q = urllib.parse.parse_qs(u.query)
+                  sni = q.get("sni", [""])[0].lower()
                   return {
                       "link": link.strip(),
                       "host": u.hostname,
                       "port": int(u.port or 443),
-                      "sni": q.get("sni", [""])[0].lower(),
+                      "sni": sni,
                       "security": q.get("security", [""])[0]
                   }
               except:
                   return None
 
+          print("🇷🇺 Downloading RU-focused VLESS...")
           lines = []
-          for url in URLS:
+          for i, url in enumerate(URLS):
               try:
+                  print(f"📥 RU {i+1}/{len(URLS)}: {url}")
                   r = requests.get(url, timeout=20, headers=headers)
-                  lines += r.text.splitlines()
-              except:
-                  pass
+                  new_lines = [l.strip() for l in r.text.splitlines() if l.strip()]
+                  lines.extend(new_lines)
+                  print(f"✅ RU: {len(new_lines)} lines")
+                  time.sleep(random.uniform(0.3, 1.0))
+              except Exception as e:
+                  print(f"❌ RU failed: {e}")
+                  continue
 
-          vless = [l for l in lines if l.startswith("vless://")]
+          vless = list(set([l for l in lines if l.startswith("vless://")]))  # Дедупликация
+          print(f"🇷🇺 VLESS candidates: {len(vless)}")
 
-          def check(link):
-              d = parse(link)
-              if not d:
+          def check_ru_whitelist(link):
+              d = parse_vless(link)
+              if not d or not d["host"]:
                   return None
-              if d["sni"] not in ru_sni:
+              
+              # 🇷🇺 1. ОБЯЗАТЕЛЬНО RU WHITELIST SNI
+              if not d["sni"] or d["sni"] not in ru_sni:
                   return None
-              if not not_ru_geo(d["host"]):
+              
+              # 🇷🇺 2. СТРОГО НЕ РФ гео
+              if not is_not_ru_geo(d["host"]):
                   return None
-              if not not_ru_asn(d["host"]):
+              
+              # 🇷🇺 3. СТРОГО НЕ РФ ASN
+              if not is_not_ru_asn(d["host"]):
                   return None
+              
+              # 🇷🇺 4. TCP доступность
               if not tcp_ping(d["host"], d["port"]):
                   return None
-              if d["security"] not in ("reality","tls"):
+              
+              # 🇷🇺 5. Reality/TLS для обхода
+              if d["security"] not in ("reality", "tls"):
                   return None
 
+              # Дубликаты
               key = (d["host"], d["port"], d["sni"])
               with lock:
                   if key in seen:
@@ -191,38 +242,76 @@ jobs:
 
               return d["link"]
 
+          print("🇷🇺 RU WHITELIST SCAN...")
           results = []
-          with ThreadPoolExecutor(max_workers=80) as ex:
-              futures = [ex.submit(check, l) for l in vless[:6000]]
-              for f in as_completed(futures):
+          with ThreadPoolExecutor(max_workers=100) as ex:
+              futures = [ex.submit(check_ru_whitelist, l) for l in vless[:8000]]
+              for i, f in enumerate(as_completed(futures), 1):
+                  if i % 150 == 0:
+                      print(f"🇷🇺 Checked {i}/{len(futures)} ({len(results)} RU-live)")
                   r = f.result()
                   if r:
                       results.append(r)
 
+          print(f"🇷🇺 RU WHITELIST LIVE: {len(results)}")
+
+          # 🇷🇺 СОХРАНЕНИЕ только для РФ
           os.makedirs("githubmirror", exist_ok=True)
           path = "githubmirror/26_ru_whitelist.txt"
-
+          timestamp = time.strftime("%Y-%m-%d %H:%M:%S UTC")
+          
           with open(path, "w", encoding="utf-8") as f:
+              f.write(f"# 🇷🇺 RU WHITELIST VLESS Reality/TLS\n")
+              f.write(f"# Updated: {timestamp}\n")
+              f.write(f"# RU Live keys: {len(results)}\n")
+              f.write(f"# RU SNI whitelist: {len(ru_sni)}\n")
+              f.write(f"# Filters: NON-RU Geo + NON-RU ASN + TCP\n\n")
               for l in results:
                   f.write(l + "\n")
 
+          with open("ru_debug.txt", "w") as f:
+              f.write(f"🇷🇺 RU SNI whitelist: {len(ru_sni)}\n")
+              f.write(f"🇷🇺 VLESS total: {len(vless)}\n")
+              f.write(f"🇷🇺 RU LIVE: {len(results)}\n")
+              f.write(f"🇷🇺 Sample SNI: {list(ru_sni)[:5]}\n")
+
           with open(os.environ["GITHUB_OUTPUT"], "a") as f:
               f.write(f"count={len(results)}\n")
+              f.write(f"ru_sni={len(ru_sni)}\n")
+              f.write(f"total_vless={len(vless)}\n")
 
-          print("LIVE:", len(results))
+          print("🇷🇺 RU WHITELIST RESULTS:")
+          print(f"RU SNI: {len(ru_sni)}")
+          print(f"VLESS: {len(vless)}") 
+          print(f"RU LIVE: {len(results)}")
           EOF
 
-      - name: Commit & push
+      - name: RU Debug Info
+        run: |
+          echo "🇷🇺 RU WHITELIST DEBUG:"
+          cat ru_debug.txt || echo "No debug"
+          echo "--- RU OUTPUT ---"
+          head -15 githubmirror/26_ru_whitelist.txt || echo "No RU file"
+          echo "--- GIT ---"
+          git status
+
+      - name: Commit RU Whitelist
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git add githubmirror/26_ru_whitelist.txt || true
+          git add githubmirror/26_ru_whitelist.txt ru_debug.txt || true
 
           if git diff --staged --quiet; then
-            echo "No changes"
+            echo "ℹ️  RU whitelist up to date"
             exit 0
           fi
 
-          git commit -m "RU whitelist update: ${{ steps.scan.outputs.count }}"
+          echo "🇷🇺 RU whitelist updated!"
+          git commit -m "🇷🇺 RU WHITELIST: ${{ steps.scan.outputs.count }} LIVE keys
+RU SNI: ${{ steps.scan.outputs.ru_sni }}
+VLESS: ${{ steps.scan.outputs.total_vless }}
+$(cat ru_debug.txt || echo '')"
+          
           git push origin ${{ steps.branch.outputs.name }}
+          echo "✅ 🇷🇺 RU whitelist pushed!"
