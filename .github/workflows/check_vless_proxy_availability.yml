@@ -50,28 +50,29 @@ jobs:
       - name: Check VLESS via Xray
         run: |
           python3 << 'EOF'
-          import subprocess, time, json, urllib.parse, os, socket, ipaddress, base64
+          import subprocess
+          import time
+          import json
+          import urllib.parse
+          import os
+          import socket
+          import ipaddress
+          import base64
           import geoip2.database
           from concurrent.futures import ThreadPoolExecutor, as_completed
           from threading import Lock
           from datetime import datetime, timezone
 
-          XRAY_PATH = os.path.join(os.getcwd(), "xray")
+          XRAY_PATH = "./xray"
           INPUT = 'githubmirror/26_ru_whitelist.txt'
           OUTPUT_RAW = 'githubmirror/26_proxy_subscription_raw.txt'
           OUTPUT_B64 = 'githubmirror/26_proxy_subscription_base64.txt'
 
           IP_TEST_URLS = ['https://api.ipify.org', 'https://ifconfig.me/ip', 'https://ipapi.co/ip']
-          TEST_SITES = [
-              'https://x.com', 
-              'https://www.cloudflare.com/cdn-cgi/trace',
-              'https://www.netflix.com'
-          ]
-          
+          TEST_SITES = ['https://x.com', 'https://www.cloudflare.com/cdn-cgi/trace', 'https://www.netflix.com']
           MAX_WORKERS = 6
           CURL_DELAY = 0.3
 
-          # ✅ GeoLite2 безопасная инициализация
           country_reader = city_reader = asn_reader = None
           geoip_available = False
           
@@ -84,7 +85,6 @@ jobs:
               print("✅ GeoLite2 databases loaded")
           except Exception as e:
               print(f"⚠️ GeoLite2 unavailable: {e}")
-              print("🔄 Continuing WITHOUT GeoIP filtering")
 
           lock = Lock()
           counter = 0
@@ -145,68 +145,17 @@ jobs:
               raw_iso = get_raw_iso_country(ip)
               if not raw_iso:
                   return '🌍??'
-              
-              # ✅ ПОЛНЫЙ словарь флагов (без отступов!)
-          # ✅ ФЛАГИ СТРАН БЕЗ ДУБЛЕЙ
-          
-          FLAGS = {
-              'AD': '🇦🇩AD', 'AE': '🇦🇪AE', 'AF': '🇦🇫AF', 'AG': '🇦🇬AG', 'AI': '🇦🇮AI',
-              'AL': '🇦🇱AL', 'AM': '🇦🇲AM', 'AO': '🇦🇴AO', 'AQ': '🇦🇶AQ', 'AR': '🇦🇷AR',
-              'AS': '🇦🇸AS', 'AT': '🇦🇹AT', 'AU': '🇦🇺AU', 'AW': '🇦🇼AW', 'AX': '🇦🇽AX',
-              'AZ': '🇦🇿AZ', 'BA': '🇧🇦BA', 'BB': '🇧🇧BB', 'BD': '🇧🇩BD', 'BE': '🇧🇪BE',
-              'BF': '🇧🇫BF', 'BG': '🇧🇬BG', 'BH': '🇧🇭BH', 'BI': '🇧🇮BI', 'BJ': '🇧🇯BJ',
-              'BL': '🇧🇱BL', 'BM': '🇧🇲BM', 'BN': '🇧🇳BN', 'BO': '🇧🇴BO', 'BQ': '🇧🇶BQ',
-              'BR': '🇧🇷BR', 'BS': '🇧🇸BS', 'BT': '🇧🇹BT', 'BV': '🇧🇻BV', 'BW': '🇧🇼BW',
-              'BY': '🇧🇾BY', 'BZ': '🇧🇿BZ', 'CA': '🇨🇦CA', 'CC': '🇨🇨CC', 'CD': '🇨🇩CD',
-              'CF': '🇨🇫CF', 'CG': '🇨🇬CG', 'CH': '🇨🇭CH', 'CI': '🇨🇮CI', 'CK': '🇨🇰CK',
-              'CL': '🇨🇱CL', 'CM': '🇨🇲CM', 'CN': '🇨🇳CN', 'CO': '🇨🇴CO', 'CR': '🇨🇷CR',
-              'CU': '🇨🇺CU', 'CV': '🇨🇻CV', 'CW': '🇨🇼CW', 'CX': '🇨🇽CX', 'CY': '🇨🇾CY',
-              'CZ': '🇨🇿CZ', 'DE': '🇩🇪DE', 'DJ': '🇩🇯DJ', 'DK': '🇩🇰DK', 'DM': '🇩🇲DM',
-              'DO': '🇩🇴DO', 'DZ': '🇩🇿DZ', 'EC': '🇪🇨EC', 'EE': '🇪🇪EE', 'EG': '🇪🇬EG',
-              'EH': '🇪🇭EH', 'ER': '🇪🇷ER', 'ES': '🇪🇸ES', 'ET': '🇪🇹ET', 'FI': '🇫🇮FI',
-              'FJ': '🇫🇯FJ', 'FK': '🇫🇰FK', 'FM': '🇫🇲FM', 'FO': '🇫🇴FO', 'FR': '🇫🇷FR',
-              'GA': '🇬🇦GA', 'GB': '🇬🇧GB', 'GD': '🇬🇩GD', 'GE': '🇬🇪GE', 'GF': '🇬🇫GF',
-              'GG': '🇬🇬GG', 'GH': '🇬🇭GH', 'GI': '🇬🇮GI', 'GL': '🇬🇱GL', 'GM': '🇬🇲GM',
-              'GN': '🇬🇳GN', 'GP': '🇬🇵GP', 'GQ': '🇬🇶GQ', 'GR': '🇬🇷GR', 'GS': '🇬🇸GS',
-              'GT': '🇬🇹GT', 'GU': '🇬🇺GU', 'GW': '🇬🇼GW', 'GY': '🇬🇾GY', 'HK': '🇭🇰HK',
-              'HM': '🇭🇲HM', 'HN': '🇭🇳HN', 'HR': '🇭🇷HR', 'HT': '🇭🇹HT', 'HU': '🇭🇺HU',
-              'ID': '🇮🇩ID', 'IE': '🇮🇪IE', 'IL': '🇮🇱IL', 'IM': '🇮🇲IM', 'IN': '🇮🇳IN',
-              'IO': '🇮🇴IO', 'IQ': '🇮🇶IQ', 'IR': '🇮🇷IR', 'IS': '🇮🇸IS', 'IT': '🇮🇹IT',
-              'JE': '🇯🇪JE', 'JM': '🇯🇲JM', 'JO': '🇯🇴JO', 'JP': '🇯🇵JP', 'KE': '🇰🇪KE',
-              'KG': '🇰🇬KG', 'KH': '🇰🇭KH', 'KI': '🇰🇮KI', 'KM': '🇰🇲KM', 'KN': '🇰🇳KN',
-              'KP': '🇰🇵KP', 'KR': '🇰🇷KR', 'KW': '🇰🇼KW', 'KY': '🇰🇾KY', 'KZ': '🇰🇿KZ',
-              'LA': '🇱🇦LA', 'LB': '🇱🇧LB', 'LC': '🇱🇨LC', 'LI': '🇱🇮LI', 'LK': '🇱🇰LK',
-              'LR': '🇱🇷LR', 'LS': '🇱🇸LS', 'LT': '🇱🇹LT', 'LU': '🇱🇺LU', 'LV': '🇱🇻LV',
-              'LY': '🇱🇾LY', 'MA': '🇲🇦MA', 'MC': '🇲🇨MC', 'MD': '🇲🇩MD', 'ME': '🇲🇪ME',
-              'MF': '🇲🇫MF', 'MG': '🇲🇬MG', 'MH': '🇲🇭MH', 'MK': '🇲🇰MK', 'ML': '🇲🇱ML',
-              'MM': '🇲🇲MM', 'MN': '🇲🇳MN', 'MO': '🇲🇴MO', 'MP': '🇲🇵MP', 'MQ': '🇲🇶MQ',
-              'MR': '🇲🇷MR', 'MS': '🇲🇸MS', 'MT': '🇲🇹MT', 'MU': '🇲🇺MU', 'MV': '🇲🇻MV',
-              'MW': '🇲🇼MW', 'MX': '🇲🇽MX', 'MY': '🇲🇾MY', 'MZ': '🇲🇿MZ', 'NA': '🇳🇦NA',
-              'NC': '🇳🇨NC', 'NE': '🇳🇪NE', 'NF': '🇳🇫NF', 'NG': '🇳🇬NG', 'NI': '🇳🇮NI',
-              'NL': '🇳🇱NL', 'NO': '🇳🇴NO', 'NP': '🇳🇵NP', 'NR': '🇳🇷NR', 'NU': '🇳🇺NU',
-              'NZ': '🇳🇿NZ', 'OM': '🇴🇲OM', 'PA': '🇵🇦PA', 'PE': '🇵🇪PE', 'PF': '🇵🇫PF',
-              'PG': '🇵🇬PG', 'PH': '🇵🇭PH', 'PK': '🇵🇰PK', 'PL': '🇵🇱PL', 'PM': '🇵🇲PM',
-              'PN': '🇵🇳PN', 'PR': '🇵🇷PR', 'PS': '🇵🇸PS', 'PT': '🇵🇹PT', 'PW': '🇵🇼PW',
-              'PY': '🇵🇾PY', 'QA': '🇶🇦QA', 'RE': '🇷🇪RE', 'RO': '🇷🇴RO', 'RS': '🇷🇸RS',
-              'RU': '🇷🇺RU', 'RW': '🇷🇼RW', 'SA': '🇸🇦SA', 'SB': '🇸🇧SB', 'SC': '🇸🇨SC',
-              'SD': '🇸🇩SD', 'SE': '🇸🇪SE', 'SG': '🇸🇬SG', 'SH': '🇸🇭SH', 'SI': '🇸🇮SI',
-              'SJ': '🇸🇯SJ', 'SK': '🇸🇰SK', 'SL': '🇸🇱SL', 'SM': '🇸🇲SM', 'SN': '🇸🇳SN',
-              'SO': '🇸🇴SO', 'SR': '🇸🇷SR', 'SS': '🇸🇸SS', 'ST': '🇸🇹ST', 'SV': '🇸🇻SV',
-              'SX': '🇸🇽SX', 'SY': '🇸🇾SY', 'SZ': '🇸🇿SZ', 'TC': '🇹🇨TC', 'TD': '🇹🇩TD',
-              'TF': '🇹🇫TF', 'TG': '🇹🇬TG', 'TH': '🇹🇭TH', 'TJ': '🇹🇯TJ', 'TK': '🇹🇰TK',
-              'TL': '🇹🇱TL', 'TM': '🇹🇲TM', 'TN': '🇹🇳TN', 'TO': '🇹🇴TO', 'TR': '🇹🇷TR',
-              'TT': '🇹🇹TT', 'TV': '🇹🇻TV', 'TW': '🇹🇼TW', 'TZ': '🇹🇿TZ', 'UA': '🇺🇦UA',
-              'UG': '🇺🇬UG', 'UM': '🇺🇲UM', 'US': '🇺🇸US', 'UY': '🇺🇾UY', 'UZ': '🇺🇿UZ',
-              'VA': '🇻🇦VA', 'VC': '🇻🇨VC', 'VE': '🇻🇪VE', 'VG': '🇻🇬VG', 'VI': '🇻🇮VI',
-              'VN': '🇻🇳VN', 'VU': '🇻🇺VU', 'WF': '🇼🇫WF', 'WS': '🇼🇸WS', 'YE': '🇾🇪YE',
-              'YT': '🇾🇹YT', 'ZA': '🇿🇦ZA', 'ZM': '🇿🇲ZM', 'ZW': '🇿🇼ZW'
-          }
-          
+              FLAGS = {
+                  'DE':'🇩🇪DE','NL':'🇳🇱NL','US':'🇺🇸US','SG':'🇸🇬SG','GB':'🇬🇧GB',
+                  'FR':'🇫🇷FR','PL':'🇵🇱PL','SE':'🇸🇪SE','FI':'🇫🇮FI','NO':'🇳🇴NO',
+                  'CA':'🇨🇦CA','JP':'🇯🇵JP','KR':'🇰🇷KR','CH':'🇨🇭CH','IE':'🇮🇪IE',
+                  'RU':'🇷🇺RU','UA':'🇺🇦UA','CN':'🇨🇳CN','HK':'🇭🇰HK','TW':'🇹🇼TW'
+              }
               return FLAGS.get(raw_iso, f'🌍{raw_iso}')
 
           def is_russian_exit(exit_ip):
               if is_ipv6(exit_ip):
-                  print(f"🚫 IPv6 DETECTED: {exit_ip} → BLOCKED")
+                  print(f"🚫 IPv6 DETECTED: {exit_ip}")
                   return True
               raw_iso = get_raw_iso_country(exit_ip)
               if raw_iso == 'RU':
@@ -218,8 +167,8 @@ jobs:
               time.sleep(CURL_DELAY)
               try:
                   cmd = [
-                      'curl', '-s', '--max-time', '10', 
-                      '-x', f'socks5h://127.0.0.1:{port}', 
+                      'curl', '-s', '--max-time', '10',
+                      '-x', f'socks5h://127.0.0.1:{port}',
                       '-o', '/dev/null', '-w', '%{http_code}', url
                   ]
                   code = subprocess.check_output(cmd, text=True, stderr=subprocess.DEVNULL, timeout=12).strip()
@@ -227,9 +176,8 @@ jobs:
                   if code in success_codes:
                       print(f"✅ {site_name}: {code}")
                       return True
-                  else:
-                      print(f"❌ {site_name}: HTTP {code}")
-                      return False
+                  print(f"❌ {site_name}: HTTP {code}")
+                  return False
               except subprocess.TimeoutExpired:
                   print(f"⏰ {site_name}: TIMEOUT (12s)")
                   return False
@@ -241,7 +189,6 @@ jobs:
               print("⏳ Waiting 3s for Xray stability...")
               time.sleep(3)
               
-              # IP тест (только IPv4!) + 2 попытки
               exit_ip = None
               for attempt in range(2):
                   if exit_ip:
@@ -268,9 +215,8 @@ jobs:
                   print("❌ No valid IPv4 exit IP after 2 attempts")
                   return False, None
 
-              # HTTP example.com
               try:
-                  cmd = ['curl', '-s', '--max-time', '12', '-x', f'socks5h://127.0.0.1:{port}', 
+                  cmd = ['curl', '-s', '--max-time', '12', '-x', f'socks5h://127.0.0.1:{port}',
                          '-o', '/dev/null', '-w', '%{http_code}', 'http://example.com']
                   http_code = subprocess.check_output(cmd, text=True, stderr=subprocess.DEVNULL, timeout=15).strip()
                   if http_code != '200':
@@ -280,7 +226,6 @@ jobs:
                   print("❌ HTTP example.com: FAILED")
                   return False, None
 
-              # 🔥 ПАРАЛЛЕЛЬНЫЙ тест 3 сайтов
               print("🔥 Testing 3 sites in parallel...")
               with ThreadPoolExecutor(max_workers=3) as site_executor:
                   futures = [
@@ -288,7 +233,6 @@ jobs:
                       site_executor.submit(test_site, port, TEST_SITES[1], "Cloudflare"),
                       site_executor.submit(test_site, port, TEST_SITES[2], "Netflix")
                   ]
-                  
               site_results = []
               for future in futures:
                   try:
@@ -430,7 +374,7 @@ jobs:
 
                   exit_country = country_from_ip(exit_ip)
                   num = next_id()
-                  name = f"{server_country}→{num}→{exit_country} SNI: {sni}"
+                  name = f"{server_country}->{num}->{exit_country} SNI: {sni}"
 
                   if '#' in link:
                       link = link.split('#')[0]
@@ -477,7 +421,7 @@ jobs:
               b64 = base64.b64encode(b64_content.encode()).decode()
               with open(OUTPUT_B64, 'w') as f:
                   f.write(b64)
-              print(f"💾 Saved {len(alive)} battle-tested NON-RU IPv4-only proxies (X+Cloudflare+Netflix)")
+              print(f"💾 Saved {len(alive)} battle-tested NON-RU IPv4-only proxies")
           else:
               print("❌ No working NON-RU IPv4-only proxies")
 
@@ -509,7 +453,7 @@ jobs:
             exit 0
           fi
           
-          git commit -m "Update battle-tested NON-RU IPv4-only proxies (X+Cloudflare+Netflix) [$(date -u +'%Y-%m-%d %H:%M UTC')]"
+          git commit -m "Update battle-tested NON-RU IPv4-only proxies [$(date -u +'%Y-%m-%d %H:%M UTC')]"
           
           for i in {1..3}; do
             if git push origin main 2>/dev/null; then
