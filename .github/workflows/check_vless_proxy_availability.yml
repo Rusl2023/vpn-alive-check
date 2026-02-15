@@ -1,34 +1,26 @@
 name: Check VLESS proxy availability via Xray (base64 subscription)
-
 on:
   schedule:
     - cron: '*/59 * * * *'
   workflow_dispatch:
-
 permissions:
   contents: write
-
-# 🔒 защита от одновременных запусков
 concurrency:
   group: vless-subscription-update
   cancel-in-progress: true
-
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
-
+    timeout-minutes: 15
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Install dependencies
+      - name: Install deps
         run: |
           sudo apt-get update
-          sudo apt-get install -y curl jq unzip python3 python3-pip
-          python3 -m pip install --upgrade pip
+          sudo apt-get install -y curl jq unzip python3
 
       - name: Download Xray
         run: |
@@ -46,119 +38,210 @@ jobs:
         run: |
           echo "RUNNER_IP=$(curl -s https://api.ipify.org)" >> $GITHUB_ENV
 
-      - name: Check VLESS via Xray and build raw subscription
+      - name: Check VLESS via Xray (FAST VERSION)
         run: |
           python3 <<'EOF'
-          import subprocess, time, json, urllib.parse, os, urllib.request
+          import subprocess, time, json, urllib.parse, os, threading
+          from concurrent.futures import ThreadPoolExecutor, as_completed
+          from datetime import datetime, timezone
 
           INPUT = 'githubmirror/26_ru_whitelist.txt'
           OUTPUT_RAW = 'githubmirror/26_proxy_subscription_raw.txt'
           RUNNER_IP = os.environ.get('RUNNER_IP', '')
+          
           TEST_URLS = [
-              'https://api.ipify.org',
+              'https://api.ipify.org?format=text',
               'http://cp.cloudflare.com',
               'https://www.instagram.com/'
           ]
-
-          def exit_ip():
+          XRAY = './xray'
+          MAX_WORKERS = 8
+          
+          active_processes = []
+          lock = threading.Lock()
+          
+          def cleanup():
+              with lock:
+                  for p in active_processes:
+                      try:
+                          p.terminate()
+                          p.wait(timeout=1)
+                      except:
+                          p.kill()
+                  active_processes.clear()
+          
+          def exit_ip(port):
               for url in TEST_URLS:
                   try:
                       out = subprocess.check_output(
-                          ['curl','-s','--max-time','8','-x','socks5h://127.0.0.1:1080',url],
-                          text=True
+                          ['curl', '-s', '--max-time', '2', '-x', f'socks5h://127.0.0.1:{port}', url],
+                          text=True, timeout=3
                       ).strip()
-                      if out:
+                      if out and len(out) > 5:  # Валидный IP
                           return out
                   except:
                       pass
               return None
-
+          
+          def is_good_ip(ip):
+              if not ip or ip == RUNNER_IP:
+                  return False
+              # Быстрая фильтрация RU IP по префиксам (как в быстром логе)
+              ru_prefixes = {'5.', '31.', '37.', '46.', '77.', '78.', '79.', '80.', '81.', '82.', '83.', 
+                            '84.', '85.', '86.', '87.', '88.', '89.', '90.', '91.', '92.', '93.', '94.', '95.'}
+              return ip[:ip.find('.')+3] not in ru_prefixes
+          
           def country(ip):
               try:
-                  with urllib.request.urlopen(f'https://ipapi.co/{ip}/country/') as r:
+                  import urllib.request
+                  with urllib.request.urlopen(f'https://ipapi.co/{ip}/country/', timeout=3) as r:
                       return r.read().decode().strip()
               except:
                   return 'Unknown'
-
+          
+          def check_one(link):
+              cfg_file = None
+              process = None
+              port = None
+              try:
+                  u = urllib.parse.urlparse(link)
+                  q = urllib.parse.parse_qs(u.query)
+                  
+                  stream = {'network': q.get('type', ['tcp'])[0]}
+                  sec = q.get('security', ['none'])[0]
+                  sni = q.get('sni', [''])[0]
+                  
+                  if sec == 'reality' and 'pbk' in q:
+                      stream['security'] = 'reality'
+                      stream['realitySettings'] = {
+                          'serverName': sni,
+                          'publicKey': q['pbk'][0],
+                          'shortId': q.get('sid', [''])[0],
+                          'fingerprint': 'chrome'
+                      }
+                  
+                  # Уникальный порт для каждого потока
+                  port_num = 10800 + (hash(link) % 900) + 100
+                  port = port_num
+                  
+                  cfg = {
+                      'inbounds': [{
+                          'listen': '127.0.0.1',
+                          'port': port,
+                          'protocol': 'socks',
+                          'settings': {'udp': False}
+                      }],
+                      'outbounds': [{
+                          'protocol': 'vless',
+                          'settings': {
+                              'vnext': [{
+                                  'address': u.hostname,
+                                  'port': u.port or 443,
+                                  'users': [{
+                                      'id': u.username,
+                                      'encryption': 'none',
+                                      'flow': q.get('flow', [''])[0]
+                                  }]
+                              }]
+                          },
+                          'streamSettings': stream
+                      }]
+                  }
+                  
+                  cfg_file = f'cfg_{hash(link) % 10000}.json'
+                  with open(cfg_file, 'w') as f:
+                      json.dump(cfg, f)
+                  
+                  process = subprocess.Popen(
+                      [XRAY, 'run', '-c', cfg_file],
+                      stdout=subprocess.DEVNULL,
+                      stderr=subprocess.DEVNULL
+                  )
+                  
+                  with lock:
+                      active_processes.append(process)
+                  
+                  time.sleep(1.5)  # Быстрее чем 4 сек
+                  
+                  ip = exit_ip(port)
+                  if process:
+                      process.terminate()
+                      time.sleep(0.3)
+                  
+                  if ip and is_good_ip(ip):
+                      country_code = country(ip)
+                      if country_code != 'RU':
+                          print(f"⭐ {u.hostname}:{u.port or 443} OK {ip} → {country_code}")
+                          return link
+                      else:
+                          print(f"✗ {u.hostname}:{u.port or 443} RU {ip}")
+                  else:
+                      print(f"✗ {u.hostname}:{u.port or 443} no IP")
+                  
+              except Exception as e:
+                  print(f"✗ {link[:50]}... error")
+              finally:
+                  if process:
+                      try:
+                          process.terminate()
+                          process.wait(timeout=0.5)
+                      except:
+                          process.kill()
+                  with lock:
+                      if process and process in active_processes:
+                          active_processes.remove(process)
+                  if cfg_file and os.path.exists(cfg_file):
+                      os.remove(cfg_file)
+              return None
+          
           if not os.path.exists(INPUT):
+              print("Input file not found")
               raise SystemExit(0)
-
+          
           with open(INPUT) as f:
               links = [l.strip() for l in f if l.startswith('vless://')]
-
-          ok = 0
-
-          for link in links:
-              u = urllib.parse.urlparse(link)
-              q = urllib.parse.parse_qs(u.query)
-
-              stream = {'network': q.get('type', ['tcp'])[0]}
-              sec = q.get('security', ['none'])[0]
-              sni = q.get('sni', [''])[0]
-
-              if sec == 'reality' and 'pbk' in q:
-                  stream['security'] = 'reality'
-                  stream['realitySettings'] = {
-                      'serverName': sni,
-                      'publicKey': q['pbk'][0],
-                      'shortId': q.get('sid', [''])[0],
-                      'fingerprint': 'chrome'
-                  }
-
-              cfg = {
-                  'inbounds': [{
-                      'listen': '127.0.0.1',
-                      'port': 1080,
-                      'protocol': 'socks',
-                      'settings': {'udp': False}
-                  }],
-                  'outbounds': [{
-                      'protocol': 'vless',
-                      'settings': {
-                          'vnext': [{
-                              'address': u.hostname,
-                              'port': u.port or 443,
-                              'users': [{
-                                  'id': u.username,
-                                  'encryption': 'none',
-                                  'flow': q.get('flow', [''])[0]
-                              }]
-                          }]
-                      },
-                      'streamSettings': stream
-                  }]
-              }
-
-              with open('cfg.json', 'w') as f:
-                  json.dump(cfg, f)
-
-              p = subprocess.Popen(
-                  ['./xray', 'run', '-c', 'cfg.json'],
-                  stdout=subprocess.DEVNULL,
-                  stderr=subprocess.DEVNULL
-              )
-
-              time.sleep(4)
-              ip = exit_ip()
-              p.terminate()
-              time.sleep(1)
-
-              if not ip or ip == RUNNER_IP:
-                  continue
-              if country(ip) == 'RU':
-                  continue
-
+          
+          total_links = len(links)
+          print(f"TOTAL: {total_links} | workers={MAX_WORKERS}")
+          
+          with open(OUTPUT_RAW, 'w') as f:
+              f.write(f"# updated {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}\n")
+          
+          alive = []
+          start_time = time.time()
+          processed = 0
+          
+          try:
+              with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
+                  futures = [ex.submit(check_one, link) for link in links]
+                  for future in as_completed(futures):
+                      processed += 1
+                      result = future.result()
+                      if result:
+                          alive.append(result)
+                      
+                      if processed % 10 == 0:
+                          elapsed = time.time() - start_time
+                          print(f"Processed {processed}/{total_links} ({processed/total_links*100:.0f}%) in {elapsed:.0f}s")
+                      
+                      if time.time() - start_time > 600:  # 10 мин макс
+                          print("MAX TOTAL TIME reached")
+                          break
+                          
+          finally:
+              cleanup()
+          
+          print(f"Done. Alive: {len(alive)}")
+          
+          if alive:
               with open(OUTPUT_RAW, 'a') as f:
-                  f.write(link + '\n')
-              ok += 1
-
-          print(f"OK proxies: {ok}")
+                  f.write('\n'.join(alive) + '\n')
+              print(f"Saved {len(alive)} NON-RU proxies")
           EOF
 
       - name: Encode subscription to Base64
         run: |
-          base64 -w 0 githubmirror/26_proxy_subscription_raw.txt \
-            > githubmirror/26_proxy_subscription_base64.txt
+          base64 -w 0 githubmirror/26_proxy_subscription_raw.txt > githubmirror/26_proxy_subscription_base64.txt
 
       - name: Debug output
         run: |
@@ -166,17 +249,19 @@ jobs:
           wc -l githubmirror/26_proxy_subscription_raw.txt
           echo "BASE64 size:"
           wc -c githubmirror/26_proxy_subscription_base64.txt
+          echo "First 3 lines:"
+          head -3 githubmirror/26_proxy_subscription_raw.txt
 
       - name: Commit & push results
         run: |
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
-          git pull --rebase || true  # ✅ Защита от параллельных запусков
+          git pull --rebase || true
           git add githubmirror/*.txt || true
           if git diff --staged --quiet; then
             echo "❌ No changes to commit"
           else
             git commit -m "Update NON-RU proxy subscriptions [$(date -u +'%Y-%m-%d %H:%M UTC')]"
-            git push || true  # ✅ Безопасный push
+            git push || true
             echo "✅ Pushed NON-RU updates"
           fi
