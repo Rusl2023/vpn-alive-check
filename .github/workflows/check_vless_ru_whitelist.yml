@@ -1,52 +1,7 @@
-name: RU Whitelist VLESS Reality Vision ULTRA ✅ SMART PUSH
-
-on:
-  schedule:
-    - cron: '*/30 * * * *'
-  workflow_dispatch:
-
-jobs:
-  check:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-          fetch-depth: 0  # Для git diff сравнения
-
-      - name: Setup Python 3.12
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install requests==2.31.0 geoip2==4.8.0 dnspython==2.6.1 ujson==5.10.0
-
-      - name: Download RU GeoIP databases
-        run: |
-          mkdir -p geolite2
-          wget -q --timeout=10 --tries=3 \
-            https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-Country.mmdb \
-            -O geolite2/GeoLite2-Country.mmdb || true
-          wget -q --timeout=10 --tries=3 \
-            https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-ASN.mmdb \
-            -O geolite2/GeoLite2-ASN.mmdb || true
-
       - name: RU Whitelist Reality Vision Scanner ✅ SMART PUSH
         id: check_alive
         run: |
-          python3 - <<'EOF'
+          python3 << EOF
           import os
           import time
           import socket
@@ -57,11 +12,8 @@ jobs:
           from concurrent.futures import ThreadPoolExecutor, as_completed
           from functools import lru_cache
 
-          HEADERS = {
-              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-          }
+          HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
 
-          # Настройки
           MAX_WORKERS = 60
           TIMEOUT = 0.8
           CHECK_COUNT = 2
@@ -75,7 +27,6 @@ jobs:
           ASN_DB = "geolite2/GeoLite2-ASN.mmdb"
           OUTPUT_FILE = "githubmirror/26_ru_whitelist_ultra.txt"
 
-          # ===== SNI WHITELIST =====
           def load_ru_sni_whitelist():
               sources = [
                   "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/whitelist.txt",
@@ -110,7 +61,6 @@ jobs:
                       return True
               return False
 
-          # GeoIP
           try:
               reader_country = geoip2.database.Reader(COUNTRY_DB)
               reader_asn = geoip2.database.Reader(ASN_DB)
@@ -201,7 +151,6 @@ jobs:
               except:
                   return None
 
-          # ===== Сканирование источников =====
           SOURCES = [
               "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/refs/heads/main/subscriptions/v2ray/all_sub.txt",
               "https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/1.txt",
@@ -262,7 +211,6 @@ jobs:
 
           results.sort(key=lambda x: x[0])
 
-          # ===== Сравнение с предыдущим файлом =====
           old_links_hash = ""
           if os.path.exists(OUTPUT_FILE):
               with open(OUTPUT_FILE, 'r', encoding='utf-8') as f:
@@ -292,16 +240,14 @@ jobs:
           has_real_changes = old_links_hash != new_links_hash or old_links_hash == "none"
           print(f"[COMPARE] Real changes: {has_real_changes}")
 
-          # GITHUB OUTPUT
           with open(os.environ["GITHUB_OUTPUT"], "a") as out:
               out.write("count=" + str(len(results)) + "\n")
               out.write("best_ping=" + str(results[0][0] if results else 0) + "\n")
               out.write("total_scanned=" + str(len(all_raw_lines)) + "\n")
-              out.write("conversion_rate=" + str(len(results)/max(1,len(all_raw_lines))*100) + "\n")
+              out.write("conversion_rate=" + str(round(len(results)/max(1,len(all_raw_lines))*100, 2)) + "\n")
               out.write("has_changes=" + str(has_real_changes).lower() + "\n")
-
           EOF
-
+          
       - name: Commit ONLY Real Changes ✅
         if: steps.check_alive.outputs.has_changes == 'true' && steps.check_alive.outputs.count != '0'
         env:
