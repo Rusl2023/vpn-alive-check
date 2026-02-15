@@ -38,7 +38,7 @@ jobs:
         run: |
           echo "RUNNER_IP=$(curl -s https://api.ipify.org)" >> $GITHUB_ENV
 
-      - name: Check VLESS via Xray (FAST VERSION)
+      - name: Check VLESS via Xray (BYPASS ONLY MODE)
         run: |
           python3 <<'EOF'
           import subprocess
@@ -47,6 +47,8 @@ jobs:
           import urllib.parse
           import os
           import threading
+          import socket
+          import random
           from concurrent.futures import ThreadPoolExecutor, as_completed
           from datetime import datetime, timezone
 
@@ -54,16 +56,26 @@ jobs:
           OUTPUT_RAW = 'githubmirror/26_proxy_subscription_raw.txt'
           RUNNER_IP = os.environ.get('RUNNER_IP', '')
           
-          TEST_URLS = [
-              'https://api.ipify.org?format=text',
-              'http://cp.cloudflare.com',
-              'https://www.instagram.com/'
+          # Список сайтов для проверки обхода блокировок (заблокированные в РФ)
+          BLOCKED_SITES = [
+              'https://www.instagram.com/',           # Заблокирован
+              'https://www.facebook.com/',            # Заблокирован
+              'https://twitter.com/',                  # Заблокирован
+              'https://www.youtube.com/',              # Заблокирован (иногда)
+              'https://t.me/',                          # Telegram (замедление)
+              'https://www.google.com/search?q=test'    # Google (доступен, но для проверки)
           ]
+          
+          # Контрольный сайт (всегда доступен в РФ)
+          CONTROL_SITE = 'https://api.ipify.org?format=text'
+          
           XRAY = './xray'
           MAX_WORKERS = 8
+          MIN_BYPASS_SCORE = 2  # Минимум успешных попыток из 3 тестовых сайтов
           
           active_processes = []
           lock = threading.Lock()
+          country_cache = {}
           
           def cleanup():
               with lock:
@@ -78,80 +90,135 @@ jobs:
                               pass
                   active_processes.clear()
           
-          def exit_ip(port):
-              for url in TEST_URLS:
-                  try:
-                      out = subprocess.check_output(
-                          ['curl', '-s', '--max-time', '2', '-x', f'socks5h://127.0.0.1:{port}', url],
-                          text=True, timeout=3
-                      ).strip()
-                      if out and len(out) > 5:  # Valid IP
-                          return out
-                  except:
-                      pass
-              return None
+          def get_free_port():
+              s = socket.socket()
+              s.bind(('', 0))
+              port = s.getsockname()[1]
+              s.close()
+              return port
           
-          def is_good_ip(ip):
-              if not ip or ip == RUNNER_IP:
+          def wait_port(host, port, timeout=10):
+              start = time.time()
+              while time.time() - start < timeout:
+                  try:
+                      with socket.create_connection((host, port), timeout=1):
+                          return True
+                  except:
+                      time.sleep(0.3)
+              return False
+          
+          def test_url_through_proxy(port, url):
+              """Проверяет доступность URL через прокси"""
+              try:
+                  result = subprocess.run(
+                      ['curl', '-s', '--max-time', '5', 
+                       '-x', f'socks5h://127.0.0.1:{port}', 
+                       '-o', '/dev/null', 
+                       '-w', '%{http_code}',
+                       url],
+                      text=True, stderr=subprocess.DEVNULL,
+                      timeout=7
+                  )
+                  
+                  # HTTP 200 OK, 301, 302 - считаем успехом
+                  code = result.stdout.strip()
+                  if code in ['200', '301', '302', '307', '308']:
+                      return True
+                  # Также считаем успехом, если получили хоть какой-то ответ
+                  return bool(code)
+              except:
                   return False
-              # Quick RU IP filtering by prefixes
-              ru_prefixes = {'5.', '31.', '37.', '46.', '77.', '78.', '79.', '80.', '81.', '82.', '83.', 
-                            '84.', '85.', '86.', '87.', '88.', '89.', '90.', '91.', '92.', '93.', '94.', '95.'}
-              return ip[:ip.find('.')+3] not in ru_prefixes
+          
+          def check_bypass_capability(port):
+              """
+              Проверяет, может ли прокси обходить блокировки.
+              Возвращает True, если прокси открывает заблокированные сайты.
+              """
+              # Сначала проверяем, работает ли прокси вообще (контрольный сайт)
+              control_ok = test_url_through_proxy(port, CONTROL_SITE)
+              if not control_ok:
+                  return False  # Прокси не работает, дальше не проверяем
+              
+              # Выбираем 3 случайных заблокированных сайта для теста
+              test_sites = random.sample(BLOCKED_SITES, min(3, len(BLOCKED_SITES)))
+              
+              success_count = 0
+              for site in test_sites:
+                  if test_url_through_proxy(port, site):
+                      success_count += 1
+                  time.sleep(0.2)  # Небольшая пауза между запросами
+              
+              # Прокси умеет обходить блокировки, если открыл минимум MIN_BYPASS_SCORE сайтов
+              return success_count >= MIN_BYPASS_SCORE
           
           def country(ip):
+              if ip in country_cache:
+                  return country_cache[ip]
               try:
-                  import urllib.request
-                  req = urllib.request.Request(f'https://ipapi.co/{ip}/country/', 
-                                               headers={'User-Agent': 'Mozilla/5.0'})
-                  with urllib.request.urlopen(req, timeout=3) as r:
-                      return r.read().decode().strip()
+                  result = subprocess.run(
+                      ['curl', '-s', '--max-time', '2', 
+                       f'http://ip-api.com/json/{ip}?fields=countryCode'],
+                      capture_output=True, text=True
+                  )
+                  data = json.loads(result.stdout)
+                  cc = data.get('countryCode', 'Unknown')
+                  country_cache[ip] = cc
+                  return cc
               except:
                   return 'Unknown'
           
+          def is_good_ip(ip):
+              if not ip:
+                  return False
+              if ip == RUNNER_IP:
+                  return False
+              return True
+          
           def check_one(link):
-              cfg_file = None
               process = None
-              port = None
+              cfg_file = None
               try:
                   u = urllib.parse.urlparse(link)
                   q = urllib.parse.parse_qs(u.query)
                   
-                  # Extract network type
-                  network = q.get('type', ['tcp'])[0]
-                  if network == 'tcp':
-                      network = 'tcp'
-                  elif network == 'ws':
-                      network = 'ws'
-                  elif network == 'grpc':
-                      network = 'grpc'
-                  
-                  stream = {'network': network}
-                  sec = q.get('security', ['none'])[0]
-                  sni = q.get('sni', [''])[0]
-                  
-                  if sec == 'reality' and 'pbk' in q:
-                      stream['security'] = 'reality'
-                      stream['realitySettings'] = {
-                          'serverName': sni or u.hostname,
-                          'publicKey': q['pbk'][0],
-                          'shortId': q.get('sid', [''])[0],
-                          'fingerprint': 'chrome'
-                      }
-                  
-                  # Unique port for each thread
-                  port_num = 10800 + (hash(link) % 900) + 100
-                  port = port_num
-                  
-                  # Extract host and port
+                  port = get_free_port()
                   host = u.hostname
                   port_num = u.port or 443
                   
-                  # Extract user ID
-                  user_id = u.username or ''
+                  # Парсим параметры
+                  network = q.get('type', ['tcp'])[0]
+                  if network == 'xhttp':
+                      network = 'http'
                   
-                  # Extract flow
+                  security = q.get('security', ['none'])[0]
+                  sni = q.get('sni', [''])[0]
+                  fp = q.get('fp', ['chrome'])[0]
+                  pbk = q.get('pbk', [''])[0] if 'pbk' in q else None
+                  sid = q.get('sid', [''])[0] if 'sid' in q else ''
+                  
+                  # Создаем конфиг
+                  stream = {'network': network}
+                  
+                  if security == 'reality' and pbk:
+                      stream['security'] = 'reality'
+                      stream['realitySettings'] = {
+                          'serverName': sni,
+                          'publicKey': pbk,
+                          'shortId': sid,
+                          'fingerprint': fp
+                      }
+                  elif security == 'tls':
+                      stream['security'] = 'tls'
+                      stream['tlsSettings'] = {
+                          'serverName': sni,
+                          'allowInsecure': True,
+                          'fingerprint': fp
+                      }
+                  
+                  user = {'id': u.username, 'encryption': 'none'}
                   flow = q.get('flow', [''])[0]
+                  if flow:
+                      user['flow'] = flow
                   
                   cfg = {
                       'inbounds': [{
@@ -166,18 +233,14 @@ jobs:
                               'vnext': [{
                                   'address': host,
                                   'port': port_num,
-                                  'users': [{
-                                      'id': user_id,
-                                      'encryption': 'none',
-                                      'flow': flow
-                                  }]
+                                  'users': [user]
                               }]
                           },
                           'streamSettings': stream
                       }]
                   }
                   
-                  cfg_file = f'cfg_{abs(hash(link)) % 10000}.json'
+                  cfg_file = f'cfg_{port}.json'
                   with open(cfg_file, 'w') as f:
                       json.dump(cfg, f)
                   
@@ -190,20 +253,33 @@ jobs:
                   with lock:
                       active_processes.append(process)
                   
-                  time.sleep(1.5)  # Faster than 4 sec
+                  time.sleep(1.5)  # Ждем запуска Xray
                   
-                  ip = exit_ip(port)
-                  if process:
-                      process.terminate()
-                      time.sleep(0.3)
+                  # ШАГ 1: Получаем выходной IP
+                  ip = None
+                  try:
+                      ip = subprocess.check_output(
+                          ['curl', '-s', '--max-time', '4', 
+                           '-x', f'socks5h://127.0.0.1:{port}', 
+                           'https://api.ipify.org?format=text'],
+                          text=True, stderr=subprocess.DEVNULL
+                      ).strip()
+                  except:
+                      pass
                   
                   if ip and is_good_ip(ip):
                       country_code = country(ip)
-                      if country_code != 'RU':
-                          print(f"⭐ {host}:{port_num} OK {ip} → {country_code}")
+                      
+                      # ШАГ 2: Проверяем способность обходить блокировки
+                      print(f"🔄 Testing {host}:{port_num} for bypass capability...")
+                      bypass_ok = check_bypass_capability(port)
+                      
+                      # КРИТЕРИЙ ОТБОРА: Только прокси, которые обходят блокировки
+                      if bypass_ok:
+                          print(f"✅ BYPASS OK {host}:{port_num} {ip} → {country_code}")
                           return link
                       else:
-                          print(f"✗ {host}:{port_num} RU {ip}")
+                          print(f"❌ NO BYPASS {host}:{port_num} {ip} → {country_code}")
                   else:
                       print(f"✗ {host}:{port_num} no IP")
                   
@@ -240,11 +316,17 @@ jobs:
               links = [l.strip() for l in f if l.strip().startswith('vless://')]
           
           total_links = len(links)
-          print(f"TOTAL: {total_links} | workers={MAX_WORKERS}")
+          print(f"\n{'='*60}")
+          print(f"🚀 BYPASS MODE ACTIVATED")
+          print(f"📊 TOTAL: {total_links} | workers={MAX_WORKERS}")
+          print(f"🔒 Testing access to blocked sites: {len(BLOCKED_SITES)} URLs")
+          print(f"🎯 Requirement: at least {MIN_BYPASS_SCORE}/3 blocked sites accessible")
+          print(f"{'='*60}\n")
           
           # Write header
           with open(OUTPUT_RAW, 'w') as f:
               f.write(f"# updated {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}\n")
+              f.write(f"# BYPASS-READY PROXIES (can access blocked sites)\n")
           
           alive = []
           start_time = time.time()
@@ -256,7 +338,7 @@ jobs:
                   for future in as_completed(futures):
                       processed += 1
                       try:
-                          result = future.result(timeout=10)
+                          result = future.result(timeout=20)
                           if result:
                               alive.append(result)
                       except Exception as e:
@@ -264,21 +346,28 @@ jobs:
                       
                       if processed % 10 == 0:
                           elapsed = time.time() - start_time
-                          print(f"Processed {processed}/{total_links} ({processed/total_links*100:.0f}%) in {elapsed:.0f}s")
+                          print(f"📈 Progress: {processed}/{total_links} ({processed/total_links*100:.0f}%) in {elapsed:.0f}s | BYPASS OK: {len(alive)}")
                       
-                      if time.time() - start_time > 600:  # 10 min max
-                          print("MAX TOTAL TIME reached")
+                      if time.time() - start_time > 900:  # 15 min max
+                          print("⏰ MAX TOTAL TIME reached")
                           break
                           
           finally:
               cleanup()
           
-          print(f"Done. Alive: {len(alive)}")
+          print(f"\n{'='*60}")
+          print(f"✅ SCAN COMPLETE")
+          print(f"   • Total tested: {total_links}")
+          print(f"   • Working proxies: {processed}")
+          print(f"   • BYPASS-READY: {len(alive)}")
+          print(f"{'='*60}")
           
           if alive:
               with open(OUTPUT_RAW, 'a') as f:
                   f.write('\n'.join(alive) + '\n')
-              print(f"Saved {len(alive)} NON-RU proxies")
+              print(f"💾 Saved {len(alive)} bypass-capable proxies to file")
+          else:
+              print("⚠️ No bypass-capable proxies found")
           EOF
 
       - name: Encode subscription to Base64
@@ -287,11 +376,18 @@ jobs:
 
       - name: Debug output
         run: |
-          echo "RAW lines:"
-          wc -l githubmirror/26_proxy_subscription_raw.txt
-          echo "BASE64 size:"
-          wc -c githubmirror/26_proxy_subscription_base64.txt
-          echo "First 3 lines:"
+          echo "📊 BYPASS-READY PROXIES SUMMARY:"
+          TOTAL_LINES=$(wc -l < githubmirror/26_proxy_subscription_raw.txt)
+          echo "   • Raw file lines: $TOTAL_LINES"
+          if [ $TOTAL_LINES -gt 2 ]; then
+            COUNT=$((TOTAL_LINES - 2))
+            echo "   • Active proxies: $COUNT"
+          else
+            echo "   • Active proxies: 0"
+          fi
+          echo "   • Base64 size: $(wc -c < githubmirror/26_proxy_subscription_base64.txt) bytes"
+          echo ""
+          echo "📋 First 3 proxies:"
           head -3 githubmirror/26_proxy_subscription_raw.txt || echo "File empty"
 
       - name: Commit & push results
@@ -303,7 +399,13 @@ jobs:
           if git diff --staged --quiet; then
             echo "❌ No changes to commit"
           else
-            git commit -m "Update NON-RU proxy subscriptions [$(date -u +'%Y-%m-%d %H:%M UTC')]"
+            TOTAL_LINES=$(wc -l < githubmirror/26_proxy_subscription_raw.txt)
+            if [ $TOTAL_LINES -gt 2 ]; then
+              COUNT=$((TOTAL_LINES - 2))
+              git commit -m "Update BYPASS-READY proxies [$(date -u +'%Y-%m-%d %H:%M UTC')] ($COUNT active)"
+            else
+              git commit -m "Update BYPASS-READY proxies [$(date -u +'%Y-%m-%d %H:%M UTC')] (none)"
+            fi
             git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} HEAD:main || true
-            echo "✅ Pushed NON-RU updates"
+            echo "✅ Pushed bypass-capable proxies"
           fi
