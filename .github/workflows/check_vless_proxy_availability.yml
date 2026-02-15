@@ -49,7 +49,7 @@ jobs:
       - name: 🔥 Check proxies (25 workers + FULL RU-filter)
         run: |
           python3 <<'EOF'
-          import subprocess, time, json, urllib.parse, os, threading, re, hashlib
+          import subprocess, time, json, urllib.parse, os, re, hashlib
           import geoip2.database
           from concurrent.futures import ThreadPoolExecutor, as_completed
           from datetime import datetime, timezone
@@ -81,7 +81,7 @@ jobs:
               if not name: return False
               
               # 🇷🇺 флаги
-              if re.search(r'[🇷🇺🇷🇺]', name): 
+              if re.search(r'[🇷🇺]', name): 
                   print(f"🚫 RU-FLAG in name: {name[:30]}...")
                   return True
               
@@ -131,7 +131,7 @@ jobs:
                   except: continue
               return False
 
-          def clean_name(name):
+          def clean_name(name, hostname, port):
               """СУПЕР-ЧИСТКА оставшегося имени"""
               if not name: return ""
               
@@ -149,13 +149,12 @@ jobs:
                   name = re.sub(rf'\b{re.escape(keyword)}\b', '', name, flags=re.IGNORECASE)
               
               if len(name.strip()) < 3:
-                  return f"{u.hostname}:{u.port or 443}"
+                  return f"{hostname}:{port}"
               
               return name[:80]
 
           def check(link):
               cfg_file = proc = None
-              u = None
               try:
                   u = urllib.parse.urlparse(link)
                   if not u.hostname or not u.username: return None
@@ -212,7 +211,7 @@ jobs:
                   if ip and not is_ru_full(ip) and check_html(socks_port):
                       # 🔥 ЧИСТИМ ИМЯ (только для чистых ссылок)
                       original_name = u.fragment or ''
-                      clean_name_result = clean_name(original_name)
+                      clean_name_result = clean_name(original_name, u.hostname, port)
                       clean_link = link.split('#')[0] + '#' + clean_name_result
                       print(f"⭐ {u.hostname}:{port} OK {ip} -> '{clean_name_result}'")
                       return clean_link
@@ -258,12 +257,15 @@ jobs:
                   processed += 1
                   try:
                       result = future.result(timeout=30)
-                      if result: alive.append(result)
-                  except: pass
+                      if result: 
+                          alive.append(result)
+                  except: 
+                      pass
                   
                   if processed % 20 == 0:
                       print(f"📊 {processed}/{len(links)} ({processed/len(links)*100:.1f}%)")
-                  if time.time() - start > 2400: return
+                  if time.time() - start > 2400: 
+                      break
 
           if alive:
               with open(OUTPUT, 'a') as f:
