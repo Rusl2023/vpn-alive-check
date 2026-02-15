@@ -41,7 +41,7 @@ jobs:
         run: |
           echo "RUNNER_IP=$(curl -s https://api.ipify.org)" >> $GITHUB_ENV
 
-      - name: Check VLESS proxies (IP+HTML validation)
+      - name: Check VLESS proxies (IP+HTML5 validation)
         run: |
           python3 <<'EOF'
           import subprocess, time, json, urllib.parse, os, threading, re
@@ -59,10 +59,13 @@ jobs:
               'http://cp.cloudflare.com'
           ]
           
-          # ✅ HTML-тесты (проверка загрузки страниц)
+          # ✅ HTML5-тесты (5 сайтов для максимальной проверки)
           TEST_URLS_HTML = [
               'https://www.google.com',
-              'https://httpbin.org/html'
+              'https://httpbin.org/html',
+              'https://www.netflix.com',
+              'https://www.youtube.com',
+              'https://neverssl.com'
           ]
           
           XRAY = './xray'
@@ -107,20 +110,23 @@ jobs:
               return None
           
           def check_html_loading(port):
-              """2️⃣ Проверка загрузки HTML-страниц"""
+              """2️⃣ Проверка 5 HTML-сайтов (Google + Netflix + YouTube + ...)"""
+              html_count = 0
               for url in TEST_URLS_HTML:
                   try:
                       out = subprocess.check_output(
-                          ['curl', '-s', '--max-time', '4', '-x', f'socks5h://127.0.0.1:{port}', url],
-                          timeout=6
+                          ['curl', '-s', '--max-time', '5', '-x', f'socks5h://127.0.0.1:{port}', url],
+                          timeout=7
                       )
-                      # Проверяем HTML маркеры
-                      html_markers = [b'<!DOCTYPE', b'<html', b'<HTML', b'<head']
+                      # Расширенные HTML маркеры
+                      html_markers = [b'<!DOCTYPE', b'<html', b'<HTML', b'<head', b'<body']
                       if any(marker in out for marker in html_markers):
-                          return True
+                          html_count += 1
                   except:
                       continue
-              return False
+              
+              # ✅ Минимум 3/5 сайтов должны загрузиться
+              return html_count >= 3
           
           def is_good_ip(ip):
               """Фильтр RU IP по префиксам"""
@@ -134,13 +140,20 @@ jobs:
               return prefix not in ru_prefixes
           
           def get_country(ip):
-              """Определение страны IP"""
-              try:
-                  import urllib.request
-                  with urllib.request.urlopen(f'https://ipapi.co/{ip}/country/', timeout=4) as resp:
-                      return resp.read().decode('utf-8').strip()
-              except:
-                  return 'Unknown'
+              """Определение страны IP (fallback сервисы)"""
+              services = [
+                  f'https://ipapi.co/{ip}/country/',
+                  f'http://ip-api.com/json/{ip}?fields=countryCode',
+                  f'https://ipinfo.io/{ip}/country'
+              ]
+              for url in services:
+                  try:
+                      import urllib.request
+                      with urllib.request.urlopen(url, timeout=3) as resp:
+                          return resp.read().decode('utf-8').strip()
+                  except:
+                      continue
+              return 'Unknown'
           
           def check_one(link):
               cfg_file = None
@@ -212,12 +225,12 @@ jobs:
                   with lock:
                       active_processes.append(process)
                   
-                  time.sleep(2.2)  # Стабильное время запуска
+                  time.sleep(2.5)  # +0.3s для Netflix/YouTube
                   
                   # 1️⃣ Тест IP
                   ip = get_exit_ip(port)
                   
-                  # 2️⃣ Тест HTML (только если IP получен)
+                  # 2️⃣ Тест HTML5 (5 сайтов)
                   html_ok = False
                   if ip:
                       html_ok = check_html_loading(port)
@@ -231,14 +244,14 @@ jobs:
                   if ip and is_good_ip(ip):
                       country_code = get_country(ip)
                       if country_code != 'RU':
-                          status = "HTML✓" if html_ok else "HTML✗"
+                          status = "HTML5✓" if html_ok else f"HTML5✗({5-len(TEST_URLS_HTML)}/5)"
                           print(f"⭐ {u.hostname}:{u.port or 443} OK {ip} → {country_code} [{status}]")
-                          # Сохраняем ТОЛЬКО с HTML проверкой
+                          # Сохраняем ТОЛЬКО идеальные (3+ из 5 сайтов)
                           return link if html_ok else None
                       else:
                           print(f"✗ {u.hostname}:{u.port or 443} RU {ip}")
                   elif ip:
-                      print(f"⚠ {u.hostname}:{u.port or 443} IP {ip} but HTML failed")
+                      print(f"⚠ {u.hostname}:{u.port or 443} IP {ip} but HTML5 failed")
                   else:
                       print(f"✗ {u.hostname}:{u.port or 443} no IP")
                   
@@ -278,11 +291,11 @@ jobs:
               links = [l.strip() for l in f if l.strip().startswith('vless://')]
           
           total_links = len(links)
-          print(f"🚀 TOTAL: {total_links} links | workers={MAX_WORKERS}")
+          print(f"🚀 TOTAL: {total_links} links | workers={MAX_WORKERS} | HTML5 tests={len(TEST_URLS_HTML)}")
           
           # Обновляем заголовок
           with open(OUTPUT_RAW, 'w') as f:
-              f.write(f"# Updated {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}\n")
+              f.write(f"# Updated {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')} (IP+HTML5 verified)\n")
           
           alive = []
           start_time = time.time()
@@ -313,14 +326,14 @@ jobs:
           finally:
               cleanup()
           
-          print(f"✅ Done. Alive: {len(alive)} (IP+HTML verified)")
+          print(f"✅ Done. Alive: {len(alive)} (IP+HTML5 verified, {len(TEST_URLS_HTML)} sites)")
           
           if alive:
               with open(OUTPUT_RAW, 'a') as f:
                   f.write('\n'.join(alive) + '\n')
-              print(f"💾 Saved {len(alive)} NON-RU proxies to {OUTPUT_RAW}")
+              print(f"💾 Saved {len(alive)} PREMIUM NON-RU proxies to {OUTPUT_RAW}")
           else:
-              print("❌ No working proxies found")
+              print("❌ No premium proxies found")
           EOF
 
       - name: Create Base64 subscription
@@ -335,11 +348,11 @@ jobs:
 
       - name: Debug output
         run: |
-          echo "📋 RESULTS:"
+          echo "📋 PREMIUM RESULTS (IP+HTML5):"
           echo "RAW file: $(wc -l < githubmirror/26_proxy_subscription_raw.txt) lines"
           echo "BASE64: $(wc -c < githubmirror/26_proxy_subscription_base64.txt) bytes"
           echo ""
-          echo "First 3 RAW lines:"
+          echo "First 3 PREMIUM RAW lines:"
           head -3 githubmirror/26_proxy_subscription_raw.txt || echo "Empty"
           echo ""
           echo "Sample Base64 (first 100 chars):"
@@ -354,7 +367,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "❌ No changes to commit"
           else
-            git commit -m "Update NON-RU proxy subscriptions [$(date -u +'%Y-%m-%d %H:%M UTC')]"
+            git commit -m "Update PREMIUM NON-RU proxy subscriptions (IP+HTML5) [$(date -u +'%Y-%m-%d %H:%M UTC')]"
             git push || true
-            echo "✅ Pushed NON-RU updates"
+            echo "✅ Pushed PREMIUM NON-RU updates"
           fi
