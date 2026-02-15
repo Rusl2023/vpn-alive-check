@@ -1,4 +1,4 @@
-name: Check VLESS proxy availability via Xray (GeoLite2 RU-filter + Port 80/443)
+name: Check VLESS proxy availability via Xray (Full GeoLite2 RU-filter + Port 80/443)
 on:
   schedule:
     - cron: '*/59 * * * *'
@@ -34,7 +34,7 @@ jobs:
       - name: Prepare directories and GeoLite2 databases
         run: |
           mkdir -p githubmirror
-          # Copy GeoLite2 базы из репозитория
+          # Copy все 3 GeoLite2 базы из репозитория
           cp geolite2/*.mmdb . 2>/dev/null || echo "GeoLite2 files copied"
           echo "# Updated $(date -u +'%Y-%m-%d %H:%M UTC')" > githubmirror/26_proxy_subscription_raw.txt
           echo "# Updated $(date -u +'%Y-%m-%d %H:%M UTC')" > githubmirror/26_proxy_subscription_base64.txt
@@ -43,7 +43,7 @@ jobs:
         run: |
           echo "RUNNER_IP=$(curl -s https://api.ipify.org)" >> $GITHUB_ENV
 
-      - name: Check VLESS proxies (GeoLite2 + Port 80/443 filter)
+      - name: Check VLESS proxies (ASN+City+Country RU-filter + Port 80/443)
         run: |
           python3 <<'EOF'
           import subprocess, time, json, urllib.parse, os, threading, re
@@ -55,16 +55,16 @@ jobs:
           OUTPUT_RAW = 'githubmirror/26_proxy_subscription_raw.txt'
           RUNNER_IP = os.environ.get('RUNNER_IP', '')
           
-          # ✅ GeoLite2 базы из репозитория
-          asn_reader = country_reader = None
+          # ✅ Загрузка ВСЕХ 3 GeoLite2 баз
+          asn_reader = country_reader = city_reader = None
           try:
               asn_reader = geoip2.database.Reader('GeoLite2-ASN.mmdb')
               country_reader = geoip2.database.Reader('GeoLite2-Country.mmdb')
-              print("✅ GeoLite2 ASN+Country databases loaded")
-          except:
-              print("⚠️ GeoLite2 fallback to prefix filter")
+              city_reader = geoip2.database.Reader('GeoLite2-City.mmdb')
+              print("✅ GeoLite2 FULL loaded: ASN+City+Country")
+          except Exception as e:
+              print(f"⚠️ GeoLite2 error: {e}, using prefix filter")
           
-          # ✅ Тесты
           TEST_URLS_IP = ['https://api.ipify.org?format=text', 'https://icanhazip.com']
           TEST_URLS_HTML = [
               'https://www.google.com', 'https://httpbin.org/html', 
@@ -82,39 +82,58 @@ jobs:
           def cleanup():
               with lock:
                   for p in active_processes[:]:
-                      try: p.terminate(); p.wait(1)
-                      except: p.kill()
+                      try: 
+                          p.terminate(); p.wait(1)
+                      except: 
+                          try: p.kill()
+                          except: pass
                       active_processes[:] = [proc for proc in active_processes if proc != p]
           
-          def is_ru_ip_geolite2(ip):
-              """🚫 GeoLite2 RU фильтр"""
+          def is_ru_ip_full_geolite2(ip):
+              """🚫 ПОЛНЫЙ GeoLite2 RU фильтр: ASN + City + Country"""
               if not ip or ip == RUNNER_IP: return True
               
-              # Fallback префиксы RU
+              # 1️⃣ Быстрый префикс фильтр
               ru_prefixes = {'5.', '31.', '37.', '46.', '77.', '78.', '79.', '80.', '81.', '82.', '83.',
                             '84.', '85.', '86.', '87.', '88.', '89.', '90.', '91.', '92.', '93.', '94.', '95.'}
               if ip[:ip.find('.')+3] in ru_prefixes: return True
               
-              if asn_reader and country_reader:
+              if asn_reader and country_reader and city_reader:
                   try:
-                      # ASN провайдеры RU
+                      # ✅ 1. ASN провайдеры RU (Rostelecom, Beeline, MTS...)
                       asn_resp = asn_reader.asn(ip)
-                      ru_asns = ['rostelecom', 'beeline', 'mts', 'mega-fon', 'mgts', 'trans telo com']
-                      if asn_resp.registered_organization and any(ru in asn_resp.registered_organization.lower() for ru in ru_asns):
+                      if asn_resp.registered_organization:
+                          ru_asns = ['rostelecom', 'beeline', 'mts', 'mega-fon', 'mgts', ' Rostelecom', 
+                                   'beeline', 'mts russia', 'megafon', 'trans telecom']
+                          if any(ru in asn_resp.registered_organization.lower() for ru in ru_asns):
+                              return True
+                      
+                      # ✅ 2. Country RU
+                      country_resp = country_reader.country(ip)
+                      if country_resp.country.iso_code == 'RU':
                           return True
                       
-                      # Country код
-                      country_resp = country_reader.country(ip)
-                      if country_resp.country.iso_code == 'RU': return True
-                  except: pass
+                      # ✅ 3. City RU (Москва, СПб, Новосибирск...)
+                      city_resp = city_reader.city(ip)
+                      if (city_resp.country.iso_code == 'RU' or 
+                          city_resp.city.names.get('ru', '').lower() in ['москва', 'санкт-петербург', 'новосибирск', 'екатеринбург', 
+                                                                        'казань', 'нижний новгород', 'челябинск', 'самара']):
+                          return True
+                      
+                  except Exception as e:
+                      pass
+              
               return False
           
           def get_exit_ip(port):
               for url in TEST_URLS_IP:
                   try:
-                      out = subprocess.check_output(['curl', '-s', '--max-time', '3', '-x', f'socks5h://127.0.0.1:{port}', url],
-                                                  text=True, stderr=subprocess.DEVNULL, timeout=5).strip()
-                      if IP_REGEX.match(out) and 7 < len(out) < 16 and all(0 <= int(x) <= 255 for x in out.split('.')):
+                      out = subprocess.check_output(
+                          ['curl', '-s', '--max-time', '3', '-x', f'socks5h://127.0.0.1:{port}', url],
+                          text=True, stderr=subprocess.DEVNULL, timeout=5
+                      ).strip()
+                      if (IP_REGEX.match(out) and 7 < len(out) < 16 and 
+                          all(0 <= int(x) <= 255 for x in out.split('.'))):
                           return out
                   except: continue
               return None
@@ -123,11 +142,14 @@ jobs:
               html_count = 0
               for url in TEST_URLS_HTML:
                   try:
-                      out = subprocess.check_output(['curl', '-s', '--max-time', '5', '-x', f'socks5h://127.0.0.1:{port}', url], timeout=7)
+                      out = subprocess.check_output(
+                          ['curl', '-s', '--max-time', '5', '-x', f'socks5h://127.0.0.1:{port}', url], 
+                          timeout=7
+                      )
                       html_markers = [b'<!DOCTYPE', b'<html', b'<head']
                       if any(m in out for m in html_markers): html_count += 1
                   except: continue
-              return html_count >= 2  # Минимум 2/4
+              return html_count >= 2
           
           def check_one(link):
               cfg_file = process = port = None
@@ -135,7 +157,7 @@ jobs:
                   u = urllib.parse.urlparse(link)
                   if not u.username or not u.hostname: return None
                   
-                  # 🚫 Блок 2: Только порты 80/443
+                  # 🚫 Только порты 80/443
                   proxy_port = u.port or 443
                   if proxy_port not in ALLOWED_PORTS:
                       print(f"🚫 BAD-PORT {proxy_port}: {u.hostname}")
@@ -162,7 +184,8 @@ jobs:
                       'log': {'loglevel': 'warning'},
                       'inbounds': [{'listen': '127.0.0.1', 'port': port, 'protocol': 'socks', 'settings': {'udp': False}}],
                       'outbounds': [{
-                          'protocol': 'vless', 'settings': {'vnext': [{
+                          'protocol': 'vless', 
+                          'settings': {'vnext': [{
                               'address': u.hostname, 'port': proxy_port,
                               'users': [{'id': u.username, 'encryption': 'none', 'flow': q.get('flow', [''])[0]}]
                           }]},
@@ -173,7 +196,8 @@ jobs:
                   cfg_file = f'cfg_{hash(link) % 10000}.json'
                   with open(cfg_file, 'w') as f: json.dump(cfg, f)
                   
-                  process = subprocess.Popen([XRAY, 'run', '-c', cfg_file], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                  process = subprocess.Popen([XRAY, 'run', '-c', cfg_file], 
+                                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
                   with lock: active_processes.append(process)
                   
                   time.sleep(2.5)
@@ -181,19 +205,20 @@ jobs:
                   ip = get_exit_ip(port)
                   html_ok = False
                   
-                  if ip and not is_ru_ip_geolite2(ip):
+                  if ip and not is_ru_ip_full_geolite2(ip):
                       html_ok = check_html_loading(port)
                   
                   if process:
                       process.terminate()
                       time.sleep(0.5)
                   
-                  # 🎯 Финальный фильтр
-                  if ip and not is_ru_ip_geolite2(ip) and html_ok and proxy_port in ALLOWED_PORTS:
-                      print(f"⭐ {u.hostname}:{proxy_port} OK {ip} [GeoLite2✓80/443✓HTML✓]")
+                  # 🎯 Максимальный фильтр
+                  if (ip and not is_ru_ip_full_geolite2(ip) and html_ok and 
+                      proxy_port in ALLOWED_PORTS):
+                      print(f"⭐ {u.hostname}:{proxy_port} OK {ip} [ASN✓City✓Country✓80/443✓HTML✓]")
                       return link
-                  elif ip and is_ru_ip_geolite2(ip):
-                      print(f"🚫 RU-GEO IP: {u.hostname}:{proxy_port} {ip} (Rostelecom)")
+                  elif ip and is_ru_ip_full_geolite2(ip):
+                      print(f"🚫 RU-FULL IP: {u.hostname}:{proxy_port} {ip}")
                   elif proxy_port not in ALLOWED_PORTS:
                       print(f"🚫 BAD-PORT {proxy_port}: {u.hostname}")
                   elif not html_ok:
@@ -219,15 +244,15 @@ jobs:
           
           # Главный цикл
           if not os.path.exists(INPUT):
-              print("❌ Input file missing"); exit(1)
+              print("❌ Input missing"); exit(1)
           
           with open(INPUT) as f:
               links = [l.strip() for l in f if l.strip().startswith('vless://')]
           
-          print(f"🚀 TOTAL: {len(links)} | GeoLite2+80/443 filter")
+          print(f"🚀 TOTAL: {len(links)} | FULL GeoLite2 (ASN+City+Country)+80/443")
           
           with open(OUTPUT_RAW, 'w') as f:
-              f.write(f"# Updated {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')} (GeoLite2+80/443)\n")
+              f.write(f"# Updated {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')} (FULL GeoLite2 RU-filter)\n")
           
           alive, start_time = [], time.time()
           processed = 0
@@ -242,7 +267,7 @@ jobs:
                       if time.time() - start_time > 600: break
           finally: cleanup()
           
-          print(f"✅ Alive: {len(alive)} PREMIUM proxies")
+          print(f"✅ Alive: {len(alive)} ULTRA-PREMIUM proxies (NO RU)")
           if alive:
               with open(OUTPUT_RAW, 'a') as f: f.write('\n'.join(alive) + '\n')
               print(f"💾 Saved {len(alive)} to {OUTPUT_RAW}")
@@ -259,7 +284,7 @@ jobs:
 
       - name: Debug output
         run: |
-          echo "📋 GeoLite2+80/443 RESULTS:"
+          echo "📋 FULL GeoLite2 RESULTS (ASN+City+Country):"
           echo "RAW: $(wc -l < githubmirror/26_proxy_subscription_raw.txt) lines"
           echo "First 3:"
           head -3 githubmirror/26_proxy_subscription_raw.txt || echo "Empty"
@@ -273,7 +298,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "❌ No changes"
           else
-            git commit -m "GeoLite2 RU-filter + ports 80/443 [$(date -u +'%Y-%m-%d %H:%M UTC')]"
+            git commit -m "FULL GeoLite2 RU-filter (ASN+City+Country)+80/443 [$(date -u +'%Y-%m-%d %H:%M UTC')]"
             git push || true
-            echo "✅ Pushed PREMIUM"
+            echo "✅ Pushed ULTRA-PREMIUM (NO RU)"
           fi
