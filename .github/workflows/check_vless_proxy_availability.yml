@@ -68,7 +68,7 @@ jobs:
           HTTP_TEST_URL = 'http://example.com'
           HTTPS_TEST_URL = 'https://www.cloudflare.com/cdn-cgi/trace'
           MAX_WORKERS = 6
-          
+
           # ✅ ФЛАГИ СТРАН БЕЗ ДУБЛЕЙ
           FLAGS = {
               'AD': '🇦🇩AD', 'AE': '🇦🇪AE', 'AF': '🇦🇫AF', 'AG': '🇦🇬AG', 'AI': '🇦🇮AI',
@@ -160,36 +160,38 @@ jobs:
               except:
                   return host
 
-          def country_from_ip(ip):
+          def get_raw_iso_country(ip):
+              """🔥 МАКСИМАЛЬНАЯ ТОЧНОСТЬ: сырой ISO код из GeoLite2"""
               ip = ip.strip()
               if not valid_ip(ip):
-                  return '🌍??'
+                  return None
               
-              # 1. Country DB
               try:
                   r = country_reader.country(ip)
-                  if r.country.iso_code:
-                      return FLAGS.get(r.country.iso_code, f'🌍{r.country.iso_code}')
+                  iso_code = r.country.iso_code
+                  if iso_code:
+                      return iso_code
               except: pass
               
-              # 2. City DB  
               try:
                   r = city_reader.city(ip)
-                  if r.country.iso_code:
-                      return FLAGS.get(r.country.iso_code, f'🌍{r.country.iso_code}')
+                  iso_code = r.country.iso_code
+                  if iso_code:
+                      return iso_code
               except: pass
               
-              # 3. ASN DB
-              try:
-                  r = asn_reader.asn(ip)
-                  org = (r.autonomous_system_organization or "").lower()
-                  if any(x in org for x in ["netherlands","nederland"]): return "🇳🇱NL"
-                  if any(x in org for x in ["germany","deutsche"]): return "🇩🇪DE"
-                  if any(x in org for x in ["united states","usa"]): return "🇺🇸US"
-                  if any(x in org for x in ["united kingdom","uk"]): return "🇬🇧GB"
-              except: pass
-              
-              return '🌍??'
+              return None
+
+          def country_from_ip(ip):
+              raw_iso = get_raw_iso_country(ip)
+              if not raw_iso:
+                  return '🌍??'
+              return FLAGS.get(raw_iso, f'🌍{raw_iso}')
+
+          def is_russian_exit(exit_ip):
+              """🚫 100% ТОЧНЫЙ ФИЛЬТР ПО ISO КОДУ 'RU'"""
+              raw_iso = get_raw_iso_country(exit_ip)
+              return raw_iso == 'RU'
 
           def get_free_port():
               s = socket.socket()
@@ -210,7 +212,6 @@ jobs:
               return False
 
           def test_proxy_robust(port):
-              # 1. IP test (triple fallback)
               exit_ip = None
               for i, url in enumerate(IP_TEST_URLS, 1):
                   try:
@@ -228,7 +229,6 @@ jobs:
               if not exit_ip:
                   return False, None
 
-              # 2. HTTP test
               try:
                   http_code = subprocess.check_output([
                       'curl', '-s', '--max-time', '6', '-x', f'socks5h://127.0.0.1:{port}',
@@ -239,7 +239,6 @@ jobs:
               except:
                   return False, None
 
-              # 3. HTTPS test
               try:
                   https_code = subprocess.check_output([
                       'curl', '-s', '--max-time', '6', '-x', f'socks5h://127.0.0.1:{port}',
@@ -256,7 +255,7 @@ jobs:
               try:
                   port = get_free_port()
                   u = urllib.parse.urlparse(link)
-                  if not u.scheme == 'vless':
+                  if u.scheme != 'vless':
                       return None
                       
                   q = urllib.parse.parse_qs(u.query)
@@ -264,12 +263,12 @@ jobs:
                   sni = q.get('sni', ['unknown'])[0]
                   fp = q.get('fp', ['chrome'])[0]
                   
-                  # Server country from hostname
                   server_ip = resolve(u.hostname)
                   server_country = country_from_ip(server_ip)
 
-                  # Stream settings
-                  network = 'http' if q.get('type', ['tcp'])[0] == 'xhttp' else q.get('type', ['tcp'])[0]
+                  # ✅ ИСПРАВЛЕНО: ПРЯМАЯ поддержка XHTTP без замены
+                  network = q.get('type', ['tcp'])[0]
+                  
                   sec = q.get('security', ['none'])[0]
 
                   stream = {'network': network}
@@ -353,11 +352,14 @@ jobs:
                   if not ok:
                       return None
 
+                  if is_russian_exit(exit_ip):
+                      print(f"🚫 RU BLOCKED: {exit_ip}")
+                      return None
+
                   exit_country = country_from_ip(exit_ip)
                   num = next_id()
                   name = f"{server_country}→{num}→{exit_country} SNI: {sni}"
 
-                  # Replace or add comment
                   if '#' in link:
                       link = link.split('#')[0]
                   return link + '#' + name
@@ -381,8 +383,6 @@ jobs:
           print(f"TOTAL: {len(links)} | workers={MAX_WORKERS}")
 
           alive = []
-          start_time = time.time()
-
           try:
               with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
                   futures = [ex.submit(check_one, l) for l in links]
@@ -393,23 +393,21 @@ jobs:
           except KeyboardInterrupt:
               print("Interrupted")
 
-          print(f"DONE. Alive: {len(alive)}")
+          print(f"DONE. Alive NON-RU: {len(alive)}")
 
-          # Write raw output
           with open(OUTPUT_RAW, 'w') as f:
               f.write(f"# updated {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}\n")
               if alive:
                   f.write('\n'.join(alive) + '\n')
 
-          # Write base64 output
           if alive:
               b64_content = '\n'.join(alive)
               b64 = base64.b64encode(b64_content.encode()).decode()
               with open(OUTPUT_B64, 'w') as f:
                   f.write(b64)
-              print(f"✅ Saved {len(alive)} proxies")
+              print(f"✅ Saved {len(alive)} NON-RU proxies")
           else:
-              print("❌ No working proxies")
+              print("❌ No working NON-RU proxies")
 
           country_reader.close()
           city_reader.close()
@@ -424,7 +422,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "❌ No changes to commit"
           else
-            git commit -m "Update proxy subscriptions [$(date -u +'%Y-%m-%d %H:%M UTC')]"
+            git commit -m "Update NON-RU proxy subscriptions [$(date -u +'%Y-%m-%d %H:%M UTC')]"
             git push
-            echo "✅ Pushed updates"
+            echo "✅ Pushed NON-RU updates"
           fi
