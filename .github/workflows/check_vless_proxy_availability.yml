@@ -38,7 +38,7 @@ jobs:
         run: |
           echo "RUNNER_IP=$(curl -s https://api.ipify.org)" >> $GITHUB_ENV
 
-      - name: Check VLESS via Xray (BYPASS ONLY MODE)
+      - name: Check VLESS via Xray (BYPASS ONLY MODE with XHTTP/GHTTP support)
         run: |
           python3 <<'EOF'
           import subprocess
@@ -51,6 +51,7 @@ jobs:
           import random
           from concurrent.futures import ThreadPoolExecutor, as_completed
           from datetime import datetime, timezone
+          from collections import defaultdict
 
           INPUT = 'githubmirror/26_ru_whitelist.txt'
           OUTPUT_RAW = 'githubmirror/26_proxy_subscription_raw.txt'
@@ -58,24 +59,24 @@ jobs:
           
           # Список сайтов для проверки обхода блокировок (заблокированные в РФ)
           BLOCKED_SITES = [
-              'https://www.instagram.com/',           # Заблокирован
-              'https://www.facebook.com/',            # Заблокирован
-              'https://twitter.com/',                  # Заблокирован
-              'https://www.youtube.com/',              # Заблокирован (иногда)
-              'https://t.me/',                          # Telegram (замедление)
-              'https://www.google.com/search?q=test'    # Google (доступен, но для проверки)
+              'https://www.instagram.com/',
+              'https://www.facebook.com/',
+              'https://twitter.com/',
+              'https://www.youtube.com/',
+              'https://t.me/',
+              'https://www.google.com/search?q=test'
           ]
           
-          # Контрольный сайт (всегда доступен в РФ)
           CONTROL_SITE = 'https://api.ipify.org?format=text'
           
           XRAY = './xray'
           MAX_WORKERS = 8
-          MIN_BYPASS_SCORE = 2  # Минимум успешных попыток из 3 тестовых сайтов
+          MIN_BYPASS_SCORE = 2
           
           active_processes = []
           lock = threading.Lock()
           country_cache = {}
+          transport_stats = defaultdict(int)  # Статистика по типам транспорта
           
           def cleanup():
               with lock:
@@ -120,11 +121,9 @@ jobs:
                       timeout=7
                   )
                   
-                  # HTTP 200 OK, 301, 302 - считаем успехом
                   code = result.stdout.strip()
                   if code in ['200', '301', '302', '307', '308']:
                       return True
-                  # Также считаем успехом, если получили хоть какой-то ответ
                   return bool(code)
               except:
                   return False
@@ -134,21 +133,17 @@ jobs:
               Проверяет, может ли прокси обходить блокировки.
               Возвращает True, если прокси открывает заблокированные сайты.
               """
-              # Сначала проверяем, работает ли прокси вообще (контрольный сайт)
               control_ok = test_url_through_proxy(port, CONTROL_SITE)
               if not control_ok:
-                  return False  # Прокси не работает, дальше не проверяем
+                  return False
               
-              # Выбираем 3 случайных заблокированных сайта для теста
               test_sites = random.sample(BLOCKED_SITES, min(3, len(BLOCKED_SITES)))
-              
               success_count = 0
               for site in test_sites:
                   if test_url_through_proxy(port, site):
                       success_count += 1
-                  time.sleep(0.2)  # Небольшая пауза между запросами
+                  time.sleep(0.2)
               
-              # Прокси умеет обходить блокировки, если открыл минимум MIN_BYPASS_SCORE сайтов
               return success_count >= MIN_BYPASS_SCORE
           
           def country(ip):
@@ -174,71 +169,158 @@ jobs:
                   return False
               return True
           
+          def parse_vless_params(link):
+              """Парсит VLESS ссылку и возвращает все параметры"""
+              u = urllib.parse.urlparse(link)
+              q = urllib.parse.parse_qs(u.query)
+              
+              params = {
+                  'host': u.hostname,
+                  'port': u.port or 443,
+                  'id': u.username,
+                  'network': q.get('type', ['tcp'])[0].lower(),
+                  'security': q.get('security', ['none'])[0].lower(),
+                  'sni': q.get('sni', [''])[0],
+                  'fp': q.get('fp', ['chrome'])[0],
+                  'pbk': q.get('pbk', [''])[0] if 'pbk' in q else None,
+                  'sid': q.get('sid', [''])[0] if 'sid' in q else '',
+                  'flow': q.get('flow', [''])[0],
+                  'path': q.get('path', ['/'])[0],
+                  'mode': q.get('mode', ['auto'])[0],
+                  'host_header': q.get('host', [''])[0],
+                  'service_name': q.get('serviceName', [''])[0],
+                  'alpn': q.get('alpn', [''])[0],
+                  'allow_insecure': q.get('allowInsecure', ['0'])[0] == '1',
+                  'extra': q.get('extra', [''])[0]
+              }
+              return params
+          
+          def create_xray_config(port, params):
+              """Создает конфиг Xray с поддержкой всех транспортов"""
+              
+              # Определяем транспорт
+              network = params['network']
+              
+              # Нормализуем название транспорта для статистики
+              transport_display = network
+              if network in ['xhttp', 'ghttp']:
+                  transport_display = 'xhttp/ghttp'
+              
+              stream = {}
+              
+              # XHTTP и GHTTP - оба обрабатываем как xhttp
+              if network in ['xhttp', 'ghttp']:
+                  stream['network'] = 'xhttp'
+                  stream['xhttpSettings'] = {
+                      'path': params['path'],
+                      'mode': params['mode']
+                  }
+                  if params['host_header']:
+                      stream['xhttpSettings']['host'] = params['host_header']
+                  if params['extra']:
+                      try:
+                          stream['xhttpSettings']['extra'] = json.loads(params['extra'])
+                      except:
+                          pass
+              
+              # Обычный HTTP
+              elif network == 'http':
+                  stream['network'] = 'http'
+                  stream['httpSettings'] = {
+                      'path': params['path']
+                  }
+                  if params['host_header']:
+                      stream['httpSettings']['host'] = [params['host_header']]
+              
+              # WebSocket
+              elif network == 'ws':
+                  stream['network'] = 'ws'
+                  stream['wsSettings'] = {
+                      'path': params['path']
+                  }
+                  if params['host_header']:
+                      stream['wsSettings']['headers'] = {'Host': params['host_header']}
+              
+              # gRPC
+              elif network == 'grpc':
+                  stream['network'] = 'grpc'
+                  stream['grpcSettings'] = {
+                      'serviceName': params['service_name'] or params['path']
+                  }
+              
+              # TCP (по умолчанию)
+              else:
+                  stream['network'] = 'tcp'
+                  if params['path'] and params['path'] != '/':
+                      stream['tcpSettings'] = {
+                          'header': {
+                              'type': 'http',
+                              'request': {'path': [params['path']]}
+                          }
+                      }
+              
+              # Настройки безопасности
+              if params['security'] == 'reality' and params['pbk']:
+                  stream['security'] = 'reality'
+                  stream['realitySettings'] = {
+                      'serverName': params['sni'],
+                      'publicKey': params['pbk'],
+                      'shortId': params['sid'],
+                      'fingerprint': params['fp']
+                  }
+              elif params['security'] == 'tls':
+                  stream['security'] = 'tls'
+                  stream['tlsSettings'] = {
+                      'serverName': params['sni'],
+                      'allowInsecure': params['allow_insecure'],
+                      'fingerprint': params['fp']
+                  }
+                  if params['alpn']:
+                      stream['tlsSettings']['alpn'] = params['alpn'].split(',')
+              
+              # Пользователь
+              user = {'id': params['id'], 'encryption': 'none'}
+              if params['flow']:
+                  user['flow'] = params['flow']
+              
+              return {
+                  'inbounds': [{
+                      'listen': '127.0.0.1',
+                      'port': port,
+                      'protocol': 'socks',
+                      'settings': {'udp': False}
+                  }],
+                  'outbounds': [{
+                      'protocol': 'vless',
+                      'settings': {
+                          'vnext': [{
+                              'address': params['host'],
+                              'port': params['port'],
+                              'users': [user]
+                          }]
+                      },
+                      'streamSettings': stream
+                  }]
+              }, transport_display
+          
           def check_one(link):
               process = None
               cfg_file = None
+              transport_type = 'unknown'
+              
               try:
-                  u = urllib.parse.urlparse(link)
-                  q = urllib.parse.parse_qs(u.query)
+                  params = parse_vless_params(link)
+                  transport_type = params['network']
+                  
+                  # Для статистики нормализуем xhttp/ghttp
+                  stats_transport = transport_type
+                  if transport_type in ['xhttp', 'ghttp']:
+                      stats_transport = 'xhttp/ghttp'
                   
                   port = get_free_port()
-                  host = u.hostname
-                  port_num = u.port or 443
                   
-                  # Парсим параметры
-                  network = q.get('type', ['tcp'])[0]
-                  if network == 'xhttp':
-                      network = 'http'
-                  
-                  security = q.get('security', ['none'])[0]
-                  sni = q.get('sni', [''])[0]
-                  fp = q.get('fp', ['chrome'])[0]
-                  pbk = q.get('pbk', [''])[0] if 'pbk' in q else None
-                  sid = q.get('sid', [''])[0] if 'sid' in q else ''
-                  
-                  # Создаем конфиг
-                  stream = {'network': network}
-                  
-                  if security == 'reality' and pbk:
-                      stream['security'] = 'reality'
-                      stream['realitySettings'] = {
-                          'serverName': sni,
-                          'publicKey': pbk,
-                          'shortId': sid,
-                          'fingerprint': fp
-                      }
-                  elif security == 'tls':
-                      stream['security'] = 'tls'
-                      stream['tlsSettings'] = {
-                          'serverName': sni,
-                          'allowInsecure': True,
-                          'fingerprint': fp
-                      }
-                  
-                  user = {'id': u.username, 'encryption': 'none'}
-                  flow = q.get('flow', [''])[0]
-                  if flow:
-                      user['flow'] = flow
-                  
-                  cfg = {
-                      'inbounds': [{
-                          'listen': '127.0.0.1',
-                          'port': port,
-                          'protocol': 'socks',
-                          'settings': {'udp': False}
-                      }],
-                      'outbounds': [{
-                          'protocol': 'vless',
-                          'settings': {
-                              'vnext': [{
-                                  'address': host,
-                                  'port': port_num,
-                                  'users': [user]
-                              }]
-                          },
-                          'streamSettings': stream
-                      }]
-                  }
+                  # Создаем конфиг с поддержкой всех транспортов
+                  cfg, display_transport = create_xray_config(port, params)
                   
                   cfg_file = f'cfg_{port}.json'
                   with open(cfg_file, 'w') as f:
@@ -253,15 +335,15 @@ jobs:
                   with lock:
                       active_processes.append(process)
                   
-                  time.sleep(1.5)  # Ждем запуска Xray
+                  time.sleep(1.5)
                   
-                  # ШАГ 1: Получаем выходной IP
+                  # Получаем выходной IP
                   ip = None
                   try:
                       ip = subprocess.check_output(
                           ['curl', '-s', '--max-time', '4', 
                            '-x', f'socks5h://127.0.0.1:{port}', 
-                           'https://api.ipify.org?format=text'],
+                           CONTROL_SITE],
                           text=True, stderr=subprocess.DEVNULL
                       ).strip()
                   except:
@@ -270,21 +352,21 @@ jobs:
                   if ip and is_good_ip(ip):
                       country_code = country(ip)
                       
-                      # ШАГ 2: Проверяем способность обходить блокировки
-                      print(f"🔄 Testing {host}:{port_num} for bypass capability...")
+                      # Проверяем способность обходить блокировки
+                      print(f"🔄 Testing [{display_transport}] {params['host']}:{params['port']}...")
                       bypass_ok = check_bypass_capability(port)
                       
-                      # КРИТЕРИЙ ОТБОРА: Только прокси, которые обходят блокировки
                       if bypass_ok:
-                          print(f"✅ BYPASS OK {host}:{port_num} {ip} → {country_code}")
+                          transport_stats[stats_transport] += 1
+                          print(f"✅ BYPASS OK [{display_transport}] {params['host']}:{params['port']} {ip} → {country_code}")
                           return link
                       else:
-                          print(f"❌ NO BYPASS {host}:{port_num} {ip} → {country_code}")
+                          print(f"❌ NO BYPASS [{display_transport}] {params['host']}:{params['port']} {ip} → {country_code}")
                   else:
-                      print(f"✗ {host}:{port_num} no IP")
+                      print(f"✗ [{display_transport}] {params['host']}:{params['port']} no IP")
                   
               except Exception as e:
-                  print(f"✗ {link[:50]}... error: {str(e)[:50]}")
+                  print(f"✗ [{transport_type}] {link[:50]}... error: {str(e)[:50]}")
               finally:
                   if process:
                       try:
@@ -317,7 +399,7 @@ jobs:
           
           total_links = len(links)
           print(f"\n{'='*60}")
-          print(f"🚀 BYPASS MODE ACTIVATED")
+          print(f"🚀 BYPASS MODE ACTIVATED (with XHTTP/GHTTP support)")
           print(f"📊 TOTAL: {total_links} | workers={MAX_WORKERS}")
           print(f"🔒 Testing access to blocked sites: {len(BLOCKED_SITES)} URLs")
           print(f"🎯 Requirement: at least {MIN_BYPASS_SCORE}/3 blocked sites accessible")
@@ -326,7 +408,7 @@ jobs:
           # Write header
           with open(OUTPUT_RAW, 'w') as f:
               f.write(f"# updated {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}\n")
-              f.write(f"# BYPASS-READY PROXIES (can access blocked sites)\n")
+              f.write(f"# BYPASS-READY PROXIES (XHTTP/GHTTP supported)\n")
           
           alive = []
           start_time = time.time()
@@ -338,7 +420,7 @@ jobs:
                   for future in as_completed(futures):
                       processed += 1
                       try:
-                          result = future.result(timeout=20)
+                          result = future.result(timeout=25)
                           if result:
                               alive.append(result)
                       except Exception as e:
@@ -348,7 +430,7 @@ jobs:
                           elapsed = time.time() - start_time
                           print(f"📈 Progress: {processed}/{total_links} ({processed/total_links*100:.0f}%) in {elapsed:.0f}s | BYPASS OK: {len(alive)}")
                       
-                      if time.time() - start_time > 900:  # 15 min max
+                      if time.time() - start_time > 900:
                           print("⏰ MAX TOTAL TIME reached")
                           break
                           
@@ -360,6 +442,12 @@ jobs:
           print(f"   • Total tested: {total_links}")
           print(f"   • Working proxies: {processed}")
           print(f"   • BYPASS-READY: {len(alive)}")
+          
+          if transport_stats:
+              print(f"\n📊 STATS BY TRANSPORT TYPE:")
+              for t, count in sorted(transport_stats.items(), key=lambda x: x[1], reverse=True):
+                  print(f"   • {t}: {count}")
+          
           print(f"{'='*60}")
           
           if alive:
