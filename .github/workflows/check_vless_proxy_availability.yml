@@ -75,13 +75,28 @@ jobs:
           ru_prefixes = {'5.', '31.', '37.', '46.', '77.', '78.', '79.', '80.', '81.', '82.', '83.',
                         '84.', '85.', '86.', '87.', '88.', '89.', '90.', '91.', '92.', '93.', '94.', '95.'}
 
+          def has_ru_name(original_link):
+              """🔥 ПРОВЕРКА: если в ОРИГИНАЛЬНОМ имени есть RU - БЛОКИРОВКА"""
+              name = original_link.split('#')[-1] if '#' in original_link else ''
+              if not name: return False
+              
+              # 🇷🇺 флаги
+              if re.search(r'[🇷🇺🇷🇺]', name): 
+                  print(f"🚫 RU-FLAG in name: {name[:30]}...")
+                  return True
+              
+              # RU ключи (case insensitive)
+              ru_keywords = ['ru', 'RU', 'россия', 'russia', 'москва', 'spb', 'питер', 'mts', 'mtsrvrs', 'bah-26']
+              for keyword in ru_keywords:
+                  if re.search(rf'\b{re.escape(keyword)}\b', name, re.IGNORECASE):
+                      print(f"🚫 RU-KEYWORD '{keyword}' in name: {name[:30]}...")
+                      return True
+              
+              return False
+
           def is_ru_full(ip):
               if not ip or ip == RUNNER_IP: return True
-              
-              # 1. RU префиксы (быстро)
               if ip.startswith(tuple(ru_prefixes)): return True
-              
-              # 2. GeoLite2 полная проверка
               try:
                   if country_reader and country_reader.country(ip).country.iso_code == 'RU': return True
                   if asn_reader:
@@ -116,26 +131,38 @@ jobs:
                   except: continue
               return False
 
-          def clean_name(link):
-              """Удаляем RU ключи из имени"""
-              bad_keywords = ['ru', 'RU', 'россия', 'russia', 'москва', 'spb', 'питер']
-              try:
-                  u = urllib.parse.urlparse(link)
-                  name = u.fragment or ''
-                  for keyword in bad_keywords:
-                      name = re.sub(rf'\b{re.escape(keyword)}\b', '', name, flags=re.IGNORECASE)
-                  name = re.sub(r'[🇷🇺🇷🇺\s]+', '', name)
-                  name = name.strip('# |').strip()
-                  if not name: name = f"{u.hostname}:{u.port or 443}"
-                  return name[:100]  # Ограничиваем длину
-              except:
-                  return link[:50]
+          def clean_name(name):
+              """СУПЕР-ЧИСТКА оставшегося имени"""
+              if not name: return ""
+              
+              # Удаляем ВСЕ флаги/эмодзи
+              name = re.sub(r'[\U0001F1E6-\U0001F1FF\U0001F3F4\U00002642\U0001F3F3\U0001F308\U0001F4FA]', '', name)
+              
+              # Убираем лишние символы
+              name = re.sub(r'[#|🗡️🏴‍☠️🌐📺—–]', '', name)
+              name = re.sub(r'\s+', ' ', name).strip()
+              name = name.strip('# |').strip()
+              
+              # Финальная чистка RU (если что-то осталось)
+              ru_keywords = ['ru', 'RU', 'россия', 'russia', 'москва', 'spb', 'питер']
+              for keyword in ru_keywords:
+                  name = re.sub(rf'\b{re.escape(keyword)}\b', '', name, flags=re.IGNORECASE)
+              
+              if len(name.strip()) < 3:
+                  return f"{u.hostname}:{u.port or 443}"
+              
+              return name[:80]
 
           def check(link):
               cfg_file = proc = None
+              u = None
               try:
                   u = urllib.parse.urlparse(link)
                   if not u.hostname or not u.username: return None
+                  
+                  # 🔥 ФИЛЬТР 1: RU в ОРИГИНАЛЬНОМ ИМЕНИ → БЛОКИРОВКА
+                  if has_ru_name(link):
+                      return None
                   
                   port = int(u.port or 443)
                   if port not in ALLOWED_PORTS:
@@ -145,7 +172,6 @@ jobs:
                   q = urllib.parse.parse_qs(u.query)
                   stream = {'network': q.get('type', ['tcp'])[0]}
                   
-                  # Reality support
                   if q.get('security', [''])[0] == 'reality' and 'pbk' in q:
                       stream.update({
                           'security': 'reality',
@@ -184,8 +210,11 @@ jobs:
 
                   ip = get_ip(socks_port)
                   if ip and not is_ru_full(ip) and check_html(socks_port):
-                      clean_link = link.split('#')[0] + '#' + clean_name(link)
-                      print(f"⭐ {u.hostname}:{port} OK {ip} [FULL✓]")
+                      # 🔥 ЧИСТИМ ИМЯ (только для чистых ссылок)
+                      original_name = u.fragment or ''
+                      clean_name_result = clean_name(original_name)
+                      clean_link = link.split('#')[0] + '#' + clean_name_result
+                      print(f"⭐ {u.hostname}:{port} OK {ip} -> '{clean_name_result}'")
                       return clean_link
                   elif ip and is_ru_full(ip):
                       print(f"🚫 RU-FULL: {u.hostname}:{port} {ip}")
@@ -234,7 +263,7 @@ jobs:
                   
                   if processed % 20 == 0:
                       print(f"📊 {processed}/{len(links)} ({processed/len(links)*100:.1f}%)")
-                  if time.time() - start > 2400: break
+                  if time.time() - start > 2400: return
 
           if alive:
               with open(OUTPUT, 'a') as f:
@@ -254,7 +283,7 @@ jobs:
         run: |
           echo "📋 RESULTS:"
           wc -l githubmirror/26_proxy_subscription_raw.txt
-          head -3 githubmirror/26_proxy_subscription_raw.txt
+          head -5 githubmirror/26_proxy_subscription_raw.txt
 
       - name: ✅ Git Commit & Push
         run: |
