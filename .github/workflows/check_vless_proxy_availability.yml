@@ -97,8 +97,8 @@ jobs:
 
           def is_ipv6(ip):
               try:
-                  ipaddress.ip_address(ip.strip())
-                  return ipaddress.ip_address(ip.strip()).version == 6
+                  addr = ipaddress.ip_address(ip.strip())
+                  return addr.version == 6
               except:
                   return False
 
@@ -145,7 +145,10 @@ jobs:
               raw_iso = get_raw_iso_country(ip)
               if not raw_iso:
                   return '🌍??'
+              
+              # ✅ ПОЛНЫЙ словарь флагов (без отступов!)
           # ✅ ФЛАГИ СТРАН БЕЗ ДУБЛЕЙ
+          
           FLAGS = {
               'AD': '🇦🇩AD', 'AE': '🇦🇪AE', 'AF': '🇦🇫AF', 'AG': '🇦🇬AG', 'AI': '🇦🇮AI',
               'AL': '🇦🇱AL', 'AM': '🇦🇲AM', 'AO': '🇦🇴AO', 'AQ': '🇦🇶AQ', 'AR': '🇦🇷AR',
@@ -198,6 +201,7 @@ jobs:
               'VN': '🇻🇳VN', 'VU': '🇻🇺VU', 'WF': '🇼🇫WF', 'WS': '🇼🇸WS', 'YE': '🇾🇪YE',
               'YT': '🇾🇹YT', 'ZA': '🇿🇦ZA', 'ZM': '🇿🇲ZM', 'ZW': '🇿🇼ZW'
           }
+          
               return FLAGS.get(raw_iso, f'🌍{raw_iso}')
 
           def is_russian_exit(exit_ip):
@@ -237,9 +241,9 @@ jobs:
               print("⏳ Waiting 3s for Xray stability...")
               time.sleep(3)
               
-              # IP тест (только IPv4!) + РЕПИТ
+              # IP тест (только IPv4!) + 2 попытки
               exit_ip = None
-              for attempt in range(2):  # ✅ 2 попытки!
+              for attempt in range(2):
                   if exit_ip:
                       break
                   print(f"🌐 IP test attempt {attempt + 1}/2")
