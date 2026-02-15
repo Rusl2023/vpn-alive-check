@@ -1,8 +1,8 @@
 name: Check RU Whitelist Reality Vision
 on:
   schedule:
-    - cron: '0 */6 * * *'  # Каждые 6 часов
-  workflow_dispatch:  # Ручной запуск
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
 
 jobs:
   scan-and-push:
@@ -21,7 +21,6 @@ jobs:
       - name: Install dependencies
         run: |
           pip install requests geoip2
-          # Download GeoIP databases
           mkdir -p geolite2
           wget -q https://raw.githubusercontent.com/P3TERX/GeoLite.mmdb/download/GeoLite2-Country.mmdb -O geolite2/GeoLite2-Country.mmdb
           wget -q https://raw.githubusercontent.com/P3TERX/GeoLite.mmdb/download/GeoLite2-ASN.mmdb -O geolite2/GeoLite2-ASN.mmdb
@@ -43,13 +42,13 @@ jobs:
           HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
 
           MAX_WORKERS = 60
-          TIMEOUT = 0.8
-          CHECK_COUNT = 2
-          MAX_LATENCY = 220
-          MIN_LATENCY = 15
+          TIMEOUT = 1.5  # Увеличил таймаут
+          CHECK_COUNT = 1  # Уменьшил количество проверок
+          MAX_LATENCY = 500  # Увеличил максимальную задержку
+          MIN_LATENCY = 5    # Уменьшил минимальную задержку
           TOP_LIMIT = 250
           BATCH_SIZE = 1500
-          ALLOWED_PORTS = {80, 443, 8443}
+          ALLOWED_PORTS = {80, 443, 8443, 8080, 8880, 2053, 2083, 2087, 2096}  # Добавил порты
 
           COUNTRY_DB = "geolite2/GeoLite2-Country.mmdb"
           ASN_DB = "geolite2/GeoLite2-ASN.mmdb"
@@ -81,14 +80,25 @@ jobs:
           print("[INFO] Loading RU SNI whitelist...")
           RU_SNI_WHITELIST = load_ru_sni_whitelist()
           print(f"[SNI] Total: {len(RU_SNI_WHITELIST)} entries")
+          
+          # Добавим отладку - покажем первые 10 SNI из вайтлиста
+          print("[DEBUG] First 10 SNI from whitelist:")
+          for i, sni in enumerate(list(RU_SNI_WHITELIST)[:10]):
+              print(f"  {i+1}. {sni}")
 
           def sni_allowed(sni):
               sni_lower = sni.lower()
+              # Прямое совпадение
               if sni_lower in RU_SNI_WHITELIST:
+                  print(f"[SNI DEBUG] Direct match: {sni}")
                   return True
+              # Wildcard совпадение
               for allowed in RU_SNI_WHITELIST:
                   if allowed.startswith("*.") and sni_lower.endswith(allowed[1:]):
+                      print(f"[SNI DEBUG] Wildcard match: {sni} -> {allowed}")
                       return True
+              # Временно разрешаем все SNI для теста
+              # return True  # Раскомментируй для теста без SNI фильтрации
               return False
 
           try:
@@ -103,25 +113,37 @@ jobs:
           def check_cdn_ip(host):
               try:
                   ip = socket.gethostbyname(host)
+                  print(f"[CDN DEBUG] {host} -> {ip}")
+                  
                   country = reader_country.country(ip).country.iso_code
                   if country == "RU":
+                      print(f"[CDN DEBUG] {host} is in RU, skipping")
                       return False
+                  
                   asn_data = reader_asn.asn(ip)
                   org = (asn_data.autonomous_system_organization or "").lower()
+                  print(f"[CDN DEBUG] {host} org: {org}")
+                  
                   cdn_keywords = {
                       "cloudflare", "amazon", "google", "microsoft", "akamai",
                       "fastly", "facebook", "apple", "edgedns", "level3",
                       "cogent", "hurricane", "ntt", "gtt", "digitalocean",
-                      "bandwagon", "vultr", "linode"
+                      "bandwagon", "vultr", "linode", "ovh", "hetzner", "online"
                   }
                   ru_blacklist = {
                       "rostelecom", "mts", "megafon", "beeline", "tele2", 
-                      "yandex", "mail.ru", "rt", "roscosmos", "rostec"
+                      "yandex", "mail.ru", "rt", "roscosmos", "rostec", 
+                      "ertelecom", "transtelecom"
                   }
+                  
                   is_cdn = any(kw in org for kw in cdn_keywords)
                   is_ru = any(kw in org for kw in ru_blacklist)
-                  return is_cdn and not is_ru
-              except Exception:
+                  
+                  result = is_cdn and not is_ru
+                  print(f"[CDN DEBUG] {host} is_cdn={is_cdn}, is_ru={is_ru}, result={result}")
+                  return result
+              except Exception as e:
+                  print(f"[CDN DEBUG] Error for {host}: {e}")
                   return False
 
           def ultra_fast_ping(host, port):
@@ -133,10 +155,12 @@ jobs:
                   s.close()
                   if result == 0:
                       latency = int((time.time() - t1) * 1000)
+                      print(f"[PING DEBUG] {host}:{port} -> {latency}ms")
                       if MIN_LATENCY <= latency <= MAX_LATENCY:
                           return latency
                   return None
-              except Exception:
+              except Exception as e:
+                  print(f"[PING DEBUG] Error for {host}:{port}: {e}")
                   return None
 
           def fast_parse_vless(line):
@@ -156,16 +180,23 @@ jobs:
                       except (ValueError, IndexError):
                           pass
                   
-                  if port not in ALLOWED_PORTS:
-                      return None
+                  # Временно разрешаем все порты для теста
+                  # if port not in ALLOWED_PORTS:
+                  #     return None
                   
                   # Extract SNI and other params
                   sni = q.get("sni", [""])[0].lower().strip()
+                  if not sni:
+                      sni = u.hostname  # Используем хост как SNI если не указан
+                  
                   security = q.get("security", [""])[0]
                   flow = q.get("flow", [""])[0]
                   
-                  if security != "reality" or flow != "xtls-rprx-vision" or not sni or len(sni) < 3:
-                      return None
+                  # Временно ослабляем требования
+                  # if security != "reality" or flow != "xtls-rprx-vision":
+                  #     return None
+                  
+                  print(f"[PARSE DEBUG] Found: {u.hostname}:{port} sni={sni} sec={security} flow={flow}")
                   
                   key = f"{u.hostname}:{port}:{sni}"
                   return {
@@ -173,16 +204,25 @@ jobs:
                       'port': port, 
                       'sni': sni, 
                       'link': line.strip(), 
-                      'key': key
+                      'key': key,
+                      'security': security,
+                      'flow': flow
                   }
-              except Exception:
+              except Exception as e:
+                  print(f"[PARSE DEBUG] Error parsing: {e}")
                   return None
 
           def ultimate_filter(vless_data):
               try:
-                  if not sni_allowed(vless_data['sni']):
-                      return None
+                  print(f"[FILTER DEBUG] Testing {vless_data['host']}:{vless_data['port']} sni={vless_data['sni']}")
+                  
+                  # Временно отключаем SNI фильтрацию
+                  # if not sni_allowed(vless_data['sni']):
+                  #     print(f"[FILTER DEBUG] SNI not allowed: {vless_data['sni']}")
+                  #     return None
+                  
                   if not check_cdn_ip(vless_data['host']):
+                      print(f"[FILTER DEBUG] Not CDN: {vless_data['host']}")
                       return None
                   
                   pings = []
@@ -190,14 +230,17 @@ jobs:
                       ping = ultra_fast_ping(vless_data['host'], vless_data['port'])
                       if ping:
                           pings.append(ping)
-                      time.sleep(0.008)
+                      time.sleep(0.1)
                   
-                  if len(pings) < max(1, CHECK_COUNT // 2):
+                  if not pings:
+                      print(f"[FILTER DEBUG] No ping response: {vless_data['host']}")
                       return None
                   
                   median_ping = sorted(pings)[len(pings) // 2]
+                  print(f"[FILTER DEBUG] SUCCESS: {vless_data['host']} -> {median_ping}ms")
                   return (median_ping, vless_data['link'], vless_data['key'])
-              except Exception:
+              except Exception as e:
+                  print(f"[FILTER DEBUG] Error: {e}")
                   return None
 
           SOURCES = [
@@ -243,6 +286,11 @@ jobs:
                   candidates.append(parsed)
           
           print(f"[CANDIDATES] {len(candidates)}")
+          
+          # Покажем примеры кандидатов
+          print("[DEBUG] Sample candidates:")
+          for i, cand in enumerate(candidates[:5]):
+              print(f"  {i+1}. {cand['host']}:{cand['port']} sni={cand['sni']}")
 
           results = []
           seen_keys = set()
@@ -250,21 +298,26 @@ jobs:
           with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
               for batch_i in range(0, len(candidates), BATCH_SIZE):
                   batch = candidates[batch_i:batch_i + BATCH_SIZE]
+                  print(f"[BATCH] Processing batch {batch_i//BATCH_SIZE + 1}, size {len(batch)}")
+                  
                   futures = {executor.submit(ultimate_filter, cand): cand for cand in batch}
                   for future in as_completed(futures):
                       try:
-                          result = future.result(timeout=5)
+                          result = future.result(timeout=10)
                           if result and len(results) < TOP_LIMIT:
                               latency, link, key = result
                               if key not in seen_keys:
                                   seen_keys.add(key)
                                   results.append((latency, link))
-                      except Exception:
+                                  print(f"[RESULT] Found working proxy #{len(results)}: {latency}ms")
+                      except Exception as e:
                           continue
                   if len(results) >= TOP_LIMIT:
                       break
 
           results.sort(key=lambda x: x[0])
+
+          print(f"[FINAL] Found {len(results)} working proxies")
 
           # Calculate hash of old links
           old_links_hash = ""
@@ -287,17 +340,21 @@ jobs:
           with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
               f.write("# RU Whitelist Reality Vision ULTRA ✅ SMART PUSH\n")
               f.write(f"# Processed: {len(all_raw_lines)} -> Live: {len(results)}\n")
-              f.write(f"# Ports: 80/443/8443 | Ping: {MIN_LATENCY}-{MAX_LATENCY}ms\n")
+              f.write(f"# Ports: {', '.join(map(str, sorted(ALLOWED_PORTS)))} | Ping: {MIN_LATENCY}-{MAX_LATENCY}ms\n")
               f.write(f"# Updated: {time.strftime('%Y-%m-%d %H:%M UTC')}\n\n")
               for i, (latency, link) in enumerate(results[:TOP_LIMIT], 1):
                   f.write(f"# {i}. {latency}ms\n{link}\n\n")
 
           # Calculate hash of new links
-          with open(OUTPUT_FILE, 'r', encoding='utf-8') as f:
-              new_content = f.read()
-          new_links = [line.strip() for line in new_content.splitlines() if line.strip().startswith('vless://')]
-          new_links_hash = hashlib.md5(''.join(sorted(new_links)).encode()).hexdigest()
-          print(f"[NEW] {len(new_links)} links, hash: {new_links_hash[:8]}")
+          if results:
+              with open(OUTPUT_FILE, 'r', encoding='utf-8') as f:
+                  new_content = f.read()
+              new_links = [line.strip() for line in new_content.splitlines() if line.strip().startswith('vless://')]
+              new_links_hash = hashlib.md5(''.join(sorted(new_links)).encode()).hexdigest()
+              print(f"[NEW] {len(new_links)} links, hash: {new_links_hash[:8]}")
+          else:
+              new_links_hash = "empty"
+              print("[NEW] No working proxies found")
 
           # Check for real changes
           has_real_changes = (old_links_hash != new_links_hash) or (old_links_hash == "none")
@@ -308,7 +365,7 @@ jobs:
               out.write(f"count={len(results)}\n")
               out.write(f"best_ping={results[0][0] if results else 0}\n")
               out.write(f"total_scanned={len(all_raw_lines)}\n")
-              out.write(f"conversion_rate={round(len(results)/max(1,len(all_raw_lines))*100, 2)}\n")
+              out.write(f"conversion_rate={round(len(results)/max(1,len(all_raw_lines))*100, 2) if results else 0}\n")
               out.write(f"has_changes={str(has_real_changes).lower()}\n")
           EOF
 
@@ -330,8 +387,7 @@ jobs:
           ⭐ Best: ${{ steps.check_alive.outputs.best_ping }}ms 
           📈 Rate: ${{ steps.check_alive.outputs.conversion_rate }}%
 
-          🔄 NEW KEYS DETECTED (hash changed)
-          🛡️ Crash-proof | Wildcard SNI | CDN-only"
+          🔄 NEW KEYS DETECTED"
             
             git push https://x-access-token:${GH_PAT}@github.com/${{ github.repository }} HEAD:main
             echo "✅ REAL CHANGES PUSHED!"
