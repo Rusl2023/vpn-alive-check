@@ -117,7 +117,7 @@ jobs:
                       city_resp = city_reader.city(ip)
                       if (city_resp.country.iso_code == 'RU' or 
                           city_resp.city.names.get('ru', '').lower() in ['москва', 'санкт-петербург', 'новосибирск', 'екатеринбург', 
-                                                                        'казань', 'нижний новгород', 'челябинск', 'самара']):
+                                                                        'казань', 'нижний новгород', 'сургут', 'челябинск', 'самара']):
                           return True
                       
                   except Exception as e:
