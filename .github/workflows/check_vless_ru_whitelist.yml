@@ -42,19 +42,15 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests geoip2
 
-      - name: Scan VLESS BYPASS WHITELIST
+      - name: Scan VLESS LIVE
         id: scan
         run: |
           python3 <<'EOF'
-          import os
-          import socket
-          import urllib.parse
-          import requests
-          import time
-          import random
+          import os, socket, urllib.parse, requests, time
           from concurrent.futures import ThreadPoolExecutor, as_completed
           from threading import Lock
           import geoip2.database
+          import random
 
           COUNTRY_DB = "geolite2/GeoLite2-Country.mmdb"
           ASN_DB = "geolite2/GeoLite2-ASN.mmdb"
@@ -73,51 +69,39 @@ jobs:
               "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
           }
 
+          # ЖИВЫЕ источники RU SNI (обновлено 2026)
           RU_SNI_URLS = [
               "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/whitelist.txt",
               "https://raw.githubusercontent.com/ndsphub/proxy-list/main/proxies/megafon.txt",
               "https://raw.githubusercontent.com/ssrsub/ssr/master/V2Ray.txt",
-              "https://raw.githubusercontent.com/adiwzx/freenode/main/adispeed.txt",
-              "https://raw.githubusercontent.com/v2ray/domain-list-community/master/data/cdn",
-              "https://raw.githubusercontent.com/v2fly/domain-list-community/master/data/cdn",
-              "https://api.proxyscrape.com/v2/?request=getproxies&protocol=socks5&country=ru",
-              "https://raw.githubusercontent.com/mahdi-sadeghiii/freev2ray/main/sni.txt"
+              "https://raw.githubusercontent.com/adiwzx/freenode/main/adispeed.txt"
           ]
           
           ru_sni = set()
           for url in RU_SNI_URLS:
               try:
-                  print(f"Loading RU SNI: {url}")
                   r = requests.get(url, timeout=15, headers=headers)
-                  new_sni = [x.strip().lower() for x in r.text.splitlines() if x.strip() and not x.startswith("#")]
-                  ru_sni.update(new_sni)
-                  print(f"Added {len(new_sni)} SNI from {url}")
-                  time.sleep(random.uniform(0.3, 1.0))
-              except Exception as e:
-                  print(f"Failed RU SNI {url}: {e}")
+                  ru_sni.update(x.strip().lower() for x in r.text.splitlines() if x.strip() and not x.startswith("#"))
+                  time.sleep(1)
+              except:
                   continue
+          print(f"RU SNI loaded: {len(ru_sni)}")
 
-          BYPASS_CDN = {
-              "www.cloudflare.com", "cloudflare.com", "cdn.cloudflare.net",
-              "cdnjs.cloudflare.com", "ajax.googleapis.com", "fonts.googleapis.com",
-              "www.google.com", "connectivitycheck.gstatic.com", "www.gstatic.com"
-          }
-          ru_sni.update(BYPASS_CDN)
-          print(f"TOTAL RU SNI + BYPASS: {len(ru_sni)}")
-
+          # АКТУАЛЬНЫЕ источники ЖИВЫХ VLESS ключей (2026)
           URLS = [
+              # Основные рабочие на 2026
               "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/v2ray/all_sub.txt",
               "https://raw.githubusercontent.com/barry-far/V2ray-Configs/main/All_Configs_Sub.txt",
               "https://raw.githubusercontent.com/EbrahimFakhrahmani/free-v2ray-configs/main/configs/vless.txt",
               "https://raw.githubusercontent.com/MrPooyaX/IranProxy/main/Sub1.txt",
+              
+              # Дополнительные живые источники
               "https://raw.githubusercontent.com/zealis/v2ray-subscription/master/vless.txt",
               "https://raw.githubusercontent.com/Armin3x/Configs/main/V2rayConfig.txt",
               "https://raw.githubusercontent.com/freefq/free/master/v2",
               "https://raw.githubusercontent.com/v2ray-ir/free-v2rayng-accounts/main/All_Configs_Sub.txt",
               "https://raw.githubusercontent.com/mfuu/v2ray/master/v2ray",
-              "https://raw.githubusercontent.com/Rayan-Refoua/v2rayList/main/List.txt",
-              "https://raw.githubusercontent.com/whoahaow/rjsxrd/main/configs.txt",
-              "https://raw.githubusercontent.com/whitel41/white_list/main/vless.txt"
+              "https://raw.githubusercontent.com/Rayan-Refoua/v2rayList/main/List.txt"
           ]
 
           dns_cache = {}
@@ -147,7 +131,7 @@ jobs:
               try:
                   ok = country_reader.country(ip).country.iso_code != "RU"
               except:
-                  ok = True
+                  ok = False
               geo_cache[host] = ok
               return ok
 
@@ -158,10 +142,10 @@ jobs:
                   return asn_cache[host]
               ip = resolve(host)
               if not ip:
-                  return True
+                  return False
               try:
                   org = asn_reader.asn(ip).autonomous_system_organization.lower()
-                  bad = {"rostelecom"}
+                  bad = {"rostelecom","mts","megafon","beeline","tele2","yandex","mgts","ttk"}
                   ok = not any(x in org for x in bad)
               except:
                   ok = True
@@ -170,7 +154,7 @@ jobs:
 
           def tcp_ping(host, port):
               try:
-                  s = socket.create_connection((host, port), timeout=3)
+                  s = socket.create_connection((host, port), timeout=2)
                   s.close()
                   return True
               except:
@@ -182,57 +166,55 @@ jobs:
                   if u.scheme != "vless":
                       return None
                   q = urllib.parse.parse_qs(u.query)
-                  sni = q.get("sni", [""])[0].lower()
-                  if not sni and u.hostname:
-                      sni = u.hostname.lower()
                   return {
                       "link": link.strip(),
                       "host": u.hostname,
                       "port": int(u.port or 443),
-                      "sni": sni,
+                      "sni": q.get("sni", [""])[0].lower(),
                       "security": q.get("security", [""])[0],
                       "flow": q.get("flow", [""])[0]
                   }
               except:
                   return None
 
-          print("Downloading VLESS configs...")
+          print("Downloading configs...")
           lines = []
           for i, url in enumerate(URLS):
               try:
-                  print(f"{i+1}/{len(URLS)}: {url}")
+                  print(f"Fetching {url}")
                   r = requests.get(url, timeout=25, headers=headers)
                   new_lines = [l for l in r.text.splitlines() if l.strip()]
                   lines.extend(new_lines)
-                  print(f"{len(new_lines)} lines")
-                  time.sleep(random.uniform(0.5, 2.0))
+                  print(f"Got {len(new_lines)} lines from {i+1}/{len(URLS)}")
+                  time.sleep(random.uniform(0.5, 1.5))  # Антибан
               except Exception as e:
-                  print(f"Failed: {e}")
+                  print(f"Failed {url}: {e}")
                   continue
 
-          vless = list(set([l for l in lines if l.startswith("vless://")]))
-          print(f"VLESS links: {len(vless)} unique")
+          print(f"Total lines: {len(lines)}")
+          vless = [l for l in lines if l.startswith("vless://")]
+          print(f"VLESS links: {len(vless)}")
 
           def check(link):
               d = parse(link)
-              if not d or not d["host"]:
+              if not d:
                   return None
               
-              if d["sni"] and d["sni"] not in ru_sni:
+              # Фильтры качества
+              if not d["sni"] or d["sni"] not in ru_sni:
                   return None
-              
+              if d["host"] is None:
+                  return None
               if not not_ru_geo(d["host"]):
                   return None
               if not not_ru_asn(d["host"]):
                   return None
-              
               if not tcp_ping(d["host"], d["port"]):
                   return None
-              
-              if d["security"] not in ("reality", "tls", ""):
+              if d["security"] not in ("reality", "tls"):
                   return None
 
-              key = (d["host"], d["port"], d["sni"] or "no-sni")
+              key = (d["host"], d["port"], d["sni"])
               with lock:
                   if key in seen:
                       return None
@@ -240,68 +222,79 @@ jobs:
 
               return d["link"]
 
-          print("BYPASS WHITELIST SCANNING...")
+          print("Checking live keys...")
           results = []
-          with ThreadPoolExecutor(max_workers=120) as ex:
-              futures = [ex.submit(check, l) for l in vless[:10000]]
+          with ThreadPoolExecutor(max_workers=100) as ex:  # Больше потоков
+              futures = [ex.submit(check, l) for l in vless[:8000]]  # Больше ссылок
               for i, f in enumerate(as_completed(futures), 1):
-                  if i % 200 == 0:
-                      print(f"Checked {i}/{len(futures)} ({len(results)} live)")
+                  if i % 100 == 0:
+                      print(f"Checked {i}/{len(futures)}")
                   r = f.result()
                   if r:
                       results.append(r)
 
-          print(f"BYPASS WHITELIST SUCCESS: {len(results)} LIVE KEYS")
+          print(f"LIVE KEYS FOUND: {len(results)}")
 
+          # Сохраняем с timestamp для отладки
           os.makedirs("githubmirror", exist_ok=True)
           path = "githubmirror/26_ru_whitelist.txt"
           timestamp = time.strftime("%Y-%m-%d %H:%M:%S UTC")
           
           with open(path, "w", encoding="utf-8") as f:
-              f.write("# RU WHITELIST BYPASS VLESS Reality/TLS\n")
+              f.write(f"# RU Whitelist LIVE VLESS\n")
               f.write(f"# Updated: {timestamp}\n")
-              f.write(f"# Live keys: {len(results)}\n")
-              f.write(f"# RU SNI + CDN bypass: {len(ru_sni)}\n")
-              f.write("# Filters: GeoIP + ASN + TCP Ping\n\n")
+              f.write(f"# Count: {len(results)}\n")
+              f.write(f"# Sources: {len(URLS)}\n\n")
               for l in results:
                   f.write(l + "\n")
 
-          with open("bypass_debug.txt", "w") as f:
-              f.write(f"TOTAL SNI+CDN: {len(ru_sni)}\n")
+          # Сохраняем отладку
+          with open("debug_info.txt", "w") as f:
+              f.write(f"Sources URLs: {len(URLS)}\n")
+              f.write(f"RU SNI count: {len(ru_sni)}\n")
               f.write(f"VLESS parsed: {len(vless)}\n")
-              f.write(f"LIVE bypassed: {len(results)}\n")
-              f.write(f"SNI sample: {list(ru_sni)[:10]}\n")
+              f.write(f"LIVE keys: {len(results)}\n")
+              f.write(f"RU SNI sample: {list(ru_sni)[:5]}\n")
 
           with open(os.environ["GITHUB_OUTPUT"], "a") as f:
               f.write(f"count={len(results)}\n")
               f.write(f"total_vless={len(vless)}\n")
               f.write(f"sni_count={len(ru_sni)}\n")
 
-          print("BYPASS WHITELIST RESULTS:")
-          print(f"SNI+CDN: {len(ru_sni)}")
-          print(f"VLESS: {len(vless)}")
-          print(f"LIVE: {len(results)}")
+          print(f"=== FINAL RESULT ===")
+          print(f"SNI loaded: {len(ru_sni)}")
+          print(f"VLESS total: {len(vless)}")
+          print(f"LIVE keys: {len(results)}")
           EOF
 
-      - name: Debug Bypass Info
+      - name: Show debug info
         run: |
-          echo "=== BYPASS DEBUG ==="
-          cat bypass_debug.txt || echo "No debug"
-          echo "--- OUTPUT FILE ---"
-          head -20 githubmirror/26_ru_whitelist.txt || echo "No output"
-          echo "--- GIT STATUS ---"
+          echo "=== DEBUG ==="
+          cat debug_info.txt || echo "No debug file"
+          echo "=== FILE CONTENT ==="
+          cat githubmirror/26_ru_whitelist.txt || echo "No output file"
+          echo "=== GIT STATUS ==="
           git status
 
-      - name: Commit Bypass Update
+      - name: Commit & push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add githubmirror/26_ru_whitelist.txt bypass_debug.txt || true
+
+          git add githubmirror/26_ru_whitelist.txt debug_info.txt || true
+
           if git diff --staged --quiet; then
-            echo "No changes - whitelist up to date"
+            echo "No changes"
             exit 0
           fi
-          echo "BYPASS changes detected!"
-          git commit -m "WHITELIST BYPASS: ${{ steps.scan.outputs.count }} LIVE keys (VLESS: ${{ steps.scan.outputs.total_vless }}, SNI: ${{ steps.scan.outputs.sni_count }})"
+
+          COUNT="${{ steps.scan.outputs.count }}"
+          TOTAL="${{ steps.scan.outputs.total_vless }}"
+          SNI="${{ steps.scan.outputs.sni_count }}"
+
+          echo "Commit values:"
+          echo "$COUNT $TOTAL $SNI"
+
+          git commit -m "RU whitelist update | keys:$COUNT vless:$TOTAL sni:$SNI"
+
           git push origin ${{ steps.branch.outputs.name }}
-          echo "BYPASS whitelist pushed successfully!"
