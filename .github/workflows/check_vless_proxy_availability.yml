@@ -1,4 +1,4 @@
-name: Check VLESS proxy availability via Xray (FAST STABLE + FULL RU-filter)
+name: Check VLESS proxy availability via Xray (base64 subscription)
 on:
   schedule:
     - cron: '*/59 * * * *'
@@ -8,11 +8,10 @@ permissions:
 concurrency:
   group: vless-subscription-update
   cancel-in-progress: true
-
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with:
@@ -21,312 +20,248 @@ jobs:
       - name: Install deps
         run: |
           sudo apt-get update
-          sudo apt-get install -y curl jq unzip python3 python3-pip git
-          pip3 install geoip2==4.8.0 maxminddb requests
-
-      - name: Download GeoLite2
-        run: |
-          echo "📥 Downloading GeoLite2..."
-          curl -L -o GeoLite2-Country.mmdb https://raw.githubusercontent.com/P3TERX/GeoLite.mmdb/download/GeoLite2-Country.mmdb
-          curl -L -o GeoLite2-City.mmdb https://raw.githubusercontent.com/P3TERX/GeoLite.mmdb/download/GeoLite2-City.mmdb
-          curl -L -o GeoLite2-ASN.mmdb https://raw.githubusercontent.com/P3TERX/GeoLite.mmdb/download/GeoLite2-ASN.mmdb
-          ls -la *.mmdb
+          sudo apt-get install -y curl jq unzip python3
 
       - name: Download Xray
         run: |
           XRAY_VER=$(curl -s https://api.github.com/repos/XTLS/Xray-core/releases/latest | jq -r .tag_name)
-          curl -L -o xray.zip "https://github.com/XTLS/Xray-core/releases/download/${XRAY_VER}/Xray-linux-64.zip"
-          unzip -o xray.zip xray
+          curl -L -o xray.zip https://github.com/XTLS/Xray-core/releases/download/${XRAY_VER}/Xray-linux-64.zip
+          unzip -o xray.zip xray geoip.dat geosite.dat
           chmod +x xray
 
-      - name: Prepare
+      - name: Prepare output files
         run: |
           mkdir -p githubmirror
-          echo "# Updated $(date -u +'%Y-%m-%d %H:%M UTC') (FULL GeoLite2 RU-filter)" > githubmirror/26_proxy_subscription_raw.txt
-          echo "# Updated $(date -u +'%Y-%m-%d %H:%M UTC')" > githubmirror/26_proxy_subscription_base64.txt
+          echo "# updated $(date -u)" > githubmirror/26_proxy_subscription_raw.txt
+
+      - name: Get runner IP
+        run: |
           echo "RUNNER_IP=$(curl -s https://api.ipify.org)" >> $GITHUB_ENV
 
-      - name: 🔥 Check proxies (25 workers + FULL RU-filter)
+      - name: Check VLESS via Xray (FAST VERSION)
         run: |
           python3 <<'EOF'
-          import subprocess, time, json, urllib.parse, os, re, hashlib
-          import geoip2.database
+          import subprocess, time, json, urllib.parse, os, threading
           from concurrent.futures import ThreadPoolExecutor, as_completed
           from datetime import datetime, timezone
 
           INPUT = 'githubmirror/26_ru_whitelist.txt'
-          OUTPUT = 'githubmirror/26_proxy_subscription_raw.txt'
-          RUNNER_IP = os.environ.get('RUNNER_IP','')
+          OUTPUT_RAW = 'githubmirror/26_proxy_subscription_raw.txt'
+          RUNNER_IP = os.environ.get('RUNNER_IP', '')
+          
+          TEST_URLS = [
+              'https://api.ipify.org?format=text',
+              'http://cp.cloudflare.com',
+              'https://www.instagram.com/'
+          ]
           XRAY = './xray'
-
-          MAX_WORKERS = 25
-          ALLOWED_PORTS = [80, 443]
-
-          # ✅ FULL GeoLite2
-          country_reader = asn_reader = city_reader = None
-          try:
-              country_reader = geoip2.database.Reader('GeoLite2-Country.mmdb')
-              asn_reader = geoip2.database.Reader('GeoLite2-ASN.mmdb')
-              city_reader = geoip2.database.Reader('GeoLite2-City.mmdb')
-              print("✅ GeoLite2 FULL loaded: Country+ASN+City")
-          except Exception as e:
-              print(f"⚠️ GeoLite2 error: {e}")
-
-          ru_prefixes = {'5.', '31.', '37.', '46.', '77.', '78.', '79.', '80.', '81.', '82.', '83.',
-                        '84.', '85.', '86.', '87.', '88.', '89.', '90.', '91.', '92.', '93.', '94.', '95.'}
-
-          def has_ru_name(original_link):
-              """🔥 БЛОКИРОВКА ЛЮБЫХ RU в ОРИГИНАЛЬНОМ ИМЕНИ"""
-              name = original_link.split('#')[-1] if '#' in original_link else ''
-              if not name: return False
-              
-              name_lower = name.lower()
-              
-              # 🇷🇺 флаги
-              if re.search(r'[🇷🇺]', name): 
-                  print(f"🚫 RU-FLAG in name: {name[:30]}...")
-                  return True
-              
-              # АГРЕССИВНЫЙ поиск RU (включая части слов)
-              if any(keyword in name_lower for keyword in ['ru', 'росси', 'моск', 'спб', 'питер', 'mts', 'mtsrvrs', 'bah-26']):
-                  print(f"🚫 RU-CONTENT in name: {name[:30]}...")
-                  return True
-              
-              return False
-
-          def is_ru_full(ip):
-              if not ip or ip == RUNNER_IP: return True
-              if ip.startswith(tuple(ru_prefixes)): return True
-              try:
-                  if country_reader and country_reader.country(ip).country.iso_code == 'RU': return True
-                  if asn_reader:
-                      asn = asn_reader.asn(ip)
-                      if asn.registered_organization and any(ru in asn.registered_organization.lower() 
-                          for ru in ['rostelecom', 'beeline', 'mts', 'mega-fon', 'mgts', 'megafon']):
-                          return True
-                  if city_reader and city_reader.city(ip).country.iso_code == 'RU': return True
-              except: pass
-              return False
-
-          def get_ip(port):
-              urls = ['https://api.ipify.org?format=text', 'https://icanhazip.com']
-              for url in urls:
+          MAX_WORKERS = 8
+          
+          active_processes = []
+          lock = threading.Lock()
+          
+          def cleanup():
+              with lock:
+                  for p in active_processes:
+                      try:
+                          p.terminate()
+                          p.wait(timeout=1)
+                      except:
+                          p.kill()
+                  active_processes.clear()
+          
+          def exit_ip(port):
+              for url in TEST_URLS:
                   try:
                       out = subprocess.check_output(
-                          ['curl', '-s', '--max-time', '4', '-x', f'socks5h://127.0.0.1:{port}', url],
-                          text=True, timeout=6).strip()
-                      if re.match(r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$', out):
+                          ['curl', '-s', '--max-time', '2', '-x', f'socks5h://127.0.0.1:{port}', url],
+                          text=True, timeout=3
+                      ).strip()
+                      if out and len(out) > 5:  # Валидный IP
                           return out
-                  except: continue
+                  except:
+                      pass
               return None
-
-          def check_html(port):
-              urls = ['https://www.google.com', 'https://httpbin.org/html']
-              for url in urls:
-                  try:
-                      out = subprocess.check_output(
-                          ['curl', '-s', '--max-time', '5', '-x', f'socks5h://127.0.0.1:{port}', url],
-                          timeout=8)
-                      if b'<!DOCTYPE' in out or b'<html' in out: return True
-                  except: continue
-              return False
-
-          def ultra_clean_name(name, hostname, port):
-              """🔥 СУПЕР-АГРЕССИВНАЯ ЧИСТКА: УДАЛЯЕМ ВСЕ RU + мусор"""
-              if not name: 
-                  return f"{hostname}:{port}"
-              
-              # 1. Удаляем ВСЕ флаги/эмодзи
-              name = re.sub(r'[\U0001F1E6-\U0001F1FF\U0001F3F4\U00002642\U0001F3F3\U0001F308\U0001F4FA]', '', name)
-              
-              # 2. Убираем лишние символы
-              name = re.sub(r'[#|🗡️🏴‍☠️🌐📺📡—–━]', '', name)
-              
-              # 3. АГРЕССИВНО удаляем RU (целые слова + части)
-              ru_keywords = ['ru', 'RU', 'россия', 'russia', 'москва', 'spb', 'питер', 'mts', 'mtsrvrs', 'bah-26']
-              name_lower = name.lower()
-              for keyword in ru_keywords:
-                  if keyword in name_lower:
-                      name = re.sub(rf'{re.escape(keyword)}', '', name, flags=re.IGNORECASE)
-              
-              # 4. Чистим пробелы/разделители
-              name = re.sub(r'\s+', ' ', name).strip()
-              name = re.sub(r'[-_|]+', ' ', name).strip()
-              name = name.strip('# |').strip()
-              
-              # 5. Если почти пусто - IP:port
-              if len(name.strip()) < 3 or 'ru' in name_lower:
-                  return f"{hostname}:{port}"
-              
-              return name[:60]
-
-          def check(link):
-              cfg_file = proc = None
+          
+          def is_good_ip(ip):
+              if not ip or ip == RUNNER_IP:
+                  return False
+              # Быстрая фильтрация RU IP по префиксам (как в быстром логе)
+              ru_prefixes = {'5.', '31.', '37.', '46.', '77.', '78.', '79.', '80.', '81.', '82.', '83.', 
+                            '84.', '85.', '86.', '87.', '88.', '89.', '90.', '91.', '92.', '93.', '94.', '95.'}
+              return ip[:ip.find('.')+3] not in ru_prefixes
+          
+          def country(ip):
+              try:
+                  import urllib.request
+                  with urllib.request.urlopen(f'https://ipapi.co/{ip}/country/', timeout=3) as r:
+                      return r.read().decode().strip()
+              except:
+                  return 'Unknown'
+          
+          def check_one(link):
+              cfg_file = None
+              process = None
+              port = None
               try:
                   u = urllib.parse.urlparse(link)
-                  if not u.hostname or not u.username: return None
-                  
-                  # 🔥 ФИЛЬТР 1: БЛОКИРОВКА RU в ОРИГИНАЛЬНОМ ИМЕНИ
-                  if has_ru_name(link):
-                      return None
-                  
-                  port = int(u.port or 443)
-                  if port not in ALLOWED_PORTS:
-                      print(f"🚫 BAD-PORT {port}: {u.hostname}")
-                      return None
-
                   q = urllib.parse.parse_qs(u.query)
-                  stream = {'network': q.get('type', ['tcp'])[0]}
                   
-                  if q.get('security', [''])[0] == 'reality' and 'pbk' in q:
-                      stream.update({
-                          'security': 'reality',
-                          'realitySettings': {
-                              'serverName': q.get('sni', [u.hostname])[0],
-                              'publicKey': q['pbk'][0],
-                              'shortId': q.get('sid', [''])[0],
-                              'fingerprint': 'chrome'
-                          }
-                      })
-
-                  port_hash = int(hashlib.md5(link.encode()).hexdigest(), 16) % 20000
-                  socks_port = 10000 + port_hash
-
+                  stream = {'network': q.get('type', ['tcp'])[0]}
+                  sec = q.get('security', ['none'])[0]
+                  sni = q.get('sni', [''])[0]
+                  
+                  if sec == 'reality' and 'pbk' in q:
+                      stream['security'] = 'reality'
+                      stream['realitySettings'] = {
+                          'serverName': sni,
+                          'publicKey': q['pbk'][0],
+                          'shortId': q.get('sid', [''])[0],
+                          'fingerprint': 'chrome'
+                      }
+                  
+                  # Уникальный порт для каждого потока
+                  port_num = 10800 + (hash(link) % 900) + 100
+                  port = port_num
+                  
                   cfg = {
-                      "log": {"loglevel": "warning"},
-                      "inbounds": [{"listen": "127.0.0.1", "port": socks_port, "protocol": "socks", "settings": {"udp": False}}],
-                      "outbounds": [{
-                          "protocol": "vless",
-                          "settings": {"vnext": [{
-                              "address": u.hostname,
-                              "port": port,
-                              "users": [{"id": u.username, "encryption": "none", "flow": q.get('flow', [''])[0]}]
-                          }]},
-                          "streamSettings": stream
+                      'inbounds': [{
+                          'listen': '127.0.0.1',
+                          'port': port,
+                          'protocol': 'socks',
+                          'settings': {'udp': False}
+                      }],
+                      'outbounds': [{
+                          'protocol': 'vless',
+                          'settings': {
+                              'vnext': [{
+                                  'address': u.hostname,
+                                  'port': u.port or 443,
+                                  'users': [{
+                                      'id': u.username,
+                                      'encryption': 'none',
+                                      'flow': q.get('flow', [''])[0]
+                                  }]
+                              }]
+                          },
+                          'streamSettings': stream
                       }]
                   }
-
-                  cfg_file = f"cfg_{socks_port % 10000}.json"
-                  with open(cfg_file, 'w') as f: json.dump(cfg, f)
-
-                  proc = subprocess.Popen([XRAY, 'run', '-c', cfg_file],
-                                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
                   
-                  time.sleep(1.2)
-
-                  ip = get_ip(socks_port)
-                  if ip and not is_ru_full(ip) and check_html(socks_port):
-                      # 🔥 СУПЕР-ЧИСТКА ИМЕНИ
-                      original_name = u.fragment or ''
-                      clean_name_result = ultra_clean_name(original_name, u.hostname, port)
-                      
-                      # ✅ ФИНАЛЬНАЯ ПРОВЕРКА: если в чистом имени есть RU - БЛОК
-                      if 'ru' in clean_name_result.lower():
-                          print(f"🚫 FINAL RU FILTER: {u.hostname}:{port}")
-                          return None
-                      
-                      clean_link = link.split('#')[0] + '#' + clean_name_result
-                      print(f"⭐ {u.hostname}:{port} OK {ip} -> '{clean_name_result}'")
-                      return clean_link
-                  elif ip and is_ru_full(ip):
-                      print(f"🚫 RU-FULL: {u.hostname}:{port} {ip}")
-                  elif ip:
-                      print(f"⚠ HTML failed: {u.hostname}:{port}")
+                  cfg_file = f'cfg_{hash(link) % 10000}.json'
+                  with open(cfg_file, 'w') as f:
+                      json.dump(cfg, f)
+                  
+                  process = subprocess.Popen(
+                      [XRAY, 'run', '-c', cfg_file],
+                      stdout=subprocess.DEVNULL,
+                      stderr=subprocess.DEVNULL
+                  )
+                  
+                  with lock:
+                      active_processes.append(process)
+                  
+                  time.sleep(1.5)  # Быстрее чем 4 сек
+                  
+                  ip = exit_ip(port)
+                  if process:
+                      process.terminate()
+                      time.sleep(0.3)
+                  
+                  if ip and is_good_ip(ip):
+                      country_code = country(ip)
+                      if country_code != 'RU':
+                          print(f"⭐ {u.hostname}:{u.port or 443} OK {ip} → {country_code}")
+                          return link
+                      else:
+                          print(f"✗ {u.hostname}:{u.port or 443} RU {ip}")
                   else:
-                      print(f"✗ no IP: {u.hostname}:{port}")
-
+                      print(f"✗ {u.hostname}:{u.port or 443} no IP")
+                  
               except Exception as e:
                   print(f"✗ {link[:50]}... error")
               finally:
-                  if proc:
-                      try: 
-                          proc.terminate()
-                          proc.wait(2)
-                      except: 
-                          try: proc.kill()
-                          except: pass
+                  if process:
+                      try:
+                          process.terminate()
+                          process.wait(timeout=0.5)
+                      except:
+                          process.kill()
+                  with lock:
+                      if process and process in active_processes:
+                          active_processes.remove(process)
                   if cfg_file and os.path.exists(cfg_file):
                       os.remove(cfg_file)
               return None
-
+          
           if not os.path.exists(INPUT):
-              print("❌ No input file")
-              exit(1)
-
-          links = [l.strip() for l in open(INPUT) if l.strip().startswith('vless://')]
-          print(f"🚀 TOTAL: {len(links)} proxies | 25 workers + FULL GeoLite2")
-
-          # ✅ ОЧИЩАЕМ ФАЙЛ ПЕРЕД НАЧАЛОМ
-          open(OUTPUT, 'w').write(f"# Updated {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')} (FULL GeoLite2 RU-filter)\n\n")
-
+              print("Input file not found")
+              raise SystemExit(0)
+          
+          with open(INPUT) as f:
+              links = [l.strip() for l in f if l.startswith('vless://')]
+          
+          total_links = len(links)
+          print(f"TOTAL: {total_links} | workers={MAX_WORKERS}")
+          
+          with open(OUTPUT_RAW, 'w') as f:
+              f.write(f"# updated {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}\n")
+          
           alive = []
-          start = time.time()
+          start_time = time.time()
+          processed = 0
           
-          with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
-              futures = {ex.submit(check, l): l for l in links}
-              
-              processed = 0
-              for future in as_completed(futures):
-                  processed += 1
-                  try:
-                      result = future.result(timeout=30)
-                      if result: 
+          try:
+              with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
+                  futures = [ex.submit(check_one, link) for link in links]
+                  for future in as_completed(futures):
+                      processed += 1
+                      result = future.result()
+                      if result:
                           alive.append(result)
-                  except: 
-                      pass
-                  
-                  if processed % 20 == 0:
-                      print(f"📊 {processed}/{len(links)} ({processed/len(links)*100:.1f}%)")
-                  if time.time() - start > 2400: 
-                      break
-
-          if alive:
-              # 🔥 ✅ ИСПРАВЛЕННОЕ ПЕРЕИМЕНОВАНИЕ КЛЮЧЕЙ ПО ПОРЯДКУ 1.2.3.4.5...
-              print(f"🔄 Renaming {len(alive)} proxies with numbered keys...")
-              numbered_proxies = []
-              for i, proxy in enumerate(alive, 1):
-                  base_link = proxy.split('#')[0]
-                  new_name = f"{i}"
-                  numbered_proxy = f"{base_link}#{new_name}"
-                  numbered_proxies.append(numbered_proxy)
-                  print(f"📝 {i}: {new_name}")
-              
-              # ✅ ✅ ПРАВИЛЬНАЯ ЗАПИСЬ КАЖДОЙ СТРОКИ ОТДЕЛЬНО
-              with open(OUTPUT, 'a') as f:
-                  for proxy in numbered_proxies:
-                      f.write(proxy + '\n')
+                      
+                      if processed % 10 == 0:
+                          elapsed = time.time() - start_time
+                          print(f"Processed {processed}/{total_links} ({processed/total_links*100:.0f}%) in {elapsed:.0f}s")
+                      
+                      if time.time() - start_time > 600:  # 10 мин макс
+                          print("MAX TOTAL TIME reached")
+                          break
+                          
+          finally:
+              cleanup()
           
-          print(f"✅ Alive: {len(alive)} ULTRA-PREMIUM proxies (NO RU) - NUMBERED 1.2.3...")
+          print(f"Done. Alive: {len(alive)}")
+          
+          if alive:
+              with open(OUTPUT_RAW, 'a') as f:
+                  f.write('\n'.join(alive) + '\n')
+              print(f"Saved {len(alive)} NON-RU proxies")
           EOF
 
-      - name: Base64
+      - name: Encode subscription to Base64
         run: |
-          if [ -s githubmirror/26_proxy_subscription_raw.txt ]; then
-            base64 -w 0 githubmirror/26_proxy_subscription_raw.txt > githubmirror/26_proxy_subscription_base64.txt
-            echo "✅ Base64 ready: $(wc -l < githubmirror/26_proxy_subscription_raw.txt) lines"
-          fi
+          base64 -w 0 githubmirror/26_proxy_subscription_raw.txt > githubmirror/26_proxy_subscription_base64.txt
 
-      - name: Debug
+      - name: Debug output
         run: |
-          echo "📋 RESULTS:"
+          echo "RAW lines:"
           wc -l githubmirror/26_proxy_subscription_raw.txt
-          head -15 githubmirror/26_proxy_subscription_raw.txt
+          echo "BASE64 size:"
+          wc -c githubmirror/26_proxy_subscription_base64.txt
+          echo "First 3 lines:"
+          head -3 githubmirror/26_proxy_subscription_raw.txt
 
-      - name: ✅ Git Commit & Push
+      - name: Commit & push results
         run: |
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
-          
-          git add githubmirror/26_proxy_subscription*.txt || true
-          
+          git pull --rebase || true
+          git add githubmirror/*.txt || true
           if git diff --staged --quiet; then
-            echo "ℹ️ No changes"
-            exit 0
+            echo "❌ No changes to commit"
+          else
+            git commit -m "Update NON-RU proxy subscriptions [$(date -u +'%Y-%m-%d %H:%M UTC')]"
+            git push || true
+            echo "✅ Pushed NON-RU updates"
           fi
-          
-          COUNT=$(tail -n +3 githubmirror/26_proxy_subscription_raw.txt 2>/dev/null | wc -l || echo 0)
-          git commit -m "🚀 ULTRA-PREMIUM: ${COUNT} proxies (NO RU, NUMBERED 1.2.3...) | FULL GeoLite2 [$(date -u +'%Y-%m-%d %H:%M UTC')]"
-          
-          git pull origin main --rebase || git pull origin main
-          git push origin main
-          echo "✅ SUCCESS: Pushed ${COUNT} NUMBERED CLEAN proxies!"
