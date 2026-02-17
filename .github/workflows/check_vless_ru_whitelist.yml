@@ -57,10 +57,8 @@ jobs:
           def load_ru_sni_whitelist():
               sources = [
                   "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/whitelist.txt",
-                  "https://raw.githubusercontent.com/sbnet75/zapret/main/allowlist.txt",
-                  "https://raw.githubusercontent.com/bol-van/zapret/master/data/allow-urls.txt",
-                  "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/main/WHITE-SNI-RU-all.txt"
               ]
+              
               whitelist = set()
               for url in sources:
                   try:
