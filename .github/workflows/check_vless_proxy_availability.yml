@@ -456,24 +456,25 @@ jobs:
               asn_reader.close()
           EOF
 
-      - name: Commit & push results
-        run: |
+          - name: Commit & push results
+          run: |
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
 
-          # Чистим временные конфиги Xray
+          # Чистим временные конфиги
           rm -f cfg_*.json xray.zip || true
 
-          # Добавляем только нужные артефакты
           git add githubmirror/*.txt || true
-          
-          # Проверяем, есть ли изменения
+
           if git diff --staged --quiet; then
             echo "❌ No changes to commit"
             exit 0
           fi
-          
-          # Коммит и push
+
           git commit -m "Update battle-tested NON-RU proxy subscriptions [$(date -u +'%Y-%m-%d %H:%M UTC')]"
+
+          # 🔥 ВАЖНО: подтянуть изменения перед push
+          git pull --rebase origin main
+
           git push origin main
           echo "✅ Pushed battle-tested updates"
