@@ -1,13 +1,16 @@
 name: VLESS RU Reality Clean Filter
+
 on:
   schedule:
-    - cron: '0 */3 * * *'  # ИСПРАВЛЕНО: каждые 3 часа вместо каждый час
+    - cron: "*/20 * * * *"
   workflow_dispatch:
+
 jobs:
   check:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+
     steps:
       - uses: actions/checkout@v4
 
@@ -17,60 +20,64 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install requests geoip2
+        run: pip install --upgrade pip && pip install requests geoip2
 
       - name: Download GeoLite databases
         run: |
           mkdir -p geolite2
-          curl -L -o geolite2/GeoLite2-Country.mmdb \
-            https://raw.githubusercontent.com/P3TERX/GeoLite.mmdb/main/GeoLite2-Country.mmdb
-          curl -L -o geolite2/GeoLite2-ASN.mmdb \
-            https://raw.githubusercontent.com/P3TERX/GeoLite.mmdb/main/GeoLite2-ASN.mmdb
+          curl -L -o geolite2/GeoLite2-Country.mmdb https://raw.githubusercontent.com/P3TERX/GeoLite.mmdb/main/GeoLite2-Country.mmdb
+          curl -L -o geolite2/GeoLite2-ASN.mmdb https://raw.githubusercontent.com/P3TERX/GeoLite.mmdb/main/GeoLite2-ASN.mmdb
 
       - name: Run VLESS Reality filter
         id: scan
         run: |
           python3 << 'EOF'
+          import os
+          import sys
+          import socket
           import requests
           import urllib.parse
-          import socket
-          import os
-          import random
           import geoip2.database
-          from concurrent.futures import ThreadPoolExecutor
-          
-          print("Starting VLESS RU Reality filter...")
-          
-          # Initialize databases
+          import random
+          import time
+          from concurrent.futures import ThreadPoolExecutor, as_completed
+
+          start_time = time.time()
+          socket.setdefaulttimeout(3)
+
+          GITHUB_OUTPUT = os.environ.get("GITHUB_OUTPUT")
+          if not GITHUB_OUTPUT:
+              print("ERROR: GITHUB_OUTPUT not found")
+              sys.exit(1)
+
           COUNTRY_DB = "geolite2/GeoLite2-Country.mmdb"
           ASN_DB = "geolite2/GeoLite2-ASN.mmdb"
-          
+
           try:
               country_reader = geoip2.database.Reader(COUNTRY_DB)
               asn_reader = geoip2.database.Reader(ASN_DB)
-              print("GeoIP databases loaded successfully")
+              print("✓ GeoIP databases loaded")
           except Exception as e:
-              print(f"Failed to load GeoIP databases: {e}")
-              exit(1)
-          
-          # Allowed parameters
-          FP_ALLOWED = {
-              "chrome", "firefox", "safari", "ios", "android",
-              "edge", "360", "qq", "random", "randomized"
-          }
-          PORT_ALLOWED = {80, 443, 8443}
-          
-          # Russian SNI whitelist - ЧИСТЫЕ URL!
-          RU_SNI_URL = "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/whitelist.txt"
-          
+              print(f"✗ GeoIP load failed: {e}")
+              sys.exit(1)
+
+          # Allowed constants
+          FP_ALLOWED = {"chrome","firefox","safari","ios","android","edge","360","qq","random","randomized"}
+          PORT_ALLOWED = {80,443,8443}
+          TYPE_ALLOWED = {"tcp","grpc","xhttp"}
+
+          # Load RU SNI whitelist
           try:
-              ru_sni_response = requests.get(RU_SNI_URL, timeout=20)
-              ru_sni = set(ru_sni_response.text.splitlines())
-              print(f"Loaded {len(ru_sni)} Russian SNI domains")
+              ru_sni_resp = requests.get(
+                  "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/whitelist.txt",
+                  timeout=20
+              )
+              ru_sni = set(line.strip().lower() for line in ru_sni_resp.text.splitlines() if line.strip() and not line.startswith("#"))
+              print(f"✓ Loaded {len(ru_sni)} RU SNI domains")
           except Exception as e:
-              print(f"Failed to load RU SNI whitelist: {e}")
-              exit(1)
-          
+              print(f"✗ Failed to load RU SNI: {e}")
+              sys.exit(1)
+
           URLS = [
               "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/refs/heads/main/subscriptions/v2ray/all_sub.txt",
               "https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/sub/sub_merge_base64.txt",
@@ -99,157 +106,167 @@ jobs:
               "https://raw.githubusercontent.com/hamedcode/port-based-v2ray-configs/main/sub/vless.txt"
           ]
 
-          
-          def resolve_hostname(host):
-              try:
-                  return socket.gethostbyname(host)
-              except:
+          # Resolve host
+          dns_cache = {}
+          geo_cache = {}
+          asn_cache = {}
+
+          def resolve(host):
+              if not host:
                   return None
-          
-          def is_non_russian_ip(ip, country_reader, asn_reader):
+              if host in dns_cache:
+                  return dns_cache[host]
               try:
-                  country_info = country_reader.country(ip)
-                  if country_info.country.iso_code == "RU":
-                      return False
-                  
-                  asn_info = asn_reader.asn(ip)
-                  org = asn_info.autonomous_system_organization.lower()
-                  bad_providers = [
-                      "yandex", "rostelecom", "mts", "megafon", 
-                      "beeline", "timeweb", "selectel", "vk"
-                  ]
-                  if any(provider in org for provider in bad_providers):
-                      return False
-                  return True
+                  ip = socket.gethostbyname(host)
               except:
+                  ip = None
+              dns_cache[host] = ip
+              return ip
+
+          def not_ru_ip(ip):
+              if not ip:
                   return False
-          
-          def parse_vless_url(link):
+              # country
+              if ip in geo_cache:
+                  country_ok = geo_cache[ip]
+              else:
+                  try:
+                      country_ok = country_reader.country(ip).country.iso_code != "RU"
+                  except:
+                      country_ok = False
+                  geo_cache[ip] = country_ok
+              if not country_ok:
+                  return False
+              # ASN
+              if ip in asn_cache:
+                  asn_ok = asn_cache[ip]
+              else:
+                  try:
+                      org = asn_reader.asn(ip).autonomous_system_organization.lower()
+                      bad_orgs = ["yandex","rostelecom","mts","megafon","beeline","timeweb","selectel","vk","cloud","ru-","russian"]
+                      asn_ok = not any(b in org for b in bad_orgs)
+                  except:
+                      asn_ok = False
+                  asn_cache[ip] = asn_ok
+              return asn_ok
+
+          # Parse VLESS
+          def parse_vless(link):
               try:
-                  parsed = urllib.parse.urlparse(link)
-                  if not parsed.scheme == "vless":
-                      return None
-                  query_params = urllib.parse.parse_qs(parsed.query)
+                  u = urllib.parse.urlparse(link.strip())
+                  q = urllib.parse.parse_qs(u.query)
                   return {
-                      "raw": link.strip(),
-                      "host": parsed.hostname,
-                      "port": int(parsed.port or 0),
-                      "pbk": query_params.get("pbk", [""])[0],
-                      "sid": query_params.get("sid", [""])[0],
-                      "sni": query_params.get("sni", [""])[0].lower(),
-                      "fp": query_params.get("fp", [""])[0],
-                      "type": query_params.get("type", ["tcp"])[0],
-                      "flow": query_params.get("flow", [""])[0],
-                      "sec": query_params.get("security", [""])[0],
-                      "insecure": query_params.get("insecure", [""])[0]
+                      "host": u.hostname,
+                      "port": int(u.port or 0),
+                      "pbk": q.get("pbk", [""])[0],
+                      "sid": q.get("sid", [""])[0],
+                      "sni": q.get("sni", [""])[0].lower(),
+                      "fp": q.get("fp", [""])[0],
+                      "type": q.get("type", ["tcp"])[0],
+                      "flow": q.get("flow", [""])[0],
+                      "sec": q.get("security", [""])[0],
+                      "insecure": q.get("insecure", [""])[0],
+                      "raw": link.strip()
                   }
               except:
                   return None
-          
-          def is_valid_config(config, ru_sni, country_reader, asn_reader):
-              if config["sec"] != "reality":
+
+          # Check validity
+          def is_valid(cfg):
+              if not cfg["host"]:
                   return False
-              if config["fp"] not in FP_ALLOWED:
+              if cfg["sec"] != "reality":
                   return False
-              if not config["pbk"] or len(config["pbk"]) < 30:
+              if cfg["fp"] not in FP_ALLOWED:
                   return False
-              if not config["sid"]:
+              if not cfg["pbk"] or len(cfg["pbk"]) < 30:
                   return False
-              if not config["sni"] or config["sni"] not in ru_sni:
+              if not cfg["sid"]:
                   return False
-              if config["port"] not in PORT_ALLOWED:
+              if cfg["sni"] not in ru_sni:
                   return False
-              if config["insecure"] == "true":
+              if cfg["port"] not in PORT_ALLOWED:
                   return False
-              if config["type"] == "tcp" and config["flow"] != "xtls-rprx-vision":
+              if cfg["insecure"] == "true":
                   return False
-              if config["type"] not in ("tcp", "grpc", "xhttp"):
+              if cfg["type"] not in TYPE_ALLOWED:
                   return False
-              
-              ip = resolve_hostname(config["host"])
-              if not ip or not is_non_russian_ip(ip, country_reader, asn_reader):
+              if cfg["type"] == "tcp" and cfg["flow"] != "xtls-rprx-vision":
                   return False
-              
+              ip = resolve(cfg["host"])
+              if not ip or not not_ru_ip(ip):
+                  return False
+              # TCP ping
               try:
-                  sock = socket.create_connection((config["host"], config["port"]), timeout=1.5)
-                  sock.close()
+                  s = socket.create_connection((cfg["host"], cfg["port"]), 2)
+                  s.close()
               except:
                   return False
-              
               return True
-          
-          # Collect VLESS links
-          print("Fetching configs from sources...")
+
+          # Collect all lines
           all_lines = []
-          for i, url in enumerate(URLS, 1):
+          for url in URLS:
               try:
-                  print(f"Fetching {i}/{len(URLS)}: {url}")
-                  response = requests.get(url, timeout=20)
-                  lines = response.text.splitlines()
-                  all_lines.extend(lines)
-                  print(f"  Got {len(lines)} lines")
+                  resp = requests.get(url, timeout=30, stream=True)
+                  for line in resp.iter_lines():
+                      if line and line.startswith(b"vless://"):
+                          all_lines.append(line.decode("utf-8"))
+                  print(f"{url} → {len([l for l in all_lines[-500:] if l.startswith('vless://')])} links")
               except Exception as e:
-                  print(f"  Failed: {e}")
-          
-          vless_links = [line for line in all_lines if line.startswith("vless://")]
-          print(f"Total VLESS links found: {len(vless_links)}")
-          
-          if not vless_links:
-              print("No VLESS links found, exiting")
-              print("count=0")
-              exit(0)
-          
-          random.shuffle(vless_links)
-          
-          # Process configs
-          print("Filtering and testing configs...")
-          seen_configs = set()
+                  print(f"{url} ERROR {e}")
+
+          print(f"Total links fetched: {len(all_lines)}")
+          random.shuffle(all_lines)
+
+          # Validate
           valid_configs = []
-          
-          with ThreadPoolExecutor(max_workers=30) as executor:
-              parsed_configs = list(executor.map(parse_vless_url, vless_links[:1000]))  # Limit to first 1000
-              
-              for config in parsed_configs:
-                  if not config:
+          seen_keys = set()
+          with ThreadPoolExecutor(max_workers=40) as executor:
+              futures = {executor.submit(parse_vless, l): l for l in all_lines}
+              for future in as_completed(futures):
+                  cfg = future.result()
+                  if not cfg:
                       continue
-                  if not is_valid_config(config, ru_sni, country_reader, asn_reader):
+                  if not is_valid(cfg):
                       continue
-                  
-                  ip = resolve_hostname(config["host"])
-                  if not ip:
+                  ip = resolve(cfg["host"])
+                  key = f"{ip}:{cfg['port']}:{cfg['pbk']}"
+                  if key in seen_keys:
                       continue
-                  
-                  dedupe_key = f"{ip}:{config['port']}:{config['pbk']}"
-                  if dedupe_key in seen_configs:
-                      continue
-                  
-                  seen_configs.add(dedupe_key)
-                  valid_configs.append(config["raw"])
-          
-          # Save results
+                  seen_keys.add(key)
+                  valid_configs.append(cfg["raw"])
+
+          # Split into files by 400
           os.makedirs("githubmirror", exist_ok=True)
-          output_file = "githubmirror/ru_reality_clean.txt"
-          with open(output_file, "w") as f:
-              for config in valid_configs:
-                  f.write(config + "\n")
-          
-          total_count = len(valid_configs)
-          print(f"TOTAL VALID RU REALITY CONFIGS: {total_count}")
-          
-          # Set output for GitHub Actions
-          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
-              f.write(f"count={total_count}\n")
+          MAX_PER_FILE = 400
+          file_counter = 1
+          for i in range(0, len(valid_configs), MAX_PER_FILE):
+              file_path = f"githubmirror/26_ru_whitelist_{file_counter:02d}.txt"
+              with open(file_path, "w") as f:
+                  for cfg in valid_configs[i:i+MAX_PER_FILE]:
+                      f.write(cfg + "\n")
+              print(f"Saved {file_path} ({len(valid_configs[i:i+MAX_PER_FILE])} keys)")
+              file_counter += 1
+
+          count = len(valid_configs)
+          exec_time = time.time() - start_time
+          print(f"✓ RESULT: {count} valid configs in {exec_time:.1f}s")
+
+          with open(GITHUB_OUTPUT, "a") as f:
+              f.write(f"count={count}\nfiles={file_counter-1}\n")
+
+          country_reader.close()
+          asn_reader.close()
           EOF
 
-      - name: Commit and push results
+      - name: Commit results
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add githubmirror/ru_reality_clean.txt || true
-          
+          git add githubmirror/26_ru_whitelist_*.txt || true
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "chore: update RU Reality VLESS ({{ steps.scan.outputs.count }} configs)"
+            git commit -m "update: ${{ steps.scan.outputs.count }} RU Reality configs"
             git push
-          fi
