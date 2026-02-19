@@ -25,52 +25,53 @@ jobs:
         id: check_alive
         run: |
           python3 -c "
-          import os, urllib.parse, requests, socket, time
-          from concurrent.futures import ThreadPoolExecutor
+          import os
+          import urllib.parse
+          import requests
+          import socket
           
           HEADERS = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
           OUTPUT_FILE = 'githubmirror/26_ru_whitelist.txt'
           TOP_LIMIT = 250
           
-          def load_sni():
-              try:
-                  r = requests.get('https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/whitelist.txt', timeout=10, headers=HEADERS)
-                  return set(l.strip().lower() for l in r.text.splitlines() if l.strip() and not l.startswith('#'))
-              except:
-                  return set()
-          
-          sni_list = load_sni()
+          # Загружаем SNI whitelist
+          sni_list = set()
+          try:
+              r = requests.get('https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/whitelist.txt', timeout=10, headers=HEADERS)
+              sni_list = set(l.strip().lower() for l in r.text.splitlines() if l.strip() and not l.startswith('#'))
+              print(f'SNI loaded: {len(sni_list)} entries')
+          except Exception as e:
+              print(f'SNI load failed: {e}')
           
           def check_sni(sni):
+              if not sni:
+                  return True
               s = sni.lower()
               return s in sni_list or any(s.endswith(a[1:]) for a in sni_list if a.startswith('*.'))
           
-          def check_host(host):
-              try:
-                  socket.gethostbyname(host)
-                  return True
-              except:
-                  return False
-          
           def parse_line(line):
-              if not line.startswith('vless://'):
+              if not line or not line.startswith('vless://'):
                   return None
               try:
-                  u = urllib.parse.urlparse(line)
+                  u = urllib.parse.urlparse(line.strip())
                   if not u.hostname:
                       return None
                   
                   q = urllib.parse.parse_qs(u.query)
-                  sni = q.get('sni', [''])[0]
-                  typ = q.get('type', [''])[0].lower()
+                  sni = q.get('sni', [''])[0].strip()
+                  typ = q.get('type', [''])[0].lower().strip()
                   
-                  if typ not in {'grpc', 'http', 'xhttp'}:
+                  # Фильтры: xHTTP, gRPC, HTTP, reality
+                  if typ and typ not in {'grpc', 'http', 'xhttp'}:
                       return None
+                  
+                  # Reality Vision
+                  if q.get('security', [''])[0].lower() == 'reality':
+                      flow = q.get('flow', [''])[0].lower()
+                      if 'vision' not in flow:
+                          return None
                   
                   if sni and not check_sni(sni):
-                      return None
-                  
-                  if not check_host(u.hostname):
                       return None
                   
                   return line.strip()
@@ -78,49 +79,56 @@ jobs:
                   return None
           
           SOURCES = [
-              "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/refs/heads/main/subscriptions/v2ray/all_sub.txt",
-              "https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/sub/sub_merge_base64.txt",
-              "https://raw.githubusercontent.com/barry-far/V2ray-Configs/main/Sub1.txt",
-              "https://raw.githubusercontent.com/barry-far/V2ray-Configs/main/Sub2.txt",
-              "https://raw.githubusercontent.com/Epodonios/v2ray-configs/main/All_Configs_Sub.txt",
-              "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub",
-              "https://raw.githubusercontent.com/ts-sf/fly/main/v2",
-              "https://raw.githubusercontent.com/aiboboxx/v2rayfree/main/v2",
-              "https://raw.githubusercontent.com/mfuu/v2ray/master/v2ray",
-              "https://raw.githubusercontent.com/ermaozi/get_subscribe/main/subscribe/v2ray.txt",
-              "https://raw.githubusercontent.com/soroushmirzaei/telegram-configs-collector/main/protocols/vless",
-              "https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt",
-              "https://raw.githubusercontent.com/zieng2/wl/refs/heads/main/vless_lite.txt",
-              "https://bp.wl.free.nf/confs/wl.txt"
+              'https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/refs/heads/main/subscriptions/v2ray/all_sub.txt',
+              'https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/sub/sub_merge_base64.txt',
+              'https://raw.githubusercontent.com/barry-far/V2ray-Configs/main/Sub1.txt',
+              'https://raw.githubusercontent.com/barry-far/V2ray-Configs/main/Sub2.txt',
+              'https://raw.githubusercontent.com/Epodonios/v2ray-configs/main/All_Configs_Sub.txt',
+              'https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub'
           ]
           
           links = []
-          for url in sources:
+          print('Scanning sources...')
+          
+          for i, url in enumerate(SOURCES, 1):
               try:
-                  r = requests.get(url, timeout=15, headers=HEADERS, stream=True)
-                  for line in r.iter_lines(decode_unicode=True):
-                      if line and len(links) < TOP_LIMIT:
-                          parsed = parse_line(line)
-                          if parsed:
-                              links.append(parsed)
-              except:
+                  print(f'Scanning {i}/{len(SOURCES)}: {url.split(\"/\")[-1]}')
+                  r = requests.get(url, timeout=20, headers=HEADERS)
+                  r.raise_for_status()
+                  
+                  for line in r.text.splitlines():
+                      if len(links) >= TOP_LIMIT:
+                          break
+                          
+                      parsed = parse_line(line)
+                      if parsed:
+                          links.append(parsed)
+                          
+                  print(f'Found {len([l for l in links if url in l])} from {url.split(\"/\")[-1]}')
+                  
+              except Exception as e:
+                  print(f'Source {i} failed: {str(e)[:50]}')
                   continue
           
+          # Создаем директорию и пишем файл
           os.makedirs(os.path.dirname(OUTPUT_FILE), exist_ok=True)
-          with open(OUTPUT_FILE, 'w') as f:
-              for link in links:
+          with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
+              for link in links[:TOP_LIMIT]:
                   f.write(link + '\n')
           
-          print(f'Found {len(links)} VLESS keys')
+          print(f'TOTAL FOUND: {len(links)} VLESS keys')
           
+          # Выводим в GITHUB_OUTPUT
           with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
               f.write(f'count={len(links)}\n')
               f.write(f'has_changes=true\n')
+          
+          exit(0)
           "
         continue-on-error: true
 
       - name: Commit Changes
-        if: always() && steps.check_alive.outputs.count != '0'
+        if: steps.check_alive.outputs.count != '0'
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
         run: |
@@ -128,10 +136,11 @@ jobs:
           git config user.email "bot@users.noreply.github.com"
           git add githubmirror/26_ru_whitelist.txt || true
           
-          if ! git diff --cached --quiet; then
-            git commit -m "Update RU Whitelist: ${{ steps.check_alive.outputs.count || 0 }} keys"
-            git push https://x-access-token:${GH_PAT}@github.com/${{ github.repository }} HEAD:main || true
-            echo "✅ Updated whitelist"
-          else
-            echo "No changes"
+          if git diff --cached --quiet; then
+            echo "No changes detected"
+            exit 0
           fi
+          
+          git commit -m "🔄 RU Whitelist: ${{ steps.check_alive.outputs.count }} VLESS keys" || exit 0
+          git push https://x-access-token:${GH_PAT}@github.com/${{ github.repository }} HEAD:main || exit 0
+          echo "✅ Pushed ${{ steps.check_alive.outputs.count }} keys"
