@@ -18,14 +18,7 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install dependencies
-        run: |
-          pip install requests geoip2
-          mkdir -p geolite2
-          wget -q https://raw.githubusercontent.com/P3TERX/GeoLite.mmdb/download/GeoLite2-Country.mmdb -O geolite2/GeoLite2-Country.mmdb
-          wget -q https://raw.githubusercontent.com/P3TERX/GeoLite.mmdb/download/GeoLite2-ASN.mmdb -O geolite2/GeoLite2-ASN.mmdb
-
-      - name: RU Whitelist Reality Vision Scanner ✅ SMART PUSH
+      - name: RU Whitelist Scanner
         id: check_alive
         run: |
           python3 << 'EOF'
@@ -34,217 +27,119 @@ jobs:
           import socket
           import urllib.parse
           import requests
-          import geoip2.database
-          import hashlib
           from concurrent.futures import ThreadPoolExecutor, as_completed
-          from functools import lru_cache
 
           HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
-
           MAX_WORKERS = 60
-          TIMEOUT = 1.5  # Увеличил таймаут
-          CHECK_COUNT = 1  # Уменьшил количество проверок
-          MAX_LATENCY = 500  # Увеличил максимальную задержку
-          MIN_LATENCY = 5    # Уменьшил минимальную задержку
+          TIMEOUT = 2.0
           TOP_LIMIT = 250
           BATCH_SIZE = 1500
-          ALLOWED_PORTS = {80, 443, 8443, 8080, 8880, 2053, 2083, 2087, 2096}  # Добавил порты
-
-          COUNTRY_DB = "geolite2/GeoLite2-Country.mmdb"
-          ASN_DB = "geolite2/GeoLite2-ASN.mmdb"
-          OUTPUT_FILE = "githubmirror/26_ru_whitelist_ultra.txt"
+          OUTPUT_FILE = "githubmirror/26_ru_whitelist.txt"
 
           def load_ru_sni_whitelist():
-              sources = [
-                  "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/whitelist.txt",
-              ]
-              
-              whitelist = set()
-              for url in sources:
-                  try:
-                      resp = requests.get(url, timeout=12, headers=HEADERS)
-                      lines = resp.text.lower().splitlines()
-                      valid_lines = 0
-                      for line in lines:
-                          line = line.strip()
-                          if line and not line.startswith('#'):
-                              whitelist.add(line)
-                              valid_lines += 1
-                      print(f"[SNI] +{valid_lines} from {url.split('/')[-1]}")
-                  except Exception as e:
-                      print(f"[SNI] Failed {url.split('/')[-1]}: {e}")
-              return whitelist
+              url = "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/whitelist.txt"
+              try:
+                  resp = requests.get(url, timeout=12, headers=HEADERS)
+                  return set(line.strip().lower() for line in resp.text.splitlines() 
+                           if line.strip() and not line.startswith('#'))
+              except:
+                  return set()
 
           print("[INFO] Loading RU SNI whitelist...")
           RU_SNI_WHITELIST = load_ru_sni_whitelist()
           print(f"[SNI] Total: {len(RU_SNI_WHITELIST)} entries")
-          
-          # Добавим отладку - покажем первые 10 SNI из вайтлиста
-          print("[DEBUG] First 10 SNI from whitelist:")
-          for i, sni in enumerate(list(RU_SNI_WHITELIST)[:10]):
-              print(f"  {i+1}. {sni}")
 
           def sni_allowed(sni):
               sni_lower = sni.lower()
-              # Прямое совпадение
               if sni_lower in RU_SNI_WHITELIST:
-                  print(f"[SNI DEBUG] Direct match: {sni}")
                   return True
-              # Wildcard совпадение
               for allowed in RU_SNI_WHITELIST:
                   if allowed.startswith("*.") and sni_lower.endswith(allowed[1:]):
-                      print(f"[SNI DEBUG] Wildcard match: {sni} -> {allowed}")
                       return True
-              # Временно разрешаем все SNI для теста
-              # return True  # Раскомментируй для теста без SNI фильтрации
               return False
 
-          try:
-              reader_country = geoip2.database.Reader(COUNTRY_DB)
-              reader_asn = geoip2.database.Reader(ASN_DB)
-              print("[INFO] GeoIP OK")
-          except Exception as e:
-              print(f"[FATAL] GeoIP failed: {e}")
-              exit(1)
-
-          @lru_cache(maxsize=12000)
           def check_cdn_ip(host):
               try:
                   ip = socket.gethostbyname(host)
-                  print(f"[CDN DEBUG] {host} -> {ip}")
-                  
-                  country = reader_country.country(ip).country.iso_code
-                  if country == "RU":
-                      print(f"[CDN DEBUG] {host} is in RU, skipping")
-                      return False
-                  
-                  asn_data = reader_asn.asn(ip)
-                  org = (asn_data.autonomous_system_organization or "").lower()
-                  print(f"[CDN DEBUG] {host} org: {org}")
-                  
                   cdn_keywords = {
                       "cloudflare", "amazon", "google", "microsoft", "akamai",
-                      "fastly", "facebook", "apple", "edgedns", "level3",
-                      "cogent", "hurricane", "ntt", "gtt", "digitalocean",
-                      "bandwagon", "vultr", "linode", "ovh", "hetzner", "online"
+                      "fastly", "facebook", "apple", "edgedns", "level3"
                   }
                   ru_blacklist = {
                       "rostelecom", "mts", "megafon", "beeline", "tele2", 
-                      "yandex", "mail.ru", "rt", "roscosmos", "rostec", 
-                      "ertelecom", "transtelecom"
+                      "yandex", "mail.ru", "rt"
                   }
                   
+                  org = socket.getaddrinfo(host, None)[0][3].lower()
                   is_cdn = any(kw in org for kw in cdn_keywords)
                   is_ru = any(kw in org for kw in ru_blacklist)
                   
-                  result = is_cdn and not is_ru
-                  print(f"[CDN DEBUG] {host} is_cdn={is_cdn}, is_ru={is_ru}, result={result}")
-                  return result
-              except Exception as e:
-                  print(f"[CDN DEBUG] Error for {host}: {e}")
+                  return is_cdn and not is_ru
+              except:
                   return False
 
-          def ultra_fast_ping(host, port):
+          def fast_ping(host, port):
               try:
                   s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                   s.settimeout(TIMEOUT)
-                  t1 = time.time()
                   result = s.connect_ex((host, port))
                   s.close()
-                  if result == 0:
-                      latency = int((time.time() - t1) * 1000)
-                      print(f"[PING DEBUG] {host}:{port} -> {latency}ms")
-                      if MIN_LATENCY <= latency <= MAX_LATENCY:
-                          return latency
-                  return None
-              except Exception as e:
-                  print(f"[PING DEBUG] Error for {host}:{port}: {e}")
-                  return None
+                  return result == 0
+              except:
+                  return False
 
-          def fast_parse_vless(line):
+          def parse_vless(line):
               if not line.startswith("vless://"):
                   return None
               try:
                   u = urllib.parse.urlparse(line.strip())
                   if u.scheme != "vless" or not u.hostname:
                       return None
-                  q = urllib.parse.parse_qs(u.query)
                   
-                  # Extract port
+                  q = urllib.parse.parse_qs(u.query)
                   port = 443
                   if ':' in u.netloc:
                       try:
                           port = int(u.netloc.split(':', 1)[1])
-                      except (ValueError, IndexError):
+                      except:
                           pass
                   
-                  # Временно разрешаем все порты для теста
-                  # if port not in ALLOWED_PORTS:
-                  #     return None
-                  
-                  # Extract SNI and other params
                   sni = q.get("sni", [""])[0].lower().strip()
                   if not sni:
-                      sni = u.hostname  # Используем хост как SNI если не указан
+                      sni = u.hostname
                   
                   security = q.get("security", [""])[0]
                   flow = q.get("flow", [""])[0]
+                  type_param = q.get("type", [""])[0]
                   
-                  # Временно ослабляем требования
-                  # if security != "reality" or flow != "xtls-rprx-vision":
-                  #     return None
-                  
-                  print(f"[PARSE DEBUG] Found: {u.hostname}:{port} sni={sni} sec={security} flow={flow}")
-                  
-                  key = f"{u.hostname}:{port}:{sni}"
-                  return {
-                      'host': u.hostname, 
-                      'port': port, 
-                      'sni': sni, 
-                      'link': line.strip(), 
-                      'key': key,
-                      'security': security,
-                      'flow': flow
-                  }
-              except Exception as e:
-                  print(f"[PARSE DEBUG] Error parsing: {e}")
-                  return None
-
-          def ultimate_filter(vless_data):
-              try:
-                  print(f"[FILTER DEBUG] Testing {vless_data['host']}:{vless_data['port']} sni={vless_data['sni']}")
-                  
-                  # Временно отключаем SNI фильтрацию
-                  # if not sni_allowed(vless_data['sni']):
-                  #     print(f"[FILTER DEBUG] SNI not allowed: {vless_data['sni']}")
-                  #     return None
-                  
-                  if not check_cdn_ip(vless_data['host']):
-                      print(f"[FILTER DEBUG] Not CDN: {vless_data['host']}")
+                  # Фильтры: xHTTP, gRPC, reality и другие
+                  allowed_types = {"grpc", "http", "xhttp", "reality"}
+                  if type_param and type_param.lower() not in allowed_types:
                       return None
                   
-                  pings = []
-                  for _ in range(CHECK_COUNT):
-                      ping = ultra_fast_ping(vless_data['host'], vless_data['port'])
-                      if ping:
-                          pings.append(ping)
-                      time.sleep(0.1)
-                  
-                  if not pings:
-                      print(f"[FILTER DEBUG] No ping response: {vless_data['host']}")
+                  if security == "reality" and "vision" in flow.lower():
+                      pass  # Reality Vision OK
+                  elif type_param in {"grpc", "http", "xhttp"}:
+                      pass  # gRPC, HTTP, xHTTP OK
+                  else:
                       return None
                   
-                  median_ping = sorted(pings)[len(pings) // 2]
-                  print(f"[FILTER DEBUG] SUCCESS: {vless_data['host']} -> {median_ping}ms")
-                  return (median_ping, vless_data['link'], vless_data['key'])
-              except Exception as e:
-                  print(f"[FILTER DEBUG] Error: {e}")
+                  if sni and not sni_allowed(sni):
+                      return None
+                  
+                  if not check_cdn_ip(u.hostname):
+                      return None
+                  
+                  if not fast_ping(u.hostname, port):
+                      return None
+                  
+                  return line.strip()
+              except:
                   return None
 
           SOURCES = [
               "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/refs/heads/main/subscriptions/v2ray/all_sub.txt",
               "https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/sub/sub_merge_base64.txt",
-              "https://raw.githubusercontent.com/mahdibland/ShadowsocksAggregator/master/sub/sub_merge_base64.txt",
               "https://raw.githubusercontent.com/barry-far/V2ray-Configs/main/Sub1.txt",
               "https://raw.githubusercontent.com/barry-far/V2ray-Configs/main/Sub2.txt",
               "https://raw.githubusercontent.com/Epodonios/v2ray-configs/main/All_Configs_Sub.txt",
@@ -253,151 +148,69 @@ jobs:
               "https://raw.githubusercontent.com/aiboboxx/v2rayfree/main/v2",
               "https://raw.githubusercontent.com/mfuu/v2ray/master/v2ray",
               "https://raw.githubusercontent.com/ermaozi/get_subscribe/main/subscribe/v2ray.txt",
-              "https://raw.githubusercontent.com/ermaozi01/free_clash_vpn/main/subscribe/v2ray.txt",
-              "https://raw.githubusercontent.com/Alvin9999/new-pac/master/v2ray_config.txt",
-              "https://raw.githubusercontent.com/peasoft/NoMoreWalls/master/list.txt",
               "https://raw.githubusercontent.com/soroushmirzaei/telegram-configs-collector/main/protocols/vless",
-              "https://raw.githubusercontent.com/soroushmirzaei/telegram-configs-collector/main/protocols/trojan"
               "https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt",
               "https://raw.githubusercontent.com/zieng2/wl/refs/heads/main/vless_lite.txt",
-              "https://bp.wl.free.nf/confs/wl.txt",
-              "https://raw.githubusercontent.com/sakha1370/OpenRay/refs/heads/main/output/country/XX.txt",
-              "https://raw.githubusercontent.com/SilentGhostCodes/WhiteListVpn/refs/heads/main/Whitelist.txt",
-              "https://raw.githubusercontent.com/SilentGhostCodes/WhiteListVpn/refs/heads/main/Whitelist%20%E2%84%962.txt",
-              "https://raw.githubusercontent.com/whoahaow/rjsxrd/refs/heads/main/githubmirror/bypass/bypass-all.txt",
-              "https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list/refs/heads/main/vless_configs.txt",
-              "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/WHITE-SNI-RU-all.txt",
-              "https://raw.githubusercontent.com/hamedcode/port-based-v2ray-configs/main/sub/vless.txt"
+              "https://bp.wl.free.nf/confs/wl.txt"
           ]
 
           print("[INFO] Scanning sources...")
-          all_raw_lines = []
+          all_links = []
+          
           for i, url in enumerate(SOURCES, 1):
               try:
-                  resp = requests.get(url, timeout=18, stream=True, headers=HEADERS)
-                  resp.raise_for_status()
+                  resp = requests.get(url, timeout=15, headers=HEADERS, stream=True)
                   count = 0
                   for line in resp.iter_lines(decode_unicode=True):
                       if line and line.startswith('vless://'):
-                          all_raw_lines.append(line)
-                          count += 1
-                  print(f"[SOURCE {i}/{len(SOURCES)}] {count} VLESS")
+                          parsed = parse_vless(line)
+                          if parsed:
+                              all_links.append(parsed)
+                              count += 1
+                  print(f"[SOURCE {i}/{len(SOURCES)}] {count} valid VLESS")
               except Exception as e:
                   print(f"[SOURCE {i}] Error: {e}")
-                  continue
 
-          print(f"[RAW TOTAL] {len(all_raw_lines)}")
+          print(f"[TOTAL] Found {len(all_links)} working VLESS keys")
 
-          candidates = []
-          for line in all_raw_lines:
-              parsed = fast_parse_vless(line)
-              if parsed:
-                  candidates.append(parsed)
-          
-          print(f"[CANDIDATES] {len(candidates)}")
-          
-          # Покажем примеры кандидатов
-          print("[DEBUG] Sample candidates:")
-          for i, cand in enumerate(candidates[:5]):
-              print(f"  {i+1}. {cand['host']}:{cand['port']} sni={cand['sni']}")
-
-          results = []
-          seen_keys = set()
-
-          with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-              for batch_i in range(0, len(candidates), BATCH_SIZE):
-                  batch = candidates[batch_i:batch_i + BATCH_SIZE]
-                  print(f"[BATCH] Processing batch {batch_i//BATCH_SIZE + 1}, size {len(batch)}")
-                  
-                  futures = {executor.submit(ultimate_filter, cand): cand for cand in batch}
-                  for future in as_completed(futures):
-                      try:
-                          result = future.result(timeout=10)
-                          if result and len(results) < TOP_LIMIT:
-                              latency, link, key = result
-                              if key not in seen_keys:
-                                  seen_keys.add(key)
-                                  results.append((latency, link))
-                                  print(f"[RESULT] Found working proxy #{len(results)}: {latency}ms")
-                      except Exception as e:
-                          continue
-                  if len(results) >= TOP_LIMIT:
-                      break
-
-          results.sort(key=lambda x: x[0])
-
-          print(f"[FINAL] Found {len(results)} working proxies")
-
-          # Calculate hash of old links
-          old_links_hash = ""
-          if os.path.exists(OUTPUT_FILE):
-              try:
-                  with open(OUTPUT_FILE, 'r', encoding='utf-8') as f:
-                      old_content = f.read()
-                  old_links = [line.strip() for line in old_content.splitlines() if line.strip().startswith('vless://')]
-                  old_links_hash = hashlib.md5(''.join(sorted(old_links)).encode()).hexdigest()
-                  print(f"[OLD] {len(old_links)} links, hash: {old_links_hash[:8]}")
-              except Exception as e:
-                  print(f"[ERROR] Reading old file: {e}")
-                  old_links_hash = "error"
-          else:
-              old_links_hash = "none"
-              print("[OLD] No previous file")
-
-          # Write new file
+          # Сохраняем только чистые ключи без мусора
           os.makedirs(os.path.dirname(OUTPUT_FILE), exist_ok=True)
           with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
-              f.write("# RU Whitelist Reality Vision ULTRA ✅ SMART PUSH\n")
-              f.write(f"# Processed: {len(all_raw_lines)} -> Live: {len(results)}\n")
-              f.write(f"# Ports: {', '.join(map(str, sorted(ALLOWED_PORTS)))} | Ping: {MIN_LATENCY}-{MAX_LATENCY}ms\n")
-              f.write(f"# Updated: {time.strftime('%Y-%m-%d %H:%M UTC')}\n\n")
-              for i, (latency, link) in enumerate(results[:TOP_LIMIT], 1):
-                  f.write(f"# {i}. {latency}ms\n{link}\n\n")
+              for link in all_links[:TOP_LIMIT]:
+                  f.write(f"{link}\n")
 
-          # Calculate hash of new links
-          if results:
-              with open(OUTPUT_FILE, 'r', encoding='utf-8') as f:
-                  new_content = f.read()
-              new_links = [line.strip() for line in new_content.splitlines() if line.strip().startswith('vless://')]
-              new_links_hash = hashlib.md5(''.join(sorted(new_links)).encode()).hexdigest()
-              print(f"[NEW] {len(new_links)} links, hash: {new_links_hash[:8]}")
-          else:
-              new_links_hash = "empty"
-              print("[NEW] No working proxies found")
+          # Проверяем изменения
+          old_hash = "none"
+          if os.path.exists(OUTPUT_FILE):
+              try:
+                  with open(OUTPUT_FILE, 'r') as f:
+                      old_content = f.read()
+                  old_hash = hash(old_content)
+              except:
+                  pass
 
-          # Check for real changes
-          has_real_changes = (old_links_hash != new_links_hash) or (old_links_hash == "none")
-          print(f"[COMPARE] Real changes: {has_real_changes}")
+          new_hash = hash(open(OUTPUT_FILE, 'r').read()) if all_links else "empty"
+          has_changes = old_hash != new_hash
 
-          # Write to GITHUB_OUTPUT
           with open(os.environ["GITHUB_OUTPUT"], "a") as out:
-              out.write(f"count={len(results)}\n")
-              out.write(f"best_ping={results[0][0] if results else 0}\n")
-              out.write(f"total_scanned={len(all_raw_lines)}\n")
-              out.write(f"conversion_rate={round(len(results)/max(1,len(all_raw_lines))*100, 2) if results else 0}\n")
-              out.write(f"has_changes={str(has_real_changes).lower()}\n")
+              out.write(f"count={len(all_links)}\n")
+              out.write(f"has_changes={str(has_changes).lower()}\n")
           EOF
 
-      - name: Commit ONLY Real Changes ✅
+      - name: Commit Changes
         if: steps.check_alive.outputs.has_changes == 'true' && steps.check_alive.outputs.count != '0'
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
         run: |
-          git config user.name "RU-Ultra-SmartPush-Bot"
-          git config user.email "ru-smartpush@users.noreply.github.com"
-          git add githubmirror/26_ru_whitelist_ultra.txt
+          git config user.name "RU-Whitelist-Bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add githubmirror/26_ru_whitelist.txt
           
           if git diff --cached --quiet; then
-            echo "❌ No content changes (only metadata)"
+            echo "No changes"
           else
-            git commit -m "✅ RU Whitelist ULTRA SMART PUSH
-
-          📊 ${{ steps.check_alive.outputs.count }}/${{ steps.check_alive.outputs.total_scanned }}
-          ⭐ Best: ${{ steps.check_alive.outputs.best_ping }}ms 
-          📈 Rate: ${{ steps.check_alive.outputs.conversion_rate }}%
-
-          🔄 NEW KEYS DETECTED"
-            
+            git commit -m "Update RU Whitelist: ${{ steps.check_alive.outputs.count }} VLESS keys"
             git push https://x-access-token:${GH_PAT}@github.com/${{ github.repository }} HEAD:main
-            echo "✅ REAL CHANGES PUSHED!"
+            echo "✅ Pushed ${{ steps.check_alive.outputs.count }} keys"
           fi
+           EOF
