@@ -1,8 +1,8 @@
-name: VLESS RU Reality Clean Filter
+name: Check VLESS RU Whitelist + Reality Vision + GeoIP + ASN
 
 on:
   schedule:
-    - cron: '0 */3 * * *'
+    - cron: '0 */3 * * *'  # каждые 3 часа
   workflow_dispatch:
 
 jobs:
@@ -12,67 +12,71 @@ jobs:
       contents: write
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect branch
+        id: branch
+        run: echo "name=$(git rev-parse --abbrev-ref HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Pull latest
+        run: git pull origin ${{ steps.branch.outputs.name }} --rebase || true
+
+      - name: Download GeoLite
+        run: |
+          mkdir -p geolite2
+          curl -L -o geolite2/GeoLite2-Country.mmdb https://raw.githubusercontent.com/P3TERX/GeoLite.mmdb/main/GeoLite2-Country.mmdb || true
+          curl -L -o geolite2/GeoLite2-ASN.mmdb https://raw.githubusercontent.com/P3TERX/GeoLite.mmdb/main/GeoLite2-ASN.mmdb || true
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Install dependencies
+      - name: Install deps
         run: |
-          pip install --upgrade pip
+          python -m pip install --upgrade pip
           pip install requests geoip2
 
-      - name: Run VLESS Reality filter
+      - name: Scan VLESS
         id: scan
         run: |
-          python3 << 'EOF'
-          import os
-          import sys
-          import socket
-          import requests
-          import urllib.parse
-          import geoip2.database
-          import random
-          import time
+          python3 <<'EOF'
+          import os, socket, urllib.parse, requests, random, shutil
           from concurrent.futures import ThreadPoolExecutor, as_completed
-
-          start_time = time.time()
-          socket.setdefaulttimeout(3)
-          GITHUB_OUTPUT = os.environ.get("GITHUB_OUTPUT")
+          from threading import Lock
+          import geoip2.database
 
           COUNTRY_DB = "geolite2/GeoLite2-Country.mmdb"
           ASN_DB = "geolite2/GeoLite2-ASN.mmdb"
 
-          try:
-              country_reader = geoip2.database.Reader(COUNTRY_DB)
-              asn_reader = geoip2.database.Reader(ASN_DB)
-              print("GeoIP loaded from repository")
-          except Exception as e:
-              print(f"GeoIP load failed: {e}")
-              sys.exit(1)
+          country_reader = None
+          asn_reader = None
 
-          FP_ALLOWED = {"chrome","firefox","safari","ios","android","edge","360","qq","random","randomized"}
-          PORT_ALLOWED = {80,443,8443}
-          TYPE_ALLOWED = {"tcp","grpc","xhttp"}
+          if os.path.exists(COUNTRY_DB):
+              try:
+                  country_reader = geoip2.database.Reader(COUNTRY_DB)
+              except:
+                  pass
 
-          # Load RU whitelist
+          if os.path.exists(ASN_DB):
+              try:
+                  asn_reader = geoip2.database.Reader(ASN_DB)
+              except:
+                  pass
+
+          headers = {"User-Agent": "Mozilla/5.0"}
+          RU_SNI_URL = "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/whitelist.txt"
+
+          ru_sni = set()
           try:
-              r = requests.get(
-                  "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/whitelist.txt",
-                  timeout=30
-              )
-              ru_sni = {
-                  line.strip().lower()
-                  for line in r.text.splitlines()
-                  if line.strip() and not line.startswith("#")
-              }
-              print(f"Loaded {len(ru_sni)} RU SNI domains")
-          except Exception as e:
-              print(f"Whitelist load failed: {e}")
-              sys.exit(1)
-              
+              r = requests.get(RU_SNI_URL, timeout=20, headers=headers)
+              ru_sni = set(x.strip().lower() for x in r.text.splitlines() if x.strip() and not x.startswith("#"))
+          except:
+              pass
+
           URLS = [
               "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/refs/heads/main/subscriptions/v2ray/all_sub.txt",
               "https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/sub/sub_merge_base64.txt",
@@ -104,10 +108,12 @@ jobs:
           dns_cache = {}
           geo_cache = {}
           asn_cache = {}
+          seen = set()
+
+          lock = Lock()
+          counters = {"sni":0, "geo":0, "asn":0, "ping":0, "sec":0}
 
           def resolve(host):
-              if not host:
-                  return None
               if host in dns_cache:
                   return dns_cache[host]
               try:
@@ -117,163 +123,152 @@ jobs:
               dns_cache[host] = ip
               return ip
 
-          def not_ru_ip(ip):
+          def not_ru_geo(host):
+              if not country_reader:
+                  return True
+              if host in geo_cache:
+                  return geo_cache[host]
+              ip = resolve(host)
               if not ip:
                   return False
-
-              if ip in geo_cache:
-                  return geo_cache[ip]
-
               try:
-                  country = country_reader.country(ip).country.iso_code
-                  if country == "RU":
-                      geo_cache[ip] = False
-                      return False
+                  ok = country_reader.country(ip).country.iso_code != "RU"
               except:
-                  geo_cache[ip] = False
+                  ok = False
+              geo_cache[host] = ok
+              return ok
+
+          def not_ru_asn(host):
+              if not asn_reader:
+                  return True
+              if host in asn_cache:
+                  return asn_cache[host]
+              ip = resolve(host)
+              if not ip:
+                  return False
+              try:
+                  org = (asn_reader.asn(ip).autonomous_system_organization or "").lower()
+                  bad = {"rostelecom","mts","megafon","beeline","tele2","yandex"}
+                  ok = not any(x in org for x in bad)
+              except:
+                  ok = True
+              asn_cache[host] = ok
+              return ok
+
+          def tcp_ping(host, port):
+              try:
+                  s = socket.create_connection((host, port), timeout=1.5)
+                  s.close()
+                  return True
+              except:
                   return False
 
-              try:
-                  org = asn_reader.asn(ip).autonomous_system_organization.lower()
-                  bad_orgs = ["yandex","rostelecom","mts","megafon","beeline","selectel","timeweb","vk","ru-"]
-                  if any(b in org for b in bad_orgs):
-                      geo_cache[ip] = False
-                      return False
-              except:
-                  geo_cache[ip] = False
-                  return False
-
-              geo_cache[ip] = True
-              return True
-
-          def parse_vless(link):
+          def parse(link):
               try:
                   u = urllib.parse.urlparse(link.strip())
+                  if u.scheme != "vless":
+                      return None
                   q = urllib.parse.parse_qs(u.query)
                   return {
+                      "link": link.strip(),
                       "host": u.hostname,
-                      "port": int(u.port or 0),
-                      "pbk": q.get("pbk", [""])[0],
-                      "sid": q.get("sid", [""])[0],
+                      "port": int(u.port or 443),
                       "sni": q.get("sni", [""])[0].lower(),
-                      "fp": q.get("fp", [""])[0],
-                      "type": q.get("type", ["tcp"])[0],
-                      "flow": q.get("flow", [""])[0],
-                      "sec": q.get("security", [""])[0],
-                      "insecure": q.get("insecure", [""])[0],
-                      "raw": link.strip()
+                      "security": q.get("security", [""])[0]
                   }
               except:
                   return None
 
-          def is_valid(cfg):
-              if not cfg["host"]:
-                  return False
-              if cfg["sec"] != "reality":
-                  return False
-              if cfg["fp"] not in FP_ALLOWED:
-                  return False
-              if not cfg["pbk"] or not cfg["sid"]:
-                  return False
-              if cfg["sni"] not in ru_sni:
-                  return False
-              if cfg["port"] not in PORT_ALLOWED:
-                  return False
-              if cfg["insecure"] == "true":
-                  return False
-              if cfg["type"] not in TYPE_ALLOWED:
-                  return False
-              if cfg["type"] == "tcp" and cfg["flow"] != "xtls-rprx-vision":
-                  return False
-
-              ip = resolve(cfg["host"])
-              if not ip or not not_ru_ip(ip):
-                  return False
-
-              try:
-                  s = socket.create_connection((cfg["host"], cfg["port"]), 2)
-                  s.close()
-              except:
-                  return False
-
-              return True
-
-          all_lines = []
-
+          print("Downloading configs...")
+          lines = []
           for url in URLS:
               try:
-                  r = requests.get(url, timeout=60)
-                  count = 0
-                  for line in r.text.splitlines():
-                      if line.startswith("vless://"):
-                          all_lines.append(line.strip())
-                          count += 1
-                  print(f"{url} fetched {count} links")
-              except Exception as e:
-                  print(f"{url} error {e}")
+                  r = requests.get(url, timeout=25, headers=headers)
+                  lines += r.text.splitlines()
+              except:
+                  pass
 
-          print(f"Total fetched: {len(all_lines)}")
-          random.shuffle(all_lines)
-
-          valid = []
-          seen = set()
-
-          with ThreadPoolExecutor(max_workers=60) as executor:
-              futures = [executor.submit(parse_vless, l) for l in all_lines]
-
-              for f in as_completed(futures):
-                  cfg = f.result()
-                  if not cfg:
-                      continue
-                  if not is_valid(cfg):
-                      continue
-
-                  ip = resolve(cfg["host"])
-                  key = f"{ip}:{cfg['port']}:{cfg['pbk']}"
-
-                  if key in seen:
-                      continue
-
-                  seen.add(key)
-                  valid.append(cfg["raw"])
-
-          os.makedirs("githubmirror", exist_ok=True)
-
-          # удалить старые файлы
-          for f in os.listdir("githubmirror"):
-              if f.startswith("26_ru_whitelist_"):
-                  os.remove(os.path.join("githubmirror", f))
+          vless = [l.strip() for l in lines if l.startswith("vless://")]
+          random.shuffle(vless)
 
           MAX_PER_FILE = 400
-          file_index = 1
+          BATCH_SIZE = 2000
+          results = []
 
-          for i in range(0, len(valid), MAX_PER_FILE):
-              filename = f"githubmirror/26_ru_whitelist_{file_index:02d}.txt"
-              with open(filename, "w") as f:
-                  f.write("\n".join(valid[i:i+MAX_PER_FILE]))
-              print(f"Saved {filename}")
-              file_index += 1
+          def check(link):
+              d = parse(link)
+              if not d:
+                  return None
 
-          count = len(valid)
-          exec_time = time.time() - start_time
-          print(f"Final valid configs: {count} in {exec_time:.1f}s")
+              if d["sni"] not in ru_sni:
+                  with lock: counters["sni"] += 1
+                  return None
 
-          if GITHUB_OUTPUT:
-              with open(GITHUB_OUTPUT, "a") as f:
-                  f.write(f"count={count}\n")
+              if not not_ru_geo(d["host"]):
+                  with lock: counters["geo"] += 1
+                  return None
 
-          country_reader.close()
-          asn_reader.close()
+              if not not_ru_asn(d["host"]):
+                  with lock: counters["asn"] += 1
+                  return None
+
+              if not tcp_ping(d["host"], d["port"]):
+                  with lock: counters["ping"] += 1
+                  return None
+
+              if d["security"] not in ("reality","tls"):
+                  with lock: counters["sec"] += 1
+                  return None
+
+              key = (d["host"], d["port"], d["sni"])
+              with lock:
+                  if key in seen:
+                      return None
+                  seen.add(key)
+
+              return d["link"]
+
+          for i in range(0, len(vless), BATCH_SIZE):
+              batch = vless[i:i+BATCH_SIZE]
+              with ThreadPoolExecutor(max_workers=40) as ex:
+                  futures = [ex.submit(check, l) for l in batch]
+                  for f in as_completed(futures):
+                      r = f.result()
+                      if r:
+                          results.append(r)
+
+          # remove old files
+          shutil.rmtree("githubmirror", ignore_errors=True)
+          os.makedirs("githubmirror", exist_ok=True)
+
+          file_counter = 0
+          for i in range(0, len(results), MAX_PER_FILE):
+              file_counter += 1
+              file_path = f"githubmirror/26_ru_whitelist_{file_counter:02d}.txt"
+              with open(file_path, "w") as f:
+                  for line in results[i:i+MAX_PER_FILE]:
+                      f.write(line + "\n")
+
+          total_live = len(results)
+
+          print("\n=== STATS ===")
+          print(f"VLESS total: {len(vless)}")
+          for k,v in counters.items():
+              print(f"{k}: {v}")
+          print(f"LIVE: {total_live} keys, {file_counter} files")
+
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write(f"count={total_live}\nfiles={file_counter}\n")
           EOF
 
-      - name: Commit results
+      - name: Commit & push
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           git add githubmirror/26_ru_whitelist_*.txt || true
           if git diff --staged --quiet; then
             echo "No changes"
-          else
-            git commit -m "update: ${{ steps.scan.outputs.count }} RU Reality configs"
-            git push
+            exit 0
           fi
+          git commit -m "RU whitelist: ${{ steps.scan.outputs.count }} keys (${{ steps.scan.outputs.files }} files)"
+          git push origin ${{ steps.branch.outputs.name }}
