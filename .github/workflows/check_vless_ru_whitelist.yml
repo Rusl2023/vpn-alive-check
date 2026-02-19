@@ -46,7 +46,7 @@ jobs:
         id: scan
         run: |
           python3 <<'EOF'
-          import os, socket, urllib.parse, requests
+          import os, socket, urllib.parse, requests, random
           from concurrent.futures import ThreadPoolExecutor, as_completed
           from threading import Lock
           import geoip2.database
@@ -64,15 +64,16 @@ jobs:
               except:
                   pass
 
-          headers = {"User-Agent": "Mozilla/5.0"}
+          headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
 
           RU_SNI_URL = "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/whitelist.txt"
           ru_sni = set()
           try:
               r = requests.get(RU_SNI_URL, timeout=20, headers=headers)
               ru_sni = set(x.strip().lower() for x in r.text.splitlines() if x.strip() and not x.startswith("#"))
-          except:
-              pass
+              print(f"RU SNI whitelist loaded: {len(ru_sni)} domains")
+          except Exception as e:
+              print(f"Failed to load RU SNI: {e}")
 
           URLS = [
               "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/refs/heads/main/subscriptions/v2ray/all_sub.txt",
@@ -152,7 +153,7 @@ jobs:
 
           def tcp_ping(host, port):
               try:
-                  s = socket.create_connection((host, port), 1)
+                  s = socket.create_connection((host, port), timeout=1.5)
                   s.close()
                   return True
               except:
@@ -174,29 +175,60 @@ jobs:
               except:
                   return None
 
+          print("Downloading VLESS configs...")
           lines = []
-          for url in URLS:
+          for i, url in enumerate(URLS, 1):
               try:
-                  r = requests.get(url, timeout=20, headers=headers)
+                  print(f"Fetching {i}/{len(URLS)}: {url}")
+                  r = requests.get(url, timeout=25, headers=headers)
                   lines += r.text.splitlines()
-              except:
-                  pass
+                  print(f"  Got {len(r.text.splitlines())} lines")
+              except Exception as e:
+                  print(f"  Failed: {e}")
 
+          print(f"Total lines: {len(lines)}")
           vless = [l for l in lines if l.startswith("vless://")]
+          print(f"Total VLESS found: {len(vless)}")
+
+          # Рандомизируем для лучшей выборки
+          random.shuffle(vless)
+          print("Starting full batch processing...")
+
+          MAX_PER_FILE = 400        # ← ИЗМЕНЕНО: 400 ключей на файл
+          BATCH_SIZE = 2000
+          file_counter = 1
+          all_results = []
+          
+          sni_count = 0
+          geo_count = 0
+          asn_count = 0
+          ping_count = 0
+          security_count = 0
 
           def check(link):
+              nonlocal sni_count, geo_count, asn_count, ping_count, security_count
               d = parse(link)
               if not d:
                   return None
+              
               if d["sni"] not in ru_sni:
+                  sni_count += 1
                   return None
+              
               if not not_ru_geo(d["host"]):
+                  geo_count += 1
                   return None
+              
               if not not_ru_asn(d["host"]):
+                  asn_count += 1
                   return None
+              
               if not tcp_ping(d["host"], d["port"]):
+                  ping_count += 1
                   return None
+              
               if d["security"] not in ("reality","tls"):
+                  security_count += 1
                   return None
 
               key = (d["host"], d["port"], d["sni"])
@@ -207,25 +239,64 @@ jobs:
 
               return d["link"]
 
-          results = []
-          with ThreadPoolExecutor(max_workers=80) as ex:
-              futures = [ex.submit(check, l) for l in vless[:6000]]
-              for f in as_completed(futures):
-                  r = f.result()
-                  if r:
-                      results.append(r)
+          # Полная обработка батчами
+          for i in range(0, len(vless), BATCH_SIZE):
+              batch = vless[i:i+BATCH_SIZE]
+              print(f"Processing batch {i//BATCH_SIZE + 1}/{(len(vless)+BATCH_SIZE-1)//BATCH_SIZE} ({len(batch)} links)")
+              
+              batch_results = []
+              try:
+                  with ThreadPoolExecutor(max_workers=40) as ex:
+                      futures = [ex.submit(check, l) for l in batch]
+                      for f in as_completed(futures, timeout=180):
+                          r = f.result()
+                          if r:
+                              batch_results.append(r)
+              except Exception as e:
+                  print(f"Batch error: {e}")
+              
+              all_results.extend(batch_results)
+              print(f"  Batch live: {len(batch_results)}")
+              
+              # Создаём файлы по MAX_PER_FILE (400)
+              while len(all_results) >= MAX_PER_FILE:
+                  file_path = f"githubmirror/26_ru_whitelist_{file_counter:02d}.txt"
+                  os.makedirs("githubmirror", exist_ok=True)
+                  with open(file_path, "w", encoding="utf-8") as f:
+                      for live_key in all_results[:MAX_PER_FILE]:
+                          f.write(live_key + "\n")
+                  print(f"Created {file_path}: {MAX_PER_FILE} keys")
+                  all_results = all_results[MAX_PER_FILE:]
+                  file_counter += 1
 
-          os.makedirs("githubmirror", exist_ok=True)
-          path = "githubmirror/26_ru_whitelist.txt"
+          # Финальный файл
+          if all_results:
+              file_path = f"githubmirror/26_ru_whitelist_{file_counter:02d}.txt"
+              os.makedirs("githubmirror", exist_ok=True)
+              with open(file_path, "w", encoding="utf-8") as f:
+                  for live_key in all_results:
+                      f.write(live_key + "\n")
+              print(f"Created {file_path}: {len(all_results)} keys")
 
-          with open(path, "w", encoding="utf-8") as f:
-              for l in results:
-                  f.write(l + "\n")
+          # Статистика
+          total_files = file_counter - 1
+          total_live = sum(len(open(f"githubmirror/26_ru_whitelist_{i:02d}.txt").readlines()) 
+                          for i in range(1, file_counter) 
+                          if os.path.exists(f"githubmirror/26_ru_whitelist_{i:02d}.txt"))
+          print(f"\n=== FINAL STATS ===")
+          print(f"Total VLESS processed: {len(vless)}")
+          print(f"RU SNI filtered: {sni_count}")
+          print(f"RU Geo filtered: {geo_count}")
+          print(f"RU ASN filtered: {asn_count}")
+          print(f"Ping failed: {ping_count}")
+          print(f"Security filtered: {security_count}")
+          print(f"TOTAL LIVE KEYS: {total_live}")
+          print(f"Files created: {total_files}")
 
           with open(os.environ["GITHUB_OUTPUT"], "a") as f:
-              f.write(f"count={len(results)}\n")
+              f.write(f"count={total_live}\n")
+              f.write(f"files={total_files}\n")
 
-          print("LIVE:", len(results))
           EOF
 
       - name: Commit & push
@@ -233,12 +304,12 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git add githubmirror/26_ru_whitelist.txt || true
+          git add githubmirror/26_ru_whitelist_*.txt || true
 
           if git diff --staged --quiet; then
             echo "No changes"
             exit 0
           fi
 
-          git commit -m "RU whitelist update: ${{ steps.scan.outputs.count }}"
+          git commit -m "RU whitelist update: ${{ steps.scan.outputs.count }} keys in ${{ steps.scan.outputs.files }} files (400/file)"
           git push origin ${{ steps.branch.outputs.name }}
