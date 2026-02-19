@@ -1,7 +1,7 @@
 name: Check VLESS proxy availability via Xray (base64 subscription)
 on:
   schedule:
-    - cron: '0 * * * *'
+    - cron: '0 */3 * * *'  # ИСПРАВЛЕНО: каждые 3 часа вместо каждый час
   workflow_dispatch:
 
 concurrency:
@@ -50,14 +50,41 @@ jobs:
       - name: Check VLESS via Xray
         run: |
           python3 << 'EOF'
-          import subprocess, time, json, urllib.parse, os, socket, ipaddress, base64
+          import subprocess, time, json, urllib.parse, os, socket, ipaddress, base64, glob, re
           import geoip2.database
           from concurrent.futures import ThreadPoolExecutor, as_completed, wait
           from threading import Lock
           from datetime import datetime, timezone
 
           XRAY_PATH = os.path.join(os.getcwd(), "xray")
-          INPUT = 'githubmirror/26_ru_whitelist.txt'
+          
+          # ИСПРАВЛЕНО: Собираем все файлы *_whitelist_*.txt
+          whitelist_pattern = 'githubmirror/26_ru_whitelist_*.txt'
+          whitelist_files = glob.glob(whitelist_pattern)
+          
+          if not whitelist_files:
+              print(f"❌ No whitelist files found matching: {whitelist_pattern}")
+              exit(0)
+              
+          print(f"📂 Found whitelist files: {whitelist_files}")
+          
+          # Собираем все ссылки из всех whitelist файлов
+          all_links = []
+          for whitelist_file in whitelist_files:
+              print(f"📂 Processing {whitelist_file}...")
+              if not os.path.exists(whitelist_file):
+                  print(f"❌ {whitelist_file} not found")
+                  continue
+              
+              with open(whitelist_file) as f:
+                  links = [x.strip() for x in f if x.strip().startswith('vless://')]
+                  all_links.extend(links)
+                  print(f"   Found {len(links)} VLESS links")
+          
+          if not all_links:
+              print("❌ No VLESS links found in any whitelist files")
+              exit(0)
+
           OUTPUT_RAW = 'githubmirror/26_proxy_subscription_raw.txt'
           OUTPUT_B64 = 'githubmirror/26_proxy_subscription_base64.txt'
 
@@ -337,7 +364,6 @@ jobs:
                   num = next_id()
                   name = f"{server_country}→{num}→{exit_country} SNI: {sni}"
 
-                  # ✅ ИСПРАВЛЕНО: Правильно убираем фрагмент после # и добавляем новый name
                   if '#' in link:
                       base_link = link.split('#')[0]
                   else:
@@ -348,24 +374,12 @@ jobs:
                   print(f"⚠️ Proxy parse error: {str(e)[:100]}")
                   return None
 
-          print(f"📂 Processing {INPUT}...")
-          if not os.path.exists(INPUT):
-              print("❌ INPUT file not found")
-              exit(0)
-
-          with open(INPUT) as f:
-              links = [x.strip() for x in f if x.strip().startswith('vless://')]
-
-          if not links:
-              print("❌ No VLESS links found")
-              exit(0)
-
-          print(f"🚀 TOTAL: {len(links)} | workers={MAX_WORKERS}")
+          print(f"🚀 TOTAL: {len(all_links)} | workers={MAX_WORKERS}")
 
           alive = []
           try:
               with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
-                  futures = [ex.submit(check_one, l) for l in links]
+                  futures = [ex.submit(check_one, l) for l in all_links]
                   for future in as_completed(futures):
                       result = future.result()
                       if result:
@@ -375,14 +389,12 @@ jobs:
 
           print(f"✅ DONE. Alive NON-RU: {len(alive)}")
 
-          # ✅ ИСПРАВЛЕНО: Правильное форматирование с обычными \n без экранирования
           with open(OUTPUT_RAW, 'w') as f:
               f.write(f"# updated {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}\n")
               if alive:
                   f.write('\n'.join(alive) + '\n')
 
           if alive:
-              # ✅ Base64 кодируем строки с обычными \n разделителями
               b64_content = '\n'.join(alive)
               b64 = base64.b64encode(b64_content.encode()).decode()
               with open(OUTPUT_B64, 'w') as f:
