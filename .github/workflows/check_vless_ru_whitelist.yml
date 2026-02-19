@@ -21,181 +21,127 @@ jobs:
       - name: RU Whitelist Scanner
         id: check_alive
         run: |
-          python3 << 'EOF'
-          import os
-          import time
-          import socket
-          import urllib.parse
-          import requests
+          python3 -c "
+          import os, time, socket, urllib.parse, requests
           from concurrent.futures import ThreadPoolExecutor, as_completed
-
-          HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
-          MAX_WORKERS = 60
-          TIMEOUT = 2.0
+          
+          HEADERS = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
+          MAX_WORKERS = 30
+          TIMEOUT = 3.0
           TOP_LIMIT = 250
-          BATCH_SIZE = 1500
-          OUTPUT_FILE = "githubmirror/26_ru_whitelist.txt"
-
-          def load_ru_sni_whitelist():
-              url = "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/whitelist.txt"
+          OUTPUT_FILE = 'githubmirror/26_ru_whitelist.txt'
+          
+          def load_sni_whitelist():
               try:
-                  resp = requests.get(url, timeout=12, headers=HEADERS)
-                  return set(line.strip().lower() for line in resp.text.splitlines() 
-                           if line.strip() and not line.startswith('#'))
+                  resp = requests.get('https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/whitelist.txt', timeout=10, headers=HEADERS)
+                  return set(l.strip().lower() for l in resp.text.splitlines() if l.strip() and not l.startswith('#'))
               except:
                   return set()
-
-          print("[INFO] Loading RU SNI whitelist...")
-          RU_SNI_WHITELIST = load_ru_sni_whitelist()
-          print(f"[SNI] Total: {len(RU_SNI_WHITELIST)} entries")
-
-          def sni_allowed(sni):
-              sni_lower = sni.lower()
-              if sni_lower in RU_SNI_WHITELIST:
-                  return True
-              for allowed in RU_SNI_WHITELIST:
-                  if allowed.startswith("*.") and sni_lower.endswith(allowed[1:]):
-                      return True
-              return False
-
-          def check_cdn_ip(host):
+          
+          RU_SNI = load_sni_whitelist()
+          
+          def sni_ok(sni):
+              s = sni.lower()
+              return s in RU_SNI or any(s.endswith(a[1:]) for a in RU_SNI if a.startswith('*.'))
+          
+          def is_cdn(host):
               try:
                   ip = socket.gethostbyname(host)
-                  cdn_keywords = {
-                      "cloudflare", "amazon", "google", "microsoft", "akamai",
-                      "fastly", "facebook", "apple", "edgedns", "level3"
-                  }
-                  ru_blacklist = {
-                      "rostelecom", "mts", "megafon", "beeline", "tele2", 
-                      "yandex", "mail.ru", "rt"
-                  }
-                  
+                  cdn_kws = {'cloudflare','amazon','google','microsoft','akamai','fastly'}
+                  ru_kws = {'rostelecom','mts','megafon','beeline','tele2','yandex'}
                   org = socket.getaddrinfo(host, None)[0][3].lower()
-                  is_cdn = any(kw in org for kw in cdn_keywords)
-                  is_ru = any(kw in org for kw in ru_blacklist)
-                  
-                  return is_cdn and not is_ru
+                  return any(kw in org for kw in cdn_kws) and not any(kw in org for kw in ru_kws)
               except:
                   return False
-
-          def fast_ping(host, port):
+          
+          def ping_ok(host, port):
               try:
-                  s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                  s = socket.socket()
                   s.settimeout(TIMEOUT)
-                  result = s.connect_ex((host, port))
-                  s.close()
-                  return result == 0
+                  return s.connect_ex((host, port)) == 0
               except:
                   return False
-
+          
           def parse_vless(line):
-              if not line.startswith("vless://"):
+              if not line.startswith('vless://'):
                   return None
               try:
-                  u = urllib.parse.urlparse(line.strip())
-                  if u.scheme != "vless" or not u.hostname:
+                  u = urllib.parse.urlparse(line)
+                  if not u.hostname:
                       return None
-                  
                   q = urllib.parse.parse_qs(u.query)
+                  
                   port = 443
                   if ':' in u.netloc:
-                      try:
-                          port = int(u.netloc.split(':', 1)[1])
-                      except:
-                          pass
+                      port = int(u.netloc.rsplit(':', 1)[1])
                   
-                  sni = q.get("sni", [""])[0].lower().strip()
+                  sni = q.get('sni', [''])[0].lower()
                   if not sni:
                       sni = u.hostname
                   
-                  security = q.get("security", [""])[0]
-                  flow = q.get("flow", [""])[0]
-                  type_param = q.get("type", [""])[0]
+                  typ = q.get('type', [''])[0].lower()
+                  sec = q.get('security', [''])[0].lower()
+                  flow = q.get('flow', [''])[0].lower()
                   
-                  # Фильтры: xHTTP, gRPC, reality и другие
-                  allowed_types = {"grpc", "http", "xhttp", "reality"}
-                  if type_param and type_param.lower() not in allowed_types:
+                  if typ and typ not in {'grpc', 'http', 'xhttp'}:
                       return None
-                  
-                  if security == "reality" and "vision" in flow.lower():
-                      pass  # Reality Vision OK
-                  elif type_param in {"grpc", "http", "xhttp"}:
-                      pass  # gRPC, HTTP, xHTTP OK
-                  else:
+                  if sec == 'reality' and 'vision' not in flow:
                       return None
-                  
-                  if sni and not sni_allowed(sni):
+                  if sni and not sni_ok(sni):
                       return None
-                  
-                  if not check_cdn_ip(u.hostname):
+                  if not is_cdn(u.hostname):
                       return None
-                  
-                  if not fast_ping(u.hostname, port):
+                  if not ping_ok(u.hostname, port):
                       return None
                   
                   return line.strip()
               except:
                   return None
-
-          SOURCES = [
-              "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/refs/heads/main/subscriptions/v2ray/all_sub.txt",
-              "https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/sub/sub_merge_base64.txt",
-              "https://raw.githubusercontent.com/barry-far/V2ray-Configs/main/Sub1.txt",
-              "https://raw.githubusercontent.com/barry-far/V2ray-Configs/main/Sub2.txt",
-              "https://raw.githubusercontent.com/Epodonios/v2ray-configs/main/All_Configs_Sub.txt",
-              "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub",
-              "https://raw.githubusercontent.com/ts-sf/fly/main/v2",
-              "https://raw.githubusercontent.com/aiboboxx/v2rayfree/main/v2",
-              "https://raw.githubusercontent.com/mfuu/v2ray/master/v2ray",
-              "https://raw.githubusercontent.com/ermaozi/get_subscribe/main/subscribe/v2ray.txt",
-              "https://raw.githubusercontent.com/soroushmirzaei/telegram-configs-collector/main/protocols/vless",
-              "https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt",
-              "https://raw.githubusercontent.com/zieng2/wl/refs/heads/main/vless_lite.txt",
-              "https://bp.wl.free.nf/confs/wl.txt"
-          ]
-
-          print("[INFO] Scanning sources...")
-          all_links = []
           
-          for i, url in enumerate(SOURCES, 1):
+          SOURCES = [
+              'https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/refs/heads/main/subscriptions/v2ray/all_sub.txt',
+              'https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/sub/sub_merge_base64.txt',
+              'https://raw.githubusercontent.com/barry-far/V2ray-Configs/main/Sub1.txt',
+              'https://raw.githubusercontent.com/barry-far/V2ray-Configs/main/Sub2.txt',
+              'https://raw.githubusercontent.com/Epodonios/v2ray-configs/main/All_Configs_Sub.txt',
+              'https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub',
+              'https://raw.githubusercontent.com/ts-sf/fly/main/v2',
+              'https://raw.githubusercontent.com/aiboboxx/v2rayfree/main/v2',
+              'https://raw.githubusercontent.com/mfuu/v2ray/master/v2ray',
+              'https://raw.githubusercontent.com/ermaozi/get_subscribe/main/subscribe/v2ray.txt',
+              'https://raw.githubusercontent.com/soroushmirzaei/telegram-configs-collector/main/protocols/vless',
+              'https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt'
+          ]
+          
+          all_links = []
+          for url in SOURCES:
               try:
                   resp = requests.get(url, timeout=15, headers=HEADERS, stream=True)
-                  count = 0
                   for line in resp.iter_lines(decode_unicode=True):
-                      if line and line.startswith('vless://'):
-                          parsed = parse_vless(line)
+                      if line:
+                          parsed = parse_vless(line.decode() if isinstance(line, bytes) else line)
                           if parsed:
                               all_links.append(parsed)
-                              count += 1
-                  print(f"[SOURCE {i}/{len(SOURCES)}] {count} valid VLESS")
-              except Exception as e:
-                  print(f"[SOURCE {i}] Error: {e}")
-
-          print(f"[TOTAL] Found {len(all_links)} working VLESS keys")
-
-          # Сохраняем только чистые ключи без мусора
-          os.makedirs(os.path.dirname(OUTPUT_FILE), exist_ok=True)
-          with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
-              for link in all_links[:TOP_LIMIT]:
-                  f.write(f"{link}\n")
-
-          # Проверяем изменения
-          old_hash = "none"
-          if os.path.exists(OUTPUT_FILE):
-              try:
-                  with open(OUTPUT_FILE, 'r') as f:
-                      old_content = f.read()
-                  old_hash = hash(old_content)
+                              if len(all_links) >= TOP_LIMIT:
+                                  break
+                  if len(all_links) >= TOP_LIMIT:
+                      break
               except:
-                  pass
-
-          new_hash = hash(open(OUTPUT_FILE, 'r').read()) if all_links else "empty"
-          has_changes = old_hash != new_hash
-
-          with open(os.environ["GITHUB_OUTPUT"], "a") as out:
-              out.write(f"count={len(all_links)}\n")
-              out.write(f"has_changes={str(has_changes).lower()}\n")
-          EOF
+                  continue
+          
+          os.makedirs(os.path.dirname(OUTPUT_FILE), exist_ok=True)
+          with open(OUTPUT_FILE, 'w') as f:
+              for link in all_links:
+                  f.write(link + '\n')
+          
+          has_changes = len(all_links) > 0
+          print(f'Found {len(all_links)} keys')
+          
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write(f'count={len(all_links)}\n')
+              f.write(f'has_changes={str(has_changes).lower()}\n')
+          "
+        continue-on-error: true
 
       - name: Commit Changes
         if: steps.check_alive.outputs.has_changes == 'true' && steps.check_alive.outputs.count != '0'
@@ -204,13 +150,13 @@ jobs:
         run: |
           git config user.name "RU-Whitelist-Bot"
           git config user.email "bot@users.noreply.github.com"
-          git add githubmirror/26_ru_whitelist.txt
+          git add githubmirror/26_ru_whitelist.txt || true
           
           if git diff --cached --quiet; then
             echo "No changes"
-          else
-            git commit -m "Update RU Whitelist: ${{ steps.check_alive.outputs.count }} VLESS keys"
-            git push https://x-access-token:${GH_PAT}@github.com/${{ github.repository }} HEAD:main
-            echo "✅ Pushed ${{ steps.check_alive.outputs.count }} keys"
+            exit 0
           fi
-           EOF
+          
+          git commit -m "Update RU Whitelist: ${{ steps.check_alive.outputs.count }} keys"
+          git push https://x-access-token:${GH_PAT}@github.com/${{ github.repository }} HEAD:main
+          echo "✅ Pushed ${{ steps.check_alive.outputs.count }} keys"
