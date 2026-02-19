@@ -456,14 +456,18 @@ jobs:
               asn_reader.close()
           EOF
 
-          - name: Commit & push results
-          run: |
+      - name: Check VLESS via Xray
+        run: |
+          python3 << 'EOF'
+          # ТВОЙ PYTHON КОД
+          EOF
+
+      - name: Commit & push results
+        run: |
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
 
-          # Чистим временные конфиги
           rm -f cfg_*.json xray.zip || true
-
           git add githubmirror/*.txt || true
 
           if git diff --staged --quiet; then
@@ -473,10 +477,7 @@ jobs:
 
           git commit -m "Update battle-tested NON-RU proxy subscriptions [$(date -u +'%Y-%m-%d %H:%M UTC')]"
 
-          # Подтянуть изменения (если кто-то уже запушил)
           git pull --rebase origin main || true
-
-          # Пуш
           git push origin main || git push --force-with-lease origin main
 
           echo "✅ Pushed battle-tested updates"
