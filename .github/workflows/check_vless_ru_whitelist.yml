@@ -39,11 +39,19 @@ jobs:
           import geoip2.database
           from concurrent.futures import ThreadPoolExecutor
           
+          print("Starting VLESS RU Reality filter...")
+          
           # Initialize databases
           COUNTRY_DB = "geolite2/GeoLite2-Country.mmdb"
           ASN_DB = "geolite2/GeoLite2-ASN.mmdb"
-          country_reader = geoip2.database.Reader(COUNTRY_DB)
-          asn_reader = geoip2.database.Reader(ASN_DB)
+          
+          try:
+              country_reader = geoip2.database.Reader(COUNTRY_DB)
+              asn_reader = geoip2.database.Reader(ASN_DB)
+              print("GeoIP databases loaded successfully")
+          except Exception as e:
+              print(f"Failed to load GeoIP databases: {e}")
+              exit(1)
           
           # Allowed parameters
           FP_ALLOWED = {
@@ -52,9 +60,16 @@ jobs:
           }
           PORT_ALLOWED = {80, 443, 8443}
           
-          # Russian SNI whitelist
+          # Russian SNI whitelist - ЧИСТЫЕ URL!
           RU_SNI_URL = "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/whitelist.txt"
-          ru_sni = set(requests.get(RU_SNI_URL, timeout=20).text.splitlines())
+          
+          try:
+              ru_sni_response = requests.get(RU_SNI_URL, timeout=20)
+              ru_sni = set(ru_sni_response.text.splitlines())
+              print(f"Loaded {len(ru_sni)} Russian SNI domains")
+          except Exception as e:
+              print(f"Failed to load RU SNI whitelist: {e}")
+              exit(1)
           
           URLS = [
               "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/refs/heads/main/subscriptions/v2ray/all_sub.txt",
@@ -86,21 +101,17 @@ jobs:
 
           
           def resolve_hostname(host):
-              """Resolve hostname to IP"""
               try:
                   return socket.gethostbyname(host)
               except:
                   return None
           
-          def is_non_russian_ip(ip):
-              """Check if IP is not Russian and not from bad providers"""
+          def is_non_russian_ip(ip, country_reader, asn_reader):
               try:
-                  # Check country first
                   country_info = country_reader.country(ip)
                   if country_info.country.iso_code == "RU":
                       return False
                   
-                  # Check ASN for Russian providers even for non-RU countries
                   asn_info = asn_reader.asn(ip)
                   org = asn_info.autonomous_system_organization.lower()
                   bad_providers = [
@@ -114,11 +125,11 @@ jobs:
                   return False
           
           def parse_vless_url(link):
-              """Parse VLESS URL parameters"""
               try:
                   parsed = urllib.parse.urlparse(link)
+                  if not parsed.scheme == "vless":
+                      return None
                   query_params = urllib.parse.parse_qs(parsed.query)
-                  
                   return {
                       "raw": link.strip(),
                       "host": parsed.hostname,
@@ -135,48 +146,30 @@ jobs:
               except:
                   return None
           
-          def is_valid_config(config):
-              """Validate VLESS Reality configuration"""
-              # Reality security required
+          def is_valid_config(config, ru_sni, country_reader, asn_reader):
               if config["sec"] != "reality":
                   return False
-              
-              # Fingerprint validation
               if config["fp"] not in FP_ALLOWED:
                   return False
-              
-              # Public key validation
               if not config["pbk"] or len(config["pbk"]) < 30:
                   return False
-              
-              # SID required
               if not config["sid"]:
                   return False
-              
-              # Russian SNI required
               if not config["sni"] or config["sni"] not in ru_sni:
                   return False
-              
-              # Port validation
               if config["port"] not in PORT_ALLOWED:
                   return False
-              
-              # No insecure connections
               if config["insecure"] == "true":
                   return False
-              
-              # Transport validation
               if config["type"] == "tcp" and config["flow"] != "xtls-rprx-vision":
                   return False
               if config["type"] not in ("tcp", "grpc", "xhttp"):
                   return False
               
-              # IP resolution and geo check
               ip = resolve_hostname(config["host"])
-              if not ip or not is_non_russian_ip(ip):
+              if not ip or not is_non_russian_ip(ip, country_reader, asn_reader):
                   return False
               
-              # Port connectivity check
               try:
                   sock = socket.create_connection((config["host"], config["port"]), timeout=1.5)
                   sock.close()
@@ -185,39 +178,43 @@ jobs:
               
               return True
           
-          # Collect all VLESS links
-          print("Fetching VLESS configs...")
+          # Collect VLESS links
+          print("Fetching configs from sources...")
           all_lines = []
-          for url in URLS:
+          for i, url in enumerate(URLS, 1):
               try:
+                  print(f"Fetching {i}/{len(URLS)}: {url}")
                   response = requests.get(url, timeout=20)
-                  all_lines.extend(response.text.splitlines())
-                  print(f"Fetched {len(response.text.splitlines())} lines from {url}")
+                  lines = response.text.splitlines()
+                  all_lines.extend(lines)
+                  print(f"  Got {len(lines)} lines")
               except Exception as e:
-                  print(f"Failed to fetch {url}: {e}")
+                  print(f"  Failed: {e}")
           
           vless_links = [line for line in all_lines if line.startswith("vless://")]
-          print(f"Found {len(vless_links)} VLESS links")
+          print(f"Total VLESS links found: {len(vless_links)}")
           
-          # Shuffle for random processing
+          if not vless_links:
+              print("No VLESS links found, exiting")
+              print("count=0")
+              exit(0)
+          
           random.shuffle(vless_links)
           
-          # Process with thread pool
+          # Process configs
+          print("Filtering and testing configs...")
           seen_configs = set()
           valid_configs = []
           
-          print("Filtering and validating configs...")
-          with ThreadPoolExecutor(max_workers=50) as executor:
-              parsed_configs = list(executor.map(parse_vless_url, vless_links))
+          with ThreadPoolExecutor(max_workers=30) as executor:
+              parsed_configs = list(executor.map(parse_vless_url, vless_links[:1000]))  # Limit to first 1000
               
               for config in parsed_configs:
                   if not config:
                       continue
-                  
-                  if not is_valid_config(config):
+                  if not is_valid_config(config, ru_sni, country_reader, asn_reader):
                       continue
                   
-                  # Deduplicate by IP:port:pbk
                   ip = resolve_hostname(config["host"])
                   if not ip:
                       continue
@@ -237,9 +234,9 @@ jobs:
                   f.write(config + "\n")
           
           total_count = len(valid_configs)
-          print(f"TOTAL VALID CONFIGS: {total_count}")
+          print(f"TOTAL VALID RU REALITY CONFIGS: {total_count}")
           
-          # Set GitHub output
+          # Set output for GitHub Actions
           with open(os.environ["GITHUB_OUTPUT"], "a") as f:
               f.write(f"count={total_count}\n")
           EOF
@@ -252,8 +249,7 @@ jobs:
           
           if git diff --staged --quiet; then
             echo "No changes to commit"
-            exit 0
+          else
+            git commit -m "chore: update RU Reality VLESS ({{ steps.scan.outputs.count }} configs)"
+            git push
           fi
-          
-          git commit -m "chore: update RU Reality VLESS configs ({{ steps.scan.outputs.count }} keys)"
-          git push
