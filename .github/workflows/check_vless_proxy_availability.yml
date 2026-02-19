@@ -473,8 +473,10 @@ jobs:
 
           git commit -m "Update battle-tested NON-RU proxy subscriptions [$(date -u +'%Y-%m-%d %H:%M UTC')]"
 
-          # 🔥 ВАЖНО: подтянуть изменения перед push
-          git pull --rebase origin main
+          # Подтянуть изменения (если кто-то уже запушил)
+          git pull --rebase origin main || true
 
-          git push origin main
+          # Пуш
+          git push origin main || git push --force-with-lease origin main
+
           echo "✅ Pushed battle-tested updates"
