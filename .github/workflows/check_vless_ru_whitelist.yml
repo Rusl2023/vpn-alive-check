@@ -2,7 +2,7 @@ name: VLESS RU Reality Clean Filter
 
 on:
   schedule:
-    - cron: '0 */3 * * *'  # ИСПРАВЛЕНО: каждые 3 часа вместо каждый час
+    - cron: '0 */3 * * *'  # каждые 3 часа
   workflow_dispatch:
 
 jobs:
@@ -45,14 +45,12 @@ jobs:
           start_time = time.time()
           socket.setdefaulttimeout(3)
 
-          GITHUB_OUTPUT = os.environ.get("GITHUB_OUTPUT")
-          if not GITHUB_OUTPUT:
-              print("ERROR: GITHUB_OUTPUT not found")
-              sys.exit(1)
+          # GitHub Output fallback
+          GITHUB_OUTPUT = os.environ.get("GITHUB_OUTPUT", "/github/workflow/output")
 
+          # Load GeoIP
           COUNTRY_DB = "geolite2/GeoLite2-Country.mmdb"
           ASN_DB = "geolite2/GeoLite2-ASN.mmdb"
-
           try:
               country_reader = geoip2.database.Reader(COUNTRY_DB)
               asn_reader = geoip2.database.Reader(ASN_DB)
@@ -61,7 +59,6 @@ jobs:
               print(f"✗ GeoIP load failed: {e}")
               sys.exit(1)
 
-          # Allowed constants
           FP_ALLOWED = {"chrome","firefox","safari","ios","android","edge","360","qq","random","randomized"}
           PORT_ALLOWED = {80,443,8443}
           TYPE_ALLOWED = {"tcp","grpc","xhttp"}
@@ -78,6 +75,7 @@ jobs:
               print(f"✗ Failed to load RU SNI: {e}")
               sys.exit(1)
 
+          # Source URLs
           URLS = [
               "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/refs/heads/main/subscriptions/v2ray/all_sub.txt",
               "https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/sub/sub_merge_base64.txt",
@@ -106,27 +104,19 @@ jobs:
               "https://raw.githubusercontent.com/hamedcode/port-based-v2ray-configs/main/sub/vless.txt"
           ]
 
-          # Resolve host
-          dns_cache = {}
-          geo_cache = {}
-          asn_cache = {}
+          # DNS/Geo cache
+          dns_cache, geo_cache, asn_cache = {}, {}, {}
 
           def resolve(host):
-              if not host:
-                  return None
-              if host in dns_cache:
-                  return dns_cache[host]
-              try:
-                  ip = socket.gethostbyname(host)
-              except:
-                  ip = None
+              if not host: return None
+              if host in dns_cache: return dns_cache[host]
+              try: ip = socket.gethostbyname(host)
+              except: ip = None
               dns_cache[host] = ip
               return ip
 
           def not_ru_ip(ip):
-              if not ip:
-                  return False
-              # country
+              if not ip: return False
               if ip in geo_cache:
                   country_ok = geo_cache[ip]
               else:
@@ -135,9 +125,7 @@ jobs:
                   except:
                       country_ok = False
                   geo_cache[ip] = country_ok
-              if not country_ok:
-                  return False
-              # ASN
+              if not country_ok: return False
               if ip in asn_cache:
                   asn_ok = asn_cache[ip]
               else:
@@ -168,35 +156,22 @@ jobs:
                       "insecure": q.get("insecure", [""])[0],
                       "raw": link.strip()
                   }
-              except:
-                  return None
+              except: return None
 
           # Check validity
           def is_valid(cfg):
-              if not cfg["host"]:
-                  return False
-              if cfg["sec"] != "reality":
-                  return False
-              if cfg["fp"] not in FP_ALLOWED:
-                  return False
-              if not cfg["pbk"] or len(cfg["pbk"]) < 30:
-                  return False
-              if not cfg["sid"]:
-                  return False
-              if cfg["sni"] not in ru_sni:
-                  return False
-              if cfg["port"] not in PORT_ALLOWED:
-                  return False
-              if cfg["insecure"] == "true":
-                  return False
-              if cfg["type"] not in TYPE_ALLOWED:
-                  return False
-              if cfg["type"] == "tcp" and cfg["flow"] != "xtls-rprx-vision":
-                  return False
+              if not cfg["host"]: return False
+              if cfg["sec"] != "reality": return False
+              if cfg["fp"] not in FP_ALLOWED: return False
+              if not cfg["pbk"] or len(cfg["pbk"])<30: return False
+              if not cfg["sid"]: return False
+              if cfg["sni"] not in ru_sni: return False
+              if cfg["port"] not in PORT_ALLOWED: return False
+              if cfg["insecure"]=="true": return False
+              if cfg["type"] not in TYPE_ALLOWED: return False
+              if cfg["type"]=="tcp" and cfg["flow"]!="xtls-rprx-vision": return False
               ip = resolve(cfg["host"])
-              if not ip or not not_ru_ip(ip):
-                  return False
-              # TCP ping
+              if not ip or not not_ru_ip(ip): return False
               try:
                   s = socket.create_connection((cfg["host"], cfg["port"]), 2)
                   s.close()
@@ -204,40 +179,39 @@ jobs:
                   return False
               return True
 
-          # Collect all lines
+          # Fetch all links
           all_lines = []
           for url in URLS:
               try:
                   resp = requests.get(url, timeout=30, stream=True)
+                  count = 0
                   for line in resp.iter_lines():
                       if line and line.startswith(b"vless://"):
                           all_lines.append(line.decode("utf-8"))
-                  print(f"{url} → {len([l for l in all_lines[-500:] if l.startswith('vless://')])} links")
+                          count += 1
+                  print(f"{url} - fetched {count} links")
               except Exception as e:
                   print(f"{url} ERROR {e}")
 
           print(f"Total links fetched: {len(all_lines)}")
           random.shuffle(all_lines)
 
-          # Validate
+          # Validate all
           valid_configs = []
           seen_keys = set()
           with ThreadPoolExecutor(max_workers=40) as executor:
               futures = {executor.submit(parse_vless, l): l for l in all_lines}
               for future in as_completed(futures):
                   cfg = future.result()
-                  if not cfg:
-                      continue
-                  if not is_valid(cfg):
-                      continue
+                  if not cfg: continue
+                  if not is_valid(cfg): continue
                   ip = resolve(cfg["host"])
                   key = f"{ip}:{cfg['port']}:{cfg['pbk']}"
-                  if key in seen_keys:
-                      continue
+                  if key in seen_keys: continue
                   seen_keys.add(key)
                   valid_configs.append(cfg["raw"])
 
-          # Split into files by 400
+          # Split into files of 400
           os.makedirs("githubmirror", exist_ok=True)
           MAX_PER_FILE = 400
           file_counter = 1
@@ -245,12 +219,12 @@ jobs:
               file_path = f"githubmirror/26_ru_whitelist_{file_counter:02d}.txt"
               with open(file_path, "w") as f:
                   for cfg in valid_configs[i:i+MAX_PER_FILE]:
-                      f.write(cfg + "\n")
+                      f.write(cfg+"\n")
               print(f"Saved {file_path} ({len(valid_configs[i:i+MAX_PER_FILE])} keys)")
               file_counter += 1
 
           count = len(valid_configs)
-          exec_time = time.time() - start_time
+          exec_time = time.time()-start_time
           print(f"✓ RESULT: {count} valid configs in {exec_time:.1f}s")
 
           with open(GITHUB_OUTPUT, "a") as f:
