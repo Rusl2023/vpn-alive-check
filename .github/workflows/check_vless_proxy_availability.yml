@@ -1,5 +1,4 @@
 name: Check VLESS proxy availability via Xray (base64 subscription)
-
 on:
   schedule:
     - cron: '0 * * * *'
@@ -338,9 +337,12 @@ jobs:
                   num = next_id()
                   name = f"{server_country}→{num}→{exit_country} SNI: {sni}"
 
+                  # ✅ ИСПРАВЛЕНО: Правильно убираем фрагмент после # и добавляем новый name
                   if '#' in link:
-                      link = link.split('#')[0]
-                  return link + '#' + name
+                      base_link = link.split('#')[0]
+                  else:
+                      base_link = link
+                  return base_link + '#' + name
 
               except Exception as e:
                   print(f"⚠️ Proxy parse error: {str(e)[:100]}")
@@ -373,13 +375,15 @@ jobs:
 
           print(f"✅ DONE. Alive NON-RU: {len(alive)}")
 
+          # ✅ ИСПРАВЛЕНО: Правильное форматирование с обычными \n без экранирования
           with open(OUTPUT_RAW, 'w') as f:
-              f.write(f"# updated {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}\\n")
+              f.write(f"# updated {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}\n")
               if alive:
-                  f.write('\\n'.join(alive) + '\\n')
+                  f.write('\n'.join(alive) + '\n')
 
           if alive:
-              b64_content = '\\n'.join(alive)
+              # ✅ Base64 кодируем строки с обычными \n разделителями
+              b64_content = '\n'.join(alive)
               b64 = base64.b64encode(b64_content.encode()).decode()
               with open(OUTPUT_B64, 'w') as f:
                   f.write(b64)
@@ -398,8 +402,8 @@ jobs:
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
 
-          # Чистим временные конфиги Xray, чтобы не было нестейдженных мусорных файлов
-          rm -f cfg_*.json || true
+          # Чистим временные конфиги Xray
+          rm -f cfg_*.json xray.zip || true
 
           # Добавляем только нужные артефакты
           git add githubmirror/*.txt || true
