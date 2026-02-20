@@ -5,6 +5,10 @@ on:
     - cron: '0 */3 * * *'
   workflow_dispatch:
 
+concurrency:
+  group: ru-whitelist
+  cancel-in-progress: false
+
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -24,12 +28,6 @@ jobs:
       - name: Pull latest
         run: git pull origin ${{ steps.branch.outputs.name }} --rebase || true
 
-      - name: Download GeoLite
-        run: |
-          mkdir -p geolite2
-          curl -L -o geolite2/GeoLite2-Country.mmdb https://raw.githubusercontent.com/P3TERX/GeoLite.mmdb/main/GeoLite2-Country.mmdb || true
-          curl -L -o geolite2/GeoLite2-ASN.mmdb https://raw.githubusercontent.com/P3TERX/GeoLite.mmdb/main/GeoLite2-ASN.mmdb || true
-
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -43,7 +41,7 @@ jobs:
       - name: Scan VLESS
         id: scan
         run: |
-          python3 <<-EOF
+          python3 <<'EOF'
           import os
           import socket
           import urllib.parse
@@ -52,38 +50,19 @@ jobs:
           import shutil
           from concurrent.futures import ThreadPoolExecutor, as_completed
           from threading import Lock
-          import geoip2.database
 
-          COUNTRY_DB = "geolite2/GeoLite2-Country.mmdb"
-          ASN_DB = "geolite2/GeoLite2-ASN.mmdb"
-
-          country_reader = None
-          asn_reader = None
-          
-          # ✅ Безопасная загрузка GeoIP баз
-          if os.path.exists(COUNTRY_DB):
-              try:
-                  country_reader = geoip2.database.Reader(COUNTRY_DB)
-              except Exception as e:
-                  print(f"Country DB error: {e}")
-          
-          if os.path.exists(ASN_DB):
-              try:
-                  asn_reader = geoip2.database.Reader(ASN_DB)
-              except Exception as e:
-                  print(f"ASN DB error: {e}")
-
-          headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
+          headers = {"User-Agent": "Mozilla/5.0"}
           RU_SNI_URL = "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/whitelist.txt"
 
+          print("Loading RU whitelist...")
           ru_sni = set()
           try:
               r = requests.get(RU_SNI_URL, timeout=20, headers=headers)
               ru_sni = set(x.strip().lower() for x in r.text.splitlines() if x.strip() and not x.startswith("#"))
-              print(f"RU SNI whitelist: {len(ru_sni)} entries")
+              print(f"Whitelist loaded: {len(ru_sni)} entries")
           except Exception as e:
-              print(f"RU SNI load error: {e}")
-
+              print("Whitelist load error:", e)
+              
           URLS = [
               "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/refs/heads/main/subscriptions/v2ray/all_sub.txt",
               "https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/sub/sub_merge_base64.txt",
@@ -111,18 +90,16 @@ jobs:
               "https://raw.githubusercontent.com/hamedcode/port-based-v2ray-configs/main/sub/vless.txt"
           ]
 
-
           dns_cache = {}
-          geo_cache = {}
-          asn_cache = {}
           seen = set()
-
           lock = Lock()
-          counters = {"sni":0, "geo":0, "asn":0, "ping":0, "sec":0, "flow":0, "net":0}
+          counters = {"sni":0, "sec":0, "flow":0, "net":0, "ping":0}
 
           allowed_networks = ("grpc", "raw", "xhttp", "h2", "ws", "tcp")
 
           def resolve(host):
+              if not host:
+                  return None
               if host in dns_cache:
                   return dns_cache[host]
               try:
@@ -132,40 +109,6 @@ jobs:
               except:
                   dns_cache[host] = None
                   return None
-
-          def not_ru_geo(host):
-              if not country_reader:
-                  return True
-              if host in geo_cache:
-                  return geo_cache[host]
-              ip = resolve(host)
-              if not ip:
-                  geo_cache[host] = False
-                  return False
-              try:
-                  ok = country_reader.country(ip).country.iso_code != "RU"
-              except:
-                  ok = False
-              geo_cache[host] = ok
-              return ok
-
-          def not_ru_asn(host):
-              if not asn_reader:
-                  return True
-              if host in asn_cache:
-                  return asn_cache[host]
-              ip = resolve(host)
-              if not ip:
-                  asn_cache[host] = False
-                  return False
-              try:
-                  org = (asn_reader.asn(ip).autonomous_system_organization or "").lower()
-                  bad = {"rostelecom","mts","megafon","beeline","tele2","yandex"}
-                  ok = not any(x in org for x in bad)
-              except:
-                  ok = True
-              asn_cache[host] = ok
-              return ok
 
           def tcp_ping(host, port):
               try:
@@ -199,12 +142,12 @@ jobs:
               try:
                   r = requests.get(url, timeout=25, headers=headers)
                   lines += r.text.splitlines()
-                  print(f"Loaded {len(r.text.splitlines())} lines from {url}")
+                  print("Loaded", len(r.text.splitlines()), "from", url)
               except Exception as e:
-                  print(f"Failed {url}: {e}")
+                  print("Failed:", url, e)
 
           vless = [l.strip() for l in lines if l.startswith("vless://")]
-          print(f"Found {len(vless)} VLESS links")
+          print("Total VLESS:", len(vless))
           random.shuffle(vless)
 
           MAX_PER_FILE = 400
@@ -213,42 +156,30 @@ jobs:
 
           def check(link):
               d = parse(link)
-              if not d:
+              if not d or not d["host"]:
                   return None
 
               if d["sni"] not in ru_sni:
-                  with lock: 
-                      counters["sni"] += 1
+                  with lock: counters["sni"] += 1
                   return None
 
               if d["security"] != "reality":
-                  with lock: 
-                      counters["sec"] += 1
+                  with lock: counters["sec"] += 1
                   return None
 
               if d["flow"] != "xtls-rprx-vision":
-                  with lock: 
-                      counters["flow"] += 1
+                  with lock: counters["flow"] += 1
                   return None
 
               if d["network"] not in allowed_networks:
-                  with lock: 
-                      counters["net"] += 1
+                  with lock: counters["net"] += 1
                   return None
 
-              if not not_ru_geo(d["host"]):
-                  with lock: 
-                      counters["geo"] += 1
-                  return None
-
-              if not not_ru_asn(d["host"]):
-                  with lock: 
-                      counters["asn"] += 1
+              if not resolve(d["host"]):
                   return None
 
               if not tcp_ping(d["host"], d["port"]):
-                  with lock: 
-                      counters["ping"] += 1
+                  with lock: counters["ping"] += 1
                   return None
 
               key = (d["host"], d["port"], d["sni"])
@@ -259,10 +190,9 @@ jobs:
 
               return d["link"]
 
-          print("Scanning configs...")
+          print("Scanning...")
           for i in range(0, len(vless), BATCH_SIZE):
               batch = vless[i:i+BATCH_SIZE]
-              print(f"Processing batch {i//BATCH_SIZE + 1}/{(len(vless)-1)//BATCH_SIZE + 1}")
               with ThreadPoolExecutor(max_workers=30) as ex:
                   futures = [ex.submit(check, l) for l in batch]
                   for f in as_completed(futures):
@@ -276,39 +206,33 @@ jobs:
           file_counter = 0
           for i in range(0, len(results), MAX_PER_FILE):
               file_counter += 1
-              file_path = f"githubmirror/26_ru_whitelist_{file_counter:02d}.txt"
-              with open(file_path, "w") as f:
-                  for line in results[i:i+MAX_PER_FILE]:
-                      f.write(line + "\n")
+              with open(f"githubmirror/26_ru_whitelist_{file_counter:02d}.txt", "w") as f:
+                  f.write("\n".join(results[i:i+MAX_PER_FILE]))
 
           total_live = len(results)
 
-          print("\n=== STATS ===")
-          print(f"VLESS total: {len(vless)}")
-          for k,v in counters.items():
-              print(f"{k}: {v}")
-          print(f"LIVE: {total_live} keys, {file_counter} files")
-          print("Allowed networks: grpc, raw, xhttp, h2, ws, tcp")
-          
-          # ✅ Правильная запись в GITHUB_OUTPUT
+          print("LIVE:", total_live)
+
           with open(os.environ["GITHUB_OUTPUT"], "a") as f:
               print(f"count={total_live}", file=f)
               print(f"files={file_counter}", file=f)
-
-          if country_reader:
-              country_reader.close()
-          if asn_reader:
-              asn_reader.close()
           EOF
 
       - name: Commit & push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+
           git add githubmirror/26_ru_whitelist_*.txt || true
+
           if git diff --staged --quiet; then
             echo "No changes"
             exit 0
           fi
-          git commit -m "RU whitelist: ${{ steps.scan.outputs.count }} keys (${{ steps.scan.outputs.files }} files) [net=grpc,raw,xhttp,h2,ws,tcp]"
+
+          git commit -m "RU whitelist: ${{ steps.scan.outputs.count }} keys (${{ steps.scan.outputs.files }} files)"
+
+          # 🔥 гарантируем отсутствие non-fast-forward
+          git pull --rebase origin ${{ steps.branch.outputs.name }}
+
           git push origin ${{ steps.branch.outputs.name }}
