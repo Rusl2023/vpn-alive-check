@@ -1,4 +1,4 @@
-name: Check VLESS RU Whitelist + Reality Vision + GeoIP + ASN + Network Filter
+name: Check VLESS RU Whitelist + Reality security + xtls-rprx-vision + TCP ping
 
 on:
   schedule:
@@ -73,9 +73,9 @@ jobs:
           dns_cache = {}
           seen = set()
           lock = Lock()
-          counters = {"sni":0, "sec":0, "flow":0, "net":0, "ping":0}
+          counters = {"sni":0, "sec":0, "flow":0, "fp":0, "ping":0}
 
-          allowed_networks = ("grpc", "raw", "xhttp", "h2", "ws", "tcp")
+          allowed_fingerprints = {"chrome", "firefox", "safari", "ios", "android", "edge", "360", "qq", "random", "randomized"}
 
           def resolve(host):
               if not host:
@@ -111,7 +111,8 @@ jobs:
                       "sni": q.get("sni", [""])[0].lower(),
                       "security": q.get("security", [""])[0].lower(),
                       "flow": q.get("flow", [""])[0].lower(),
-                      "network": q.get("type", ["tcp"])[0].lower()
+                      "network": q.get("type", ["tcp"])[0].lower(),
+                      "fp": q.get("fp", [""])[0].lower()
                   }
               except:
                   return None
@@ -139,6 +140,7 @@ jobs:
               if not d or not d["host"]:
                   return None
 
+              # Фильтры ПОРЯДКЕ: сначала фильтры, потом пинг
               if d["sni"] not in ru_sni:
                   with lock: counters["sni"] += 1
                   return None
@@ -151,13 +153,14 @@ jobs:
                   with lock: counters["flow"] += 1
                   return None
 
-              if d["network"] not in allowed_networks:
-                  with lock: counters["net"] += 1
+              if d["fp"] not in allowed_fingerprints:
+                  with lock: counters["fp"] += 1
                   return None
 
               if not resolve(d["host"]):
                   return None
 
+              # TCP пинг ПОСЛЕ всех фильтров
               if not tcp_ping(d["host"], d["port"]):
                   with lock: counters["ping"] += 1
                   return None
@@ -195,7 +198,7 @@ jobs:
               filename = f"26_ru_whitelist_{file_counter:02d}.txt"
               path = os.path.join("githubmirror", filename)
               with open(path, "w") as f:
-                  f.write("\n".join(results[i:i+MAX_PER_FILE]))
+                  f.write("\\n".join(results[i:i+MAX_PER_FILE]))
 
           # Удаляем лишние старые whitelist-файлы
           for f in existing:
