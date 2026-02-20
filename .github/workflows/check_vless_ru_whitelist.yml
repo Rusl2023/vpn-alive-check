@@ -36,7 +36,7 @@ jobs:
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
-          pip install requests geoip2 maxminddb
+          pip install requests
 
       - name: Scan VLESS
         id: scan
@@ -47,7 +47,6 @@ jobs:
           import urllib.parse
           import requests
           import random
-          import shutil
           from concurrent.futures import ThreadPoolExecutor, as_completed
           from threading import Lock
 
@@ -58,35 +57,16 @@ jobs:
           ru_sni = set()
           try:
               r = requests.get(RU_SNI_URL, timeout=20, headers=headers)
-              ru_sni = set(x.strip().lower() for x in r.text.splitlines() if x.strip() and not x.startswith("#"))
-              print(f"Whitelist loaded: {len(ru_sni)} entries")
+              ru_sni = set(x.strip().lower() for x in r.text.splitlines()
+                           if x.strip() and not x.startswith("#"))
+              print("Whitelist loaded:", len(ru_sni))
           except Exception as e:
               print("Whitelist load error:", e)
-              
+
           URLS = [
-              "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/refs/heads/main/subscriptions/v2ray/all_sub.txt",
-              "https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/sub/sub_merge_base64.txt",
-              "https://raw.githubusercontent.com/mahdibland/ShadowsocksAggregator/master/sub/sub_merge_base64.txt",
-              "https://raw.githubusercontent.com/barry-far/V2ray-Configs/main/Sub1.txt",
-              "https://raw.githubusercontent.com/barry-far/V2ray-Configs/main/Sub2.txt",
+              "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/v2ray/all_sub.txt",
               "https://raw.githubusercontent.com/Epodonios/v2ray-configs/main/All_Configs_Sub.txt",
-              "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub",
-              "https://raw.githubusercontent.com/ts-sf/fly/main/v2",
-              "https://raw.githubusercontent.com/aiboboxx/v2rayfree/main/v2",
-              "https://raw.githubusercontent.com/mfuu/v2ray/master/v2ray",
-              "https://raw.githubusercontent.com/ermaozi/get_subscribe/main/subscribe/v2ray.txt",
-              "https://raw.githubusercontent.com/ermaozi01/free_clash_vpn/main/subscribe/v2ray.txt",
-              "https://raw.githubusercontent.com/Alvin9999/new-pac/master/v2ray_config.txt",
-              "https://raw.githubusercontent.com/peasoft/NoMoreWalls/master/list.txt",
-              "https://raw.githubusercontent.com/soroushmirzaei/telegram-configs-collector/main/protocols/vless",
-              "https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt",
-              "https://raw.githubusercontent.com/zieng2/wl/refs/heads/main/vless_lite.txt",
-              "https://bp.wl.free.nf/confs/wl.txt",
-              "https://raw.githubusercontent.com/sakha1370/OpenRay/refs/heads/main/output/country/XX.txt",
-              "https://raw.githubusercontent.com/SilentGhostCodes/WhiteListVpn/refs/heads/main/Whitelist.txt",
-              "https://raw.githubusercontent.com/whoahaow/rjsxrd/refs/heads/main/githubmirror/bypass/bypass-all.txt",
-              "https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list/refs/heads/main/vless_configs.txt",
-              "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/WHITE-SNI-RU-all.txt",
+              "https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list/main/vless_configs.txt",
               "https://raw.githubusercontent.com/hamedcode/port-based-v2ray-configs/main/sub/vless.txt"
           ]
 
@@ -200,17 +180,30 @@ jobs:
                       if r:
                           results.append(r)
 
-          shutil.rmtree("githubmirror", ignore_errors=True)
+          # 🔥 НЕ удаляем папку
           os.makedirs("githubmirror", exist_ok=True)
 
+          # Удаляем только старые whitelist-файлы
+          existing = [f for f in os.listdir("githubmirror")
+                      if f.startswith("26_ru_whitelist_") and f.endswith(".txt")]
+
+          MAX_PER_FILE = 400
           file_counter = 0
+
           for i in range(0, len(results), MAX_PER_FILE):
               file_counter += 1
-              with open(f"githubmirror/26_ru_whitelist_{file_counter:02d}.txt", "w") as f:
+              filename = f"26_ru_whitelist_{file_counter:02d}.txt"
+              path = os.path.join("githubmirror", filename)
+              with open(path, "w") as f:
                   f.write("\n".join(results[i:i+MAX_PER_FILE]))
 
-          total_live = len(results)
+          # Удаляем лишние старые whitelist-файлы
+          for f in existing:
+              index = int(f.split("_")[-1].split(".")[0])
+              if index > file_counter:
+                  os.remove(os.path.join("githubmirror", f))
 
+          total_live = len(results)
           print("LIVE:", total_live)
 
           with open(os.environ["GITHUB_OUTPUT"], "a") as f:
@@ -223,7 +216,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Добавляем ВСЮ папку, а не маску
           git add githubmirror/
 
           if git diff --cached --quiet; then
@@ -233,7 +225,6 @@ jobs:
 
           git commit -m "RU whitelist: ${{ steps.scan.outputs.count }} keys (${{ steps.scan.outputs.files }} files)"
 
-          # 💎 Стабильная схема для Actions
           for i in 1 2 3; do
             git pull --rebase origin ${{ steps.branch.outputs.name }} && break
             echo "Retry rebase $i..."
