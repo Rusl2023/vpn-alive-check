@@ -1,4 +1,4 @@
-name: Check VLESS RU Whitelist + Reality Vision + GeoIP + ASN
+name: Check VLESS RU Whitelist + Reality Vision + GeoIP + ASN + Network Filter
 
 on:
   schedule:
@@ -111,7 +111,7 @@ jobs:
           seen = set()
 
           lock = Lock()
-          counters = {"sni":0, "geo":0, "asn":0, "ping":0, "sec":0}
+          counters = {"sni":0, "geo":0, "asn":0, "ping":0, "sec":0, "net":0}
 
           def resolve(host):
               if host in dns_cache:
@@ -169,14 +169,19 @@ jobs:
                   if u.scheme != "vless":
                       return None
                   q = urllib.parse.parse_qs(u.query)
+                  
+                  # Получаем network из параметра type (по умолчанию "tcp")
+                  network = q.get("type", ["tcp"])[0].lower()
+                  
                   return {
                       "link": link.strip(),
                       "host": u.hostname,
                       "port": int(u.port or 443),
                       "sni": q.get("sni", [""])[0].lower(),
-                      "security": q.get("security", [""])[0]
+                      "security": q.get("security", [""])[0],
+                      "network": network  # добавляем network
                   }
-              except:
+              except Exception as e:
                   return None
 
           print("Downloading configs...")
@@ -200,26 +205,39 @@ jobs:
               if not d:
                   return None
 
+              # Проверка SNI по белому списку РФ
               if d["sni"] not in ru_sni:
                   with lock: counters["sni"] += 1
                   return None
 
+              # Проверка геолокации (не Россия)
               if not not_ru_geo(d["host"]):
                   with lock: counters["geo"] += 1
                   return None
 
+              # Проверка ASN (не российские провайдеры)
               if not not_ru_asn(d["host"]):
                   with lock: counters["asn"] += 1
                   return None
 
+              # Проверка TCP доступности
               if not tcp_ping(d["host"], d["port"]):
                   with lock: counters["ping"] += 1
                   return None
 
-              if d["security"] not in ("reality","tls"):
+              # Проверка безопасности (только reality или tls)
+              if d["security"] not in ("reality", "tls"):
                   with lock: counters["sec"] += 1
                   return None
 
+              # НОВЫЙ ФИЛЬТР: проверка network (type)
+              # Разрешенные типы сети: grpc, raw, xhttp
+              allowed_networks = ("grpc", "raw", "xhttp", "quic", "ws")
+              if d["network"] not in allowed_networks:
+                  with lock: counters["net"] += 1
+                  return None
+
+              # Проверка на дубликаты
               key = (d["host"], d["port"], d["sni"])
               with lock:
                   if key in seen:
@@ -228,6 +246,7 @@ jobs:
 
               return d["link"]
 
+          # Обработка батчами
           for i in range(0, len(vless), BATCH_SIZE):
               batch = vless[i:i+BATCH_SIZE]
               with ThreadPoolExecutor(max_workers=40) as ex:
@@ -237,7 +256,7 @@ jobs:
                       if r:
                           results.append(r)
 
-          # remove old files
+          # Удаление старых файлов и создание новых
           shutil.rmtree("githubmirror", ignore_errors=True)
           os.makedirs("githubmirror", exist_ok=True)
 
@@ -256,6 +275,7 @@ jobs:
           for k,v in counters.items():
               print(f"{k}: {v}")
           print(f"LIVE: {total_live} keys, {file_counter} files")
+          print("Allowed networks: grpc, raw, xhttp")
 
           with open(os.environ["GITHUB_OUTPUT"], "a") as f:
               f.write(f"count={total_live}\nfiles={file_counter}\n")
@@ -270,5 +290,5 @@ jobs:
             echo "No changes"
             exit 0
           fi
-          git commit -m "RU whitelist: ${{ steps.scan.outputs.count }} keys (${{ steps.scan.outputs.files }} files)"
+          git commit -m "RU whitelist: ${{ steps.scan.outputs.count }} keys (${{ steps.scan.outputs.files }} files) [net=grpc,raw,xhttp]"
           git push origin ${{ steps.branch.outputs.name }}
