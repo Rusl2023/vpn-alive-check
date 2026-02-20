@@ -38,12 +38,12 @@ jobs:
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
-          pip install requests geoip2
+          pip install requests geoip2 maxminddb
 
       - name: Scan VLESS
         id: scan
         run: |
-          python3 << 'EOF'
+          python3 <<-EOF
           import os
           import socket
           import urllib.parse
@@ -57,18 +57,32 @@ jobs:
           COUNTRY_DB = "geolite2/GeoLite2-Country.mmdb"
           ASN_DB = "geolite2/GeoLite2-ASN.mmdb"
 
-          country_reader = geoip2.database.Reader(COUNTRY_DB) if os.path.exists(COUNTRY_DB) else None
-          asn_reader = geoip2.database.Reader(ASN_DB) if os.path.exists(ASN_DB) else None
+          country_reader = None
+          asn_reader = None
+          
+          # ✅ Безопасная загрузка GeoIP баз
+          if os.path.exists(COUNTRY_DB):
+              try:
+                  country_reader = geoip2.database.Reader(COUNTRY_DB)
+              except Exception as e:
+                  print(f"Country DB error: {e}")
+          
+          if os.path.exists(ASN_DB):
+              try:
+                  asn_reader = geoip2.database.Reader(ASN_DB)
+              except Exception as e:
+                  print(f"ASN DB error: {e}")
 
-          headers = {"User-Agent": "Mozilla/5.0"}
+          headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
           RU_SNI_URL = "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/whitelist.txt"
 
           ru_sni = set()
           try:
               r = requests.get(RU_SNI_URL, timeout=20, headers=headers)
               ru_sni = set(x.strip().lower() for x in r.text.splitlines() if x.strip() and not x.startswith("#"))
-          except:
-              pass
+              print(f"RU SNI whitelist: {len(ru_sni)} entries")
+          except Exception as e:
+              print(f"RU SNI load error: {e}")
 
           URLS = [
               "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/refs/heads/main/subscriptions/v2ray/all_sub.txt",
@@ -97,6 +111,7 @@ jobs:
               "https://raw.githubusercontent.com/hamedcode/port-based-v2ray-configs/main/sub/vless.txt"
           ]
 
+
           dns_cache = {}
           geo_cache = {}
           asn_cache = {}
@@ -112,10 +127,11 @@ jobs:
                   return dns_cache[host]
               try:
                   ip = socket.gethostbyname(host)
+                  dns_cache[host] = ip
+                  return ip
               except:
-                  ip = None
-              dns_cache[host] = ip
-              return ip
+                  dns_cache[host] = None
+                  return None
 
           def not_ru_geo(host):
               if not country_reader:
@@ -124,6 +140,7 @@ jobs:
                   return geo_cache[host]
               ip = resolve(host)
               if not ip:
+                  geo_cache[host] = False
                   return False
               try:
                   ok = country_reader.country(ip).country.iso_code != "RU"
@@ -139,6 +156,7 @@ jobs:
                   return asn_cache[host]
               ip = resolve(host)
               if not ip:
+                  asn_cache[host] = False
                   return False
               try:
                   org = (asn_reader.asn(ip).autonomous_system_organization or "").lower()
@@ -181,14 +199,16 @@ jobs:
               try:
                   r = requests.get(url, timeout=25, headers=headers)
                   lines += r.text.splitlines()
-              except:
-                  pass
+                  print(f"Loaded {len(r.text.splitlines())} lines from {url}")
+              except Exception as e:
+                  print(f"Failed {url}: {e}")
 
           vless = [l.strip() for l in lines if l.startswith("vless://")]
+          print(f"Found {len(vless)} VLESS links")
           random.shuffle(vless)
 
           MAX_PER_FILE = 400
-          BATCH_SIZE = 2000
+          BATCH_SIZE = 1000
           results = []
 
           def check(link):
@@ -196,13 +216,11 @@ jobs:
               if not d:
                   return None
 
-              # 1️⃣ SNI whitelist
               if d["sni"] not in ru_sni:
                   with lock: 
                       counters["sni"] += 1
                   return None
 
-              # 2️⃣ STRICT Reality Vision
               if d["security"] != "reality":
                   with lock: 
                       counters["sec"] += 1
@@ -213,25 +231,21 @@ jobs:
                       counters["flow"] += 1
                   return None
 
-              # 3️⃣ Network filter
               if d["network"] not in allowed_networks:
                   with lock: 
                       counters["net"] += 1
                   return None
 
-              # 4️⃣ Geo
               if not not_ru_geo(d["host"]):
                   with lock: 
                       counters["geo"] += 1
                   return None
 
-              # 5️⃣ ASN
               if not not_ru_asn(d["host"]):
                   with lock: 
                       counters["asn"] += 1
                   return None
 
-              # 6️⃣ TCP
               if not tcp_ping(d["host"], d["port"]):
                   with lock: 
                       counters["ping"] += 1
@@ -245,9 +259,11 @@ jobs:
 
               return d["link"]
 
+          print("Scanning configs...")
           for i in range(0, len(vless), BATCH_SIZE):
               batch = vless[i:i+BATCH_SIZE]
-              with ThreadPoolExecutor(max_workers=40) as ex:
+              print(f"Processing batch {i//BATCH_SIZE + 1}/{(len(vless)-1)//BATCH_SIZE + 1}")
+              with ThreadPoolExecutor(max_workers=30) as ex:
                   futures = [ex.submit(check, l) for l in batch]
                   for f in as_completed(futures):
                       r = f.result()
@@ -274,7 +290,7 @@ jobs:
           print(f"LIVE: {total_live} keys, {file_counter} files")
           print("Allowed networks: grpc, raw, xhttp, h2, ws, tcp")
           
-          # ✅ ИСПРАВЛЕНО: Правильная запись в GITHUB_OUTPUT
+          # ✅ Правильная запись в GITHUB_OUTPUT
           with open(os.environ["GITHUB_OUTPUT"], "a") as f:
               print(f"count={total_live}", file=f)
               print(f"files={file_counter}", file=f)
