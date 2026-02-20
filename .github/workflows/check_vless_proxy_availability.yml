@@ -29,6 +29,7 @@ jobs:
 
       - name: Download Xray
         run: |
+          # ✅ ИСПРАВЛЕННЫЙ URL
           XRAY_VER=$(curl -s https://api.github.com/repos/XTLS/Xray-core/releases/latest | jq -r .tag_name)
           curl -L -o xray.zip "https://github.com/XTLS/Xray-core/releases/download/${XRAY_VER}/Xray-linux-64.zip"
           unzip -o xray.zip xray geoip.dat geosite.dat
@@ -320,7 +321,6 @@ jobs:
                   network = q.get('type', ['tcp'])[0]
                   sec = q.get('security', ['none'])[0]
 
-                  # ⭐ ДОБАВЛЕНО: Проверяем xhttp и добавляем звезду
                   star_prefix = "⭐" if network == 'xhttp' else ""
                   
                   stream = {'network': network}
@@ -437,13 +437,15 @@ jobs:
 
           print(f"✅ DONE. Alive NON-RU: {len(alive)}")
 
+          # ✅ ИСПРАВЛЕНО: каждый ключ на отдельной строке!
           with open(OUTPUT_RAW, 'w') as f:
-              f.write(f"# updated {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}\\n")
-              if alive:
-                  f.write('\\n'.join(alive) + '\\n')
+              f.write(f"# updated {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}\n")
+              for proxy in alive:
+                  f.write(proxy + '\n')  # ← КАЖДЫЙ ПРОКСИ НА СВОЕЙ СТРОКЕ!
 
           if alive:
-              b64_content = '\\n'.join(alive)
+              # ✅ Base64 тоже правильно
+              b64_content = '\n'.join(alive)
               b64 = base64.b64encode(b64_content.encode()).decode()
               with open(OUTPUT_B64, 'w') as f:
                   f.write(b64)
