@@ -2,7 +2,7 @@ name: Check VLESS RU Whitelist + Reality Vision + GeoIP + ASN + Network Filter
 
 on:
   schedule:
-    - cron: '0 */3 * * *'  # каждые 3 часа
+    - cron: '0 */3 * * *'
   workflow_dispatch:
 
 jobs:
@@ -52,20 +52,8 @@ jobs:
           COUNTRY_DB = "geolite2/GeoLite2-Country.mmdb"
           ASN_DB = "geolite2/GeoLite2-ASN.mmdb"
 
-          country_reader = None
-          asn_reader = None
-
-          if os.path.exists(COUNTRY_DB):
-              try:
-                  country_reader = geoip2.database.Reader(COUNTRY_DB)
-              except:
-                  pass
-
-          if os.path.exists(ASN_DB):
-              try:
-                  asn_reader = geoip2.database.Reader(ASN_DB)
-              except:
-                  pass
+          country_reader = geoip2.database.Reader(COUNTRY_DB) if os.path.exists(COUNTRY_DB) else None
+          asn_reader = geoip2.database.Reader(ASN_DB) if os.path.exists(ASN_DB) else None
 
           headers = {"User-Agent": "Mozilla/5.0"}
           RU_SNI_URL = "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/whitelist.txt"
@@ -111,7 +99,9 @@ jobs:
           seen = set()
 
           lock = Lock()
-          counters = {"sni":0, "geo":0, "asn":0, "ping":0, "sec":0, "net":0}
+          counters = {"sni":0, "geo":0, "asn":0, "ping":0, "sec":0, "flow":0, "net":0}
+
+          allowed_networks = ("grpc", "raw", "xhttp", "h2", "ws", "tcp")
 
           def resolve(host):
               if host in dns_cache:
@@ -169,19 +159,16 @@ jobs:
                   if u.scheme != "vless":
                       return None
                   q = urllib.parse.parse_qs(u.query)
-                  
-                  # Получаем network из параметра type (по умолчанию "tcp")
-                  network = q.get("type", ["tcp"])[0].lower()
-                  
                   return {
                       "link": link.strip(),
                       "host": u.hostname,
                       "port": int(u.port or 443),
                       "sni": q.get("sni", [""])[0].lower(),
-                      "security": q.get("security", [""])[0],
-                      "network": network  # добавляем network
+                      "security": q.get("security", [""])[0].lower(),
+                      "flow": q.get("flow", [""])[0].lower(),
+                      "network": q.get("type", ["tcp"])[0].lower()
                   }
-              except Exception as e:
+              except:
                   return None
 
           print("Downloading configs...")
@@ -205,39 +192,40 @@ jobs:
               if not d:
                   return None
 
-              # Проверка SNI по белому списку РФ
+              # 1️⃣ SNI whitelist
               if d["sni"] not in ru_sni:
                   with lock: counters["sni"] += 1
                   return None
 
-              # Проверка геолокации (не Россия)
-              if not not_ru_geo(d["host"]):
-                  with lock: counters["geo"] += 1
-                  return None
-
-              # Проверка ASN (не российские провайдеры)
-              if not not_ru_asn(d["host"]):
-                  with lock: counters["asn"] += 1
-                  return None
-
-              # Проверка TCP доступности
-              if not tcp_ping(d["host"], d["port"]):
-                  with lock: counters["ping"] += 1
-                  return None
-
-              # Проверка безопасности (только reality или tls)
-              if d["security"] not in ("reality", "tls"):
+              # 2️⃣ STRICT Reality Vision
+              if d["security"] != "reality":
                   with lock: counters["sec"] += 1
                   return None
 
-              # НОВЫЙ ФИЛЬТР: проверка network (type)
-              # Разрешенные типы сети: grpc, raw, xhttp, h2, ws
-              allowed_networks = ("grpc", "raw", "xhttp", "h2", "ws")
+              if d["flow"] != "xtls-rprx-vision":
+                  with lock: counters["flow"] += 1
+                  return None
+
+              # 3️⃣ Network filter
               if d["network"] not in allowed_networks:
                   with lock: counters["net"] += 1
                   return None
 
-              # Проверка на дубликаты
+              # 4️⃣ Geo
+              if not not_ru_geo(d["host"]):
+                  with lock: counters["geo"] += 1
+                  return None
+
+              # 5️⃣ ASN
+              if not not_ru_asn(d["host"]):
+                  with lock: counters["asn"] += 1
+                  return None
+
+              # 6️⃣ TCP
+              if not tcp_ping(d["host"], d["port"]):
+                  with lock: counters["ping"] += 1
+                  return None
+
               key = (d["host"], d["port"], d["sni"])
               with lock:
                   if key in seen:
@@ -246,7 +234,6 @@ jobs:
 
               return d["link"]
 
-          # Обработка батчами
           for i in range(0, len(vless), BATCH_SIZE):
               batch = vless[i:i+BATCH_SIZE]
               with ThreadPoolExecutor(max_workers=40) as ex:
@@ -256,7 +243,6 @@ jobs:
                       if r:
                           results.append(r)
 
-          # Удаление старых файлов и создание новых
           shutil.rmtree("githubmirror", ignore_errors=True)
           os.makedirs("githubmirror", exist_ok=True)
 
@@ -275,10 +261,15 @@ jobs:
           for k,v in counters.items():
               print(f"{k}: {v}")
           print(f"LIVE: {total_live} keys, {file_counter} files")
-          print("Allowed networks: grpc, raw, xhttp")
-
+          print("Allowed networks: grpc, raw, xhttp, h2, ws, tcp")
           with open(os.environ["GITHUB_OUTPUT"], "a") as f:
-              f.write(f"count={total_live}\nfiles={file_counter}\n")
+                    f.write(f"count={total_live}\nfiles={file_counter}\n")
+
+          if country_reader:
+              country_reader.close()
+
+          if asn_reader:
+             asn_reader.close()
           EOF
 
       - name: Commit & push
@@ -290,5 +281,5 @@ jobs:
             echo "No changes"
             exit 0
           fi
-          git commit -m "RU whitelist: ${{ steps.scan.outputs.count }} keys (${{ steps.scan.outputs.files }} files) [net=grpc,raw,xhttp]"
+          git commit -m "RU whitelist: ${{ steps.scan.outputs.count }} keys (${{ steps.scan.outputs.files }} files) [net=grpc,raw,xhttp,h2,ws,tcp]"
           git push origin ${{ steps.branch.outputs.name }}
