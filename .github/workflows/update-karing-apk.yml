@@ -1,4 +1,4 @@
-name: Sync Karing Android, Windows, Geo & Xray
+name: Sync Karing Android, Windows, Geo 
 
 on:
   schedule:
@@ -143,28 +143,6 @@ jobs:
             echo "GEOSITE_SHA=$GEOSITE_SHA" >> $GITHUB_ENV
           fi
 
-      # ---------------- Xray ----------------
-      - name: Clean old Xray
-        run: |
-          rm -f xray SHA256SUMS_xray || true
-
-      - name: Download latest Xray release
-        run: |
-          XRAY_VER=$(curl -s https://api.github.com/repos/XTLS/Xray-core/releases/latest | jq -r .tag_name)
-          curl -L -o xray.zip https://github.com/XTLS/Xray-core/releases/download/${XRAY_VER}/Xray-linux-64.zip
-          unzip -o xray.zip xray || echo "Unzip completed"
-          if [ ! -f xray ]; then
-            echo "Xray binary not found!"
-            exit 1
-          fi
-          chmod +x xray
-          sha256sum xray > SHA256SUMS_xray
-          echo "XRAY_VER=$XRAY_VER" >> $GITHUB_ENV
-
-      - name: Add Xray to repo
-        run: |
-          git add xray SHA256SUMS_xray
-
       # ---------------- Update README ----------------
       - name: Update README
         run: |
@@ -179,7 +157,6 @@ jobs:
           sed -i "s|^GEOLITE2_COUNTRY=.*|GEOLITE2_COUNTRY=$COUNTRY_SHA|g" README.md
           sed -i "s|^GEOIP_SHA=.*|GEOIP_SHA=$GEOIP_SHA|g" README.md
           sed -i "s|^GEOSITE_SHA=.*|GEOSITE_SHA=$GEOSITE_SHA|g" README.md
-          sed -i "s|^XRAY_VER=.*|XRAY_VER=$XRAY_VER|g" README.md
 
       # ---------------- Commit & Push ----------------
       - name: Commit changes
