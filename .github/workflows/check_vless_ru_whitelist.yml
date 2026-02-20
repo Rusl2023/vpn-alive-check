@@ -232,7 +232,7 @@ jobs:
 
               # НОВЫЙ ФИЛЬТР: проверка network (type)
               # Разрешенные типы сети: grpc, raw, xhttp
-              allowed_networks = ("grpc", "raw", "xhttp", "quic", "ws")
+              allowed_networks = ("grpc", "raw", "xhttp", "h2", "ws")
               if d["network"] not in allowed_networks:
                   with lock: counters["net"] += 1
                   return None
