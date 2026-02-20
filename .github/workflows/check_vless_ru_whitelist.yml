@@ -223,16 +223,21 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git add githubmirror/26_ru_whitelist_*.txt || true
+          # Добавляем ВСЮ папку, а не маску
+          git add githubmirror/
 
-          if git diff --staged --quiet; then
+          if git diff --cached --quiet; then
             echo "No changes"
             exit 0
           fi
 
           git commit -m "RU whitelist: ${{ steps.scan.outputs.count }} keys (${{ steps.scan.outputs.files }} files)"
 
-          # 🔥 гарантируем отсутствие non-fast-forward
-          git pull --rebase origin ${{ steps.branch.outputs.name }}
+          # 💎 Стабильная схема для Actions
+          for i in 1 2 3; do
+            git pull --rebase origin ${{ steps.branch.outputs.name }} && break
+            echo "Retry rebase $i..."
+            sleep 2
+          done
 
           git push origin ${{ steps.branch.outputs.name }}
