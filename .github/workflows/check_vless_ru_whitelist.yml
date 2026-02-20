@@ -43,8 +43,13 @@ jobs:
       - name: Scan VLESS
         id: scan
         run: |
-          python3 <<'EOF'
-          import os, socket, urllib.parse, requests, random, shutil
+          python3 << 'EOF'
+          import os
+          import socket
+          import urllib.parse
+          import requests
+          import random
+          import shutil
           from concurrent.futures import ThreadPoolExecutor, as_completed
           from threading import Lock
           import geoip2.database
@@ -193,36 +198,43 @@ jobs:
 
               # 1️⃣ SNI whitelist
               if d["sni"] not in ru_sni:
-                  with lock: counters["sni"] += 1
+                  with lock: 
+                      counters["sni"] += 1
                   return None
 
               # 2️⃣ STRICT Reality Vision
               if d["security"] != "reality":
-                  with lock: counters["sec"] += 1
+                  with lock: 
+                      counters["sec"] += 1
                   return None
 
               if d["flow"] != "xtls-rprx-vision":
-                  with lock: counters["flow"] += 1
+                  with lock: 
+                      counters["flow"] += 1
                   return None
 
               # 3️⃣ Network filter
               if d["network"] not in allowed_networks:
-                  with lock: counters["net"] += 1
+                  with lock: 
+                      counters["net"] += 1
                   return None
 
               # 4️⃣ Geo
               if not not_ru_geo(d["host"]):
-                  with lock: counters["geo"] += 1
+                  with lock: 
+                      counters["geo"] += 1
                   return None
 
               # 5️⃣ ASN
               if not not_ru_asn(d["host"]):
-                  with lock: counters["asn"] += 1
+                  with lock: 
+                      counters["asn"] += 1
                   return None
 
               # 6️⃣ TCP
               if not tcp_ping(d["host"], d["port"]):
-                  with lock: counters["ping"] += 1
+                  with lock: 
+                      counters["ping"] += 1
                   return None
 
               key = (d["host"], d["port"], d["sni"])
@@ -261,14 +273,16 @@ jobs:
               print(f"{k}: {v}")
           print(f"LIVE: {total_live} keys, {file_counter} files")
           print("Allowed networks: grpc, raw, xhttp, h2, ws, tcp")
+          
+          # ✅ ИСПРАВЛЕНО: Правильная запись в GITHUB_OUTPUT
           with open(os.environ["GITHUB_OUTPUT"], "a") as f:
-                    f.write(f"count={total_live}\nfiles={file_counter}\n")
+              print(f"count={total_live}", file=f)
+              print(f"files={file_counter}", file=f)
 
           if country_reader:
               country_reader.close()
-
           if asn_reader:
-             asn_reader.close()
+              asn_reader.close()
           EOF
 
       - name: Commit & push
