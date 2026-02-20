@@ -28,7 +28,6 @@ jobs:
       - name: Pull latest changes
         run: |
           git pull origin ${{ steps.branch.outputs.branch }} --rebase || true
-          echo "Current branch: ${{ steps.branch.outputs.branch }}"
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -49,6 +48,7 @@ jobs:
           import urllib.parse
           import requests
           import random
+          import re
           from concurrent.futures import ThreadPoolExecutor, as_completed
           from threading import Lock
           import time
@@ -62,9 +62,26 @@ jobs:
           HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
           RU_SNI_URL = "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/whitelist.txt"
           
+          # Оптимизированные fingerprints на основе статьи #3518
+          # Только стабильные браузерные fingerprint'ы, без random/randomized
           ALLOWED_FINGERPRINTS = {
-              "chrome", "firefox", "safari", "ios", "android", 
-              "edge", "360", "qq", "random", "randomized"
+              "chrome", "firefox", "safari", "ios", 
+              "edge", "qq", "360"  # Добавлены популярные в РФ
+          }
+          
+          # Разрешенные пути для SpiderX (маскировка handshake)
+          ALLOWED_SPX_PATHS = {
+              "",  # Пустой тоже допустим
+              "/",
+              "/login",
+              "/api",
+              "/index",
+              "/gateway",
+              "/v1",
+              "/v2",
+              "/ws",
+              "/api/v1",
+              "/api/v2"
           }
 
           # Sources for VLESS configs
@@ -105,6 +122,9 @@ jobs:
               "filtered_security": 0,
               "filtered_flow": 0,
               "filtered_fp": 0,
+              "filtered_pbk": 0,
+              "filtered_sid": 0,
+              "filtered_spx": 0,
               "filtered_ping": 0,
               "duplicates": 0,
               "valid": 0
@@ -168,7 +188,7 @@ jobs:
                   return None
 
           def tcp_ping_test(host, port):
-              """Test TCP connectivity"""
+              """Simple TCP ping test (оригинальный подход)"""
               try:
                   sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                   sock.settimeout(TIMEOUT)
@@ -178,8 +198,24 @@ jobs:
               except Exception:
                   return False
 
+          def validate_short_id(sid):
+              """Validate short ID format (4-16 hex chars)"""
+              if not sid:
+                  return False
+              # Убираем префикс 0x если есть
+              sid = sid.lower().replace('0x', '')
+              # Проверяем длину и hex-формат
+              return 4 <= len(sid) <= 16 and all(c in '0123456789abcdef' for c in sid)
+
+          def validate_public_key(pbk):
+              """Validate Reality public key (base64, примерно 40+ символов)"""
+              if not pbk:
+                  return False
+              # Reality public key обычно длиной 40-60 символов в base64
+              return len(pbk) >= 40 and re.match(r'^[A-Za-z0-9+/=]+$', pbk) is not None
+
           def parse_vless_config(link):
-              """Parse VLESS config from URL"""
+              """Parse VLESS config with all Reality parameters"""
               try:
                   parsed = urllib.parse.urlparse(link.strip())
                   
@@ -188,6 +224,7 @@ jobs:
                   
                   query_params = urllib.parse.parse_qs(parsed.query)
                   
+                  # Извлекаем все параметры для Reality
                   return {
                       "link": link.strip(),
                       "host": parsed.hostname,
@@ -195,10 +232,12 @@ jobs:
                       "sni": query_params.get("sni", [""])[0].lower(),
                       "security": query_params.get("security", [""])[0].lower(),
                       "flow": query_params.get("flow", [""])[0].lower(),
-                      "network": query_params.get("type", ["tcp"])[0].lower(),
+                      "type": query_params.get("type", ["tcp"])[0].lower(),
                       "fp": query_params.get("fp", [""])[0].lower(),
-                      "pbk": query_params.get("pbk", [""])[0],
-                      "sid": query_params.get("sid", [""])[0]
+                      "pbk": query_params.get("pbk", [""])[0],  # Public key сервера
+                      "sid": query_params.get("sid", [""])[0],  # Short ID (hex)
+                      "spx": query_params.get("spx", [""])[0],  # SpiderX path
+                      "encryption": query_params.get("encryption", ["none"])[0].lower()
                   }
               except Exception as e:
                   return None
@@ -208,43 +247,65 @@ jobs:
               if not config or not config["host"]:
                   return None
               
-              # Check SNI is in whitelist
+              # 1. SNI в белом списке РФ
               if config["sni"] not in ru_whitelist:
                   with stats_lock:
                       stats["filtered_sni"] += 1
                   return None
               
-              # Check security is reality
+              # 2. Security должен быть reality
               if config["security"] != "reality":
                   with stats_lock:
                       stats["filtered_security"] += 1
                   return None
               
-              # Check flow is xtls-rprx-vision
+              # 3. Flow должен быть xtls-rprx-vision
               if config["flow"] != "xtls-rprx-vision":
                   with stats_lock:
                       stats["filtered_flow"] += 1
                   return None
               
-              # Check fingerprint is allowed
+              # 4. Fingerprint должен быть в списке разрешенных (стабильные браузерные)
               if config["fp"] not in ALLOWED_FINGERPRINTS:
                   with stats_lock:
                       stats["filtered_fp"] += 1
                   return None
               
-              # Resolve hostname
+              # 5. Проверка public key (обязателен для Reality)
+              if not validate_public_key(config["pbk"]):
+                  with stats_lock:
+                      stats["filtered_pbk"] += 1
+                  return None
+              
+              # 6. Проверка short ID (4-16 hex символов)
+              if not validate_short_id(config["sid"]):
+                  with stats_lock:
+                      stats["filtered_sid"] += 1
+                  return None
+              
+              # 7. Проверка SpiderX path (если есть)
+              if config["spx"] and config["spx"] not in ALLOWED_SPX_PATHS:
+                  with stats_lock:
+                      stats["filtered_spx"] += 1
+                  return None
+              
+              # 8. Проверка что тип TCP (опционально)
+              if config["type"] != "tcp":
+                  return None
+              
+              # 9. Resolve hostname
               ip = resolve_hostname(config["host"])
               if not ip:
                   return None
               
-              # TCP ping test
+              # 10. TCP ping test
               if not tcp_ping_test(ip, config["port"]):
                   with stats_lock:
                       stats["filtered_ping"] += 1
                   return None
               
-              # Check for duplicates
-              config_key = (config["host"], config["port"], config["sni"])
+              # 11. Check for duplicates
+              config_key = (config["host"], config["port"], config["sni"], config["pbk"][:20])
               with stats_lock:
                   if config_key in seen_configs:
                       stats["duplicates"] += 1
@@ -254,40 +315,8 @@ jobs:
               
               return config["link"]
 
-          def main():
-              start_time = time.time()
-              
-              # Load whitelist
-              ru_whitelist = load_ru_whitelist()
-              
-              # Download configs
-              vless_configs = download_configs()
-              
-              # Shuffle for fairness
-              random.shuffle(vless_configs)
-              stats["total"] = len(vless_configs)
-              
-              # Process in batches
-              results = []
-              print("Scanning...")
-              
-              for batch_start in range(0, len(vless_configs), BATCH_SIZE):
-                  batch_end = min(batch_start + BATCH_SIZE, len(vless_configs))
-                  batch = vless_configs[batch_start:batch_end]
-                  
-                  with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-                      futures = []
-                      for link in batch:
-                          config = parse_vless_config(link)
-                          if config:
-                              futures.append(executor.submit(validate_config, config, ru_whitelist))
-                      
-                      for future in as_completed(futures):
-                          result = future.result()
-                          if result:
-                              results.append(result)
-
-              # 🔥 СОХРАНЕНИЕ ФАЙЛОВ (оригинальная логика)
+          def save_results(results):
+              """Save results to files (оригинальная логика)"""
               # Не удаляем папку
               os.makedirs("githubmirror", exist_ok=True)
 
@@ -312,28 +341,84 @@ jobs:
               # Удаляем лишние старые whitelist-файлы
               for old_file in existing:
                   try:
-                      # Извлекаем номер файла из имени (26_ru_whitelist_XX.txt)
                       index = int(old_file.split("_")[-1].split(".")[0])
                       if index > file_counter:
                           os.remove(os.path.join("githubmirror", old_file))
                           print(f"Removed old file: {old_file}")
                   except (ValueError, IndexError):
-                      # Если не удалось распарсить номер, пропускаем
                       continue
+              
+              return file_counter, total_live
 
-              # Вывод статистики
-              print("\n" + "="*50)
-              print("SCAN STATISTICS")
-              print("="*50)
-              print(f"Total configs processed: {stats['total']}")
-              print(f"Filtered - SNI not in whitelist: {stats['filtered_sni']}")
-              print(f"Filtered - Not Reality security: {stats['filtered_security']}")
-              print(f"Filtered - Wrong flow: {stats['filtered_flow']}")
-              print(f"Filtered - Invalid fingerprint: {stats['filtered_fp']}")
-              print(f"Filtered - TCP ping failed: {stats['filtered_ping']}")
-              print(f"Duplicates skipped: {stats['duplicates']}")
-              print(f"Valid configs found: {stats['valid']}")
-              print("="*50)
+          def print_statistics():
+              """Print detailed statistics"""
+              print("\n" + "="*60)
+              print("📊 SCAN STATISTICS (с фильтрацией по Reality)")
+              print("="*60)
+              print(f"📥 Total configs processed: {stats['total']}")
+              print(f"❌ Filtered - SNI not in whitelist: {stats['filtered_sni']}")
+              print(f"❌ Filtered - Not Reality security: {stats['filtered_security']}")
+              print(f"❌ Filtered - Wrong flow: {stats['filtered_flow']}")
+              print(f"❌ Filtered - Invalid fingerprint: {stats['filtered_fp']}")
+              print(f"❌ Filtered - Missing/invalid public key: {stats['filtered_pbk']}")
+              print(f"❌ Filtered - Invalid short ID: {stats['filtered_sid']}")
+              print(f"❌ Filtered - Invalid SpiderX path: {stats['filtered_spx']}")
+              print(f"❌ Filtered - TCP ping failed: {stats['filtered_ping']}")
+              print(f"🔄 Duplicates skipped: {stats['duplicates']}")
+              print(f"✅ Valid Reality configs found: {stats['valid']}")
+              print("="*60)
+              
+              if stats['valid'] > 0:
+                  survival_rate = (stats['valid'] / stats['total']) * 100
+                  print(f"📈 Survival rate: {survival_rate:.2f}%")
+              print("="*60)
+
+          def main():
+              start_time = time.time()
+              
+              # Load whitelist
+              ru_whitelist = load_ru_whitelist()
+              if not ru_whitelist:
+                  print("No whitelist loaded, exiting")
+                  return
+              
+              # Download configs
+              vless_configs = download_configs()
+              if not vless_configs:
+                  print("No configs downloaded, exiting")
+                  return
+              
+              # Shuffle for fairness
+              random.shuffle(vless_configs)
+              stats["total"] = len(vless_configs)
+              
+              # Process in batches
+              results = []
+              print("Scanning with Reality validation...")
+              
+              for batch_start in range(0, len(vless_configs), BATCH_SIZE):
+                  batch_end = min(batch_start + BATCH_SIZE, len(vless_configs))
+                  batch = vless_configs[batch_start:batch_end]
+                  
+                  with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+                      futures = []
+                      for link in batch:
+                          config = parse_vless_config(link)
+                          if config:
+                              futures.append(executor.submit(validate_config, config, ru_whitelist))
+                      
+                      for future in as_completed(futures):
+                          result = future.result()
+                          if result:
+                              results.append(result)
+                  
+                  print(f"Progress: {batch_end}/{len(vless_configs)} configs, valid: {len(results)}")
+
+              # Save results
+              files_created, total_live = save_results(results)
+              
+              # Print statistics
+              print_statistics()
               
               elapsed = time.time() - start_time
               print(f"Total execution time: {elapsed:.1f} seconds")
@@ -341,7 +426,7 @@ jobs:
               # Set output for GitHub Actions
               with open(os.environ["GITHUB_OUTPUT"], "a") as f:
                   print(f"count={total_live}", file=f)
-                  print(f"files={file_counter}", file=f)
+                  print(f"files={files_created}", file=f)
 
           if __name__ == "__main__":
               main()
@@ -359,7 +444,7 @@ jobs:
             exit 0
           fi
 
-          git commit -m "RU whitelist: ${{ steps.scan.outputs.count }} keys (${{ steps.scan.outputs.files }} files)"
+          git commit -m "RU whitelist: ${{ steps.scan.outputs.count }} Reality keys (${{ steps.scan.outputs.files }} files)"
 
           for i in 1 2 3; do
             git pull --rebase origin ${{ steps.branch.outputs.branch }} && break
