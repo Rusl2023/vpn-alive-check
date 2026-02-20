@@ -1,4 +1,4 @@
-name: Check VLESS RU Whitelist + Reality Vision (Enhanced)
+name: Check VLESS RU Whitelist + Reality Vision (Fixed)
 
 on:
   schedule:
@@ -44,7 +44,6 @@ jobs:
           python3 <<'EOF'
           import os
           import socket
-          import ssl
           import urllib.parse
           import requests
           import random
@@ -70,26 +69,11 @@ jobs:
           URLS = [
               "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/refs/heads/main/subscriptions/v2ray/all_sub.txt",
               "https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/sub/sub_merge_base64.txt",
-              "https://raw.githubusercontent.com/mahdibland/ShadowsocksAggregator/master/sub/sub_merge_base64.txt",
               "https://raw.githubusercontent.com/barry-far/V2ray-Configs/main/Sub1.txt",
               "https://raw.githubusercontent.com/barry-far/V2ray-Configs/main/Sub2.txt",
               "https://raw.githubusercontent.com/Epodonios/v2ray-configs/main/All_Configs_Sub.txt",
               "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub",
-              "https://raw.githubusercontent.com/ts-sf/fly/main/v2",
-              "https://raw.githubusercontent.com/aiboboxx/v2rayfree/main/v2",
-              "https://raw.githubusercontent.com/mfuu/v2ray/master/v2ray",
-              "https://raw.githubusercontent.com/ermaozi/get_subscribe/main/subscribe/v2ray.txt",
-              "https://raw.githubusercontent.com/ermaozi01/free_clash_vpn/main/subscribe/v2ray.txt",
-              "https://raw.githubusercontent.com/Alvin9999/new-pac/master/v2ray_config.txt",
-              "https://raw.githubusercontent.com/peasoft/NoMoreWalls/master/list.txt",
               "https://raw.githubusercontent.com/soroushmirzaei/telegram-configs-collector/main/protocols/vless",
-              "https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt",
-              "https://raw.githubusercontent.com/zieng2/wl/refs/heads/main/vless_lite.txt",
-              "https://bp.wl.free.nf/confs/wl.txt",
-              "https://raw.githubusercontent.com/sakha1370/OpenRay/refs/heads/main/output/country/XX.txt",
-              "https://raw.githubusercontent.com/SilentGhostCodes/WhiteListVpn/refs/heads/main/Whitelist.txt",
-              "https://raw.githubusercontent.com/whoahaow/rjsxrd/refs/heads/main/githubmirror/bypass/bypass-all.txt",
-              "https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list/refs/heads/main/vless_configs.txt",
               "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/WHITE-SNI-RU-all.txt",
               "https://raw.githubusercontent.com/hamedcode/port-based-v2ray-configs/main/sub/vless.txt"
           ]
@@ -99,11 +83,11 @@ jobs:
           lock = Lock()
           counters = {
               "total": 0, "sni": 0, "sec": 0, "flow": 0, "fp": 0, 
-              "pbk": 0, "sid": 0, "network": 0, "ping": 0, "tls": 0
+              "pbk": 0, "sid": 0, "network": 0, "ping": 0
           }
 
-          ALLOWED_FPS = {"chrome", "firefox", "safari", "ios", "android"}
-          ALLOWED_SPX = {"/", "/login", "/api", "/index", "/home", "/user"}
+          # ✅ Из ваших примеров + статья
+          ALLOWED_FPS = {"chrome", "firefox", "safari", "ios", "android", "qq", "edge", "360"}
 
           def resolve(host):
               if not host or host in dns_cache:
@@ -116,32 +100,14 @@ jobs:
                   dns_cache[host] = None
                   return None
 
-          def tcp_fast_ping(host, port):
+          def tcp_ping(host, port):
+              """ОРИГИНАЛЬНЫЙ TCP пинг"""
               try:
-                  s = socket.create_connection((host, port), timeout=1.0)
+                  s = socket.create_connection((host, port), timeout=1.5)
                   s.close()
                   return True
               except:
                   return False
-
-          def tls_reality_ping(host, port, sni, fp="chrome"):
-              try:
-                  context = ssl.create_default_context()
-                  context.check_hostname = False
-                  context.verify_mode = ssl.CERT_NONE
-                  context.set_ciphers('ECDHE+AESGCM:ECDHE+CHACHA20:DHE+AESGCM:DHE+CHACHA20')
-                  
-                  with socket.create_connection((host, port), timeout=2.5) as sock:
-                      with context.wrap_socket(sock, server_hostname=sni) as ssock:
-                          ssock.do_handshake()
-                          return True
-              except:
-                  return False
-
-          def validate_hex_shortid(sid):
-              if len(sid) != 8:
-                  return False
-              return all(c in '0123456789abcdefABCDEF' for c in sid)
 
           def parse_vless(link):
               try:
@@ -154,16 +120,13 @@ jobs:
                       "link": link.strip(),
                       "host": u.hostname or "",
                       "port": int(u.port or 443),
-                      "uuid": u.username or "",
                       "sni": (q.get("sni", [""])[0] or "").lower(),
                       "security": (q.get("security", [""])[0] or "").lower(),
                       "flow": (q.get("flow", [""])[0] or "").lower(),
                       "network": (q.get("type", ["tcp"])[0] or "").lower(),
                       "fp": (q.get("fp", [""])[0] or "").lower(),
                       "pbk": q.get("pbk", [""])[0] or "",
-                      "sid": (q.get("sid", [""])[0] or "").lower(),
-                      "spx": q.get("spx", [""])[0] or "",
-                      "encryption": (q.get("encryption", ["none"])[0] or "").lower()
+                      "sid": (q.get("sid", [""])[0] or "").lower()
                   }
                   return d
               except:
@@ -183,8 +146,8 @@ jobs:
           print(f"Total VLESS: {len(vless)}")
           random.shuffle(vless)
 
-          MAX_PER_FILE = 300
-          BATCH_SIZE = 800
+          MAX_PER_FILE = 400
+          BATCH_SIZE = 1000
           results = []
 
           def check_enhanced(link):
@@ -193,46 +156,52 @@ jobs:
               if not d or not d["host"]:
                   return None
 
+              # 🔥 ФИЛЬТРЫ ПО ПРЯДКУ ПРИОРИТЕТА (из статьи + ваши примеры)
+
+              # 1. RU Whitelist SNI
               if d["sni"] not in ru_sni:
                   with lock: counters["sni"] += 1
                   return None
 
+              # 2. Reality security
               if d["security"] != "reality":
                   with lock: counters["sec"] += 1
                   return None
 
+              # 3. Vision flow
               if d["flow"] != "xtls-rprx-vision":
                   with lock: counters["flow"] += 1
                   return None
 
+              # 4. TCP network
               if d["network"] != "tcp":
                   with lock: counters["network"] += 1
                   return None
 
+              # 5. uTLS fingerprint (из ваших рабочих примеров)
               if d["fp"] not in ALLOWED_FPS:
                   with lock: counters["fp"] += 1
                   return None
 
-              if not d["pbk"] or len(d["pbk"]) < 44:
+              # 6. Reality pbk (≥40 символов, смягчили)
+              if len(d["pbk"]) < 40:
                   with lock: counters["pbk"] += 1
                   return None
 
-              if not validate_hex_shortid(d["sid"]):
+              # 7. shortId (≥4 hex символа)
+              if len(d["sid"]) < 4 or not re.match(r'^[0-9a-fA-F]{4,16}$', d["sid"]):
                   with lock: counters["sid"] += 1
                   return None
 
+              # 8. DNS resolve + TCP ping (оригинальная логика)
               if not resolve(d["host"]):
                   return None
-
-              if not tcp_fast_ping(d["host"], d["port"]):
+              if not tcp_ping(d["host"], d["port"]):
                   with lock: counters["ping"] += 1
                   return None
 
-              if not tls_reality_ping(d["host"], d["port"], d["sni"], d["fp"]):
-                  with lock: counters["tls"] += 1
-                  return None
-
-              key = (d["host"], d["port"], d["sni"], d["pbk"][:10])
+              # 9. Антидубликат
+              key = (d["host"], d["port"], d["sni"])
               with lock:
                   if key in seen:
                       return None
@@ -241,14 +210,14 @@ jobs:
               print(f"✅ LIVE: {d['host']}:{d['port']} | SNI:{d['sni'][:30]}... | FP:{d['fp']}")
               return d["link"]
 
-          print("🔥 Enhanced scanning (Reality Vision)...")
+          print("🔥 Enhanced scanning...")
           start_time = time.time()
           
           for i in range(0, len(vless), BATCH_SIZE):
               batch = vless[i:i+BATCH_SIZE]
-              print(f"Processing batch {i//BATCH_SIZE + 1}/{(len(vless)-1)//BATCH_SIZE + 1}")
+              print(f"Batch {i//BATCH_SIZE + 1}/{(len(vless)-1)//BATCH_SIZE + 1}")
               
-              with ThreadPoolExecutor(max_workers=25) as ex:
+              with ThreadPoolExecutor(max_workers=30) as ex:
                   futures = [ex.submit(check_enhanced, l) for l in batch]
                   for f in as_completed(futures):
                       r = f.result()
@@ -260,26 +229,27 @@ jobs:
           print("\n📊 STATS:")
           for k, v in counters.items():
               print(f"  {k}: {v}")
-          print(f"⏱️  Time: {elapsed:.1f}s | Live: {len(results)} | Rate: {len(results)/max(1,elapsed):.1f}/s")
+          print(f"⏱️  Time: {elapsed:.1f}s | Live: {len(results)}")
 
-          # 🔥 ИСПРАВЛЕНО: ЧИСТЫЕ НОВЫЕ СТРОКИ!
+          # 🔥 СТАРЫЕ ПАПКИ! ПЕРЕЗАПИСЫВАЕМ СУЩЕСТВУЮЩИЕ
+          os.makedirs("githubmirror", exist_ok=True)
           os.makedirs("githubmirror/enhanced_ru_whitelist", exist_ok=True)
-          
-          existing_files = [f for f in os.listdir("githubmirror/enhanced_ru_whitelist") 
-                           if f.startswith("ru_vision_") and f.endswith(".txt")]
+
+          # Удаляем ВСЕ старые файлы
+          existing = [f for f in os.listdir("githubmirror/enhanced_ru_whitelist")
+                      if f.startswith("26_ru_whitelist_") or f.startswith("ru_vision_")]
 
           file_counter = 0
           for i in range(0, len(results), MAX_PER_FILE):
               file_counter += 1
-              filename = f"ru_vision_{file_counter:02d}.txt"
+              filename = f"26_ru_whitelist_{file_counter:02d}.txt"  # ⭐ ОРИГИНАЛЬНЫЕ ИМЕНА
               path = os.path.join("githubmirror/enhanced_ru_whitelist", filename)
-              # ✅ ОДИН КЛЮЧ = ОДНА СТРОКА (\\n вместо \\\\n)
               with open(path, "w", encoding='utf-8') as f:
                   for link in results[i:i+MAX_PER_FILE]:
-                      f.write(link + "\n")
+                      f.write(link + "\n")  # ✅ ОДИН КЛЮЧ НА СТРОКУ
 
-          # Очистка старых файлов
-          for f in existing_files:
+          # Удаляем лишние старые файлы
+          for f in existing:
               try:
                   idx = int(re.search(r'(\d+)', f).group(1))
                   if idx > file_counter:
@@ -288,7 +258,7 @@ jobs:
                   pass
 
           total_live = len(results)
-          print(f"🎉 FINAL: {total_live} RU Vision keys saved ({file_counter} files)")
+          print(f"🎉 FINAL: {total_live} RU Vision keys ({file_counter} files)")
 
           with open(os.environ["GITHUB_OUTPUT"], "a") as f:
               print(f"count={total_live}", file=f)
@@ -308,7 +278,7 @@ jobs:
             exit 0
           fi
 
-          git commit -m "🔥 RU Vision Enhanced: ${{ steps.scan.outputs.count }} keys (${{ steps.scan.outputs.files }} files, ${{ steps.scan.outputs.time }}s)"
+          git commit -m "🔥 RU Vision Enhanced: ${{ steps.scan.outputs.count }} keys (${{ steps.scan.outputs.files }} files)"
 
           for i in 1 2 3; do
             if git pull --rebase origin ${{ steps.branch.outputs.name }}; then
