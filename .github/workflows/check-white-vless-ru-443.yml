@@ -23,22 +23,29 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y curl python3 python3-pip
-          pip3 install geoip2
+          pip3 install geoip2 requests
 
-      - name: Prepare GeoIP
+      - name: Download GeoIP
         run: |
           curl -L -o GeoLite2-Country.mmdb https://git.io/GeoLite2-Country.mmdb
 
-      - name: Filter VLESS
+      - name: Filter VLESS (only VLESS, RU, 443)
         run: |
           python3 << 'EOF'
-          import urllib.parse, socket, glob, base64
+          import urllib.parse, socket, base64
           import geoip2.database
+          import requests
 
           OUT = "white-vless-ru-443-live.txt"
           OUT64 = "white-vless-ru-443-live-base64.txt"
 
-          # ===== GEO =====
+          SOURCES = [
+              "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/main/Vless-Reality-White-Lists-Rus-Mobile.txt",
+              "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/main/Vless-Reality-White-Lists-Rus-Mobile-2.txt",
+              "https://raw.githubusercontent.com/zieng2/wl/main/vless_lite.txt",
+              "https://raw.githubusercontent.com/zieng2/wl/main/vless_universal.txt"
+          ]
+
           geo = geoip2.database.Reader('GeoLite2-Country.mmdb')
 
           def is_ru(ip):
@@ -55,7 +62,6 @@ jobs:
               except:
                   return "🌐"
 
-          # ===== RESOLVE =====
           def resolve_all(host):
               ips = set()
               try:
@@ -65,13 +71,22 @@ jobs:
                   pass
               return list(ips)
 
-          # ===== LOAD =====
           links = []
-          for f in glob.glob('*.txt'):
-              for l in open(f):
-                  l = l.strip()
-                  if l.lower().startswith('vless://'):
-                      links.append(l)
+
+          # ===== LOAD DIRECTLY =====
+          for url in SOURCES:
+              try:
+                  r = requests.get(url, timeout=20)
+                  for line in r.text.splitlines():
+                      line = line.strip()
+
+                      # 🔥 только VLESS
+                      if not line.lower().startswith("vless://"):
+                          continue
+
+                      links.append(line)
+              except:
+                  continue
 
           print("TOTAL RAW:", len(links))
 
@@ -84,7 +99,11 @@ jobs:
                   if not u.hostname:
                       continue
 
-                  # только 443
+                  # только VLESS (доп. защита)
+                  if u.scheme.lower() != "vless":
+                      continue
+
+                  # только порт 443
                   port = u.port or 443
                   if port != 443:
                       continue
@@ -93,7 +112,6 @@ jobs:
                   if not ips:
                       continue
 
-                  # ищем RU IP
                   ok_ip = None
                   for ip in ips:
                       if is_ru(ip):
@@ -103,7 +121,6 @@ jobs:
                   if not ok_ip:
                       continue
 
-                  # страна
                   try:
                       cc = geo.country(ok_ip).country.iso_code
                   except:
@@ -111,14 +128,11 @@ jobs:
 
                   fl = flag(cc)
 
-                  # SNI
                   q = urllib.parse.parse_qs(u.query)
                   sni = q.get('sni',[''])[0] or u.hostname
 
-                  # оригинал (без изменений)
                   clean = link.split('#')[0]
 
-                  # добавляем метку
                   new_name = f"{fl} RU | SNI: {sni}"
 
                   final = clean + f"#{new_name}"
@@ -128,7 +142,6 @@ jobs:
               except:
                   continue
 
-          # убираем дубли
           result = list(dict.fromkeys(result))
 
           print("FINAL:", len(result))
@@ -155,6 +168,6 @@ jobs:
             exit 0
           fi
 
-          git commit -m "RU VLESS 443"
+          git commit -m "VLESS RU 443 only"
           git pull --rebase origin main || true
           git push origin main || git push --force-with-lease origin main
