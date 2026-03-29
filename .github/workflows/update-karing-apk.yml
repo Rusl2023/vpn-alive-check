@@ -199,11 +199,12 @@ jobs:
           grep -q 'NekoBox-Android-arm64-v8a.apk' README.md || echo "- [NekoBox Android](https://github.com/Rusl2023/vpn-alive-check/raw/main/apk/NekoBox-Android-arm64-v8a.apk)" >> README.md
           grep -q 'Hiddify-Windows-Setup-x64.exe' README.md || echo "- [Hiddify Windows](https://github.com/Rusl2023/vpn-alive-check/raw/main/windows/Hiddify-Windows-Setup-x64.exe)" >> README.md
 
-      # ---------------- Commit & Push ----------------
+      # ---------------- Commit and Push ----------------
       - name: Commit and Push changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+
           git add apk/ windows/ geolite2/ geoip/ README.md || true
 
           if git diff --staged --quiet; then
@@ -211,5 +212,8 @@ jobs:
           else
             git commit -m "chore: sync Karing Android, Windows, Geo files"
           fi
+
+          # ←←← ИСПРАВЛЕНИЕ: подтягиваем последние изменения с GitHub
+          git pull --rebase origin main || true
 
           git push origin HEAD:main
