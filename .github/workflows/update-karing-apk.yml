@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true   # убирает предупреждение про Node 20 (до июня 2026)
 
     steps:
       - name: Checkout repo
@@ -181,7 +181,7 @@ jobs:
       - name: Update README with versions and links
         run: |
           set -e
-
+          # Karing версии
           if [ -n "$ANDROID_VERSION" ]; then
             if grep -q '^KARING_ANDROID_VERSION=' README.md; then
               sed -i "s|^KARING_ANDROID_VERSION=.*|KARING_ANDROID_VERSION=$ANDROID_VERSION|" README.md
@@ -198,6 +198,7 @@ jobs:
             fi
           fi
 
+          # GeoLite2
           if [ -n "$ASN_URL" ]; then
             if grep -q '^GEOLITE2_ASN=' README.md; then
               sed -i "s|^GEOLITE2_ASN=.*|GEOLITE2_ASN=$ASN_URL|" README.md
@@ -220,6 +221,7 @@ jobs:
             fi
           fi
 
+          # GeoIP / Geosite
           if grep -q '^GEOIP_URL=' README.md; then
             sed -i "s|^GEOIP_URL=.*|GEOIP_URL=https://github.com/1andrevich/Re-filter-lists/releases/latest/download/geoip.dat|" README.md
           else
@@ -232,6 +234,7 @@ jobs:
             echo "GEOSITE_URL=https://github.com/1andrevich/Re-filter-lists/releases/latest/download/geosite.dat" >> README.md
           fi
 
+          # Дополнительные ссылки
           grep -q 'Hiddify-Android-universal.apk' README.md || echo "- [Hiddify Android](https://github.com/Rusl2023/vpn-alive-check/raw/main/apk/Hiddify-Android-universal.apk)" >> README.md
           grep -q 'NekoBox-Android-arm64-v8a.apk' README.md || echo "- [NekoBox Android](https://github.com/Rusl2023/vpn-alive-check/raw/main/apk/NekoBox-Android-arm64-v8a.apk)" >> README.md
           grep -q 'Hiddify-Windows-Setup-x64.exe' README.md || echo "- [Hiddify Windows](https://github.com/Rusl2023/vpn-alive-check/raw/main/windows/Hiddify-Windows-Setup-x64.exe)" >> README.md
@@ -252,4 +255,5 @@ jobs:
 
       - name: Push changes
         run: |
-          git push origin HEAD:main
+          set -e
+          git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }}.git HEAD:main
