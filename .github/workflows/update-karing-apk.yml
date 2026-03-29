@@ -2,7 +2,7 @@ name: Sync Karing Android, Windows, Geo
 
 on:
   schedule:
-    - cron: '0 0 * * *' # каждый день в полночь UTC
+    - cron: '0 0 * * *'
   workflow_dispatch:
   repository_dispatch:
     types: [karing_release]
@@ -17,6 +17,15 @@ jobs:
         with:
           token: ${{ secrets.GH_PAT }}
           persist-credentials: true
+
+      # ---------------- iOS links ----------------
+      - name: Update iOS links in README
+        run: |
+          sed -i '/^## iOS/i ## iOS' README.md || true
+          grep -q 'https://apps.apple.com/us/app/karing/id6472431552' README.md || \
+            sed -i '/## iOS/a - [Karing](https://apps.apple.com/us/app/karing/id6472431552)' README.md
+          grep -q 'https://apps.apple.com/us/app/hiddify-proxy-vpn/id6596777532' README.md || \
+            sed -i '/## iOS/a - [Hiddify Proxy VPN](https://apps.apple.com/us/app/hiddify-proxy-vpn/id6596777532)' README.md
 
       # ---------------- Android ----------------
       - name: Fetch latest Karing Android release
@@ -44,6 +53,26 @@ jobs:
         run: |
           if [ -n "$ARM64_URL" ]; then curl -L "$ARM64_URL" -o apk/karing_android_arm64-v8a.apk; else echo "ARM64 APK skipped"; fi
           if [ -n "$ARMV7_URL" ]; then curl -L "$ARMV7_URL" -o apk/karing_android_armeabi-v7a.apk; else echo "ARMV7 APK skipped"; fi
+
+      - name: Download latest Hiddify Android APK
+        run: |
+          HIDDIFY_ANDROID_URL=$(curl -s https://api.github.com/repos/hiddify/hiddify-app/releases/latest | jq -r '.assets[]? | select(.name | test("Hiddify-Android-universal\\.apk$")) | .browser_download_url // empty')
+          if [ -n "$HIDDIFY_ANDROID_URL" ]; then
+            curl -L "$HIDDIFY_ANDROID_URL" -o apk/Hiddify-Android-universal.apk
+            echo "HIDDIFY_ANDROID_URL=$HIDDIFY_ANDROID_URL" >> $GITHUB_ENV
+          else
+            echo "Hiddify Android APK skipped"
+          fi
+
+      - name: Download latest NekoBox Android APK
+        run: |
+          NEKOBOX_ANDROID_URL=$(curl -s https://api.github.com/repos/starifly/NekoBoxForAndroid/releases/latest | jq -r '.assets[]? | select(.name | test("arm64-v8a\\.apk$")) | .browser_download_url // empty')
+          if [ -n "$NEKOBOX_ANDROID_URL" ]; then
+            curl -L "$NEKOBOX_ANDROID_URL" -o apk/NekoBox-Android-arm64-v8a.apk
+            echo "NEKOBOX_ANDROID_URL=$NEKOBOX_ANDROID_URL" >> $GITHUB_ENV
+          else
+            echo "NekoBox Android APK skipped"
+          fi
 
       - name: Generate Android SHA256SUMS
         run: |
@@ -82,6 +111,16 @@ jobs:
         run: |
           if [ -n "$X64_URL" ]; then curl -L "$X64_URL" -o windows/karing_windows_x64.exe; else echo "X64 EXE skipped"; fi
           if [ -n "$X86_URL" ]; then curl -L "$X86_URL" -o windows/karing_windows_x86.exe; else echo "X86 EXE skipped"; fi
+
+      - name: Download latest Hiddify Windows installer
+        run: |
+          HIDDIFY_WINDOWS_URL=$(curl -s https://api.github.com/repos/hiddify/hiddify-app/releases/latest | jq -r '.assets[]? | select(.name | test("Hiddify-Windows-Setup-x64\\.exe$")) | .browser_download_url // empty')
+          if [ -n "$HIDDIFY_WINDOWS_URL" ]; then
+            curl -L "$HIDDIFY_WINDOWS_URL" -o windows/Hiddify-Windows-Setup-x64.exe
+            echo "HIDDIFY_WINDOWS_URL=$HIDDIFY_WINDOWS_URL" >> $GITHUB_ENV
+          else
+            echo "Hiddify Windows installer skipped"
+          fi
 
       - name: Generate Windows SHA256SUMS
         run: |
