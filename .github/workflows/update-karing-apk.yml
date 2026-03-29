@@ -10,8 +10,10 @@ on:
 jobs:
   sync:
     runs-on: ubuntu-latest
-    # env:
-    #   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true   # раскомментируй, если хочешь убрать предупреждение Node 20 сейчас
+
+    # Убирает предупреждение про Node 20 от actions/checkout@v4
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - name: Checkout repo
@@ -20,7 +22,7 @@ jobs:
           token: ${{ secrets.GH_PAT }}
           persist-credentials: true
 
-      # ---------------- iOS (один раз в начале) ----------------
+      # ---------------- iOS ----------------
       - name: Ensure iOS section in README
         run: |
           set -e
@@ -29,11 +31,11 @@ jobs:
           if ! grep -q '^## iOS' README.md; then
             cat <<'EOF' >> README.md
 
-      ## iOS
-      - [Karing](https://apps.apple.com/us/app/karing/id6472431552)
-      - [Hiddify Proxy VPN](https://apps.apple.com/us/app/hiddify-proxy-vpn/id6596777532)
-       EOF
-           fi
+## iOS
+- [Karing](https://apps.apple.com/us/app/karing/id6472431552)
+- [Hiddify Proxy VPN](https://apps.apple.com/us/app/hiddify-proxy-vpn/id6596777532)
+EOF
+          fi
 
       # ---------------- Android ----------------
       - name: Fetch latest Karing Android release
@@ -186,7 +188,7 @@ jobs:
         run: |
           set -e
 
-          # Обновляем версии Karing
+          # Karing версии
           if [ -n "$ANDROID_VERSION" ]; then
             if grep -q '^KARING_ANDROID_VERSION=' README.md; then
               sed -i "s|^KARING_ANDROID_VERSION=.*|KARING_ANDROID_VERSION=$ANDROID_VERSION|" README.md
@@ -203,7 +205,7 @@ jobs:
             fi
           fi
 
-          # GeoLite2 URLs (если есть)
+          # GeoLite2
           if [ -n "$ASN_URL" ]; then
             if grep -q '^GEOLITE2_ASN=' README.md; then
               sed -i "s|^GEOLITE2_ASN=.*|GEOLITE2_ASN=$ASN_URL|" README.md
@@ -211,7 +213,6 @@ jobs:
               echo "GEOLITE2_ASN=$ASN_URL" >> README.md
             fi
           fi
-
           if [ -n "$CITY_URL" ]; then
             if grep -q '^GEOLITE2_CITY=' README.md; then
               sed -i "s|^GEOLITE2_CITY=.*|GEOLITE2_CITY=$CITY_URL|" README.md
@@ -219,7 +220,6 @@ jobs:
               echo "GEOLITE2_CITY=$CITY_URL" >> README.md
             fi
           fi
-
           if [ -n "$COUNTRY_URL" ]; then
             if grep -q '^GEOLITE2_COUNTRY=' README.md; then
               sed -i "s|^GEOLITE2_COUNTRY=.*|GEOLITE2_COUNTRY=$COUNTRY_URL|" README.md
@@ -241,10 +241,15 @@ jobs:
             echo "GEOSITE_URL=https://github.com/1andrevich/Re-filter-lists/releases/latest/download/geosite.dat" >> README.md
           fi
 
-          # Добавляем ссылки на дополнительные APK/EXE, если их ещё нет
-          grep -q 'Hiddify-Android-universal.apk' README.md || echo "- [Hiddify Android](https://github.com/Rusl2023/vpn-alive-check/raw/main/apk/Hiddify-Android-universal.apk)" >> README.md
-          grep -q 'NekoBox-Android-arm64-v8a.apk' README.md || echo "- [NekoBox Android](https://github.com/Rusl2023/vpn-alive-check/raw/main/apk/NekoBox-Android-arm64-v8a.apk)" >> README.md
-          grep -q 'Hiddify-Windows-Setup-x64.exe' README.md || echo "- [Hiddify Windows](https://github.com/Rusl2023/vpn-alive-check/raw/main/windows/Hiddify-Windows-Setup-x64.exe)" >> README.md
+          # Дополнительные ссылки
+          grep -q 'Hiddify-Android-universal.apk' README.md || \
+            echo "- [Hiddify Android](https://github.com/Rusl2023/vpn-alive-check/raw/main/apk/Hiddify-Android-universal.apk)" >> README.md
+
+          grep -q 'NekoBox-Android-arm64-v8a.apk' README.md || \
+            echo "- [NekoBox Android](https://github.com/Rusl2023/vpn-alive-check/raw/main/apk/NekoBox-Android-arm64-v8a.apk)" >> README.md
+
+          grep -q 'Hiddify-Windows-Setup-x64.exe' README.md || \
+            echo "- [Hiddify Windows](https://github.com/Rusl2023/vpn-alive-check/raw/main/windows/Hiddify-Windows-Setup-x64.exe)" >> README.md
 
       # ---------------- Commit & Push ----------------
       - name: Commit changes
