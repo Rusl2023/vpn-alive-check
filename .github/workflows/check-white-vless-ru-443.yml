@@ -40,239 +40,176 @@ jobs:
           cp geolite2/GeoLite2-*.mmdb ./ || echo "Using bundled GeoIP"
           ls -la GeoLite2-*.mmdb || echo "✅ GeoIP ready"
 
-      - name: Download latest white CIDR lists
+      - name: Download CIDR
         run: |
           mkdir -p githubmirror
           curl -L -o white-cidr.txt https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/cidrwhitelist.txt
           curl -L -o white-cidr-igareck.txt https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/main/WHITE-CIDR-RU-checked.txt || true
-          echo "✅ White CIDR downloaded: $(wc -l < white-cidr.txt) ranges"
 
-      - name: Download raw VLESS white subscriptions
+      - name: Download VLESS
         run: |
-          curl -L -o githubmirror/igareck-mobile-1.txt https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/main/Vless-Reality-White-Lists-Rus-Mobile.txt
-          curl -L -o githubmirror/igareck-mobile-2.txt https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/main/Vless-Reality-White-Lists-Rus-Mobile-2.txt
-          curl -L -o githubmirror/zieng2-lite.txt https://raw.githubusercontent.com/zieng2/wl/main/vless_lite.txt
-          curl -L -o githubmirror/zieng2-universal.txt https://raw.githubusercontent.com/zieng2/wl/main/vless_universal.txt || true
-          echo "✅ Raw subscriptions downloaded"
+          curl -L -o githubmirror/src1.txt https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/main/Vless-Reality-White-Lists-Rus-Mobile.txt
+          curl -L -o githubmirror/src2.txt https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/main/Vless-Reality-White-Lists-Rus-Mobile-2.txt
+          curl -L -o githubmirror/src3.txt https://raw.githubusercontent.com/zieng2/wl/main/vless_lite.txt
 
-      - name: Check & filter VLESS (only 443 + white RU IP + gstatic 204)
+      - name: Filter & check
         run: |
           python3 << 'EOF'
           import subprocess, time, json, urllib.parse, os, socket, ipaddress, base64, glob
           import geoip2.database
           from concurrent.futures import ThreadPoolExecutor, as_completed
-          from datetime import datetime, timezone
           from threading import Lock
 
-          XRAY_PATH = os.path.join(os.getcwd(), "xray")
-          OUTPUT_RAW = 'githubmirror/white-vless-ru-443-live.txt'
-          OUTPUT_B64 = 'githubmirror/white-vless-ru-443-live-base64.txt'
+          XRAY = "./xray"
+          OUT = "githubmirror/white-vless-ru-443-live.txt"
+          OUT64 = "githubmirror/white-vless-ru-443-live-base64.txt"
 
-          # ==================== CIDR ====================
+          # CIDR
           cidrs = []
-          for cidr_file in ['white-cidr.txt', 'white-cidr-igareck.txt']:
-              if os.path.exists(cidr_file):
-                  with open(cidr_file) as f:
-                      for line in f:
-                          line = line.strip()
-                          if line and not line.startswith('#'):
-                              try:
-                                  cidrs.append(ipaddress.ip_network(line, strict=False))
-                              except:
-                                  pass
-          print(f"✅ Loaded {len(cidrs)} CIDR")
+          for f in ['white-cidr.txt','white-cidr-igareck.txt']:
+              if os.path.exists(f):
+                  for line in open(f):
+                      line=line.strip()
+                      if line and not line.startswith('#'):
+                          try: cidrs.append(ipaddress.ip_network(line, strict=False))
+                          except: pass
 
-          # ==================== GEOIP ====================
+          def is_white(ip):
+              try:
+                  ip=ipaddress.ip_address(ip)
+                  return any(ip in net for net in cidrs)
+              except: return False
+
+          # GEO
           try:
-              country_reader = geoip2.database.Reader('GeoLite2-Country.mmdb')
+              geo = geoip2.database.Reader('GeoLite2-Country.mmdb')
           except:
-              country_reader = None
+              geo=None
 
-          def is_russian_ip(ip):
-              if not country_reader:
-                  return True
-              try:
-                  return country_reader.country(ip).country.iso_code == 'RU'
-              except:
-                  return False
+          def is_ru(ip):
+              if not geo: return True
+              try: return geo.country(ip).country.iso_code=='RU'
+              except: return False
 
-          def is_white_ru_ip(ip):
-              try:
-                  ip_obj = ipaddress.ip_address(ip)
-                  return any(ip_obj in net for net in cidrs)
-              except:
-                  return False
+          # helpers
+          def free_port():
+              s=socket.socket(); s.bind(('',0)); p=s.getsockname()[1]; s.close(); return p
 
-          # ==================== HELPERS ====================
-          def get_free_port():
-              s = socket.socket()
-              s.bind(('', 0))
-              port = s.getsockname()[1]
-              s.close()
-              return port
-
-          def wait_port(port, timeout=15):
-              start = time.time()
-              while time.time() - start < timeout:
+          def wait_port(p):
+              t=time.time()
+              while time.time()-t<15:
                   try:
-                      with socket.create_connection(("127.0.0.1", port), timeout=1):
-                          return True
-                  except:
-                      time.sleep(0.2)
+                      socket.create_connection(("127.0.0.1",p),1)
+                      return True
+                  except: time.sleep(0.2)
               return False
 
-          def test_gstatic(port):
+          def test(p):
               try:
-                  code = subprocess.check_output(
-                      ['curl','-s','--max-time','12','-x',f'socks5h://127.0.0.1:{port}',
-                       '-o','/dev/null','-w','%{http_code}','http://www.gstatic.com/generate_204'],
-                      text=True, stderr=subprocess.DEVNULL, timeout=15
-                  ).strip()
-                  return code == '204'
-              except:
-                  return False
-
-          def test_proxy(port):
+                  ip=subprocess.check_output(['curl','-s','--max-time','10','-x',f'socks5h://127.0.0.1:{p}','https://api.ipify.org'],text=True).strip()
+              except: return False
+              if not ip or not is_ru(ip): return False
               try:
-                  ip = subprocess.check_output(
-                      ['curl','-s','--max-time','10','-x',f'socks5h://127.0.0.1:{port}','https://api.ipify.org'],
-                      text=True, stderr=subprocess.DEVNULL, timeout=12
-                  ).strip()
-              except:
-                  return False, None
+                  code=subprocess.check_output(['curl','-s','--max-time','10','-x',f'socks5h://127.0.0.1:{p}','-o','/dev/null','-w','%{http_code}','http://www.gstatic.com/generate_204'],text=True).strip()
+                  return code=='204'
+              except: return False
 
-              if not ip or not is_russian_ip(ip):
-                  return False, None
+          # load links
+          links=[]
+          for f in glob.glob('githubmirror/*.txt'):
+              links+= [l.strip() for l in open(f) if l.startswith('vless://')]
 
-              if not test_gstatic(port):
-                  return False, None
+          print("TOTAL:",len(links))
 
-              return True, ip
+          alive=[]
+          counter=0
+          lock=Lock()
 
-          # ==================== LOAD LINKS ====================
-          files = glob.glob('githubmirror/*.txt')
-          links = []
-          for f in files:
-              with open(f) as file:
-                  links += [l.strip() for l in file if l.strip().startswith('vless://')]
-
-          print(f"🚀 Total: {len(links)}")
-
-          alive = []
-          counter = 0
-          lock = Lock()
-
-          def check_one(link):
-              nonlocal counter
+          def check(link):
+              global counter
               try:
-                  u = urllib.parse.urlparse(link)
-                  if not u.hostname:
-                      return None
+                  u=urllib.parse.urlparse(link)
+                  if not u.hostname: return
 
-                  port = u.port or 443
-                  if port != 443:
-                      return None
+                  port=u.port or 443
+                  if port!=443: return
 
-                  ip = socket.gethostbyname(u.hostname)
-                  if not is_white_ru_ip(ip):
-                      return None
+                  ip=socket.gethostbyname(u.hostname)
+                  if not is_white(ip): return
 
-                  q = urllib.parse.parse_qs(u.query)
-                  sni = q.get('sni', [''])[0] or u.hostname
-                  fp = q.get('fp', ['chrome'])[0]
+                  q=urllib.parse.parse_qs(u.query)
+                  sni=q.get('sni',[''])[0] or u.hostname
 
-                  stream = {'network': q.get('type', ['tcp'])[0]}
+                  stream={'network':q.get('type',['tcp'])[0]}
 
-                  sec = q.get('security', ['none'])[0]
-                  if sec == 'reality' and 'pbk' in q:
+                  if q.get('security',[''])[0]=='reality' and 'pbk' in q:
                       stream.update({
-                          'security': 'reality',
-                          'realitySettings': {
-                              'serverName': sni,
-                              'publicKey': q['pbk'][0],
-                              'shortId': q.get('sid', [''])[0],
-                              'fingerprint': fp
+                          'security':'reality',
+                          'realitySettings':{
+                              'serverName':sni,
+                              'publicKey':q['pbk'][0],
+                              'shortId':q.get('sid',[''])[0]
                           }
                       })
-                  elif sec == 'tls':
-                      stream.update({
-                          'security': 'tls',
-                          'tlsSettings': {'serverName': sni, 'allowInsecure': True, 'fingerprint': fp}
-                      })
 
-                  port_local = get_free_port()
+                  p=free_port()
 
-                  cfg = {
-                      'inbounds':[{'listen':'127.0.0.1','port':port_local,'protocol':'socks'}],
-                      'outbounds':[{
-                          'protocol':'vless',
-                          'settings':{'vnext':[{'address':u.hostname,'port':port,'users':[{'id':u.username,'encryption':'none'}]}]},
-                          'streamSettings':stream
+                  cfg={
+                      "inbounds":[{"listen":"127.0.0.1","port":p,"protocol":"socks"}],
+                      "outbounds":[{
+                          "protocol":"vless",
+                          "settings":{"vnext":[{"address":u.hostname,"port":port,"users":[{"id":u.username,"encryption":"none"}]}]},
+                          "streamSettings":stream
                       }]
                   }
 
-                  cfg_file = f'cfg_{port_local}.json'
-                  with open(cfg_file,'w') as f:
-                      json.dump(cfg,f)
+                  fn=f'c{p}.json'
+                  open(fn,'w').write(json.dumps(cfg))
 
-                  p = subprocess.Popen([XRAY_PATH,'run','-c',cfg_file],
-                                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                  proc=subprocess.Popen([XRAY,'run','-c',fn],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
 
-                  if not wait_port(port_local):
-                      p.kill()
-                      os.remove(cfg_file)
-                      return None
+                  if not wait_port(p):
+                      proc.kill(); os.remove(fn); return
 
-                  ok,_ = test_proxy(port_local)
+                  ok=test(p)
 
-                  p.terminate()
-                  p.wait(timeout=2)
-                  os.remove(cfg_file)
+                  proc.terminate()
+                  proc.wait(timeout=2)
+                  os.remove(fn)
 
-                  if not ok:
-                      return None
+                  if not ok: return
 
                   with lock:
-                      counter += 1
-                      num = counter
+                      counter+=1
+                      n=counter
 
-                  return link.split('#')[0] + f"#🇷🇺White-{num} {sni[:30]}"
+                  return link.split('#')[0]+f"#RU-{n}"
 
               except:
-                  return None
+                  return
 
           with ThreadPoolExecutor(max_workers=8) as ex:
-              futures = [ex.submit(check_one,l) for l in links]
-              for f in as_completed(futures):
-                  r = f.result()
-                  if r:
-                      alive.append(r)
+              for r in as_completed([ex.submit(check,l) for l in links]):
+                  x=r.result()
+                  if x: alive.append(x)
 
-          print(f"✅ LIVE: {len(alive)}")
+          print("LIVE:",len(alive))
 
-          with open(OUTPUT_RAW,'w') as f:
-              f.write('\n'.join(alive))
-
+          open(OUT,'w').write("\n".join(alive))
           if alive:
-              with open(OUTPUT_B64,'w') as f:
-                  f.write(base64.b64encode('\n'.join(alive).encode()).decode())
+              open(OUT64,'w').write(base64.b64encode("\n".join(alive).encode()).decode())
 
-          if country_reader:
-              country_reader.close()
+          if geo: geo.close()
           EOF
 
       - name: Commit & push
         run: |
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
-          rm -f cfg_*.json xray.zip || true
           git add githubmirror/*.txt || true
 
-          if git diff --staged --quiet; then
-            echo "No changes"
-            exit 0
-          fi
+          if git diff --staged --quiet; then exit 0; fi
 
-          git commit -m "White RU VLESS 443 LIVE"
+          git commit -m "RU VLESS 443 LIVE"
           git pull --rebase origin main || true
           git push origin main || git push --force-with-lease origin main
