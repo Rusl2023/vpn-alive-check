@@ -20,6 +20,7 @@ jobs:
         with:
           token: ${{ secrets.GH_PAT }}
           persist-credentials: true
+          lfs: true                     # ← важно для LFS
 
       # ---------------- iOS ----------------
       - name: Ensure iOS section in README
@@ -205,6 +206,8 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+          git lfs install   # ← обязательно для LFS
+
           git add apk/ windows/ geolite2/ geoip/ README.md || true
 
           if git diff --staged --quiet; then
@@ -213,7 +216,5 @@ jobs:
             git commit -m "chore: sync Karing Android, Windows, Geo files"
           fi
 
-          # ←←← ИСПРАВЛЕНИЕ: подтягиваем последние изменения с GitHub
           git pull --rebase origin main || true
-
           git push origin HEAD:main
