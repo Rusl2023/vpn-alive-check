@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true   # убирает предупреждение про Node 20 (до июня 2026)
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - name: Checkout repo
@@ -46,7 +46,6 @@ jobs:
           ANDROID_VERSION=$(jq -r '.tag_name // empty' release_android.json)
           ARM64_URL=$(jq -r '.assets[]? | select(.name | contains("android_arm64-v8a.apk")) | .browser_download_url // empty' release_android.json)
           ARMV7_URL=$(jq -r '.assets[]? | select(.name | contains("android_armeabi-v7a.apk")) | .browser_download_url // empty' release_android.json)
-
           echo "ANDROID_VERSION=${ANDROID_VERSION}" >> $GITHUB_ENV
           echo "ARM64_URL=${ARM64_URL}" >> $GITHUB_ENV
           echo "ARMV7_URL=${ARMV7_URL}" >> $GITHUB_ENV
@@ -59,36 +58,20 @@ jobs:
       - name: Download Android APKs
         run: |
           set -e
-          if [ -n "$ARM64_URL" ]; then
-            curl -L "$ARM64_URL" -o apk/karing_android_arm64-v8a.apk
-          else
-            echo "ARM64 APK skipped (not found)"
-          fi
-          if [ -n "$ARMV7_URL" ]; then
-            curl -L "$ARMV7_URL" -o apk/karing_android_armeabi-v7a.apk
-          else
-            echo "ARMV7 APK skipped (not found)"
-          fi
+          if [ -n "$ARM64_URL" ]; then curl -L "$ARM64_URL" -o apk/karing_android_arm64-v8a.apk; else echo "ARM64 APK skipped (not found)"; fi
+          if [ -n "$ARMV7_URL" ]; then curl -L "$ARMV7_URL" -o apk/karing_android_armeabi-v7a.apk; else echo "ARMV7 APK skipped (not found)"; fi
 
       - name: Download latest Hiddify Android APK
         run: |
           set -e
           HIDDIFY_ANDROID_URL=$(curl -s https://api.github.com/repos/hiddify/hiddify-app/releases/latest | jq -r '.assets[]? | select(.name | test("Hiddify-Android-universal\\.apk$")) | .browser_download_url // empty')
-          if [ -n "$HIDDIFY_ANDROID_URL" ]; then
-            curl -L "$HIDDIFY_ANDROID_URL" -o apk/Hiddify-Android-universal.apk
-          else
-            echo "Hiddify Android APK skipped"
-          fi
+          if [ -n "$HIDDIFY_ANDROID_URL" ]; then curl -L "$HIDDIFY_ANDROID_URL" -o apk/Hiddify-Android-universal.apk; else echo "Hiddify Android APK skipped"; fi
 
       - name: Download latest NekoBox Android APK
         run: |
           set -e
           NEKOBOX_ANDROID_URL=$(curl -s https://api.github.com/repos/starifly/NekoBoxForAndroid/releases/latest | jq -r '.assets[]? | select(.name | test("arm64-v8a\\.apk$")) | .browser_download_url // empty')
-          if [ -n "$NEKOBOX_ANDROID_URL" ]; then
-            curl -L "$NEKOBOX_ANDROID_URL" -o apk/NekoBox-Android-arm64-v8a.apk
-          else
-            echo "NekoBox Android APK skipped"
-          fi
+          if [ -n "$NEKOBOX_ANDROID_URL" ]; then curl -L "$NEKOBOX_ANDROID_URL" -o apk/NekoBox-Android-arm64-v8a.apk; else echo "NekoBox Android APK skipped"; fi
 
       # ---------------- Windows ----------------
       - name: Fetch latest Karing Windows release
@@ -102,7 +85,6 @@ jobs:
           WIN_VERSION=$(jq -r '.tag_name // empty' release_windows.json)
           X64_URL=$(jq -r '.assets[]? | select(.name | contains("windows_x64.exe")) | .browser_download_url // empty' release_windows.json)
           X86_URL=$(jq -r '.assets[]? | select(.name | contains("windows_x86.exe")) | .browser_download_url // empty' release_windows.json)
-
           echo "WIN_VERSION=${WIN_VERSION}" >> $GITHUB_ENV
           echo "X64_URL=${X64_URL}" >> $GITHUB_ENV
           echo "X86_URL=${X86_URL}" >> $GITHUB_ENV
@@ -115,26 +97,14 @@ jobs:
       - name: Download Windows EXEs
         run: |
           set -e
-          if [ -n "$X64_URL" ]; then
-            curl -L "$X64_URL" -o windows/karing_windows_x64.exe
-          else
-            echo "X64 EXE skipped"
-          fi
-          if [ -n "$X86_URL" ]; then
-            curl -L "$X86_URL" -o windows/karing_windows_x86.exe
-          else
-            echo "X86 EXE skipped"
-          fi
+          if [ -n "$X64_URL" ]; then curl -L "$X64_URL" -o windows/karing_windows_x64.exe; else echo "X64 EXE skipped"; fi
+          if [ -n "$X86_URL" ]; then curl -L "$X86_URL" -o windows/karing_windows_x86.exe; else echo "X86 EXE skipped"; fi
 
       - name: Download latest Hiddify Windows installer
         run: |
           set -e
           HIDDIFY_WINDOWS_URL=$(curl -s https://api.github.com/repos/hiddify/hiddify-app/releases/latest | jq -r '.assets[]? | select(.name | test("Hiddify-Windows-Setup-x64\\.exe$")) | .browser_download_url // empty')
-          if [ -n "$HIDDIFY_WINDOWS_URL" ]; then
-            curl -L "$HIDDIFY_WINDOWS_URL" -o windows/Hiddify-Windows-Setup-x64.exe
-          else
-            echo "Hiddify Windows installer skipped"
-          fi
+          if [ -n "$HIDDIFY_WINDOWS_URL" ]; then curl -L "$HIDDIFY_WINDOWS_URL" -o windows/Hiddify-Windows-Setup-x64.exe; else echo "Hiddify Windows installer skipped"; fi
 
       # ---------------- GeoLite2 ----------------
       - name: Fetch latest GeoLite2 release
@@ -148,7 +118,6 @@ jobs:
           ASN_URL=$(jq -r '.assets[]? | select(.name | contains("GeoLite2-ASN.mmdb")) | .browser_download_url // empty' release_geolite.json)
           CITY_URL=$(jq -r '.assets[]? | select(.name | contains("GeoLite2-City.mmdb")) | .browser_download_url // empty' release_geolite.json)
           COUNTRY_URL=$(jq -r '.assets[]? | select(.name | contains("GeoLite2-Country.mmdb")) | .browser_download_url // empty' release_geolite.json)
-
           echo "ASN_URL=${ASN_URL}" >> $GITHUB_ENV
           echo "CITY_URL=${CITY_URL}" >> $GITHUB_ENV
           echo "COUNTRY_URL=${COUNTRY_URL}" >> $GITHUB_ENV
@@ -181,7 +150,6 @@ jobs:
       - name: Update README with versions and links
         run: |
           set -e
-          # Karing версии
           if [ -n "$ANDROID_VERSION" ]; then
             if grep -q '^KARING_ANDROID_VERSION=' README.md; then
               sed -i "s|^KARING_ANDROID_VERSION=.*|KARING_ANDROID_VERSION=$ANDROID_VERSION|" README.md
@@ -189,7 +157,6 @@ jobs:
               echo "KARING_ANDROID_VERSION=$ANDROID_VERSION" >> README.md
             fi
           fi
-
           if [ -n "$WIN_VERSION" ]; then
             if grep -q '^KARING_WINDOWS_VERSION=' README.md; then
               sed -i "s|^KARING_WINDOWS_VERSION=.*|KARING_WINDOWS_VERSION=$WIN_VERSION|" README.md
@@ -197,8 +164,6 @@ jobs:
               echo "KARING_WINDOWS_VERSION=$WIN_VERSION" >> README.md
             fi
           fi
-
-          # GeoLite2
           if [ -n "$ASN_URL" ]; then
             if grep -q '^GEOLITE2_ASN=' README.md; then
               sed -i "s|^GEOLITE2_ASN=.*|GEOLITE2_ASN=$ASN_URL|" README.md
@@ -220,31 +185,25 @@ jobs:
               echo "GEOLITE2_COUNTRY=$COUNTRY_URL" >> README.md
             fi
           fi
-
-          # GeoIP / Geosite
           if grep -q '^GEOIP_URL=' README.md; then
             sed -i "s|^GEOIP_URL=.*|GEOIP_URL=https://github.com/1andrevich/Re-filter-lists/releases/latest/download/geoip.dat|" README.md
           else
             echo "GEOIP_URL=https://github.com/1andrevich/Re-filter-lists/releases/latest/download/geoip.dat" >> README.md
           fi
-
           if grep -q '^GEOSITE_URL=' README.md; then
             sed -i "s|^GEOSITE_URL=.*|GEOSITE_URL=https://github.com/1andrevich/Re-filter-lists/releases/latest/download/geosite.dat|" README.md
           else
             echo "GEOSITE_URL=https://github.com/1andrevich/Re-filter-lists/releases/latest/download/geosite.dat" >> README.md
           fi
-
-          # Дополнительные ссылки
           grep -q 'Hiddify-Android-universal.apk' README.md || echo "- [Hiddify Android](https://github.com/Rusl2023/vpn-alive-check/raw/main/apk/Hiddify-Android-universal.apk)" >> README.md
           grep -q 'NekoBox-Android-arm64-v8a.apk' README.md || echo "- [NekoBox Android](https://github.com/Rusl2023/vpn-alive-check/raw/main/apk/NekoBox-Android-arm64-v8a.apk)" >> README.md
           grep -q 'Hiddify-Windows-Setup-x64.exe' README.md || echo "- [Hiddify Windows](https://github.com/Rusl2023/vpn-alive-check/raw/main/windows/Hiddify-Windows-Setup-x64.exe)" >> README.md
 
       # ---------------- Commit & Push ----------------
-      - name: Commit changes
+      - name: Commit and Push changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
           git add apk/ windows/ geolite2/ geoip/ README.md || true
 
           if git diff --staged --quiet; then
@@ -253,7 +212,4 @@ jobs:
             git commit -m "chore: sync Karing Android, Windows, Geo files"
           fi
 
-      - name: Push changes
-        run: |
-          set -e
-          git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }}.git HEAD:main
+          git push origin HEAD:main
