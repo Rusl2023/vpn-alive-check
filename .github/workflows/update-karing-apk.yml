@@ -1,8 +1,8 @@
-name: Sync Karing Android, Windows & Geo
+name: Sync Karing Android, Windows, Geo
 
 on:
   schedule:
-    - cron: '0 0 * * *' # каждый день в полночь UTC
+    - cron: '0 0 * * *'
   workflow_dispatch:
   repository_dispatch:
     types: [karing_release]
@@ -11,161 +11,116 @@ jobs:
   sync:
     runs-on: ubuntu-latest
 
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          persist-credentials: false
+          token: ${{ secrets.GH_PAT }}
+          persist-credentials: true
 
-      # ---------------- Android ----------------
-      - name: Fetch latest Karing Android release
+      # ---------------- iOS ----------------
+      - name: Ensure iOS section in README
         run: |
-          curl -s https://api.github.com/repos/KaringX/karing/releases/latest > release_android.json
+          set -e
+          touch README.md
+          if ! grep -q '^## iOS' README.md; then
+            echo "" >> README.md
+            echo "## iOS" >> README.md
+            echo "- [Karing](https://apps.apple.com/us/app/karing/id6472431552)" >> README.md
+            echo "- [Hiddify Proxy VPN](https://apps.apple.com/us/app/hiddify-proxy-vpn/id6596777532)" >> README.md
+            echo "" >> README.md
+          fi
 
-      - name: Extract Android version and URLs
+      # ---------------- Download files (но не коммитим их) ----------------
+      - name: Prepare directories
         run: |
-          ANDROID_VERSION=$(jq -r '.tag_name' release_android.json)
-          ARM64_URL=$(jq -r '.assets[] | select(.name | contains("android_arm64-v8a.apk")) | .browser_download_url' release_android.json)
-          ARMV7_URL=$(jq -r '.assets[] | select(.name | contains("android_armeabi-v7a.apk")) | .browser_download_url' release_android.json)
+          rm -rf apk windows geolite2 geoip
+          mkdir -p apk windows geolite2 geoip
+
+      # Android
+      - name: Download Karing Android APKs
+        run: |
+          set -e
+          ANDROID_VERSION=$(curl -s https://api.github.com/repos/KaringX/karing/releases/latest | jq -r '.tag_name // empty')
           echo "ANDROID_VERSION=$ANDROID_VERSION" >> $GITHUB_ENV
-          echo "ARM64_URL=$ARM64_URL" >> $GITHUB_ENV
-          echo "ARMV7_URL=$ARMV7_URL" >> $GITHUB_ENV
 
-      - name: Clean old Android APKs
-        run: |
-          rm -rf apk
-          mkdir -p apk
+          ARM64_URL=$(curl -s https://api.github.com/repos/KaringX/karing/releases/latest | jq -r '.assets[]? | select(.name | contains("android_arm64-v8a.apk")) | .browser_download_url // empty')
+          ARMV7_URL=$(curl -s https://api.github.com/repos/KaringX/karing/releases/latest | jq -r '.assets[]? | select(.name | contains("android_armeabi-v7a.apk")) | .browser_download_url // empty')
 
-      - name: Download Android APKs
-        run: |
-          [ -n "$ARM64_URL" ] && curl -L "$ARM64_URL" -o apk/karing_android_arm64-v8a.apk || echo "ARM64 APK skipped"
-          [ -n "$ARMV7_URL" ] && curl -L "$ARMV7_URL" -o apk/karing_android_armeabi-v7a.apk || echo "ARMV7 APK skipped"
+          if [ -n "$ARM64_URL" ]; then curl -L "$ARM64_URL" -o apk/karing_android_arm64-v8a.apk; fi
+          if [ -n "$ARMV7_URL" ]; then curl -L "$ARMV7_URL" -o apk/karing_android_armeabi-v7a.apk; fi
 
-      - name: Generate Android SHA256SUMS
+      - name: Download Hiddify & NekoBox Android
         run: |
-          if [ -d apk ] && [ "$(ls -A apk/*.apk 2>/dev/null)" ]; then
-            sha256sum apk/*.apk > apk/SHA256SUMS
-            ARM64_SHA=$(grep arm64 apk/SHA256SUMS | awk '{print $1}' || echo "")
-            ARMV7_SHA=$(grep armeabi apk/SHA256SUMS | awk '{print $1}' || echo "")
-            echo "ARM64_SHA=$ARM64_SHA" >> $GITHUB_ENV
-            echo "ARMV7_SHA=$ARMV7_SHA" >> $GITHUB_ENV
-          fi
+          set -e
+          HIDDIFY_URL=$(curl -s https://api.github.com/repos/hiddify/hiddify-app/releases/latest | jq -r '.assets[]? | select(.name | test("Hiddify-Android-universal\\.apk$")) | .browser_download_url // empty')
+          NEKOBOX_URL=$(curl -s https://api.github.com/repos/starifly/NekoBoxForAndroid/releases/latest | jq -r '.assets[]? | select(.name | test("arm64-v8a\\.apk$")) | .browser_download_url // empty')
 
-      # ---------------- Windows ----------------
-      - name: Fetch latest Karing Windows release
-        run: |
-          curl -s https://api.github.com/repos/KaringX/karing/releases/latest > release_windows.json
+          if [ -n "$HIDDIFY_URL" ]; then curl -L "$HIDDIFY_URL" -o apk/Hiddify-Android-universal.apk; fi
+          if [ -n "$NEKOBOX_URL" ]; then curl -L "$NEKOBOX_URL" -o apk/NekoBox-Android-arm64-v8a.apk; fi
 
-      - name: Extract Windows version and URLs
+      # Windows
+      - name: Download Karing Windows
         run: |
-          WIN_VERSION=$(jq -r '.tag_name' release_windows.json)
-          X64_URL=$(jq -r '.assets[] | select(.name | contains("windows_x64.exe")) | .browser_download_url' release_windows.json)
-          X86_URL=$(jq -r '.assets[] | select(.name | contains("windows_x86.exe")) | .browser_download_url' release_windows.json)
+          set -e
+          WIN_VERSION=$(curl -s https://api.github.com/repos/KaringX/karing/releases/latest | jq -r '.tag_name // empty')
           echo "WIN_VERSION=$WIN_VERSION" >> $GITHUB_ENV
-          echo "X64_URL=$X64_URL" >> $GITHUB_ENV
-          echo "X86_URL=$X86_URL" >> $GITHUB_ENV
 
-      - name: Clean old Windows files
+          X64_URL=$(curl -s https://api.github.com/repos/KaringX/karing/releases/latest | jq -r '.assets[]? | select(.name | contains("windows_x64.exe")) | .browser_download_url // empty')
+          if [ -n "$X64_URL" ]; then curl -L "$X64_URL" -o windows/karing_windows_x64.exe; fi
+
+      - name: Download Hiddify Windows
         run: |
-          rm -rf windows
-          mkdir -p windows
+          set -e
+          HIDDIFY_WIN_URL=$(curl -s https://api.github.com/repos/hiddify/hiddify-app/releases/latest | jq -r '.assets[]? | select(.name | test("Hiddify-Windows-Setup-x64\\.exe$")) | .browser_download_url // empty')
+          if [ -n "$HIDDIFY_WIN_URL" ]; then curl -L "$HIDDIFY_WIN_URL" -o windows/Hiddify-Windows-Setup-x64.exe; fi
 
-      - name: Download Windows EXEs
-        run: |
-          [ -n "$X64_URL" ] && curl -L "$X64_URL" -o windows/karing_windows_x64.exe || echo "X64 EXE skipped"
-          [ -n "$X86_URL" ] && curl -L "$X86_URL" -o windows/karing_windows_x86.exe || echo "X86 EXE skipped"
-
-      - name: Generate Windows SHA256SUMS
-        run: |
-          if [ -d windows ] && [ "$(ls -A windows/*.exe 2>/dev/null)" ]; then
-            sha256sum windows/*.exe > windows/SHA256SUMS
-            X64_SHA=$(grep x64 windows/SHA256SUMS | awk '{print $1}' || echo "")
-            X86_SHA=$(grep x86 windows/SHA256SUMS | awk '{print $1}' || echo "")
-            echo "X64_SHA=$X64_SHA" >> $GITHUB_ENV
-            echo "X86_SHA=$X86_SHA" >> $GITHUB_ENV
-          fi
-
-      # ---------------- GeoLite2 ----------------
-      - name: Fetch latest GeoLite2 release
-        run: |
-          curl -s https://api.github.com/repos/P3TERX/GeoLite.mmdb/releases/latest > release_geolite.json
-
-      - name: Extract GeoLite2 URLs
-        run: |
-          ASN_URL=$(jq -r '.assets[] | select(.name | contains("GeoLite2-ASN.mmdb")) | .browser_download_url' release_geolite.json)
-          CITY_URL=$(jq -r '.assets[] | select(.name | contains("GeoLite2-City.mmdb")) | .browser_download_url' release_geolite.json)
-          COUNTRY_URL=$(jq -r '.assets[] | select(.name | contains("GeoLite2-Country.mmdb")) | .browser_download_url' release_geolite.json)
-          echo "ASN_URL=$ASN_URL" >> $GITHUB_ENV
-          echo "CITY_URL=$CITY_URL" >> $GITHUB_ENV
-          echo "COUNTRY_URL=$COUNTRY_URL" >> $GITHUB_ENV
-
-      - name: Clean old GeoLite2
-        run: |
-          rm -rf geolite2
-          mkdir -p geolite2
-
+      # Geo files
       - name: Download GeoLite2
         run: |
-          [ -n "$ASN_URL" ] && curl -L "$ASN_URL" -o geolite2/GeoLite2-ASN.mmdb || echo "ASN skipped"
-          [ -n "$CITY_URL" ] && curl -L "$CITY_URL" -o geolite2/GeoLite2-City.mmdb || echo "City skipped"
-          [ -n "$COUNTRY_URL" ] && curl -L "$COUNTRY_URL" -o geolite2/GeoLite2-Country.mmdb || echo "Country skipped"
+          set -e
+          curl -s https://api.github.com/repos/P3TERX/GeoLite.mmdb/releases/latest > geolite.json
+          ASN_URL=$(jq -r '.assets[]? | select(.name | contains("GeoLite2-ASN.mmdb")) | .browser_download_url // empty' geolite.json)
+          CITY_URL=$(jq -r '.assets[]? | select(.name | contains("GeoLite2-City.mmdb")) | .browser_download_url // empty' geolite.json)
+          COUNTRY_URL=$(jq -r '.assets[]? | select(.name | contains("GeoLite2-Country.mmdb")) | .browser_download_url // empty' geolite.json)
 
-      - name: Generate GeoLite2 SHA256SUMS
-        run: |
-          if [ -d geolite2 ] && [ "$(ls -A geolite2/*.mmdb 2>/dev/null)" ]; then
-            sha256sum geolite2/*.mmdb > geolite2/SHA256SUMS
-            ASN_SHA=$(grep ASN geolite2/SHA256SUMS | awk '{print $1}' || echo "")
-            CITY_SHA=$(grep City geolite2/SHA256SUMS | awk '{print $1}' || echo "")
-            COUNTRY_SHA=$(grep Country geolite2/SHA256SUMS | awk '{print $1}' || echo "")
-            echo "ASN_SHA=$ASN_SHA" >> $GITHUB_ENV
-            echo "CITY_SHA=$CITY_SHA" >> $GITHUB_ENV
-            echo "COUNTRY_SHA=$COUNTRY_SHA" >> $GITHUB_ENV
-          fi
+          if [ -n "$ASN_URL" ]; then curl -L "$ASN_URL" -o geolite2/GeoLite2-ASN.mmdb; fi
+          if [ -n "$CITY_URL" ]; then curl -L "$CITY_URL" -o geolite2/GeoLite2-City.mmdb; fi
+          if [ -n "$COUNTRY_URL" ]; then curl -L "$COUNTRY_URL" -o geolite2/GeoLite2-Country.mmdb; fi
 
-      # ---------------- GeoIP / Geosite ----------------
-      - name: Clean old GeoIP / Geosite
+      - name: Download GeoIP/Geosite
         run: |
-          rm -rf geoip
-          mkdir -p geoip
-
-      - name: Download GeoIP / Geosite latest
-        run: |
-          curl -L https://github.com/1andrevich/Re-filter-lists/releases/latest/download/geoip.dat -o geoip/geoip.dat || echo "GeoIP skipped"
-          curl -L https://github.com/1andrevich/Re-filter-lists/releases/latest/download/geosite.dat -o geoip/geosite.dat || echo "Geosite skipped"
-
-      - name: Generate GeoIP SHA256SUMS
-        run: |
-          if [ -d geoip ] && [ "$(ls -A geoip/* 2>/dev/null)" ]; then
-            sha256sum geoip/* > geoip/SHA256SUMS
-            GEOIP_SHA=$(grep geoip.dat geoip/SHA256SUMS | awk '{print $1}' || echo "")
-            GEOSITE_SHA=$(grep geosite.dat geoip/SHA256SUMS | awk '{print $1}' || echo "")
-            echo "GEOIP_SHA=$GEOIP_SHA" >> $GITHUB_ENV
-            echo "GEOSITE_SHA=$GEOSITE_SHA" >> $GITHUB_ENV
-          fi
+          set -e
+          curl -L "https://github.com/1andrevich/Re-filter-lists/releases/latest/download/geoip.dat" -o geoip/geoip.dat || true
+          curl -L "https://github.com/1andrevich/Re-filter-lists/releases/latest/download/geosite.dat" -o geoip/geosite.dat || true
 
       # ---------------- Update README ----------------
       - name: Update README
         run: |
-          sed -i "s|^KARING_ANDROID_VERSION=.*|KARING_ANDROID_VERSION=$ANDROID_VERSION|g" README.md
-          sed -i "s|{{ARM64_SHA}}|$ARM64_SHA|g" README.md
-          sed -i "s|{{ARMV7_SHA}}|$ARMV7_SHA|g" README.md
-          sed -i "s|^KARING_WINDOWS_VERSION=.*|KARING_WINDOWS_VERSION=$WIN_VERSION|g" README.md
-          sed -i "s|{{X64_SHA}}|$X64_SHA|g" README.md
-          sed -i "s|{{X86_SHA}}|$X86_SHA|g" README.md
-          sed -i "s|^GEOLITE2_ASN=.*|GEOLITE2_ASN=$ASN_SHA|g" README.md
-          sed -i "s|^GEOLITE2_CITY=.*|GEOLITE2_CITY=$CITY_SHA|g" README.md
-          sed -i "s|^GEOLITE2_COUNTRY=.*|GEOLITE2_COUNTRY=$COUNTRY_SHA|g" README.md
-          sed -i "s|^GEOIP_SHA=.*|GEOIP_SHA=$GEOIP_SHA|g" README.md
-          sed -i "s|^GEOSITE_SHA=.*|GEOSITE_SHA=$GEOSITE_SHA|g" README.md
+          set -e
+          # Версии
+          sed -i "s|KARING_ANDROID_VERSION=.*|KARING_ANDROID_VERSION=${ANDROID_VERSION}|g" README.md || echo "KARING_ANDROID_VERSION=${ANDROID_VERSION}" >> README.md
+          sed -i "s|KARING_WINDOWS_VERSION=.*|KARING_WINDOWS_VERSION=${WIN_VERSION}|g" README.md || echo "KARING_WINDOWS_VERSION=${WIN_VERSION}" >> README.md
 
-      # ---------------- Commit & Push ----------------
-      - name: Commit changes
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git add apk windows geolite2 geoip README.md
-          git diff --cached --quiet || git commit -m "Update Karing Android/Windows + GeoLite2 + GeoIP $ANDROID_VERSION / $WIN_VERSION"
+          # Ссылки на дополнительные файлы (только ссылки, без хранения файлов)
+          grep -q 'Hiddify-Android-universal.apk' README.md || echo "- [Hiddify Android](https://github.com/Rusl2023/vpn-alive-check/raw/main/apk/Hiddify-Android-universal.apk)" >> README.md
+          grep -q 'NekoBox-Android-arm64-v8a.apk' README.md || echo "- [NekoBox Android](https://github.com/Rusl2023/vpn-alive-check/raw/main/apk/NekoBox-Android-arm64-v8a.apk)" >> README.md
+          grep -q 'Hiddify-Windows-Setup-x64.exe' README.md || echo "- [Hiddify Windows](https://github.com/Rusl2023/vpn-alive-check/raw/main/windows/Hiddify-Windows-Setup-x64.exe)" >> README.md
 
-      - name: Push
+      # ---------------- Commit only README ----------------
+      - name: Commit and Push
         run: |
-          git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }} HEAD:main
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add README.md || true
+
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: update versions and links"
+            git push origin HEAD:main
+          fi
