@@ -69,15 +69,30 @@ jobs:
           except:
               geo = None
 
-          def is_ru(ip):
+          def get_country(ip):
               if not geo:
-                  return True
+                  return "XX", "🌐"
+              try:
+                  c = geo.country(ip).country.iso_code
+                  return c or "XX", flag(c)
+              except:
+                  return "XX", "🌐"
+
+          def is_ru(ip):
               try:
                   return geo.country(ip).country.iso_code == 'RU'
               except:
                   return False
 
-          # ===== RESOLVE (IPv4 + IPv6) =====
+          def flag(cc):
+              if not cc or cc == "XX":
+                  return "🌐"
+              try:
+                  return chr(127397 + ord(cc[0])) + chr(127397 + ord(cc[1]))
+              except:
+                  return "🌐"
+
+          # ===== RESOLVE =====
           def resolve_all(host):
               ips = set()
               try:
@@ -87,7 +102,7 @@ jobs:
                   pass
               return list(ips)
 
-          # ===== LOAD LINKS =====
+          # ===== LOAD =====
           links = []
           for f in glob.glob('githubmirror/*.txt'):
               for l in open(f):
@@ -106,30 +121,43 @@ jobs:
                   if not u.hostname:
                       continue
 
-                  # порт
                   port = u.port or 443
                   if port != 443:
                       continue
 
-                  # все IP (v4 + v6)
+                  # SNI
+                  q = urllib.parse.parse_qs(u.query)
+                  sni = q.get('sni',[''])[0] or u.hostname
+
                   ips = resolve_all(u.hostname)
                   if not ips:
                       continue
 
-                  # проверка: хотя бы один IP подходит
-                  ok = False
+                  # проверка RU + CIDR
+                  ok_ip = None
                   for ip in ips:
                       if is_white(ip) and is_ru(ip):
-                          ok = True
+                          ok_ip = ip
                           break
 
-                  if not ok:
+                  if not ok_ip:
                       continue
 
-                  # убираем мусор после #
+                  # страна + флаг
+                  cc, fl = get_country(ok_ip)
+
                   clean = link.split('#')[0]
 
-                  result.append(clean)
+                  # ===== КРАСИВОЕ ИМЯ =====
+                  new_name = f"{fl} {cc} | SNI: {sni}"
+
+                  # добавляем в ссылку
+                  if '#' in link:
+                      final = clean + f"#{new_name}"
+                  else:
+                      final = clean + f"#{new_name}"
+
+                  result.append(final)
 
               except:
                   continue
@@ -139,7 +167,6 @@ jobs:
 
           print("FINAL:", len(result))
 
-          # ===== SAVE =====
           with open(OUT, 'w') as f:
               f.write("\n".join(result))
 
