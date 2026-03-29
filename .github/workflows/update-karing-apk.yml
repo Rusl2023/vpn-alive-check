@@ -17,44 +17,73 @@ jobs:
         with:
           persist-credentials: false
 
-# ---------------- iOS ----------------
-      - name: Ensure iOS section in README
+      # ---------------- Android ----------------
+      - name: Fetch latest Karing Android release
         run: |
-          set -e
-          touch README.md
-          if ! grep -q '^## iOS' README.md; then
-            echo "" >> README.md
-            echo "## iOS" >> README.md
-            echo "- [Karing](https://apps.apple.com/us/app/karing/id6472431552)" >> README.md
-            echo "- [Hiddify Proxy VPN](https://apps.apple.com/us/app/hiddify-proxy-vpn/id6596777532)" >> README.md
-            echo "" >> README.md
-          fi
+          curl -s https://api.github.com/repos/KaringX/karing/releases/latest > release_android.json
 
-      # ---------------- Update versions and links (основная логика) ----------------
-      - name: Fetch latest versions and update README
+      - name: Extract Android version and URLs
         run: |
-          set -e
-
-          # Karing Android + Windows version
-          LATEST=$(curl -s https://api.github.com/repos/KaringX/karing/releases/latest)
-          ANDROID_VERSION=$(echo "$LATEST" | jq -r '.tag_name // empty')
-          WIN_VERSION=$(echo "$LATEST" | jq -r '.tag_name // empty')
-
+          ANDROID_VERSION=$(jq -r '.tag_name' release_android.json)
+          ARM64_URL=$(jq -r '.assets[] | select(.name | contains("android_arm64-v8a.apk")) | .browser_download_url' release_android.json)
+          ARMV7_URL=$(jq -r '.assets[] | select(.name | contains("android_armeabi-v7a.apk")) | .browser_download_url' release_android.json)
           echo "ANDROID_VERSION=$ANDROID_VERSION" >> $GITHUB_ENV
+          echo "ARM64_URL=$ARM64_URL" >> $GITHUB_ENV
+          echo "ARMV7_URL=$ARMV7_URL" >> $GITHUB_ENV
+
+      - name: Clean old Android APKs
+        run: |
+          rm -rf apk
+          mkdir -p apk
+
+      - name: Download Android APKs
+        run: |
+          [ -n "$ARM64_URL" ] && curl -L "$ARM64_URL" -o apk/karing_android_arm64-v8a.apk || echo "ARM64 APK skipped"
+          [ -n "$ARMV7_URL" ] && curl -L "$ARMV7_URL" -o apk/karing_android_armeabi-v7a.apk || echo "ARMV7 APK skipped"
+
+      - name: Generate Android SHA256SUMS
+        run: |
+          if [ -d apk ] && [ "$(ls -A apk/*.apk 2>/dev/null)" ]; then
+            sha256sum apk/*.apk > apk/SHA256SUMS
+            ARM64_SHA=$(grep arm64 apk/SHA256SUMS | awk '{print $1}' || echo "")
+            ARMV7_SHA=$(grep armeabi apk/SHA256SUMS | awk '{print $1}' || echo "")
+            echo "ARM64_SHA=$ARM64_SHA" >> $GITHUB_ENV
+            echo "ARMV7_SHA=$ARMV7_SHA" >> $GITHUB_ENV
+          fi
+
+      # ---------------- Windows ----------------
+      - name: Fetch latest Karing Windows release
+        run: |
+          curl -s https://api.github.com/repos/KaringX/karing/releases/latest > release_windows.json
+
+      - name: Extract Windows version and URLs
+        run: |
+          WIN_VERSION=$(jq -r '.tag_name' release_windows.json)
+          X64_URL=$(jq -r '.assets[] | select(.name | contains("windows_x64.exe")) | .browser_download_url' release_windows.json)
+          X86_URL=$(jq -r '.assets[] | select(.name | contains("windows_x86.exe")) | .browser_download_url' release_windows.json)
           echo "WIN_VERSION=$WIN_VERSION" >> $GITHUB_ENV
+          echo "X64_URL=$X64_URL" >> $GITHUB_ENV
+          echo "X86_URL=$X86_URL" >> $GITHUB_ENV
 
-          # Обновляем версии в README
-          if [ -n "$ANDROID_VERSION" ]; then
-            sed -i "s|^KARING_ANDROID_VERSION=.*|KARING_ANDROID_VERSION=$ANDROID_VERSION|" README.md || echo "KARING_ANDROID_VERSION=$ANDROID_VERSION" >> README.md
-          fi
-          if [ -n "$WIN_VERSION" ]; then
-            sed -i "s|^KARING_WINDOWS_VERSION=.*|KARING_WINDOWS_VERSION=$WIN_VERSION|" README.md || echo "KARING_WINDOWS_VERSION=$WIN_VERSION" >> README.md
-          fi
+      - name: Clean old Windows files
+        run: |
+          rm -rf windows
+          mkdir -p windows
 
-          # Добавляем ссылки, если их нет
-          grep -q 'Hiddify-Android-universal.apk' README.md || echo "- [Hiddify Android](https://github.com/Rusl2023/vpn-alive-check/raw/main/apk/Hiddify-Android-universal.apk)" >> README.md
-          grep -q 'NekoBox-Android-arm64-v8a.apk' README.md || echo "- [NekoBox Android](https://github.com/Rusl2023/vpn-alive-check/raw/main/apk/NekoBox-Android-arm64-v8a.apk)" >> README.md
-          grep -q 'Hiddify-Windows-Setup-x64.exe' README.md || echo "- [Hiddify Windows](https://github.com/Rusl2023/vpn-alive-check/raw/main/windows/Hiddify-Windows-Setup-x64.exe)" >> README.md
+      - name: Download Windows EXEs
+        run: |
+          [ -n "$X64_URL" ] && curl -L "$X64_URL" -o windows/karing_windows_x64.exe || echo "X64 EXE skipped"
+          [ -n "$X86_URL" ] && curl -L "$X86_URL" -o windows/karing_windows_x86.exe || echo "X86 EXE skipped"
+
+      - name: Generate Windows SHA256SUMS
+        run: |
+          if [ -d windows ] && [ "$(ls -A windows/*.exe 2>/dev/null)" ]; then
+            sha256sum windows/*.exe > windows/SHA256SUMS
+            X64_SHA=$(grep x64 windows/SHA256SUMS | awk '{print $1}' || echo "")
+            X86_SHA=$(grep x86 windows/SHA256SUMS | awk '{print $1}' || echo "")
+            echo "X64_SHA=$X64_SHA" >> $GITHUB_ENV
+            echo "X86_SHA=$X86_SHA" >> $GITHUB_ENV
+          fi
 
       # ---------------- GeoLite2 ----------------
       - name: Fetch latest GeoLite2 release
