@@ -38,30 +38,11 @@ jobs:
       - name: Filter VLESS
         run: |
           python3 << 'EOF'
-          import urllib.parse, os, socket, ipaddress, glob, base64
+          import urllib.parse, os, socket, glob, base64
           import geoip2.database
 
           OUT = "githubmirror/white-vless-ru-443-live.txt"
           OUT64 = "githubmirror/white-vless-ru-443-live-base64.txt"
-
-          # ===== CIDR =====
-          cidrs = []
-          for f in ['white-cidr.txt','white-cidr-igareck.txt']:
-              if os.path.exists(f):
-                  for line in open(f):
-                      line = line.strip()
-                      if line and not line.startswith('#'):
-                          try:
-                              cidrs.append(ipaddress.ip_network(line, strict=False))
-                          except:
-                              pass
-
-          def is_white(ip):
-              try:
-                  ip_obj = ipaddress.ip_address(ip)
-                  return any(ip_obj in net for net in cidrs)
-              except:
-                  return False
 
           # ===== GEO =====
           try:
@@ -133,36 +114,31 @@ jobs:
                   if not ips:
                       continue
 
-                  # проверка RU + CIDR
                   ok_ip = None
+
+                  # ✅ теперь только RU (баланс)
                   for ip in ips:
-                      if is_white(ip) and is_ru(ip):
+                      if is_ru(ip):
                           ok_ip = ip
                           break
 
                   if not ok_ip:
                       continue
 
-                  # страна + флаг
                   cc, fl = get_country(ok_ip)
 
                   clean = link.split('#')[0]
 
-                  # ===== КРАСИВОЕ ИМЯ =====
+                  # ===== НОВОЕ ИМЯ =====
                   new_name = f"{fl} {cc} | SNI: {sni}"
 
-                  # добавляем в ссылку
-                  if '#' in link:
-                      final = clean + f"#{new_name}"
-                  else:
-                      final = clean + f"#{new_name}"
+                  final = clean + f"#{new_name}"
 
                   result.append(final)
 
               except:
                   continue
 
-          # убираем дубли
           result = list(dict.fromkeys(result))
 
           print("FINAL:", len(result))
@@ -190,6 +166,6 @@ jobs:
             exit 0
           fi
 
-          git commit -m "RU VLESS 443 (CIDR+GEO only)"
+          git commit -m "RU VLESS 443 (balanced)"
           git pull --rebase origin main || true
           git push origin main || git push --force-with-lease origin main
