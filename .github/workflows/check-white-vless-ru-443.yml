@@ -1,4 +1,4 @@
-name: Filter VLESS White RU 443 (CIDR + GEO only)
+name: Filter VLESS White RU 443
 
 on:
   schedule:
@@ -25,39 +25,21 @@ jobs:
           sudo apt-get install -y curl python3 python3-pip
           pip3 install geoip2
 
-      - name: Prepare data
+      - name: Prepare GeoIP
         run: |
-          mkdir -p githubmirror
-          curl -L -o white-cidr.txt https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/cidrwhitelist.txt
-          curl -L -o white-cidr-igareck.txt https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/main/WHITE-CIDR-RU-checked.txt || true
-
-          curl -L -o githubmirror/src1.txt https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/main/Vless-Reality-White-Lists-Rus-Mobile.txt
-          curl -L -o githubmirror/src2.txt https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/main/Vless-Reality-White-Lists-Rus-Mobile-2.txt
-          curl -L -o githubmirror/src3.txt https://raw.githubusercontent.com/zieng2/wl/main/vless_lite.txt
+          curl -L -o GeoLite2-Country.mmdb https://git.io/GeoLite2-Country.mmdb
 
       - name: Filter VLESS
         run: |
           python3 << 'EOF'
-          import urllib.parse, os, socket, glob, base64
+          import urllib.parse, socket, glob, base64
           import geoip2.database
 
-          OUT = "githubmirror/white-vless-ru-443-live.txt"
-          OUT64 = "githubmirror/white-vless-ru-443-live-base64.txt"
+          OUT = "white-vless-ru-443-live.txt"
+          OUT64 = "white-vless-ru-443-live-base64.txt"
 
           # ===== GEO =====
-          try:
-              geo = geoip2.database.Reader('GeoLite2-Country.mmdb')
-          except:
-              geo = None
-
-          def get_country(ip):
-              if not geo:
-                  return "XX", "🌐"
-              try:
-                  c = geo.country(ip).country.iso_code
-                  return c or "XX", flag(c)
-              except:
-                  return "XX", "🌐"
+          geo = geoip2.database.Reader('GeoLite2-Country.mmdb')
 
           def is_ru(ip):
               try:
@@ -85,7 +67,7 @@ jobs:
 
           # ===== LOAD =====
           links = []
-          for f in glob.glob('githubmirror/*.txt'):
+          for f in glob.glob('*.txt'):
               for l in open(f):
                   l = l.strip()
                   if l.lower().startswith('vless://'):
@@ -102,21 +84,17 @@ jobs:
                   if not u.hostname:
                       continue
 
+                  # только 443
                   port = u.port or 443
                   if port != 443:
                       continue
-
-                  # SNI
-                  q = urllib.parse.parse_qs(u.query)
-                  sni = q.get('sni',[''])[0] or u.hostname
 
                   ips = resolve_all(u.hostname)
                   if not ips:
                       continue
 
+                  # ищем RU IP
                   ok_ip = None
-
-                  # ✅ теперь только RU (баланс)
                   for ip in ips:
                       if is_ru(ip):
                           ok_ip = ip
@@ -125,12 +103,23 @@ jobs:
                   if not ok_ip:
                       continue
 
-                  cc, fl = get_country(ok_ip)
+                  # страна
+                  try:
+                      cc = geo.country(ok_ip).country.iso_code
+                  except:
+                      cc = "XX"
 
+                  fl = flag(cc)
+
+                  # SNI
+                  q = urllib.parse.parse_qs(u.query)
+                  sni = q.get('sni',[''])[0] or u.hostname
+
+                  # оригинал (без изменений)
                   clean = link.split('#')[0]
 
-                  # ===== НОВОЕ ИМЯ =====
-                  new_name = f"{fl} {cc} | SNI: {sni}"
+                  # добавляем метку
+                  new_name = f"{fl} RU | SNI: {sni}"
 
                   final = clean + f"#{new_name}"
 
@@ -139,6 +128,7 @@ jobs:
               except:
                   continue
 
+          # убираем дубли
           result = list(dict.fromkeys(result))
 
           print("FINAL:", len(result))
@@ -150,8 +140,7 @@ jobs:
               with open(OUT64, 'w') as f:
                   f.write(base64.b64encode("\n".join(result).encode()).decode())
 
-          if geo:
-              geo.close()
+          geo.close()
           EOF
 
       - name: Commit
@@ -159,13 +148,13 @@ jobs:
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
 
-          git add githubmirror/*.txt || true
+          git add white-vless-ru-443-live.txt white-vless-ru-443-live-base64.txt || true
 
           if git diff --staged --quiet; then
             echo "No changes"
             exit 0
           fi
 
-          git commit -m "RU VLESS 443 (balanced)"
+          git commit -m "RU VLESS 443"
           git pull --rebase origin main || true
           git push origin main || git push --force-with-lease origin main
