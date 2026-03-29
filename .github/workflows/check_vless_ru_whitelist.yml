@@ -1,45 +1,36 @@
 name: Check VLESS RU Whitelist + Reality security + xtls-rprx-vision + TCP ping
-
 on:
   schedule:
     - cron: '0 */3 * * *'
   workflow_dispatch:
-
 concurrency:
   group: ru-whitelist
   cancel-in-progress: false
-
 jobs:
   check:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
       - name: Detect branch
         id: branch
         run: echo "branch=$(git rev-parse --abbrev-ref HEAD)" >> $GITHUB_OUTPUT
-
       - name: Pull latest changes
         run: |
           git pull origin ${{ steps.branch.outputs.branch }} --rebase || true
           echo "Current branch: ${{ steps.branch.outputs.branch }}"
-
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install requests
-
       - name: Scan VLESS configs
         id: scan
         run: |
@@ -53,86 +44,25 @@ jobs:
           from threading import Lock
           import time
 
-          # Configuration
           MAX_WORKERS = 30
           TIMEOUT = 1.5
           MAX_PER_FILE = 400
           BATCH_SIZE = 1000
-          
-          HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
+
+          HEADERS = {"User-Agent": "Mozilla/5.0"}
           RU_SNI_URL = "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/whitelist.txt"
-          
+
           ALLOWED_FINGERPRINTS = {
-              "chrome", "firefox", "safari", "ios", "android", 
+              "chrome", "firefox", "safari", "ios", "android",
               "edge", "360", "qq", "random", "randomized"
           }
 
-          # Sources for VLESS configs
           CONFIG_URLS = [
               "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/BLACK_VLESS_RUS_mobile.txt",
               "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt",
-              "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile-2.txt",
-              "https://raw.githubusercontent.com/sevcator/5ubscrpt10n/main/protocols/vl.txt",
-              "https://raw.githubusercontent.com/STR97/STRUGOV/refs/heads/main/STR",
-              "https://raw.githubusercontent.com/STR97/STRUGOV/refs/heads/main/STR.BYPASS",
-              "https://raw.githubusercontent.com/STR97/STRUGOV/refs/heads/main/CUSTOM",
-              "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/refs/heads/main/subscriptions/v2ray/all_sub.txt",
-              "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/v2ray/subs/sub1.txt",
-              "https://raw.githubusercontent.com/barry-far/V2ray-config/main/All_Configs_Sub.txt",
-              "https://raw.githubusercontent.com/SilentGhostCodes/WhiteListVpn/refs/heads/main/BlackList.txt",
-              "https://raw.githubusercontent.com/SilentGhostCodes/WhiteListVpn/refs/heads/main/Whitelist.txt",
-              "https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/1.txt",
-              "https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt",
-              "https://raw.githubusercontent.com/zieng2/wl/refs/heads/main/vless_lite.txt",
-              "https://raw.githubusercontent.com/zieng2/wl/main/vless_universal.txt",
-              "https://raw.githubusercontent.com/sakha1370/OpenRay/refs/heads/main/output/country/XX.txt",
-              "https://raw.githubusercontent.com/whoahaow/rjsxrd/refs/heads/main/githubmirror/bypass/bypass-all.txt",
-              "https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list/refs/heads/main/vless_configs.txt",
-              "https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list/refs/heads/main/all_extracted_configs.txt",
-              "https://raw.githubusercontent.com/10ium/ScrapeAndCategorize/refs/heads/main/output_configs/Vless.txt",
-              "https://raw.githubusercontent.com/4n0nymou3/multi-proxy-config-fetcher/refs/heads/main/configs/proxy_configs.txt",
-              "https://raw.githubusercontent.com/Barabama/FreeNodes/refs/heads/main/nodes/yudou66.txt",
-              "https://raw.githubusercontent.com/DiDiten/multi-proxy-config-fetcher/refs/heads/main/configs/proxy_configs.txt",
-              "https://raw.githubusercontent.com/Epodonios/v2ray-configs/main/All_Configs_Sub.txt",
-              "https://raw.githubusercontent.com/Kolandone/v2raycollector/refs/heads/main/vless.txt",
-              "https://raw.githubusercontent.com/Mahdi0024/ProxyCollector/master/sub/proxies.txt",
-              "https://raw.githubusercontent.com/MrMohebi/xray-proxy-grabber-telegram/master/collected-proxies/row-url/all.txt",
-              "https://raw.githubusercontent.com/MrTelepathic/v2ray-sub/refs/heads/main/configs.txt",
-              "https://raw.githubusercontent.com/Rayan-Config/C-Sub/refs/heads/main/configs/proxy.txt",
-              "https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/refs/heads/main/all_configs.txt",
-              "https://raw.githubusercontent.com/mehran1404/Sub_Link/refs/heads/main/V2RAY-Sub.txt",
-              "https://raw.githubusercontent.com/mermeroo/Loon/refs/heads/main/all.nodes.txt",
-              "https://raw.githubusercontent.com/miladtahanian/V2RayCFGDumper/main/config.txt",
-              "https://raw.githubusercontent.com/moneyfly1/collectSub/refs/heads/main/config_all_merged_nodes.txt",
-              "https://raw.githubusercontent.com/teknovpnhub/v2ray-subscription/refs/heads/main/servers.txt",
-              "https://raw.githubusercontent.com/xyfqzy/free-nodes/main/nodes/v2ray.txt",
-              "https://raw.githubusercontent.com/youfoundamin/V2rayCollector/main/mixed_iran.txt",
-              "https://raw.githubusercontent.com/Danialsamadi/v2go/refs/heads/main/AllConfigsSub.txt",
-              "https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-1.txt",
-              "https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-2.txt",
-              "https://raw.githubusercontent.com/Farid-Karimi/Config-Collector/refs/heads/main/mixed_iran.txt",
-              "https://raw.githubusercontent.com/MhdiTaheri/V2rayCollector_Py/refs/heads/main/sub/Mix/mix.txt",
-              "https://raw.githubusercontent.com/liketolivefree/kobabi/main/sub.txt",
-              "https://raw.githubusercontent.com/liketolivefree/kobabi/main/sub_all.txt",
-              "https://raw.githubusercontent.com/Epodonios/v2ray-configs/refs/heads/main/Sub1.txt",
-              "https://raw.githubusercontent.com/Epodonios/v2ray-configs/refs/heads/main/Sub2.txt",
-              "https://raw.githubusercontent.com/Epodonios/v2ray-configs/refs/heads/main/Sub3.txt",
-              "https://raw.githubusercontent.com/Epodonios/v2ray-configs/refs/heads/main/Sub4.txt",
-              "https://raw.githubusercontent.com/Epodonios/v2ray-configs/refs/heads/main/Sub5.txt",
-              "https://raw.githubusercontent.com/Epodonios/v2ray-configs/refs/heads/main/Sub6.txt",
-              "https://raw.githubusercontent.com/Epodonios/v2ray-configs/refs/heads/main/Sub7.txt",
-              "https://raw.githubusercontent.com/Epodonios/v2ray-configs/refs/heads/main/Sub8.txt",
-              "https://raw.githubusercontent.com/Epodonios/v2ray-configs/refs/heads/main/Sub9.txt",
-              "https://raw.githubusercontent.com/Epodonios/v2ray-configs/refs/heads/main/Sub10.txt",
-              "https://raw.githubusercontent.com/Epodonios/v2ray-configs/refs/heads/main/Sub11.txt",
-              "https://raw.githubusercontent.com/Epodonios/v2ray-configs/refs/heads/main/Sub12.txt",
-              "https://raw.githubusercontent.com/Epodonios/v2ray-configs/refs/heads/main/Sub13.txt",
-              "https://raw.githubusercontent.com/Epodonios/v2ray-configs/refs/heads/main/Sub14.txt",
-              "https://raw.githubusercontent.com/ShatakVPN/ConfigForge-V2Ray/main/configs/ir/all.txt",
-              "https://raw.githubusercontent.com/ShatakVPN/ConfigForge-V2Ray/main/configs/ir/vless.txt"
+              "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile-2.txt"
           ]
 
-          # Global variables
           dns_cache = {}
           seen_configs = set()
           stats_lock = Lock()
@@ -148,260 +78,143 @@ jobs:
           }
 
           def load_ru_whitelist():
-              """Load Russian SNI whitelist"""
-              print("Loading RU whitelist...")
               try:
                   response = requests.get(RU_SNI_URL, timeout=20, headers=HEADERS)
                   response.raise_for_status()
-                  
-                  whitelist = set()
-                  for line in response.text.splitlines():
-                      line = line.strip().lower()
-                      if line and not line.startswith("#"):
-                          whitelist.add(line)
-                  
-                  print(f"Whitelist loaded: {len(whitelist)}")
-                  return whitelist
-              except Exception as e:
-                  print(f"Whitelist load error: {e}")
+                  return {line.strip().lower() for line in response.text.splitlines() if line.strip() and not line.startswith("#")}
+              except:
                   return set()
 
           def download_configs():
-              """Download VLESS configs from all sources"""
               all_lines = []
-              print("Downloading configs...")
-              
               for url in CONFIG_URLS:
                   try:
-                      response = requests.get(url, timeout=25, headers=HEADERS)
-                      response.raise_for_status()
-                      
-                      lines = response.text.splitlines()
-                      all_lines.extend(lines)
-                      print(f"Loaded {len(lines)} from {url}")
-                  except Exception as e:
-                      print(f"Failed: {url} {str(e)[:50]}")
-              
-              # Extract VLESS links
-              vless_links = [line.strip() for line in all_lines if line.strip().startswith("vless://")]
-              print(f"Total VLESS: {len(vless_links)}")
-              
-              return vless_links
+                      r = requests.get(url, timeout=25, headers=HEADERS)
+                      r.raise_for_status()
+                      all_lines.extend(r.text.splitlines())
+                  except:
+                      pass
+              return [l.strip() for l in all_lines if l.strip().startswith("vless://")]
 
           def resolve_hostname(hostname):
-              """Resolve hostname to IP with caching"""
-              if not hostname:
-                  return None
-              
               if hostname in dns_cache:
                   return dns_cache[hostname]
-              
               try:
                   ip = socket.gethostbyname(hostname)
                   dns_cache[hostname] = ip
                   return ip
-              except socket.gaierror:
+              except:
                   dns_cache[hostname] = None
                   return None
 
           def tcp_ping_test(host, port):
-              """Test TCP connectivity"""
               try:
                   sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                   sock.settimeout(TIMEOUT)
                   result = sock.connect_ex((host, port))
                   sock.close()
                   return result == 0
-              except Exception:
+              except:
                   return False
 
           def parse_vless_config(link):
-              """Parse VLESS config from URL"""
               try:
                   parsed = urllib.parse.urlparse(link.strip())
-                  
-                  if parsed.scheme != "vless":
-                      return None
-                  
-                  query_params = urllib.parse.parse_qs(parsed.query)
-                  
+                  query = urllib.parse.parse_qs(parsed.query)
                   return {
                       "link": link.strip(),
                       "host": parsed.hostname,
                       "port": int(parsed.port or 443),
-                      "sni": query_params.get("sni", [""])[0].lower(),
-                      "security": query_params.get("security", [""])[0].lower(),
-                      "flow": query_params.get("flow", [""])[0].lower(),
-                      "network": query_params.get("type", ["tcp"])[0].lower(),
-                      "fp": query_params.get("fp", [""])[0].lower(),
-                      "pbk": query_params.get("pbk", [""])[0],
-                      "sid": query_params.get("sid", [""])[0]
+                      "sni": query.get("sni", [""])[0].lower(),
+                      "security": query.get("security", [""])[0].lower(),
+                      "flow": query.get("flow", [""])[0].lower(),
+                      "fp": query.get("fp", [""])[0].lower()
                   }
-              except Exception as e:
+              except:
                   return None
 
           def validate_config(config, ru_whitelist):
-              """Validate config against all criteria"""
               if not config or not config["host"]:
                   return None
-              
-              # Check SNI is in whitelist
+
+              # 🔥 НОВЫЙ ФИЛЬТР: только порт 443
+              if config["port"] != 443:
+                  return None
+
               if config["sni"] not in ru_whitelist:
-                  with stats_lock:
-                      stats["filtered_sni"] += 1
+                  with stats_lock: stats["filtered_sni"] += 1
                   return None
-              
-              # Check security is reality
+
               if config["security"] != "reality":
-                  with stats_lock:
-                      stats["filtered_security"] += 1
+                  with stats_lock: stats["filtered_security"] += 1
                   return None
-              
-              # Check flow is xtls-rprx-vision
+
               if config["flow"] != "xtls-rprx-vision":
-                  with stats_lock:
-                      stats["filtered_flow"] += 1
+                  with stats_lock: stats["filtered_flow"] += 1
                   return None
-              
-              # Check fingerprint is allowed
+
               if config["fp"] not in ALLOWED_FINGERPRINTS:
-                  with stats_lock:
-                      stats["filtered_fp"] += 1
+                  with stats_lock: stats["filtered_fp"] += 1
                   return None
-              
-              # Resolve hostname
+
               ip = resolve_hostname(config["host"])
               if not ip:
                   return None
-              
-              # TCP ping test
+
               if not tcp_ping_test(ip, config["port"]):
-                  with stats_lock:
-                      stats["filtered_ping"] += 1
+                  with stats_lock: stats["filtered_ping"] += 1
                   return None
-              
-              # Check for duplicates
-              config_key = (config["host"], config["port"], config["sni"])
+
+              key = (config["host"], config["port"], config["sni"])
               with stats_lock:
-                  if config_key in seen_configs:
+                  if key in seen_configs:
                       stats["duplicates"] += 1
                       return None
-                  seen_configs.add(config_key)
+                  seen_configs.add(key)
                   stats["valid"] += 1
-              
+
               return config["link"]
 
           def main():
-              start_time = time.time()
-              
-              # Load whitelist
-              ru_whitelist = load_ru_whitelist()
-              
-              # Download configs
-              vless_configs = download_configs()
-              
-              # Shuffle for fairness
-              random.shuffle(vless_configs)
-              stats["total"] = len(vless_configs)
-              
-              # Process in batches
+              wl = load_ru_whitelist()
+              cfgs = download_configs()
+              random.shuffle(cfgs)
               results = []
-              print("Scanning...")
-              
-              for batch_start in range(0, len(vless_configs), BATCH_SIZE):
-                  batch_end = min(batch_start + BATCH_SIZE, len(vless_configs))
-                  batch = vless_configs[batch_start:batch_end]
-                  
-                  with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-                      futures = []
-                      for link in batch:
-                          config = parse_vless_config(link)
-                          if config:
-                              futures.append(executor.submit(validate_config, config, ru_whitelist))
-                      
-                      for future in as_completed(futures):
-                          result = future.result()
-                          if result:
-                              results.append(result)
 
-              # 🔥 СОХРАНЕНИЕ ФАЙЛОВ (оригинальная логика)
-              # Не удаляем папку
+              with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
+                  futures = []
+                  for l in cfgs:
+                      c = parse_vless_config(l)
+                      if c:
+                          futures.append(ex.submit(validate_config, c, wl))
+                  for f in as_completed(futures):
+                      r = f.result()
+                      if r:
+                          results.append(r)
+
               os.makedirs("githubmirror", exist_ok=True)
 
-              # Получаем список существующих whitelist-файлов
-              existing = [f for f in os.listdir("githubmirror")
-                         if f.startswith("26_ru_whitelist_") and f.endswith(".txt")]
-
               file_counter = 0
-              total_live = len(results)
-              
-              print(f"LIVE: {total_live}")
-
-              # Сохраняем новые файлы
-              for i in range(0, total_live, MAX_PER_FILE):
+              for i in range(0, len(results), MAX_PER_FILE):
                   file_counter += 1
-                  filename = f"26_ru_whitelist_{file_counter:02d}.txt"
-                  path = os.path.join("githubmirror", filename)
-                  with open(path, "w") as f:
-                      f.write("\n".join(results[i:i + MAX_PER_FILE]))
-                  print(f"Saved {filename} with {len(results[i:i + MAX_PER_FILE])} configs")
+                  with open(f"githubmirror/26_ru_whitelist_{file_counter:02d}.txt", "w") as f:
+                      f.write("\n".join(results[i:i+MAX_PER_FILE]))
 
-              # Удаляем лишние старые whitelist-файлы
-              for old_file in existing:
-                  try:
-                      # Извлекаем номер файла из имени (26_ru_whitelist_XX.txt)
-                      index = int(old_file.split("_")[-1].split(".")[0])
-                      if index > file_counter:
-                          os.remove(os.path.join("githubmirror", old_file))
-                          print(f"Removed old file: {old_file}")
-                  except (ValueError, IndexError):
-                      # Если не удалось распарсить номер, пропускаем
-                      continue
-
-              # Вывод статистики
-              print("\n" + "="*50)
-              print("SCAN STATISTICS")
-              print("="*50)
-              print(f"Total configs processed: {stats['total']}")
-              print(f"Filtered - SNI not in whitelist: {stats['filtered_sni']}")
-              print(f"Filtered - Not Reality security: {stats['filtered_security']}")
-              print(f"Filtered - Wrong flow: {stats['filtered_flow']}")
-              print(f"Filtered - Invalid fingerprint: {stats['filtered_fp']}")
-              print(f"Filtered - TCP ping failed: {stats['filtered_ping']}")
-              print(f"Duplicates skipped: {stats['duplicates']}")
-              print(f"Valid configs found: {stats['valid']}")
-              print("="*50)
-              
-              elapsed = time.time() - start_time
-              print(f"Total execution time: {elapsed:.1f} seconds")
-
-              # Set output for GitHub Actions
               with open(os.environ["GITHUB_OUTPUT"], "a") as f:
-                  print(f"count={total_live}", file=f)
+                  print(f"count={len(results)}", file=f)
                   print(f"files={file_counter}", file=f)
 
           if __name__ == "__main__":
               main()
           EOF
-
       - name: Commit & push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
           git add githubmirror/
-
           if git diff --cached --quiet; then
             echo "No changes"
             exit 0
           fi
-
-          git commit -m "RU whitelist: ${{ steps.scan.outputs.count }} keys (${{ steps.scan.outputs.files }} files)"
-
-          for i in 1 2 3; do
-            git pull --rebase origin ${{ steps.branch.outputs.branch }} && break
-            echo "Retry rebase $i..."
-            sleep 2
-          done
-
-          git push origin ${{ steps.branch.outputs.branch }}
+          git commit -m "RU whitelist updated"
+          git push
