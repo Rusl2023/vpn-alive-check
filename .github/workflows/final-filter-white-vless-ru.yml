@@ -1,4 +1,4 @@
-name: 2 этап — Final RU VLESS 443 (ipwho + ipapi)
+name: 2 этап — Final Balanced RU VLESS 443
 
 on:
   schedule:
@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: final-white-vless-filter
+  group: final-balanced-vless
   cancel-in-progress: true
 
 jobs:
@@ -17,86 +17,110 @@ jobs:
       contents: write
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y curl jq unzip python3 python3-pip
+          pip3 install geoip2
 
       - name: Download Xray
         run: |
           XRAY_VER=$(curl -s https://api.github.com/repos/XTLS/Xray-core/releases/latest | jq -r .tag_name)
           curl -L -o xray.zip "https://github.com/XTLS/Xray-core/releases/download/${XRAY_VER}/Xray-linux-64.zip"
-          unzip -o xray.zip xray
+          unzip -o xray.zip xray geoip.dat geosite.dat
           chmod +x xray
 
-      - name: Prepare input
+      - name: GeoIP
+        run: |
+          cp geolite2/GeoLite2-*.mmdb ./ 2>/dev/null || echo "Using default GeoIP"
+
+      - name: CIDR
         run: |
           mkdir -p githubmirror
-          cp githubmirror/white-vless-ru-443-live.txt githubmirror/input.txt || true
+          curl -L -o white-cidr.txt https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/cidrwhitelist.txt
 
-      - name: Final filter (RU via 2 APIs)
+      - name: Final filter (balanced RU)
         run: |
           python3 << 'EOF'
-          import subprocess, urllib.parse, socket, os, json, base64, time
+          import subprocess, urllib.parse, socket, os, json, base64, time, ipaddress
+          import geoip2.database
           from concurrent.futures import ThreadPoolExecutor, as_completed
 
           XRAY = "./xray"
           INPUT = "githubmirror/input.txt"
-          OUT = "githubmirror/final-white-vless-ru-443-live.txt"
-          OUT64 = "githubmirror/final-white-vless-ru-443-live-base64.txt"
+          OUT = "githubmirror/final.txt"
+          OUT64 = "githubmirror/final-base64.txt"
+
+          # ===== GEO =====
+          try:
+              geo = geoip2.database.Reader('GeoLite2-Country.mmdb')
+          except:
+              geo = None
+
+          def is_ru_geo(ip):
+              if not geo:
+                  return False
+              try:
+                  return geo.country(ip).country.iso_code == 'RU'
+              except:
+                  return False
+
+          # ===== API CHECK =====
+          def is_ru_api(ip):
+              # ipwho.is
+              try:
+                  r = subprocess.check_output(
+                      ['curl','-s',f'https://ipwho.is/{ip}'],
+                      text=True
+                  )
+                  if '"country_code":"RU"' in r:
+                      return True
+              except:
+                  pass
+
+              # ipapi.co
+              try:
+                  r = subprocess.check_output(
+                      ['curl','-s',f'https://ipapi.co/{ip}/country/'],
+                      text=True
+                  ).strip()
+                  if r == 'RU':
+                      return True
+              except:
+                  pass
+
+              return False
+
+          def is_ru(ip):
+              # ✅ баланс:
+              # если хотя бы один источник говорит RU
+              return is_ru_geo(ip) or is_ru_api(ip)
 
           def free_port():
-              import socket
               s = socket.socket()
               s.bind(('',0))
               p = s.getsockname()[1]
               s.close()
               return p
 
-          def wait_port(port):
-              import socket, time
+          def wait_port(p):
               t = time.time()
-              while time.time() - t < 12:
+              while time.time()-t < 12:
                   try:
-                      socket.create_connection(("127.0.0.1", port), 1)
+                      socket.create_connection(("127.0.0.1",p),1)
                       return True
                   except:
                       time.sleep(0.2)
               return False
 
-          # ===== RU CHECK =====
-          def is_ru_by_api(ip):
-              # ipwho.is
-              try:
-                  r1 = subprocess.check_output(
-                      ['curl','-s',f'https://ipwho.is/{ip}'],
-                      text=True
-                  )
-                  if '"country_code":"RU"' not in r1:
-                      return False
-              except:
-                  return False
-
-              # ipapi.co
-              try:
-                  r2 = subprocess.check_output(
-                      ['curl','-s',f'https://ipapi.co/{ip}/country/'],
-                      text=True
-                  ).strip()
-                  if r2 != 'RU':
-                      return False
-              except:
-                  return False
-
-              return True
-
-          def test_proxy(port):
+          def test_proxy(p):
               try:
                   ip = subprocess.check_output(
                       ['curl','-s','--max-time','10',
-                       '-x',f'socks5h://127.0.0.1:{port}',
+                       '-x',f'socks5h://127.0.0.1:{p}',
                        'https://api.ipify.org'],
                       text=True
                   ).strip()
@@ -104,29 +128,25 @@ jobs:
                   if not ip:
                       return False
 
-                  # проверка страны через 2 сервиса
-                  if not is_ru_by_api(ip):
+                  if not is_ru(ip):
                       print(f"🚫 NOT RU: {ip}")
                       return False
 
               except:
                   return False
 
-              # тест Яндекса (оставили)
+              # тест Яндекс
               try:
                   code = subprocess.check_output(
                       ['curl','-s','--max-time','10',
-                       '-x',f'socks5h://127.0.0.1:{port}',
+                       '-x',f'socks5h://127.0.0.1:{p}',
                        '-o','/dev/null','-w','%{http_code}',
                        'https://yandex.ru'],
                       text=True
                   ).strip()
 
                   if code != '200':
-                      print(f"❌ yandex failed: {code}")
                       return False
-
-                  print("✅ yandex OK")
 
               except:
                   return False
@@ -134,10 +154,11 @@ jobs:
               return True
 
           if not os.path.exists(INPUT):
-              print("❌ No input file")
+              print("No input")
               exit(1)
 
-          links = [l.strip() for l in open(INPUT) if l.strip().startswith('vless://')]
+          links = [l.strip() for l in open(INPUT) if l.startswith('vless://')]
+
           print("INPUT:", len(links))
 
           result = []
@@ -145,32 +166,10 @@ jobs:
           def check(link):
               try:
                   u = urllib.parse.urlparse(link)
-
-                  if not u.hostname:
-                      return None
-
                   port = u.port or 443
 
                   q = urllib.parse.parse_qs(u.query)
                   sni = q.get('sni',[''])[0] or u.hostname
-
-                  stream = {'network': q.get('type',['tcp'])[0]}
-
-                  sec = q.get('security',['none'])[0]
-                  if sec == 'reality' and 'pbk' in q:
-                      stream.update({
-                          'security':'reality',
-                          'realitySettings':{
-                              'serverName':sni,
-                              'publicKey':q['pbk'][0],
-                              'shortId':q.get('sid',[''])[0]
-                          }
-                      })
-                  elif sec == 'tls':
-                      stream.update({
-                          'security':'tls',
-                          'tlsSettings':{'serverName':sni,'allowInsecure':True}
-                      })
 
                   p = free_port()
 
@@ -185,7 +184,9 @@ jobs:
                                   "users":[{"id":u.username,"encryption":"none"}]
                               }]
                           },
-                          "streamSettings":stream
+                          "streamSettings":{
+                              "network": q.get('type',['tcp'])[0]
+                          }
                       }]
                   }
 
@@ -200,14 +201,11 @@ jobs:
                       proc.kill()
                       return None
 
-                  ok = test_proxy(p)
-
-                  proc.terminate()
-                  proc.wait(timeout=2)
-
-                  if not ok:
+                  if not test_proxy(p):
+                      proc.terminate()
                       return None
 
+                  proc.terminate()
                   return link.split('#')[0]
 
               except:
@@ -236,13 +234,12 @@ jobs:
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
 
-          git add githubmirror/*.txt || true
+          git add githubmirror/final.txt githubmirror/final-base64.txt || true
 
           if git diff --staged --quiet; then
             echo "No changes"
             exit 0
           fi
 
-          git commit -m "FINAL RU VLESS 443 (ipwho + ipapi RU check)"
-          git pull --rebase origin main || true
-          git push origin main || git push --force-with-lease origin main
+          git commit -m "Balanced RU filter"
+          git push origin main
