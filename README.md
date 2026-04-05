@@ -21,7 +21,7 @@
 ### 🔹 Windows x64 (64-bit)
 👉 [Скачать EXE](https://github.com/Rusl2023/vpn-alive-check/raw/main/windows/karing_windows_x64.exe)
 
-##  AmneziaWG  (версия 4.8.12.9 подтерживает AmneziaWG legacy 1,5)
+##  AmneziaWG  (версия 4.8.12.9 поддерживает AmneziaWG legacy 1,5)
 
 👉 [Releases](https://github.com/amnezia-vpn/amnezia-client/releases)
 
