@@ -1,4 +1,5 @@
 name: Check VLESS proxy availability via Xray (base64 subscription)
+
 on:
   schedule:
     - cron: '0 */3 * * *'  # каждые 3 часа
@@ -29,7 +30,6 @@ jobs:
 
       - name: Download Xray
         run: |
-          # ✅ ИСПРАВЛЕННЫЙ URL
           XRAY_VER=$(curl -s https://api.github.com/repos/XTLS/Xray-core/releases/latest | jq -r .tag_name)
           curl -L -o xray.zip "https://github.com/XTLS/Xray-core/releases/download/${XRAY_VER}/Xray-linux-64.zip"
           unzip -o xray.zip xray geoip.dat geosite.dat
@@ -92,7 +92,7 @@ jobs:
           ASN_DB = 'GeoLite2-ASN.mmdb'
 
           IP_TEST_URLS = ['https://api.ipify.org', 'https://ifconfig.me/ip', 'https://ipapi.co/ip']
-          TEST_SITES = ['http://www.gstatic.com/generate_204', 'https://www.cloudflare.com/cdn-cgi/trace']
+          TEST_SITES = ['http://www.gstatic.com/generate_204']  # Оставлен только один сайт
           
           MAX_WORKERS = 6
           CURL_DELAY = 0.3
@@ -158,7 +158,7 @@ jobs:
               print("✅ GeoLite2 databases loaded")
           except Exception as e:
               print(f"⚠️ GeoLite2 warning: {e}")
-              print("🔄 Continuing without GeoIP filtering...")
+              print("🔄 Continuing without full GeoIP...")
 
           lock = Lock()
           counter = 0
@@ -211,13 +211,6 @@ jobs:
                   return '🌍??'
               return FLAGS.get(raw_iso, f'🌍{raw_iso}')
 
-          def is_russian_exit(exit_ip):
-              try:
-                  raw_iso = get_raw_iso_country(exit_ip)
-                  return raw_iso == 'RU'
-              except:
-                  return False
-
           def test_site(port, url, site_name):
               time.sleep(CURL_DELAY)
               try:
@@ -238,7 +231,7 @@ jobs:
               except subprocess.TimeoutExpired:
                   print(f"⏰ {site_name}: TIMEOUT (12s)")
                   return False
-              except Exception as e:
+              except Exception:
                   print(f"❌ {site_name}: CURL ERROR")
                   return False
 
@@ -259,31 +252,11 @@ jobs:
                   print("❌ No valid exit IP")
                   return False, None
 
-              try:
-                  cmd = ['curl', '-s', '--max-time', '10', '-x', f'socks5h://127.0.0.1:{port}', 
-                         '-o', '/dev/null', '-w', '%{http_code}', 'http://example.com']
-                  http_code = subprocess.check_output(cmd, text=True, stderr=subprocess.DEVNULL, timeout=12).strip()
-                  if http_code != '200':
-                      print(f"❌ HTTP example.com: {http_code}")
-                      return False, None
-              except:
-                  print("❌ HTTP example.com: FAILED")
+              print("🔥 Testing site...")
+              if not test_site(port, TEST_SITES[0], "Gstatic"):
                   return False, None
 
-              print("🔥 Testing sites in parallel...")
-              with ThreadPoolExecutor(max_workers=2) as site_executor:
-                  futures = [
-                      site_executor.submit(test_site, port, TEST_SITES[0], "X.com"),
-                      site_executor.submit(test_site, port, TEST_SITES[1], "Cloudflare")
-                  ]
-                  results = wait(futures, timeout=15)
-                  
-              site_results = [f.result() for f in futures]
-              if not all(site_results):
-                  print("❌ Site tests FAILED")
-                  return False, None
-
-              print("✅ All sites OK")
+              print("✅ Site test OK")
               return True, exit_ip
 
           def get_free_port():
@@ -404,9 +377,7 @@ jobs:
                   if not ok:
                       return None
 
-                  if is_russian_exit(exit_ip):
-                      print(f"🚫 RU BLOCKED: {exit_ip}")
-                      return None
+                  # ANTI-RU фильтр полностью удалён
 
                   exit_country = country_from_ip(exit_ip)
                   num = next_id()
@@ -435,23 +406,21 @@ jobs:
           except KeyboardInterrupt:
               print("⏹️ Interrupted")
 
-          print(f"✅ DONE. Alive NON-RU: {len(alive)}")
+          print(f"✅ DONE. Alive proxies: {len(alive)}")
 
-          # ✅ ИСПРАВЛЕНО: каждый ключ на отдельной строке!
           with open(OUTPUT_RAW, 'w') as f:
               f.write(f"# updated {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}\n")
               for proxy in alive:
-                  f.write(proxy + '\n')  # ← КАЖДЫЙ ПРОКСИ НА СВОЕЙ СТРОКЕ!
+                  f.write(proxy + '\n')
 
           if alive:
-              # ✅ Base64 тоже правильно
               b64_content = '\n'.join(alive)
               b64 = base64.b64encode(b64_content.encode()).decode()
               with open(OUTPUT_B64, 'w') as f:
                   f.write(b64)
-              print(f"💾 Saved {len(alive)} battle-tested NON-RU proxies")
+              print(f"💾 Saved {len(alive)} working proxies")
           else:
-              print("❌ No working NON-RU proxies")
+              print("❌ No working proxies")
 
           if 'country_reader' in locals():
               country_reader.close()
@@ -472,9 +441,9 @@ jobs:
             exit 0
           fi
 
-          git commit -m "Update battle-tested NON-RU proxy subscriptions [$(date -u +'%Y-%m-%d %H:%M UTC')] ⭐xhttp"
+          git commit -m "Update battle-tested proxy subscriptions [$(date -u +'%Y-%m-%d %H:%M UTC')] ⭐xhttp"
 
           git pull --rebase origin main || true
           git push origin main || git push --force-with-lease origin main
 
-          echo "✅ Pushed battle-tested updates"
+          echo "✅ Pushed updates"
