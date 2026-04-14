@@ -59,11 +59,10 @@ https://github.com/v2rayA/v2raya-openwrt/releases
 - immortalwrt
 https://immortalwrt.kyarucloud.moe/releases/
 ## База ключей:
-[`База 1`](https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/v2ray/all_sub.txt)
-[`База 2`](https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt)
-[`База 3`](https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list/refs/heads/main/vless_configs.txt)
-[`База 4`](https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/WHITE-SNI-RU-all.txt)
-[`База 5`](https://raw.githubusercontent.com/hamedcode/port-based-v2ray-configs/main/sub/vless.txt)
+[`База 1`](https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt)
+[`База 2`](https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile-2.txt)
+[`База 3`](https://raw.githubusercontent.com/RUNoName/V.O.I.D-VPN_Bypass/refs/heads/main/configs/url_work.txt)
+
 ## список обновляемых SNI для белых списков
 [`SNI`](https://github.com/hxehex/russia-mobile-internet-whitelist/blob/main/whitelist.txt)
 ______________________________________________________________________________________
