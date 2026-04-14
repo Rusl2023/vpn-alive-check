@@ -64,7 +64,9 @@ https://immortalwrt.kyarucloud.moe/releases/
 [`База 3`](https://raw.githubusercontent.com/RUNoName/V.O.I.D-VPN_Bypass/refs/heads/main/configs/url_work.txt)
 
 ## список обновляемых SNI для белых списков
-[`SNI`](https://github.com/hxehex/russia-mobile-internet-whitelist/blob/main/whitelist.txt)
+[`SNI`](https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/whitelist.txt)
+[`IP`](https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/ipwhitelist.txt)
+[`CIDR`](https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/cidrwhitelist.txt)
 ______________________________________________________________________________________
 
 ## ℹ️ Мая подписка бесплатных ключей ℹ️
