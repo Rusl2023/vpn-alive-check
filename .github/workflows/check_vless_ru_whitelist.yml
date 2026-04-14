@@ -1,37 +1,45 @@
-name: Check VLESS RU Whitelist + Reality security + xtls-rprx-vision + TCP ping
+name: Check VLESS RU Whitelist + Reality + TCP ping (MAX WORKING)
+
 on:
   schedule:
     - cron: '0 */3 * * *'
   workflow_dispatch:
+
 concurrency:
   group: ru-whitelist
   cancel-in-progress: false
+
 jobs:
   check:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: Detect branch
         id: branch
         run: echo "branch=$(git rev-parse --abbrev-ref HEAD)" >> $GITHUB_OUTPUT
+
       - name: Pull latest changes
         run: |
           git pull origin ${{ steps.branch.outputs.branch }} --rebase || true
-          echo "Current branch: ${{ steps.branch.outputs.branch }}"
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install requests
-      - name: Scan VLESS configs
+
+      - name: Scan VLESS configs (MAX WORKING FILTER)
         id: scan
         run: |
           python3 <<'EOF'
@@ -45,8 +53,8 @@ jobs:
           from threading import Lock
 
           MAX_WORKERS = 30
-          TIMEOUT = 1.5
-          MAX_PER_FILE = 400
+          TIMEOUT = 2.0          # увеличен для стабильности
+          MAX_PER_FILE = 500     # больше ключей в одном файле
 
           HEADERS = {"User-Agent": "Mozilla/5.0"}
 
@@ -70,11 +78,10 @@ jobs:
           stats_lock = Lock()
 
           stats = {
-              "filtered_sni": 0,
               "filtered_security": 0,
-              "filtered_flow": 0,
               "filtered_fp": 0,
               "filtered_ping": 0,
+              "filtered_sni": 0,
               "duplicates": 0,
               "valid": 0
           }
@@ -162,35 +169,36 @@ jobs:
               if not config or not config["host"]:
                   return None
 
+              # 1. Только Reality
               if config["security"] != "reality":
-                  with stats_lock: stats["filtered_security"] += 1
+                  with stats_lock:
+                      stats["filtered_security"] += 1
                   return None
 
-              if config["flow"] != "xtls-rprx-vision":
-                  with stats_lock: stats["filtered_flow"] += 1
-                  return None
-
+              # 2. Разрешённый fingerprint
               if config["fp"] not in ALLOWED_FINGERPRINTS:
-                  with stats_lock: stats["filtered_fp"] += 1
+                  with stats_lock:
+                      stats["filtered_fp"] += 1
                   return None
 
+              # 3. TCP ping (отсекаем мёртвые)
               ip = resolve_hostname(config["host"])
-              if not ip:
+              if not ip or not tcp_ping_test(ip, config["port"]):
+                  with stats_lock:
+                      stats["filtered_ping"] += 1
                   return None
 
-              # 🔥 ОБЪЕДИНЁННЫЙ ФИЛЬТР SNI / IP / CIDR
+              # 4. Белый список SNI / IP / CIDR
               if not (
                   config["sni"] in sni_wl or
                   ip in ip_wl or
                   ip_in_cidrs(ip, cidr_wl)
               ):
-                  with stats_lock: stats["filtered_sni"] += 1
+                  with stats_lock:
+                      stats["filtered_sni"] += 1
                   return None
 
-              if not tcp_ping_test(ip, config["port"]):
-                  with stats_lock: stats["filtered_ping"] += 1
-                  return None
-
+              # 5. Дедупликация
               key = (config["host"], config["port"], config["sni"])
               with stats_lock:
                   if key in seen_configs:
@@ -211,23 +219,26 @@ jobs:
               results = []
 
               with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
-                  futures = []
-                  for l in cfgs:
-                      c = parse_vless_config(l)
-                      if c:
-                          futures.append(ex.submit(validate_config, c, sni_wl, ip_wl, cidr_wl))
+                  futures = [ex.submit(validate_config, parse_vless_config(l), sni_wl, ip_wl, cidr_wl) for l in cfgs]
                   for f in as_completed(futures):
                       r = f.result()
                       if r:
                           results.append(r)
 
               os.makedirs("githubmirror", exist_ok=True)
-
               file_counter = 0
               for i in range(0, len(results), MAX_PER_FILE):
                   file_counter += 1
                   with open(f"githubmirror/26_ru_whitelist_{file_counter:02d}.txt", "w") as f:
                       f.write("\n".join(results[i:i+MAX_PER_FILE]))
+
+              # Статистика в лог
+              print(f"✅ VALID KEYS: {stats['valid']}")
+              print(f"   filtered_security: {stats['filtered_security']}")
+              print(f"   filtered_fp: {stats['filtered_fp']}")
+              print(f"   filtered_ping: {stats['filtered_ping']}")
+              print(f"   filtered_sni: {stats['filtered_sni']}")
+              print(f"   duplicates: {stats['duplicates']}")
 
               with open(os.environ["GITHUB_OUTPUT"], "a") as f:
                   print(f"count={len(results)}", file=f)
@@ -236,6 +247,7 @@ jobs:
           if __name__ == "__main__":
               main()
           EOF
+
       - name: Commit & push
         run: |
           git config user.name "github-actions[bot]"
@@ -245,5 +257,5 @@ jobs:
             echo "No changes"
             exit 0
           fi
-          git commit -m "RU whitelist updated"
+          git commit -m "RU whitelist updated (MAX WORKING keys)"
           git push
