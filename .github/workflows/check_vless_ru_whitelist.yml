@@ -40,36 +40,36 @@ jobs:
           import urllib.parse
           import requests
           import random
+          import ipaddress
           from concurrent.futures import ThreadPoolExecutor, as_completed
           from threading import Lock
-          import time
 
           MAX_WORKERS = 30
           TIMEOUT = 1.5
           MAX_PER_FILE = 400
-          BATCH_SIZE = 1000
 
           HEADERS = {"User-Agent": "Mozilla/5.0"}
+
           RU_SNI_URL = "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/whitelist.txt"
+          RU_IP_URL = "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/ipwhitelist.txt"
+          RU_CIDR_URL = "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/cidrwhitelist.txt"
 
           ALLOWED_FINGERPRINTS = {
               "chrome", "firefox", "safari", "ios", "android",
               "edge", "360", "qq", "random", "randomized"
           }
 
-          # Sources for VLESS configs
           CONFIG_URLS = [
               "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt",
               "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile-2.txt",
               "https://raw.githubusercontent.com/RUNoName/V.O.I.D-VPN_Bypass/refs/heads/main/configs/url_work.txt"
           ]
 
-
           dns_cache = {}
           seen_configs = set()
           stats_lock = Lock()
+
           stats = {
-              "total": 0,
               "filtered_sni": 0,
               "filtered_security": 0,
               "filtered_flow": 0,
@@ -79,13 +79,36 @@ jobs:
               "valid": 0
           }
 
-          def load_ru_whitelist():
+          def load_list(url):
               try:
-                  response = requests.get(RU_SNI_URL, timeout=20, headers=HEADERS)
-                  response.raise_for_status()
-                  return {line.strip().lower() for line in response.text.splitlines() if line.strip() and not line.startswith("#")}
+                  r = requests.get(url, timeout=20, headers=HEADERS)
+                  r.raise_for_status()
+                  return {line.strip().lower() for line in r.text.splitlines() if line.strip() and not line.startswith("#")}
               except:
                   return set()
+
+          def load_cidr_list(url):
+              cidrs = []
+              try:
+                  r = requests.get(url, timeout=20, headers=HEADERS)
+                  r.raise_for_status()
+                  for line in r.text.splitlines():
+                      line = line.strip()
+                      if line and not line.startswith("#"):
+                          try:
+                              cidrs.append(ipaddress.ip_network(line))
+                          except:
+                              pass
+              except:
+                  pass
+              return cidrs
+
+          def ip_in_cidrs(ip, cidrs):
+              try:
+                  ip_obj = ipaddress.ip_address(ip)
+                  return any(ip_obj in net for net in cidrs)
+              except:
+                  return False
 
           def download_configs():
               all_lines = []
@@ -135,16 +158,8 @@ jobs:
               except:
                   return None
 
-          def validate_config(config, ru_whitelist):
+          def validate_config(config, sni_wl, ip_wl, cidr_wl):
               if not config or not config["host"]:
-                  return None
-
-              # 🔥 НОВЫЙ ФИЛЬТР: только порт 443
-              if config["port"] != 443:
-                  return None
-
-              if config["sni"] not in ru_whitelist:
-                  with stats_lock: stats["filtered_sni"] += 1
                   return None
 
               if config["security"] != "reality":
@@ -163,6 +178,15 @@ jobs:
               if not ip:
                   return None
 
+              # 🔥 ОБЪЕДИНЁННЫЙ ФИЛЬТР SNI / IP / CIDR
+              if not (
+                  config["sni"] in sni_wl or
+                  ip in ip_wl or
+                  ip_in_cidrs(ip, cidr_wl)
+              ):
+                  with stats_lock: stats["filtered_sni"] += 1
+                  return None
+
               if not tcp_ping_test(ip, config["port"]):
                   with stats_lock: stats["filtered_ping"] += 1
                   return None
@@ -178,7 +202,10 @@ jobs:
               return config["link"]
 
           def main():
-              wl = load_ru_whitelist()
+              sni_wl = load_list(RU_SNI_URL)
+              ip_wl = load_list(RU_IP_URL)
+              cidr_wl = load_cidr_list(RU_CIDR_URL)
+
               cfgs = download_configs()
               random.shuffle(cfgs)
               results = []
@@ -188,7 +215,7 @@ jobs:
                   for l in cfgs:
                       c = parse_vless_config(l)
                       if c:
-                          futures.append(ex.submit(validate_config, c, wl))
+                          futures.append(ex.submit(validate_config, c, sni_wl, ip_wl, cidr_wl))
                   for f in as_completed(futures):
                       r = f.result()
                       if r:
