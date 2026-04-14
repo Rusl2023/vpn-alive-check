@@ -12,7 +12,7 @@ concurrency:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60               # ← увеличено до 60 минут
     permissions:
       contents: write
 
@@ -94,7 +94,7 @@ jobs:
           IP_TEST_URLS = ['https://api.ipify.org', 'https://ifconfig.me/ip', 'https://ipapi.co/ip']
           TEST_SITES = ['http://www.gstatic.com/generate_204']
           
-          MAX_WORKERS = 6
+          MAX_WORKERS = 12                     # ← увеличено для скорости
           CURL_DELAY = 0.3
 
           FLAGS = {
@@ -435,6 +435,8 @@ jobs:
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
 
+          # Принудительная очистка оставшихся процессов Xray
+          sudo pkill -f xray || true
           rm -f cfg_*.json xray.zip || true
           git add githubmirror/*.txt || true
 
