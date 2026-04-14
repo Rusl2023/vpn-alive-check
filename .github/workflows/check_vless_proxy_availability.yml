@@ -92,7 +92,7 @@ jobs:
           ASN_DB = 'GeoLite2-ASN.mmdb'
 
           IP_TEST_URLS = ['https://api.ipify.org', 'https://ifconfig.me/ip', 'https://ipapi.co/ip']
-          TEST_SITES = ['http://www.gstatic.com/generate_204']  # Оставлен только один сайт
+          TEST_SITES = ['http://www.gstatic.com/generate_204']
           
           MAX_WORKERS = 6
           CURL_DELAY = 0.3
@@ -206,6 +206,8 @@ jobs:
               return None
 
           def country_from_ip(ip):
+              if ip is None:
+                  return '🌍??'
               raw_iso = get_raw_iso_country(ip)
               if not raw_iso:
                   return '🌍??'
@@ -221,7 +223,7 @@ jobs:
                   ]
                   code = subprocess.check_output(cmd, text=True, stderr=subprocess.DEVNULL, timeout=12).strip()
                   
-                  success_codes = ['200', '403', '429']
+                  success_codes = ['200', '204', '403', '429']
                   if code in success_codes:
                       print(f"✅ {site_name}: {code}")
                       return True
@@ -236,6 +238,12 @@ jobs:
                   return False
 
           def test_proxy_robust(port):
+              # Сначала проверяем работу прокси через тест сайта
+              print("🔥 Testing site...")
+              if not test_site(port, TEST_SITES[0], "Gstatic"):
+                  return False, None
+              
+              # Пытаемся получить exit IP (опционально)
               exit_ip = None
               for i, url in enumerate(IP_TEST_URLS, 1):
                   try:
@@ -243,20 +251,16 @@ jobs:
                       ip = subprocess.check_output(cmd, text=True, stderr=subprocess.DEVNULL, timeout=12).strip()
                       if valid_ip(ip) and len(ip) >= 7:
                           exit_ip = ip
-                          print(f"🌐 IP [{i}]: {ip}")
+                          print(f"🌐 Exit IP [{i}]: {ip}")
                           break
                   except:
                       continue
               
-              if not exit_ip:
-                  print("❌ No valid exit IP")
-                  return False, None
-
-              print("🔥 Testing site...")
-              if not test_site(port, TEST_SITES[0], "Gstatic"):
-                  return False, None
-
-              print("✅ Site test OK")
+              if exit_ip:
+                  print("✅ Proxy works (with exit IP)")
+              else:
+                  print("✅ Proxy works (exit IP unavailable)")
+              
               return True, exit_ip
 
           def get_free_port():
@@ -376,8 +380,6 @@ jobs:
 
                   if not ok:
                       return None
-
-                  # ANTI-RU фильтр полностью удалён
 
                   exit_country = country_from_ip(exit_ip)
                   num = next_id()
