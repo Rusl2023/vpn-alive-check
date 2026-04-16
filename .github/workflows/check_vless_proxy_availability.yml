@@ -434,18 +434,18 @@ jobs:
           print("📦 Done. Files written to githubmirror/")
           PYTHON_EOF
           
-      - name: Upload to Yandex Disk (DIRECT LINKS)
+      - name: Upload to Yandex Disk (REAL PATH)
         if: always()
         env:
           YANDEX_TOKEN: ${{ secrets.YANDEX_OAUTH_TOKEN }}
         run: |
           echo "📤 Uploading to Yandex Disk..."
           
-          # Ваш путь к папке (с кодированием пробела)
+          # 🔑 Ваш реальный путь к папке (с кодированием пробела как %20)
+          # Папка "My Github Uploader" в корне диска
           BASE_PATH="/My%20Github%20Uploader"
-          PUBLIC_ID="xUd8uTcaD9YU2Q"  # ← Ваш public_id из ссылки
           
-          # Функция загрузки
+          # Функция загрузки с отладкой
           upload() {
             local FILE=$1
             local NAME=$2
@@ -453,9 +453,10 @@ jobs:
             
             [ ! -f "$FILE" ] && { echo "⚠️ Not found: $FILE"; return 1; }
             
-            echo "⬆️ Uploading $NAME..."
+            echo "⬆️ Getting upload URL for $NAME..."
+            echo "   Path: $FULL_PATH"
             
-            # Получаем URL для загрузки
+            # Шаг 1: Получаем URL для загрузки
             RESP=$(curl -s -w "\n%{http_code}" -X GET \
               -H "Authorization: OAuth $YANDEX_TOKEN" \
               "https://cloud-api.yandex.net/v1/disk/resources/upload?path=${FULL_PATH}&overwrite=true")
@@ -463,55 +464,86 @@ jobs:
             HTTP_CODE=$(echo "$RESP" | tail -n1)
             BODY=$(echo "$RESP" | sed '$d')
             
+            echo "📡 HTTP $HTTP_CODE"
+            
             if [ "$HTTP_CODE" != "200" ]; then
-              echo "❌ HTTP $HTTP_CODE: $BODY"
+              echo "❌ Error getting URL (HTTP $HTTP_CODE): $BODY"
               return 1
             fi
             
             UPLOAD_URL=$(echo "$BODY" | jq -r '.href // empty' 2>/dev/null)
-            [ -z "$UPLOAD_URL" ] && { echo "❌ No upload URL"; return 1; }
+            if [ -z "$UPLOAD_URL" ] || [ "$UPLOAD_URL" = "null" ]; then
+              echo "❌ No href in response: $BODY"
+              return 1
+            fi
             
-            # Загружаем файл
-            curl -s -X PUT -H "Content-Type: application/octet-stream" \
-              --data-binary @"$FILE" "$UPLOAD_URL" >/dev/null
+            echo "⬆️ Uploading $NAME to $UPLOAD_URL..."
             
-            echo "✅ Uploaded: $NAME"
-            return 0
+            # Шаг 2: Загружаем файл по полученной ссылке
+            UPLOAD_RESP=$(curl -s -w "\n%{http_code}" -X PUT \
+              -H "Content-Type: application/octet-stream" \
+              --data-binary @"$FILE" \
+              "$UPLOAD_URL")
+            
+            UPLOAD_CODE=$(echo "$UPLOAD_RESP" | tail -n1)
+            
+            if [ "$UPLOAD_CODE" = "201" ] || [ "$UPLOAD_CODE" = "200" ]; then
+              echo "✅ Uploaded: $NAME"
+              return 0
+            else
+              echo "❌ Upload failed (HTTP $UPLOAD_CODE): $UPLOAD_RESP"
+              return 1
+            fi
           }
           
           # Загружаем файлы
           upload "githubmirror/26_proxy_subscription_raw.txt" "sub_raw.txt"
+          RAW_STATUS=$?
+          
           upload "githubmirror/26_proxy_subscription_base64.txt" "sub_b64.txt"
+          B64_STATUS=$?
           
-          sleep 3
-          
-          # 🔑 ГЕНЕРАЦИЯ ПРЯМЫХ ССЫЛОК НА КОНТЕНТ (для клиентов)
-          echo "🔗 Generating direct content links..."
-          
-          # Формируем public_key для API
-          PUBLIC_KEY="https://disk.yandex.ru/d/${PUBLIC_ID}"
-          
-          # Получаем прямые ссылки на скачивание контента (не HTML!)
-          RAW_DL=$(curl -s "https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${PUBLIC_KEY}&path=/sub_raw.txt" 2>/dev/null | jq -r '.href // empty')
-          B64_DL=$(curl -s "https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${PUBLIC_KEY}&path=/sub_b64.txt" 2>/dev/null | jq -r '.href // empty')
-          
-          # Если API не вернул ссылку — используем формат /i/ как резерв
-          [ -z "$RAW_DL" ] && RAW_DL="https://disk.yandex.ru/i/${PUBLIC_ID}/sub_raw.txt"
-          [ -z "$B64_DL" ] && B64_DL="https://disk.yandex.ru/i/${PUBLIC_ID}/sub_b64.txt"
-          
+          # Ждём обработки Яндексом
+          sleep 5
+
+          echo "🔗 Получаем ПРЯМЫЕ ссылки через API..."
+
+          PUBLIC_SHARE="https://disk.yandex.ru/d/${PUBLIC_ID}"
+
+          get_direct_link() {
+            local FILE_NAME=$1
+            local RESP=$(curl -s "https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${PUBLIC_SHARE}&path=${FILE_NAME}")
+            
+            DIRECT_LINK=$(echo "$RESP" | jq -r '.href // empty' 2>/dev/null)
+            
+            if [ -z "$DIRECT_LINK" ] || [ "$DIRECT_LINK" = "null" ]; then
+              echo "❌ Не удалось получить прямую ссылку для $FILE_NAME"
+              echo "Ответ API: $RESP"
+              return 1
+            fi
+            
+            echo "$DIRECT_LINK"
+            return 0
+          }
+
+          RAW_LINK=$(get_direct_link "sub_raw.txt")
+          B64_LINK=$(get_direct_link "sub_b64.txt")
+
           echo ""
           echo "═══════════════════════════════════════"
-          echo "📋 ССЫЛКИ ДЛЯ КЛИЕНТОВ (RAW CONTENT):"
+          echo "📋 ПРЯМЫЕ ССЫЛКИ ДЛЯ КЛИЕНТОВ (копируйте):"
           echo "═══════════════════════════════════════"
-          echo "✅ RAW:  $RAW_DL"
-          echo "✅ B64:  $B64_DL"
+          echo "✅ RAW:  $RAW_LINK"
+          echo "✅ B64:  $B64_LINK"
           echo "═══════════════════════════════════════"
+          echo "Эти ссылки теперь отдают чистый текст — клиенты увидят ключи."
           
-          # Сохраняем в файл
-          echo "Direct Links for VPN Clients" > githubmirror/yandex_links.txt
-          echo "Updated: $(date -u +'%Y-%m-%d %H:%M UTC')" >> githubmirror/yandex_links.txt
-          echo "RAW: $RAW_DL" >> githubmirror/yandex_links.txt
-          echo "B64: $B64_LINK" >> githubmirror/yandex_links.txt
+          # Выводим итоговый статус
+          if [ $RAW_STATUS -eq 0 ] && [ $B64_STATUS -eq 0 ]; then
+            echo "🎉 All files uploaded successfully!"
+          else
+            echo "⚠️ Some uploads failed. Check logs above."
+          fi
           
       - name: Commit and Push
         run: |
