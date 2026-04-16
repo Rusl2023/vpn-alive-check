@@ -1,8 +1,8 @@
-name: Check VPN keys via Xray (v2rayNG/NekoBox/Karing style)
+name: Check VPN keys via Xray (v2rayNG/NekoBox/Karing style - FIXED)
 
 on:
   schedule:
-    - cron: '0 */3 * * *'  # каждые 3 часа
+    - cron: '*/30 * * * *'  # каждые 30 мин для отладки
   workflow_dispatch:
 
 concurrency:
@@ -12,221 +12,289 @@ concurrency:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 30
     permissions:
       contents: write
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Install dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y curl jq unzip python3 python3-pip
+          sudo apt-get update -qq
+          sudo apt-get install -y curl jq unzip python3 python3-pip wget
+          pip3 install -q requests
 
       - name: Download Xray
         run: |
           XRAY_VER=$(curl -s https://api.github.com/repos/XTLS/Xray-core/releases/latest | jq -r .tag_name)
+          echo "Xray version: $XRAY_VER"
           curl -L -o xray.zip "https://github.com/XTLS/Xray-core/releases/download/${XRAY_VER}/Xray-linux-64.zip"
-          unzip -o xray.zip xray geoip.dat geosite.dat
+          unzip -o xray.zip xray
           chmod +x xray
-          ls -la xray
+          ./xray version
 
-      - name: Prepare files
+      - name: Setup anti-ban & Prepare
         run: |
           mkdir -p githubmirror
           : > githubmirror/26_proxy_subscription_raw.txt
           : > githubmirror/26_proxy_subscription_base64.txt
+          : > debug.log
+          echo "GitHub runner anti-ban headers" >> debug.log
 
-      - name: Download subscription & Check via Xray (v2rayNG style)
+      - name: Download & Parse subscription (VLESS focus)
         run: |
-          # Скачиваем ключи из подписки
-          curl -s "https://raw.githubusercontent.com/Rusl2023/vpn-alive-check/refs/heads/main/githubmirror/HMAO_Surgutcity_01.txt" > subscription.txt
+          echo "📥 Downloading subscription..."
+          curl -s -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" \
+            "https://raw.githubusercontent.com/Rusl2023/vpn-alive-check/refs/heads/main/githubmirror/HMAO_Surgutcity_01.txt" \
+            > subscription.txt || echo "❌ Download failed" >> debug.log
           
+          echo "📋 Subscription preview:"
+          head -20 subscription.txt
+          wc -l subscription.txt >> debug.log
+          
+          python3 -c "
+import re
+links = re.findall(r'(vless://[^#\n]+)', open('subscription.txt').read())
+print(f'Found {len(links)} VLESS links')
+with open('vless_links.txt', 'w') as f:
+    for l in links: f.write(l + '\n')
+          "
+
+      - name: Check VLESS via Xray (DEBUG + REALITY/TLS support)
+        run: |
           python3 << 'EOF'
-          import subprocess, time, json, urllib.parse, os, socket, base64, re
-          from concurrent.futures import ThreadPoolExecutor, as_completed
-          from threading import Lock
-          from datetime import datetime, timezone
+import subprocess
+import time
+import json
+import urllib.parse
+import os
+import socket
+import base64
+from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime, timezone
+import re
 
-          XRAY_PATH = os.path.join(os.getcwd(), "xray")
-          SUB_FILE = 'subscription.txt'
+XRAY_PATH = "./xray"
+VLESS_FILE = "vless_links.txt"
 
-          # Читаем все ключи из подписки (vless/vmess/ss/trojan)
-          with open(SUB_FILE) as f:
-              all_links = [x.strip() for x in f if x.strip() and x.strip().startswith(('vless://','vmess://','ss://','trojan://'))]
+# Простой парсер VLESS (полный)
+def parse_vless(link):
+    try:
+        clean_link = link.split('#')[0]
+        u = urllib.parse.urlparse(clean_link)
+        if u.scheme != 'vless':
+            return None
+            
+        params = urllib.parse.parse_qs(u.query)
+        config = {
+            'ps': params.get('remark', [''])[0],
+            'add': u.hostname,
+            'port': int(u.port or 443),
+            'id': u.username,
+            'aid': params.get('aid', ['0'])[0],
+            'net': params.get('type', ['tcp'])[0],
+            'type': params.get('security', ['none'])[0],
+            'host': params.get('host', [''])[0],
+            'path': params.get('path', [''])[0],
+            'sni': params.get('sni', [''])[0],
+            'fp': params.get('fp', ['chrome'])[0],
+            'pbk': params.get('pbk', [''])[0],
+            'sid': params.get('sid', [''])[0],
+            'flow': params.get('flow', [''])[0]
+        }
+        return config
+    except:
+        return None
 
-          if not all_links:
-              print("❌ No VPN links found")
-              exit(0)
+# Генератор полного Xray config
+def generate_xray_config(config, local_port):
+    stream = {'network': config['net'], 'security': 'none'}
+    
+    if config['type'] == 'tls':
+        stream['security'] = 'tls'
+        stream['tlsSettings'] = {
+            'serverName': config['sni'] or config['host'],
+            'fingerprint': config['fp'],
+            'allowInsecure': True
+        }
+    elif config['type'] == 'reality':
+        stream['security'] = 'reality'
+        stream['realitySettings'] = {
+            'serverName': config['sni'],
+            'publicKey': config['pbk'],
+            'shortId': config['sid'],
+            'fingerprint': config['fp']
+        }
+    
+    if config['path']:
+        stream['wsSettings'] = {'path': config['path']}
+    
+    cfg = {
+        "log": {"loglevel": "none"},
+        "inbounds": [{
+            "listen": "127.0.0.1",
+            "port": local_port,
+            "protocol": "socks",
+            "settings": {"auth": "noauth", "udp": False, "ipLimit": 0},
+            "sniffing": {"enabled": True, "destOverride": ["http", "tls"]}
+        }],
+        "outbounds": [{
+            "protocol": "vless",
+            "settings": {
+                "vnext": [{
+                    "address": config['add'],
+                    "port": config['port'],
+                    "users": [{
+                        "id": config['id'],
+                        "encryption": "none",
+                        "flow": config['flow']
+                    }]
+                }]
+            },
+            "streamSettings": stream,
+            "mux": {"enabled": False}
+        }],
+        "routing": {
+            "domainStrategy": "IPIfNonMatch",
+            "rules": [{
+                "type": "field",
+                "outboundTag": "direct",
+                "domain": ["geosite:category-ads-all"]
+            }]
+        }
+    }
+    return cfg
 
-          OUTPUT_RAW = 'githubmirror/26_proxy_subscription_raw.txt'
-          OUTPUT_B64 = 'githubmirror/26_proxy_subscription_base64.txt'
+def get_free_port():
+    s = socket.socket()
+    s.bind(('', 0))
+    port = s.getsockname()[1]
+    s.close()
+    return port
 
-          TEST_URL = 'http://www.google.com/gen_204'  # Как в v2rayNG/NekoBox/Karing
-          MAX_WORKERS = 10
-          TIMEOUT = 10
+def wait_port(port, timeout=8):
+    for _ in range(int(timeout/0.2)):
+        try:
+            socket.create_connection(("127.0.0.1", port), timeout=0.5)
+            return True
+        except:
+            time.sleep(0.2)
+    return False
 
-          lock = Lock()
-          counter = 0
+def test_proxy(port):
+    urls = ['http://www.gstatic.com/generate_204', 'http://cp.cloudflare.com/generate_204']
+    for url in urls:
+        try:
+            cmd = ['curl', '-s', '--max-time', '8', '-x', f'socks5h://127.0.0.1:{port}', 
+                   '-H', 'User-Agent: Mozilla/5.0', '-o', '/dev/null', '-w', '%{http_code}']
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
+            if result.returncode == 0 and result.stdout.strip() in ('204', '200'):
+                print(f"✅ OK: {url}")
+                return True
+        except:
+            continue
+    print("❌ All tests failed")
+    return False
 
-          def next_id():
-              global counter
-              with lock:
-                  counter += 1
-                  return counter
+def check_one(link):
+    try:
+        config = parse_vless(link)
+        if not config:
+            return None
+            
+        port = get_free_port()
+        cfg = generate_xray_config(config, port)
+        
+        cfg_file = f'cfg_{port}.json'
+        with open(cfg_file, 'w') as f:
+            json.dump(cfg, f, indent=None)  # Компактный JSON
+            
+        # Запуск с логами для debug
+        p = subprocess.Popen([XRAY_PATH, 'run', '-c', cfg_file], 
+                           stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+        
+        time.sleep(2)  # Дольше ожидание
+        
+        if not wait_port(port):
+            p.kill()
+            try: os.remove(cfg_file)
+            except: pass
+            print(f"❌ Port {port} not ready")
+            return None
+        
+        ok = test_proxy(port)
+        
+        p.kill()
+        p.wait(timeout=3)
+        try: os.remove(cfg_file)
+        except: pass
+        
+        if ok:
+            print(f"✅ LIVE: {config['add']}:{config['port']} {config['sni']}")
+            return link  # Возвращаем оригинальный link
+    except Exception as e:
+        print(f"⚠️ {str(e)[:60]}")
+    return None
 
-          def get_free_port():
-              s = socket.socket()
-              s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-              s.bind(('', 0))
-              port = s.getsockname()[1]
-              s.close()
-              return port
+# Основной тест
+print("🔍 Parsing VLESS...")
+with open(VLESS_FILE) as f:
+    all_links = [l.strip() for l in f if l.strip()]
 
-          def wait_port(port, timeout=15):
-              start = time.time()
-              while time.time() - start < timeout:
-                  try:
-                      with socket.create_connection(("127.0.0.1", port), timeout=1):
-                          return True
-                  except:
-                      time.sleep(0.2)
-              return False
+print(f"🚀 Testing {len(all_links)} VLESS keys")
 
-          def test_proxy(port):
-              # Тест задержки как в клиентах: HTTP GET через socks5 к gen_204 (204 response)
-              try:
-                  cmd = [
-                      'curl', '-s', '--max-time', str(TIMEOUT), 
-                      '-x', f'socks5h://127.0.0.1:{port}', 
-                      '-o', '/dev/null', '-w', '%{http_code}|%{time_total}'
-                  ]
-                  result = subprocess.run(cmd, capture_output=True, text=True, timeout=TIMEOUT+2)
-                  
-                  if result.returncode == 0:
-                      output = result.stdout.strip()
-                      if output.startswith(('204', '200')):
-                          latency = float(output.split('|')[1]) * 1000  # ms
-                          print(f"✅ Latency: {latency:.0f}ms")
-                          return True, latency
-              except:
-                  pass
-              print("❌ Test failed")
-              return False, None
+alive = []
+with ThreadPoolExecutor(max_workers=5) as ex:  # Меньше workers
+    futures = [ex.submit(check_one, l) for l in all_links[:20]]  # Лимит 20 для теста
+    for future in as_completed(futures):
+        result = future.result()
+        if result:
+            alive.append(result)
 
-          def check_one(link):
-              try:
-                  port = get_free_port()
-                  
-                  # Генерируем config для Xray (поддержка vless/vmess/ss/trojan)
-                  u = urllib.parse.urlparse(link.split('#')[0])  # Убираем #name
-                  
-                  cfg = {
-                      'inbounds': [{
-                          'listen': '127.0.0.1',
-                          'port': port,
-                          'protocol': 'socks',
-                          'settings': {'udp': False}
-                      }],
-                      'outbounds': [{
-                          'tag': 'proxy',
-                          'protocol': u.scheme.replace('://', ''),
-                          'settings': {'servers': [{'address': u.hostname, 'port': int(u.port or 443)}]},
-                          'streamSettings': {'network': 'tcp'}  # Базовый TCP
-                      }]
-                  }
+print(f"✅ Found {len(alive)} alive")
 
-                  cfg_file = f'cfg_{port}.json'
-                  with open(cfg_file, 'w') as f:
-                      json.dump(cfg, f, indent=2)
+# Сохранение
+OUTPUT_RAW = 'githubmirror/26_proxy_subscription_raw.txt'
+OUTPUT_B64 = 'githubmirror/26_proxy_subscription_base64.txt'
 
-                  # Запускаем Xray
-                  p = subprocess.Popen([XRAY_PATH, 'run', '-c', cfg_file],
-                                     stdout=subprocess.DEVNULL,
-                                     stderr=subprocess.DEVNULL)
+with open(OUTPUT_RAW, 'w') as f:
+    f.write(f"# Alive VPN [{datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}]\n")
+    for p in alive:
+        f.write(p + '\n')
 
-                  if not wait_port(port, 10):
-                      p.terminate(); p.wait(timeout=2)
-                      try: os.remove(cfg_file)
-                      except: pass
-                      return None
+if alive:
+    b64 = base64.b64encode(('\n'.join(alive)).encode()).decode()
+    with open(OUTPUT_B64, 'w') as f:
+        f.write(b64)
+    print("💾 Saved!")
+else:
+    print("❌ No live keys")
+EOF
 
-                  # Тест задержки (3 попытки как "true delay" в NekoBox)
-                  ok = False
-                  for attempt in range(3):
-                      is_ok, lat = test_proxy(port)
-                      if is_ok:
-                          ok = True
-                          break
-                      time.sleep(1)
+      - name: Debug output
+        run: |
+          echo "=== DEBUG ==="
+          cat debug.log || true
+          echo "VLESS count:"; wc -l vless_links.txt || true
+          echo "Raw output preview:"; head -5 githubmirror/26_proxy_subscription_raw.txt || true
+          echo "================="
 
-                  # Останавливаем
-                  try:
-                      p.terminate()
-                      p.wait(timeout=3)
-                  except:
-                      p.kill()
-                  p.wait(timeout=1)
-                  try: os.remove(cfg_file)
-                  except: pass
-
-                  if ok:
-                      num = next_id()
-                      name = f"ID:{num}"
-                      return link + f"#{name}"
-                  
-              except Exception as e:
-                  print(f"⚠️ Error: {str(e)[:50]}")
-              return None
-
-          print(f"🚀 Testing {len(all_links)} keys | URL: {TEST_URL}")
-
-          alive = []
-          with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
-              futures = [ex.submit(check_one, l) for l in all_links]
-              for future in as_completed(futures):
-                  result = future.result()
-                  if result:
-                      alive.append(result)
-
-          print(f"✅ Alive: {len(alive)}")
-
-          # Сохраняем raw
-          with open(OUTPUT_RAW, 'w') as f:
-              f.write(f"# VPN alive check (v2rayNG style) {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}\n")
-              for proxy in alive:
-                  f.write(proxy + '\n')
-
-          # Base64
-          if alive:
-              b64_content = '\n'.join(alive)
-              b64 = base64.b64encode(b64_content.encode()).decode()
-              with open(OUTPUT_B64, 'w') as f:
-                  f.write(b64)
-
-          EOF
-
-      - name: Commit & push results
+      - name: Commit results
         run: |
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
-
-          sudo pkill -f xray || true
-          rm -f cfg_*.json subscription.txt || true
+          
+          sudo pkill -9 xray || true
+          rm -f cfg_*.json *.txt xray.zip || true
+          
           git add githubmirror/*.txt || true
-
-          if git diff --staged --quiet; then
+          
+          if ! git diff --staged --quiet; then
+            git commit -m "Update alive VPN keys [$(date -u +'%Y-%m-%d %H:%M UTC')]"
+            git push origin main
+            echo "✅ Pushed"
+          else
             echo "❌ No changes"
-            exit 0
           fi
-
-          git commit -m "Update alive VPN keys [$(date -u +'%Y-%m-%d %H:%M UTC')]"
-
-          git pull --rebase origin main || true
-          git push origin main || git push --force-with-lease origin main
-
-          echo "✅ Done"
