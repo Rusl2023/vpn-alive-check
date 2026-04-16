@@ -1,4 +1,4 @@
-name: RU MAX FILTER (FINAL)
+name: RU MAX FILTER + Xray (FINAL)
 
 on:
   schedule:
@@ -16,7 +16,6 @@ jobs:
     permissions:
       contents: write
 
-    # Исправление предупреждения Node.js 20 → Node.js 24
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -37,9 +36,9 @@ jobs:
           unzip -o xray.zip xray geoip.dat geosite.dat
           chmod +x xray
 
-      - name: Download GeoLite2 Country
+      - name: Download GeoLite2 Country (актуальное зеркало)
         run: |
-          curl -L -o GeoLite2-Country.mmdb https://git.io/GeoLite2-Country.mmdb
+          curl -L -o GeoLite2-Country.mmdb https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-Country.mmdb
 
       - name: Prepare
         run: |
@@ -58,6 +57,7 @@ jobs:
           MAX_PER_FILE = 300
 
           XRAY = "./xray"
+          GEO_DB = "GeoLite2-Country.mmdb"
 
           CONFIG_URLS = [
               "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt",
@@ -203,47 +203,35 @@ jobs:
                   u = urllib.parse.urlparse(link)
                   q = urllib.parse.parse_qs(u.query)
 
-                  # Фильтры
-                  if int(u.port or 443) != 443:
-                      return None
-                  if q.get("flow", [""])[0] != "xtls-rprx-vision":
-                      return None
-                  if q.get("fp", [""])[0] not in ALLOWED_FP:
-                      return None
+                  if int(u.port or 443) != 443: return None
+                  if q.get("flow", [""])[0] != "xtls-rprx-vision": return None
+                  if q.get("fp", [""])[0] not in ALLOWED_FP: return None
 
                   hostname = u.hostname
                   ip = resolve(hostname)
-                  if not ip or not tcp(ip, 443):
-                      return None
+                  if not ip or not tcp(ip, 443): return None
 
                   sni = q.get("sni", [""])[0].lower()
                   if not (sni in sni_wl or ip in ip_wl or ip_in(ip, cidr_wl)):
                       return None
 
-                  # Дедупликация
                   key = (hostname, u.port or 443, sni)
                   with lock:
-                      if key in seen:
-                          return None
+                      if key in seen: return None
                       seen.add(key)
 
-                  # Тест через Xray
                   port = random.randint(20000, 40000)
                   ok, exit_ip = run_xray_test(link, port)
-                  if not ok:
-                      return None
+                  if not ok: return None
 
-                  # Исключаем RU exit
                   if exit_ip:
                       cc_exit = get_country(exit_ip)
-                      if cc_exit == "RU":
-                          return None
+                      if cc_exit == "RU": return None
                       exit_flag = get_flag(cc_exit)
                   else:
                       exit_flag = "🌍??"
 
-                  server_cc = get_country(ip)
-                  server_flag = get_flag(server_cc)
+                  server_flag = get_flag(get_country(ip))
                   num = next_id()
 
                   star = "⭐" if q.get("type", ["tcp"])[0] == "xhttp" else ""
@@ -292,10 +280,7 @@ jobs:
               with open(fn, "w") as f:
                   json.dump(cfg, f, indent=2)
 
-              p = subprocess.Popen([XRAY, "run", "-c", fn],
-                                   stdout=subprocess.DEVNULL,
-                                   stderr=subprocess.DEVNULL)
-
+              p = subprocess.Popen([XRAY, "run", "-c", fn], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
               time.sleep(2)
 
               try:
@@ -321,17 +306,15 @@ jobs:
                       pass
 
               p.kill()
-              try:
-                  os.remove(fn)
-              except:
-                  pass
+              try: os.remove(fn)
+              except: pass
 
               return ok, exit_ip
 
           # ====================== MAIN ======================
           print("🌍 Geo init...")
           global country_reader
-          country_reader = geoip2.database.Reader("GeoLite2-Country.mmdb")
+          country_reader = geoip2.database.Reader(GEO_DB)
 
           sni_wl = load(RU_SNI)
           ip_wl = load(RU_IP)
@@ -343,7 +326,6 @@ jobs:
           random.shuffle(cfgs)
 
           good = []
-
           with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
               futures = [ex.submit(check_link, x) for x in cfgs]
               for future in as_completed(futures):
