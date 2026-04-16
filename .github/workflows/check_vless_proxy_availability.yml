@@ -43,217 +43,207 @@ jobs:
           : > debug.log
 
       - name: Download and Parse subscriptions
-        run: |
-          python3 << 'EOF'
-import re
-import urllib.request
+        env:
+          PY_DOWNLOAD: |
+            import re
+            import urllib.request
 
-urls = [
-    "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt",
-    "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile-2.txt",
-    "https://raw.githubusercontent.com/RUNoName/V.O.I.D-VPN_Bypass/refs/heads/main/configs/url_work.txt",
-    "https://raw.githubusercontent.com/GoldCaviar/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt",
-    "https://raw.githubusercontent.com/zieng2/wl/main/vless_lite.txt",
-    "https://gitverse.ru/api/repos/RUVIPIEN/russian-white-bolt/raw/branch/master/VPNMIRRORS/v2ray/VLESS_Reality_White_3eac2d.txt",
-    "https://raw.githubusercontent.com/EtoNeYaProject/EtoNeYaProject.github.io/refs/heads/main/whitelist",
-    "https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt",
-]
+            urls = [
+                "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt",
+                "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile-2.txt",
+                "https://raw.githubusercontent.com/RUNoName/V.O.I.D-VPN_Bypass/refs/heads/main/configs/url_work.txt",
+                "https://raw.githubusercontent.com/GoldCaviar/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt",
+                "https://raw.githubusercontent.com/zieng2/wl/main/vless_lite.txt",
+                "https://gitverse.ru/api/repos/RUVIPIEN/russian-white-bolt/raw/branch/master/VPNMIRRORS/v2ray/VLESS_Reality_White_3eac2d.txt",
+                "https://raw.githubusercontent.com/EtoNeYaProject/EtoNeYaProject.github.io/refs/heads/main/whitelist",
+                "https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt",
+            ]
 
-all_links = []
-for url in urls:
-    try:
-        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-        content = urllib.request.urlopen(req, timeout=15).read().decode("utf-8", errors="ignore")
-        links = re.findall(r'(vless://[^\s#]+)', content)
-        print(f"Found {len(links)} VLESS from {url.split('/')[-1]}")
-        all_links.extend(links)
-    except Exception as e:
-        print(f"Error fetching {url}: {e}")
+            all_links = []
+            for url in urls:
+                try:
+                    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+                    content = urllib.request.urlopen(req, timeout=15).read().decode("utf-8", errors="ignore")
+                    links = re.findall(r'(vless://[^\s#]+)', content)
+                    print(f"Found {len(links)} VLESS from {url.split('/')[-1]}")
+                    all_links.extend(links)
+                except Exception as e:
+                    print(f"Error fetching {url}: {e}")
 
-all_links = list(dict.fromkeys(all_links))
-print(f"Total unique VLESS: {len(all_links)}")
+            all_links = list(dict.fromkeys(all_links))
+            print(f"Total unique VLESS: {len(all_links)}")
 
-with open("vless_links.txt", "w") as fh:
-    fh.write("\n".join(all_links) + "\n")
-EOF
+            with open("vless_links.txt", "w") as fh:
+                fh.write("\n".join(all_links) + "\n")
+        run: python3 -c "import os; exec(os.environ['PY_DOWNLOAD'])"
 
       - name: Check VLESS via Xray
-        run: |
-          python3 << 'EOF'
-import subprocess
-import time
-import json
-import urllib.parse
-import os
-import socket
-import base64
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from datetime import datetime, timezone
+        env:
+          PY_CHECK: |
+            import subprocess
+            import time
+            import json
+            import urllib.parse
+            import os
+            import socket
+            import base64
+            from concurrent.futures import ThreadPoolExecutor, as_completed
+            from datetime import datetime, timezone
 
-XRAY_PATH = "./xray"
-VLESS_FILE = "vless_links.txt"
+            XRAY_PATH = "./xray"
+            VLESS_FILE = "vless_links.txt"
 
-def parse_vless(link):
-    try:
-        clean_link = link.split('#')[0]
-        u = urllib.parse.urlparse(clean_link)
-        if u.scheme != 'vless':
-            return None
-        params = urllib.parse.parse_qs(u.query)
-        return {
-            'add':  u.hostname,
-            'port': int(u.port or 443),
-            'id':   u.username,
-            'net':  params.get('type',     ['tcp'])[0],
-            'type': params.get('security', ['none'])[0],
-            'sni':  params.get('sni',      [''])[0],
-            'fp':   params.get('fp',       ['chrome'])[0],
-            'pbk':  params.get('pbk',      [''])[0],
-            'sid':  params.get('sid',      [''])[0],
-            'flow': params.get('flow',     [''])[0],
-        }
-    except:
-        return None
+            def parse_vless(link):
+                try:
+                    clean_link = link.split('#')[0]
+                    u = urllib.parse.urlparse(clean_link)
+                    if u.scheme != 'vless':
+                        return None
+                    params = urllib.parse.parse_qs(u.query)
+                    return {
+                        'add':  u.hostname,
+                        'port': int(u.port or 443),
+                        'id':   u.username,
+                        'net':  params.get('type',     ['tcp'])[0],
+                        'type': params.get('security', ['none'])[0],
+                        'sni':  params.get('sni',      [''])[0],
+                        'fp':   params.get('fp',       ['chrome'])[0],
+                        'pbk':  params.get('pbk',      [''])[0],
+                        'sid':  params.get('sid',      [''])[0],
+                        'flow': params.get('flow',     [''])[0],
+                    }
+                except:
+                    return None
 
-def generate_xray_config(config, local_port):
-    stream = {'network': config['net'], 'security': 'none'}
+            def generate_xray_config(config, local_port):
+                stream = {'network': config['net'], 'security': 'none'}
+                if config['type'] == 'tls':
+                    stream['security'] = 'tls'
+                    stream['tlsSettings'] = {
+                        'serverName':    config['sni'],
+                        'fingerprint':   config['fp'],
+                        'allowInsecure': True,
+                    }
+                elif config['type'] == 'reality':
+                    stream['security'] = 'reality'
+                    stream['realitySettings'] = {
+                        'serverName':  config['sni'],
+                        'publicKey':   config['pbk'],
+                        'shortId':     config['sid'],
+                        'fingerprint': config['fp'],
+                    }
+                return {
+                    "inbounds": [{
+                        "listen":   "127.0.0.1",
+                        "port":     local_port,
+                        "protocol": "socks",
+                        "settings": {"auth": "noauth", "udp": False},
+                    }],
+                    "outbounds": [{
+                        "protocol": "vless",
+                        "settings": {
+                            "vnext": [{
+                                "address": config['add'],
+                                "port":    config['port'],
+                                "users":   [{"id": config['id'], "encryption": "none", "flow": config['flow']}],
+                            }]
+                        },
+                        "streamSettings": stream,
+                    }],
+                }
 
-    if config['type'] == 'tls':
-        stream['security'] = 'tls'
-        stream['tlsSettings'] = {
-            'serverName':  config['sni'],
-            'fingerprint': config['fp'],
-            'allowInsecure': True,
-        }
-    elif config['type'] == 'reality':
-        stream['security'] = 'reality'
-        stream['realitySettings'] = {
-            'serverName':  config['sni'],
-            'publicKey':   config['pbk'],
-            'shortId':     config['sid'],
-            'fingerprint': config['fp'],
-        }
+            def get_free_port():
+                s = socket.socket()
+                s.bind(('', 0))
+                port = s.getsockname()[1]
+                s.close()
+                return port
 
-    return {
-        "inbounds": [{
-            "listen":   "127.0.0.1",
-            "port":     local_port,
-            "protocol": "socks",
-            "settings": {"auth": "noauth", "udp": False},
-        }],
-        "outbounds": [{
-            "protocol": "vless",
-            "settings": {
-                "vnext": [{
-                    "address": config['add'],
-                    "port":    config['port'],
-                    "users":   [{"id": config['id'], "encryption": "none", "flow": config['flow']}],
-                }]
-            },
-            "streamSettings": stream,
-        }],
-    }
+            def wait_port(port):
+                for _ in range(40):
+                    try:
+                        socket.create_connection(("127.0.0.1", port), 0.5)
+                        return True
+                    except:
+                        time.sleep(0.2)
+                return False
 
-def get_free_port():
-    s = socket.socket()
-    s.bind(('', 0))
-    port = s.getsockname()[1]
-    s.close()
-    return port
+            def test_proxy(port):
+                check_urls = [
+                    'http://www.gstatic.com/generate_204',
+                    'http://cp.cloudflare.com/generate_204',
+                ]
+                for url in check_urls:
+                    try:
+                        cmd = [
+                            'curl', '-s', '--max-time', '6',
+                            '-x', 'socks5h://127.0.0.1:' + str(port),
+                            '-o', '/dev/null', '-w', '%{http_code}',
+                            url,
+                        ]
+                        result = subprocess.run(cmd, capture_output=True, text=True, timeout=8)
+                        if result.returncode == 0 and result.stdout.strip() in ('204', '200'):
+                            return True
+                    except:
+                        continue
+                return False
 
-def wait_port(port):
-    for _ in range(40):
-        try:
-            socket.create_connection(("127.0.0.1", port), 0.5)
-            return True
-        except:
-            time.sleep(0.2)
-    return False
+            def check_one(link):
+                try:
+                    config = parse_vless(link)
+                    if not config:
+                        return None
+                    port     = get_free_port()
+                    cfg      = generate_xray_config(config, port)
+                    cfg_file = 'cfg_' + str(port) + '.json'
+                    with open(cfg_file, 'w') as fh:
+                        json.dump(cfg, fh)
+                    p = subprocess.Popen(
+                        [XRAY_PATH, 'run', '-c', cfg_file],
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                    )
+                    time.sleep(3)
+                    if wait_port(port) and test_proxy(port):
+                        p.kill()
+                        os.remove(cfg_file)
+                        print('OK LIVE: ' + config['add'] + ':' + str(config['port']))
+                        return link
+                    p.kill()
+                    p.wait(2)
+                    try:
+                        os.remove(cfg_file)
+                    except:
+                        pass
+                except Exception as e:
+                    print('ERR ' + str(e)[:50])
+                return None
 
-def test_proxy(port):
-    check_urls = [
-        'http://www.gstatic.com/generate_204',
-        'http://cp.cloudflare.com/generate_204',
-    ]
-    for url in check_urls:
-        try:
-            cmd = [
-                'curl', '-s', '--max-time', '6',
-                '-x', f'socks5h://127.0.0.1:{port}',
-                '-o', '/dev/null', '-w', '%{http_code}',
-                url,
-            ]
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=8)
-            if result.returncode == 0 and result.stdout.strip() in ('204', '200'):
-                return True
-        except:
-            continue
-    return False
+            with open(VLESS_FILE) as fh:
+                links = [line.strip() for line in fh if line.strip()]
 
-def check_one(link):
-    try:
-        config = parse_vless(link)
-        if not config:
-            return None
+            print('Testing ' + str(len(links)) + ' VLESS keys')
 
-        port     = get_free_port()
-        cfg      = generate_xray_config(config, port)
-        cfg_file = f'cfg_{port}.json'
+            alive = []
+            with ThreadPoolExecutor(max_workers=3) as ex:
+                futures = [ex.submit(check_one, l) for l in links[:50]]
+                for fut in as_completed(futures):
+                    r = fut.result()
+                    if r:
+                        alive.append(r)
 
-        with open(cfg_file, 'w') as fh:
-            json.dump(cfg, fh)
+            print('Alive: ' + str(len(alive)))
 
-        p = subprocess.Popen(
-            [XRAY_PATH, 'run', '-c', cfg_file],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
+            with open('githubmirror/26_proxy_subscription_raw.txt', 'w') as fh:
+                fh.write('# Alive [' + str(datetime.now(timezone.utc)) + ']\n')
+                for proxy in alive:
+                    fh.write(proxy + '\n')
 
-        time.sleep(3)
-
-        if wait_port(port) and test_proxy(port):
-            p.kill()
-            os.remove(cfg_file)
-            print(f"✅ LIVE: {config['add']}:{config['port']}")
-            return link
-
-        p.kill()
-        p.wait(2)
-        try:
-            os.remove(cfg_file)
-        except:
-            pass
-
-    except Exception as e:
-        print(f"⚠️ {str(e)[:50]}")
-
-    return None
-
-with open(VLESS_FILE) as fh:
-    links = [line.strip() for line in fh if line.strip()]
-
-print(f"Testing {len(links)} VLESS keys")
-
-alive = []
-with ThreadPoolExecutor(max_workers=3) as ex:
-    futures = [ex.submit(check_one, l) for l in links[:50]]
-    for fut in as_completed(futures):
-        r = fut.result()
-        if r:
-            alive.append(r)
-
-print(f"✅ Alive: {len(alive)}")
-
-with open('githubmirror/26_proxy_subscription_raw.txt', 'w') as fh:
-    fh.write(f"# Alive [{datetime.now(timezone.utc)}]\n")
-    for proxy in alive:
-        fh.write(proxy + '\n')
-
-if alive:
-    b64 = base64.b64encode('\n'.join(alive).encode()).decode()
-    with open('githubmirror/26_proxy_subscription_base64.txt', 'w') as fh:
-        fh.write(b64)
-EOF
+            if alive:
+                b64 = base64.b64encode('\n'.join(alive).encode()).decode()
+                with open('githubmirror/26_proxy_subscription_base64.txt', 'w') as fh:
+                    fh.write(b64)
+        run: python3 -c "import os; exec(os.environ['PY_CHECK'])"
 
       - name: Debug and Commit
         run: |
