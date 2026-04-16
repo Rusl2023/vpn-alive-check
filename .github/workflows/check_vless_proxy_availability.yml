@@ -61,7 +61,7 @@ jobs:
           XRAY = "./xray"
           GEO_DB = "GeoLite2-Country.mmdb"
 
-          # Источники конфигураций (обновлённый список)
+          # Источники конфигураций
           CONFIG_URLS = [
               "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt",
               "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile-2.txt",
@@ -80,7 +80,7 @@ jobs:
 
           ALLOWED_FP = {"chrome", "firefox", "safari", "ios", "android", "edge", "360", "qq", "random", "randomized"}
 
-          # Основные флаги (сокращённый список)
+          # Только основные флаги (26 ключевых стран)
           FLAGS = {
               'AD': '🇦🇩AD', 'AE': '🇦🇪AE', 'AF': '🇦🇫AF', 'AG': '🇦🇬AG', 'AI': '🇦🇮AI', 'AL': '🇦🇱AL',
               'AM': '🇦🇲AM', 'AO': '🇦🇴AO', 'AQ': '🇦🇶AQ', 'AR': '🇦🇷AR', 'AS': '🇦🇸AS', 'AT': '🇦🇹AT',
@@ -134,7 +134,7 @@ jobs:
           seen = set()
           lock = Lock()
           counter = 0
-          country_reader = None
+          country_reader = None  # Инициализация на уровне модуля
 
           def next_id():
               global counter
@@ -209,7 +209,6 @@ jobs:
                       all_links.extend(links)
                   except Exception as e:
                       print(f"[-] Error fetching {url}: {e}")
-              # Дедупликация с сохранением порядка
               all_links = list(dict.fromkeys(all_links))
               print(f"[✓] Total unique VLESS: {len(all_links)}")
               return all_links
@@ -328,30 +327,25 @@ jobs:
                   if not cfg:
                       return None
 
-                  # Базовая валидация (порт 443 НЕ фильтруем!)
                   if cfg['flow'] != 'xtls-rprx-vision':
                       return None
                   if cfg['fp'] not in ALLOWED_FP:
                       return None
 
-                  # Резолв + TCP-проверка
                   ip = resolve(cfg['hostname'])
                   if not ip or not tcp_check(ip, cfg['port']):
                       return None
 
-                  # Проверка по российскому вайтлисту
                   sni = cfg['sni'].lower()
                   if not (sni in sni_wl or ip in ip_wl or ip_in(ip, cidr_wl)):
                       return None
 
-                  # Дедупликация
                   key = (cfg['hostname'], cfg['port'], sni)
                   with lock:
                       if key in seen:
                           return None
                       seen.add(key)
 
-                  # Запуск Xray
                   local_port = get_free_port()
                   xray_cfg = build_xray_cfg(cfg, local_port)
                   cfg_file = f'cfg_{local_port}.json'
@@ -371,7 +365,6 @@ jobs:
                       except: pass
                       return None
 
-                  # Гео-проверка выходного IP
                   exit_ip = get_exit_ip(local_port)
                   proc.kill()
                   proc.wait(2)
@@ -386,7 +379,6 @@ jobs:
                   else:
                       exit_flag = FLAGS['??']
 
-                  # Формирование имени
                   server_flag = get_flag(get_country(ip))
                   num = next_id()
                   sni_disp = cfg['sni'] if cfg['sni'] else cfg['hostname']
@@ -402,8 +394,7 @@ jobs:
 
           # ==================== MAIN ====================
           print("🌍 Loading GeoIP database...")
-          global country_reader
-          country_reader = geoip2.database.Reader(GEO_DB)
+          country_reader = geoip2.database.Reader(GEO_DB)  # Прямое присваивание без global
 
           print("📥 Loading Russian whitelists...")
           sni_wl = load_set(RU_SNI)
@@ -426,7 +417,6 @@ jobs:
 
           print(f"✅ FINAL: {len(results)} working configs")
 
-          # Запись результатов
           os.makedirs("githubmirror", exist_ok=True)
           with open("githubmirror/26_proxy_subscription_raw.txt", "w") as f:
               f.write(f'# Alive [{datetime.now(timezone.utc)}]\n')
