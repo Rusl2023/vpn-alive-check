@@ -1,4 +1,4 @@
-name: Check VLESS proxy availability via Xray (base64 subscription)
+name: Check VPN keys via Xray (v2rayNG/NekoBox/Karing style)
 
 on:
   schedule:
@@ -12,7 +12,7 @@ concurrency:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 60               # ← увеличено до 60 минут
+    timeout-minutes: 60
     permissions:
       contents: write
 
@@ -26,7 +26,6 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y curl jq unzip python3 python3-pip
-          pip3 install geoip2
 
       - name: Download Xray
         run: |
@@ -36,129 +35,40 @@ jobs:
           chmod +x xray
           ls -la xray
 
-      - name: Copy GeoLite2 databases from repo
-        run: |
-          cp geolite2/GeoLite2-*.mmdb ./ || echo "No GeoLite2 databases found"
-          ls -la GeoLite2-*.mmdb || echo "✅ Using bundled GeoLite2"
-          echo "✅ GeoLite2 ready"
-
       - name: Prepare files
         run: |
           mkdir -p githubmirror
           : > githubmirror/26_proxy_subscription_raw.txt
           : > githubmirror/26_proxy_subscription_base64.txt
 
-      - name: Check VLESS via Xray
+      - name: Download subscription & Check via Xray (v2rayNG style)
         run: |
+          # Скачиваем ключи из подписки
+          curl -s "https://raw.githubusercontent.com/Rusl2023/vpn-alive-check/refs/heads/main/githubmirror/HMAO_Surgutcity_01.txt" > subscription.txt
+          
           python3 << 'EOF'
-          import subprocess, time, json, urllib.parse, os, socket, ipaddress, base64, glob, re
-          import geoip2.database
-          from concurrent.futures import ThreadPoolExecutor, as_completed, wait
+          import subprocess, time, json, urllib.parse, os, socket, base64, re
+          from concurrent.futures import ThreadPoolExecutor, as_completed
           from threading import Lock
           from datetime import datetime, timezone
 
           XRAY_PATH = os.path.join(os.getcwd(), "xray")
-          
-          whitelist_pattern = 'githubmirror/26_ru_whitelist_*.txt'
-          whitelist_files = glob.glob(whitelist_pattern)
-          
-          if not whitelist_files:
-              print(f"❌ No whitelist files found matching: {whitelist_pattern}")
-              exit(0)
-              
-          print(f"📂 Found whitelist files: {whitelist_files}")
-          
-          all_links = []
-          for whitelist_file in whitelist_files:
-              print(f"📂 Processing {whitelist_file}...")
-              if not os.path.exists(whitelist_file):
-                  print(f"❌ {whitelist_file} not found")
-                  continue
-              
-              with open(whitelist_file) as f:
-                  links = [x.strip() for x in f if x.strip().startswith('vless://')]
-                  all_links.extend(links)
-                  print(f"   Found {len(links)} VLESS links")
-          
+          SUB_FILE = 'subscription.txt'
+
+          # Читаем все ключи из подписки (vless/vmess/ss/trojan)
+          with open(SUB_FILE) as f:
+              all_links = [x.strip() for x in f if x.strip() and x.strip().startswith(('vless://','vmess://','ss://','trojan://'))]
+
           if not all_links:
-              print("❌ No VLESS links found in any whitelist files")
+              print("❌ No VPN links found")
               exit(0)
 
           OUTPUT_RAW = 'githubmirror/26_proxy_subscription_raw.txt'
           OUTPUT_B64 = 'githubmirror/26_proxy_subscription_base64.txt'
 
-          COUNTRY_DB = 'GeoLite2-Country.mmdb'
-          CITY_DB = 'GeoLite2-City.mmdb'
-          ASN_DB = 'GeoLite2-ASN.mmdb'
-
-          IP_TEST_URLS = ['https://api.ipify.org', 'https://ifconfig.me/ip', 'https://ipapi.co/ip']
-          TEST_SITES = ['http://www.gstatic.com/generate_204']
-          
-          MAX_WORKERS = 12                     # ← увеличено для скорости
-          CURL_DELAY = 0.3
-
-          FLAGS = {
-              'AD': '🇦🇩AD', 'AE': '🇦🇪AE', 'AF': '🇦🇫AF', 'AG': '🇦🇬AG', 'AI': '🇦🇮AI',
-              'AL': '🇦🇱AL', 'AM': '🇦🇲AM', 'AO': '🇦🇴AO', 'AQ': '🇦🇶AQ', 'AR': '🇦🇷AR',
-              'AS': '🇦🇸AS', 'AT': '🇦🇹AT', 'AU': '🇦🇺AU', 'AW': '🇦🇼AW', 'AX': '🇦🇽AX',
-              'AZ': '🇦🇿AZ', 'BA': '🇧🇦BA', 'BB': '🇧🇧BB', 'BD': '🇧🇩BD', 'BE': '🇧🇪BE',
-              'BF': '🇧🇫BF', 'BG': '🇧🇬BG', 'BH': '🇧🇭BH', 'BI': '🇧🇮BI', 'BJ': '🇧🇯BJ',
-              'BL': '🇧🇱BL', 'BM': '🇧🇲BM', 'BN': '🇧🇳BN', 'BO': '🇧🇴BO', 'BQ': '🇧🇶BQ',
-              'BR': '🇧🇷BR', 'BS': '🇧🇸BS', 'BT': '🇧🇹BT', 'BV': '🇧🇻BV', 'BW': '🇧🇼BW',
-              'BY': '🇧🇾BY', 'BZ': '🇧🇿BZ', 'CA': '🇨🇦CA', 'CC': '🇨🇨CC', 'CD': '🇨🇩CD',
-              'CF': '🇨🇫CF', 'CG': '🇨🇬CG', 'CH': '🇨🇭CH', 'CI': '🇨🇮CI', 'CK': '🇨🇰CK',
-              'CL': '🇨🇱CL', 'CM': '🇨🇲CM', 'CN': '🇨🇳CN', 'CO': '🇨🇴CO', 'CR': '🇨🇷CR',
-              'CU': '🇨🇺CU', 'CV': '🇨🇻CV', 'CW': '🇨🇼CW', 'CX': '🇨🇽CX', 'CY': '🇨🇾CY',
-              'CZ': '🇨🇿CZ', 'DE': '🇩🇪DE', 'DJ': '🇩🇯DJ', 'DK': '🇩🇰DK', 'DM': '🇩🇲DM',
-              'DO': '🇩🇴DO', 'DZ': '🇩🇿DZ', 'EC': '🇪🇨EC', 'EE': '🇪🇪EE', 'EG': '🇪🇬EG',
-              'EH': '🇪🇭EH', 'ER': '🇪🇷ER', 'ES': '🇪🇸ES', 'ET': '🇪🇹ET', 'FI': '🇫🇮FI',
-              'FJ': '🇫🇯FJ', 'FK': '🇫🇰FK', 'FM': '🇫🇲FM', 'FO': '🇫🇴FO', 'FR': '🇫🇷FR',
-              'GA': '🇬🇦GA', 'GB': '🇬🇧GB', 'GD': '🇬🇩GD', 'GE': '🇬🇪GE', 'GF': '🇬🇫GF',
-              'GG': '🇬🇬GG', 'GH': '🇬🇭GH', 'GI': '🇬🇮GI', 'GL': '🇬🇱GL', 'GM': '🇬🇲GM',
-              'GN': '🇬🇳GN', 'GP': '🇬🇵GP', 'GQ': '🇬🇶GQ', 'GR': '🇬🇷GR', 'GS': '🇬🇸GS',
-              'GT': '🇬🇹GT', 'GU': '🇬🇺GU', 'GW': '🇬🇼GW', 'GY': '🇬🇾GY', 'HK': '🇭🇰HK',
-              'HM': '🇭🇲HM', 'HN': '🇭🇳HN', 'HR': '🇭🇷HR', 'HT': '🇭🇹HT', 'HU': '🇭🇺HU',
-              'ID': '🇮🇩ID', 'IE': '🇮🇪IE', 'IL': '🇮🇱IL', 'IM': '🇮🇲IM', 'IN': '🇮🇳IN',
-              'IO': '🇮🇴IO', 'IQ': '🇮🇶IQ', 'IR': '🇮🇷IR', 'IS': '🇮🇸IS', 'IT': '🇮🇹IT',
-              'JE': '🇯🇪JE', 'JM': '🇯🇲JM', 'JO': '🇯🇴JO', 'JP': '🇯🇵JP', 'KE': '🇰🇪KE',
-              'KG': '🇰🇬KG', 'KH': '🇰🇭KH', 'KI': '🇰🇮KI', 'KM': '🇰🇲KM', 'KN': '🇰🇳KN',
-              'KP': '🇰🇵KP', 'KR': '🇰🇷KR', 'KW': '🇰🇼KW', 'KY': '🇰🇾KY', 'KZ': '🇰🇿KZ',
-              'LA': '🇱🇦LA', 'LB': '🇱🇧LB', 'LC': '🇱🇨LC', 'LI': '🇱🇮LI', 'LK': '🇱🇰LK',
-              'LR': '🇱🇷LR', 'LS': '🇱🇸LS', 'LT': '🇱🇹LT', 'LU': '🇱🇺LU', 'LV': '🇱🇻LV',
-              'LY': '🇱🇾LY', 'MA': '🇲🇦MA', 'MC': '🇲🇨MC', 'MD': '🇲🇩MD', 'ME': '🇲🇪ME',
-              'MF': '🇲🇫MF', 'MG': '🇲🇬MG', 'MH': '🇲🇭MH', 'MK': '🇲🇰MK', 'ML': '🇲🇱ML',
-              'MM': '🇲🇲MM', 'MN': '🇲🇳MN', 'MO': '🇲🇴MO', 'MP': '🇲🇵MP', 'MQ': '🇲🇶MQ',
-              'MR': '🇲🇷MR', 'MS': '🇲🇸MS', 'MT': '🇲🇹MT', 'MU': '🇲🇺MU', 'MV': '🇲🇻MV',
-              'MW': '🇲🇼MW', 'MX': '🇲🇽MX', 'MY': '🇲🇾MY', 'MZ': '🇲🇿MZ', 'NA': '🇳🇦NA',
-              'NC': '🇳🇨NC', 'NE': '🇳🇪NE', 'NF': '🇳🇫NF', 'NG': '🇳🇬NG', 'NI': '🇳🇮NI',
-              'NL': '🇳🇱NL', 'NO': '🇳🇴NO', 'NP': '🇳🇵NP', 'NR': '🇳🇷NR', 'NU': '🇳🇺NU',
-              'NZ': '🇳🇿NZ', 'OM': '🇴🇲OM', 'PA': '🇵🇦PA', 'PE': '🇵🇪PE', 'PF': '🇵🇫PF',
-              'PG': '🇵🇬PG', 'PH': '🇵🇭PH', 'PK': '🇵🇰PK', 'PL': '🇵🇱PL', 'PM': '🇵🇲PM',
-              'PN': '🇵🇳PN', 'PR': '🇵🇷PR', 'PS': '🇵🇸PS', 'PT': '🇵🇹PT', 'PW': '🇵🇼PW',
-              'PY': '🇵🇾PY', 'QA': '🇶🇦QA', 'RE': '🇷🇪RE', 'RO': '🇷🇴RO', 'RS': '🇷🇸RS',
-              'RU': '🇷🇺RU', 'RW': '🇷🇼RW', 'SA': '🇸🇦SA', 'SB': '🇸🇧SB', 'SC': '🇸🇨SC',
-              'SD': '🇸🇩SD', 'SE': '🇸🇪SE', 'SG': '🇸🇬SG', 'SH': '🇸🇭SH', 'SI': '🇸🇮SI',
-              'SJ': '🇸🇯SJ', 'SK': '🇸🇰SK', 'SL': '🇸🇱SL', 'SM': '🇸🇲SM', 'SN': '🇸🇳SN',
-              'SO': '🇸🇴SO', 'SR': '🇸🇷SR', 'SS': '🇸🇸SS', 'ST': '🇸🇹ST', 'SV': '🇸🇻SV',
-              'SX': '🇸🇽SX', 'SY': '🇸🇾SY', 'SZ': '🇸🇿SZ', 'TC': '🇹🇨TC', 'TD': '🇹🇩TD',
-              'TF': '🇹🇫TF', 'TG': '🇹🇬TG', 'TH': '🇹🇭TH', 'TJ': '🇹🇯TJ', 'TK': '🇹🇰TK',
-              'TL': '🇹🇱TL', 'TM': '🇹🇲TM', 'TN': '🇹🇳TN', 'TO': '🇹🇴TO', 'TR': '🇹🇷TR',
-              'TT': '🇹🇹TT', 'TV': '🇹🇻TV', 'TW': '🇹🇼TW', 'TZ': '🇹🇿TZ', 'UA': '🇺🇦UA',
-              'UG': '🇺🇬UG', 'UM': '🇺🇲UM', 'US': '🇺🇸US', 'UY': '🇺🇾UY', 'UZ': '🇺🇿UZ',
-              'VA': '🇻🇦VA', 'VC': '🇻🇨VC', 'VE': '🇻🇪VE', 'VG': '🇻🇬VG', 'VI': '🇻🇮VI',
-              'VN': '🇻🇳VN', 'VU': '🇻🇺VU', 'WF': '🇼🇫WF', 'WS': '🇼🇸WS', 'YE': '🇾🇪YE',
-              'YT': '🇾🇹YT', 'ZA': '🇿🇦ZA', 'ZM': '🇿🇲ZM', 'ZW': '🇿🇼ZW'
-          }
-
-          print("🔄 Loading GeoLite2 databases...")
-          try:
-              country_reader = geoip2.database.Reader(COUNTRY_DB)
-              city_reader = geoip2.database.Reader(CITY_DB)
-              asn_reader = geoip2.database.Reader(ASN_DB)
-              print("✅ GeoLite2 databases loaded")
-          except Exception as e:
-              print(f"⚠️ GeoLite2 warning: {e}")
-              print("🔄 Continuing without full GeoIP...")
+          TEST_URL = 'http://www.google.com/gen_204'  # Как в v2rayNG/NekoBox/Karing
+          MAX_WORKERS = 10
+          TIMEOUT = 10
 
           lock = Lock()
           counter = 0
@@ -168,100 +78,6 @@ jobs:
               with lock:
                   counter += 1
                   return counter
-
-          def valid_ip(x):
-              try:
-                  ipaddress.ip_address(x.strip())
-                  return True
-              except:
-                  return False
-
-          def resolve(host):
-              try:
-                  info = socket.getaddrinfo(host, None, 0, 0, socket.SOL_TCP)
-                  for i in info:
-                      ip = i[4][0]
-                      if valid_ip(ip):
-                          return ip
-                  return host
-              except:
-                  return host
-
-          def get_raw_iso_country(ip):
-              ip = ip.strip()
-              if not valid_ip(ip):
-                  return None
-              try:
-                  r = country_reader.country(ip)
-                  iso_code = r.country.iso_code
-                  if iso_code:
-                      return iso_code
-              except: pass
-              try:
-                  r = city_reader.city(ip)
-                  iso_code = r.country.iso_code
-                  if iso_code:
-                      return iso_code
-              except: pass
-              return None
-
-          def country_from_ip(ip):
-              if ip is None:
-                  return '🌍??'
-              raw_iso = get_raw_iso_country(ip)
-              if not raw_iso:
-                  return '🌍??'
-              return FLAGS.get(raw_iso, f'🌍{raw_iso}')
-
-          def test_site(port, url, site_name):
-              time.sleep(CURL_DELAY)
-              try:
-                  cmd = [
-                      'curl', '-s', '--max-time', '10', 
-                      '-x', f'socks5h://127.0.0.1:{port}', 
-                      '-o', '/dev/null', '-w', '%{http_code}', url
-                  ]
-                  code = subprocess.check_output(cmd, text=True, stderr=subprocess.DEVNULL, timeout=12).strip()
-                  
-                  success_codes = ['200', '204', '403', '429']
-                  if code in success_codes:
-                      print(f"✅ {site_name}: {code}")
-                      return True
-                  else:
-                      print(f"❌ {site_name}: HTTP {code}")
-                      return False
-              except subprocess.TimeoutExpired:
-                  print(f"⏰ {site_name}: TIMEOUT (12s)")
-                  return False
-              except Exception:
-                  print(f"❌ {site_name}: CURL ERROR")
-                  return False
-
-          def test_proxy_robust(port):
-              # Сначала проверяем работу прокси через тест сайта
-              print("🔥 Testing site...")
-              if not test_site(port, TEST_SITES[0], "Gstatic"):
-                  return False, None
-              
-              # Пытаемся получить exit IP (опционально)
-              exit_ip = None
-              for i, url in enumerate(IP_TEST_URLS, 1):
-                  try:
-                      cmd = ['curl', '-s', '--max-time', '10', '-x', f'socks5h://127.0.0.1:{port}', url]
-                      ip = subprocess.check_output(cmd, text=True, stderr=subprocess.DEVNULL, timeout=12).strip()
-                      if valid_ip(ip) and len(ip) >= 7:
-                          exit_ip = ip
-                          print(f"🌐 Exit IP [{i}]: {ip}")
-                          break
-                  except:
-                      continue
-              
-              if exit_ip:
-                  print("✅ Proxy works (with exit IP)")
-              else:
-                  print("✅ Proxy works (exit IP unavailable)")
-              
-              return True, exit_ip
 
           def get_free_port():
               s = socket.socket()
@@ -281,51 +97,34 @@ jobs:
                       time.sleep(0.2)
               return False
 
+          def test_proxy(port):
+              # Тест задержки как в клиентах: HTTP GET через socks5 к gen_204 (204 response)
+              try:
+                  cmd = [
+                      'curl', '-s', '--max-time', str(TIMEOUT), 
+                      '-x', f'socks5h://127.0.0.1:{port}', 
+                      '-o', '/dev/null', '-w', '%{http_code}|%{time_total}'
+                  ]
+                  result = subprocess.run(cmd, capture_output=True, text=True, timeout=TIMEOUT+2)
+                  
+                  if result.returncode == 0:
+                      output = result.stdout.strip()
+                      if output.startswith(('204', '200')):
+                          latency = float(output.split('|')[1]) * 1000  # ms
+                          print(f"✅ Latency: {latency:.0f}ms")
+                          return True, latency
+              except:
+                  pass
+              print("❌ Test failed")
+              return False, None
+
           def check_one(link):
               try:
                   port = get_free_port()
-                  u = urllib.parse.urlparse(link)
-                  if u.scheme != 'vless':
-                      return None
-                      
-                  q = urllib.parse.parse_qs(u.query)
-                  sni = q.get('sni', ['unknown'])[0]
-                  fp = q.get('fp', ['chrome'])[0]
                   
-                  server_ip = resolve(u.hostname)
-                  server_country = country_from_ip(server_ip)
-
-                  network = q.get('type', ['tcp'])[0]
-                  sec = q.get('security', ['none'])[0]
-
-                  star_prefix = "⭐" if network == 'xhttp' else ""
+                  # Генерируем config для Xray (поддержка vless/vmess/ss/trojan)
+                  u = urllib.parse.urlparse(link.split('#')[0])  # Убираем #name
                   
-                  stream = {'network': network}
-                  if sec == 'reality' and 'pbk' in q:
-                      stream.update({
-                          'security': 'reality',
-                          'realitySettings': {
-                              'serverName': sni,
-                              'publicKey': q['pbk'][0],
-                              'shortId': q.get('sid', [''])[0],
-                              'fingerprint': fp
-                          }
-                      })
-                  elif sec == 'tls':
-                      stream.update({
-                          'security': 'tls',
-                          'tlsSettings': {
-                              'serverName': sni,
-                              'allowInsecure': True,
-                              'fingerprint': fp
-                          }
-                      })
-
-                  user = {'id': u.username, 'encryption': 'none'}
-                  flow = q.get('flow', [''])[0]
-                  if flow:
-                      user['flow'] = flow
-
                   cfg = {
                       'inbounds': [{
                           'listen': '127.0.0.1',
@@ -334,100 +133,81 @@ jobs:
                           'settings': {'udp': False}
                       }],
                       'outbounds': [{
-                          'protocol': 'vless',
-                          'settings': {
-                              'vnext': [{
-                                  'address': u.hostname,
-                                  'port': int(u.port or 443),
-                                  'users': [user]
-                              }]
-                          },
-                          'streamSettings': stream
+                          'tag': 'proxy',
+                          'protocol': u.scheme.replace('://', ''),
+                          'settings': {'servers': [{'address': u.hostname, 'port': int(u.port or 443)}]},
+                          'streamSettings': {'network': 'tcp'}  # Базовый TCP
                       }]
                   }
 
                   cfg_file = f'cfg_{port}.json'
                   with open(cfg_file, 'w') as f:
-                      json.dump(cfg, f)
+                      json.dump(cfg, f, indent=2)
 
+                  # Запускаем Xray
                   p = subprocess.Popen([XRAY_PATH, 'run', '-c', cfg_file],
                                      stdout=subprocess.DEVNULL,
                                      stderr=subprocess.DEVNULL)
 
-                  if not wait_port(port):
-                      try:
-                          p.terminate()
-                          p.wait(timeout=2)
-                      except:
-                          p.kill()
-                      try:
-                          os.remove(cfg_file)
+                  if not wait_port(port, 10):
+                      p.terminate(); p.wait(timeout=2)
+                      try: os.remove(cfg_file)
                       except: pass
                       return None
 
-                  ok, exit_ip = test_proxy_robust(port)
-                  
+                  # Тест задержки (3 попытки как "true delay" в NekoBox)
+                  ok = False
+                  for attempt in range(3):
+                      is_ok, lat = test_proxy(port)
+                      if is_ok:
+                          ok = True
+                          break
+                      time.sleep(1)
+
+                  # Останавливаем
                   try:
                       p.terminate()
-                      p.wait(timeout=2)
+                      p.wait(timeout=3)
                   except:
                       p.kill()
                   p.wait(timeout=1)
-
-                  try:
-                      os.remove(cfg_file)
+                  try: os.remove(cfg_file)
                   except: pass
 
-                  if not ok:
-                      return None
-
-                  exit_country = country_from_ip(exit_ip)
-                  num = next_id()
-                  name = f"{star_prefix}{server_country}→{num}→{exit_country} SNI: {sni}"
-
-                  if '#' in link:
-                      base_link = link.split('#')[0]
-                  else:
-                      base_link = link
-                  return base_link + '#' + name
-
+                  if ok:
+                      num = next_id()
+                      name = f"ID:{num}"
+                      return link + f"#{name}"
+                  
               except Exception as e:
-                  print(f"⚠️ Proxy parse error: {str(e)[:100]}")
-                  return None
+                  print(f"⚠️ Error: {str(e)[:50]}")
+              return None
 
-          print(f"🚀 TOTAL: {len(all_links)} | workers={MAX_WORKERS}")
+          print(f"🚀 Testing {len(all_links)} keys | URL: {TEST_URL}")
 
           alive = []
-          try:
-              with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
-                  futures = [ex.submit(check_one, l) for l in all_links]
-                  for future in as_completed(futures):
-                      result = future.result()
-                      if result:
-                          alive.append(result)
-          except KeyboardInterrupt:
-              print("⏹️ Interrupted")
+          with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
+              futures = [ex.submit(check_one, l) for l in all_links]
+              for future in as_completed(futures):
+                  result = future.result()
+                  if result:
+                      alive.append(result)
 
-          print(f"✅ DONE. Alive proxies: {len(alive)}")
+          print(f"✅ Alive: {len(alive)}")
 
+          # Сохраняем raw
           with open(OUTPUT_RAW, 'w') as f:
-              f.write(f"# updated {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}\n")
+              f.write(f"# VPN alive check (v2rayNG style) {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}\n")
               for proxy in alive:
                   f.write(proxy + '\n')
 
+          # Base64
           if alive:
               b64_content = '\n'.join(alive)
               b64 = base64.b64encode(b64_content.encode()).decode()
               with open(OUTPUT_B64, 'w') as f:
                   f.write(b64)
-              print(f"💾 Saved {len(alive)} working proxies")
-          else:
-              print("❌ No working proxies")
 
-          if 'country_reader' in locals():
-              country_reader.close()
-              city_reader.close()
-              asn_reader.close()
           EOF
 
       - name: Commit & push results
@@ -435,19 +215,18 @@ jobs:
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
 
-          # Принудительная очистка оставшихся процессов Xray
           sudo pkill -f xray || true
-          rm -f cfg_*.json xray.zip || true
+          rm -f cfg_*.json subscription.txt || true
           git add githubmirror/*.txt || true
 
           if git diff --staged --quiet; then
-            echo "❌ No changes to commit"
+            echo "❌ No changes"
             exit 0
           fi
 
-          git commit -m "Update battle-tested proxy subscriptions [$(date -u +'%Y-%m-%d %H:%M UTC')] ⭐xhttp"
+          git commit -m "Update alive VPN keys [$(date -u +'%Y-%m-%d %H:%M UTC')]"
 
           git pull --rebase origin main || true
           git push origin main || git push --force-with-lease origin main
 
-          echo "✅ Pushed updates"
+          echo "✅ Done"
