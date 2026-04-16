@@ -16,6 +16,10 @@ jobs:
     permissions:
       contents: write
 
+    # Исправление предупреждения Node.js 20 → Node.js 24
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -223,7 +227,7 @@ jobs:
                           return None
                       seen.add(key)
 
-                  # Тест через Xray (только проверка соединения, без жёсткого Reality)
+                  # Тест через Xray
                   port = random.randint(20000, 40000)
                   ok, exit_ip = run_xray_test(link, port)
                   if not ok:
@@ -301,7 +305,6 @@ jobs:
                       "http://www.gstatic.com/generate_204",
                       "-w", "%{http_code}"
                   ]).decode().strip()
-
                   ok = code in ("200", "204", "403", "429")
               except:
                   ok = False
@@ -355,7 +358,7 @@ jobs:
           i = 0
           for n in range(0, len(good), MAX_PER_FILE):
               i += 1
-              filename = f"githubmirror/26_ru_whitelist_{i:02d}.txt"
+              filename = f"githubmirror/HMAO_Surgutcity_{i:02d}.txt"
               with open(filename, "w") as f:
                   f.write("\n".join(good[n:n + MAX_PER_FILE]))
               print(f"💾 Записано {filename} ({len(good[n:n+MAX_PER_FILE])} строк)")
