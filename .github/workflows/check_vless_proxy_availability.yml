@@ -1,20 +1,23 @@
-name: "Check VPN keys via Xray"
+name: RU MAX FILTER (FINAL)
 
 on:
   schedule:
-    - cron: '*/30 * * * *'
+    - cron: '0 */3 * * *'
   workflow_dispatch:
 
 concurrency:
-  group: proxy-check
+  group: ru-max-final
   cancel-in-progress: true
 
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     permissions:
       contents: write
+
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - name: Checkout
@@ -23,244 +26,427 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y curl jq unzip python3 python3-pip wget
-          pip3 install -q requests
+          sudo apt-get install -y curl jq unzip python3 python3-pip
+          pip3 install -q requests geoip2
 
       - name: Download Xray
         run: |
           XRAY_VER=$(curl -s https://api.github.com/repos/XTLS/Xray-core/releases/latest | jq -r .tag_name)
-          echo "Xray version: $XRAY_VER"
           curl -L -o xray.zip "https://github.com/XTLS/Xray-core/releases/download/${XRAY_VER}/Xray-linux-64.zip"
-          unzip -o xray.zip xray
+          unzip -o xray.zip xray geoip.dat geosite.dat
           chmod +x xray
-          ./xray version
 
-      - name: Setup and Prepare
+      - name: Download GeoLite2 Country
+        run: |
+          curl -L -o GeoLite2-Country.mmdb https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-Country.mmdb
+
+      - name: Prepare output directory
         run: |
           mkdir -p githubmirror
           : > githubmirror/26_proxy_subscription_raw.txt
           : > githubmirror/26_proxy_subscription_base64.txt
-          : > debug.log
 
-      - name: Download and Parse subscriptions
-        env:
-          PY_DOWNLOAD: |
-            import re
-            import urllib.request
-
-            urls = [
-                "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt",
-                "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile-2.txt",
-                "https://raw.githubusercontent.com/RUNoName/V.O.I.D-VPN_Bypass/refs/heads/main/configs/url_work.txt",
-                "https://raw.githubusercontent.com/GoldCaviar/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt",
-                "https://raw.githubusercontent.com/zieng2/wl/main/vless_lite.txt",
-                "https://gitverse.ru/api/repos/RUVIPIEN/russian-white-bolt/raw/branch/master/VPNMIRRORS/v2ray/VLESS_Reality_White_3eac2d.txt",
-                "https://raw.githubusercontent.com/EtoNeYaProject/EtoNeYaProject.github.io/refs/heads/main/whitelist",
-                "https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt",
-            ]
-
-            all_links = []
-            for url in urls:
-                try:
-                    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-                    content = urllib.request.urlopen(req, timeout=15).read().decode("utf-8", errors="ignore")
-                    links = re.findall(r'(vless://[^\s#]+)', content)
-                    print(f"Found {len(links)} VLESS from {url.split('/')[-1]}")
-                    all_links.extend(links)
-                except Exception as e:
-                    print(f"Error fetching {url}: {e}")
-
-            all_links = list(dict.fromkeys(all_links))
-            print(f"Total unique VLESS: {len(all_links)}")
-
-            with open("vless_links.txt", "w") as fh:
-                fh.write("\n".join(all_links) + "\n")
-        run: python3 -c "import os; exec(os.environ['PY_DOWNLOAD'])"
-
-      - name: Check VLESS via Xray
-        env:
-          PY_CHECK: |
-            import subprocess
-            import time
-            import json
-            import urllib.parse
-            import os
-            import socket
-            import base64
-            from concurrent.futures import ThreadPoolExecutor, as_completed
-            from datetime import datetime, timezone
-
-            XRAY_PATH = "./xray"
-            VLESS_FILE = "vless_links.txt"
-
-            def parse_vless(link):
-                try:
-                    clean_link = link.split('#')[0]
-                    u = urllib.parse.urlparse(clean_link)
-                    if u.scheme != 'vless':
-                        return None
-                    params = urllib.parse.parse_qs(u.query)
-                    return {
-                        'add':  u.hostname,
-                        'port': int(u.port or 443),
-                        'id':   u.username,
-                        'net':  params.get('type',     ['tcp'])[0],
-                        'type': params.get('security', ['none'])[0],
-                        'sni':  params.get('sni',      [''])[0],
-                        'fp':   params.get('fp',       ['chrome'])[0],
-                        'pbk':  params.get('pbk',      [''])[0],
-                        'sid':  params.get('sid',      [''])[0],
-                        'flow': params.get('flow',     [''])[0],
-                    }
-                except:
-                    return None
-
-            def generate_xray_config(config, local_port):
-                stream = {'network': config['net'], 'security': 'none'}
-                if config['type'] == 'tls':
-                    stream['security'] = 'tls'
-                    stream['tlsSettings'] = {
-                        'serverName':    config['sni'],
-                        'fingerprint':   config['fp'],
-                        'allowInsecure': True,
-                    }
-                elif config['type'] == 'reality':
-                    stream['security'] = 'reality'
-                    stream['realitySettings'] = {
-                        'serverName':  config['sni'],
-                        'publicKey':   config['pbk'],
-                        'shortId':     config['sid'],
-                        'fingerprint': config['fp'],
-                    }
-                return {
-                    "inbounds": [{
-                        "listen":   "127.0.0.1",
-                        "port":     local_port,
-                        "protocol": "socks",
-                        "settings": {"auth": "noauth", "udp": False},
-                    }],
-                    "outbounds": [{
-                        "protocol": "vless",
-                        "settings": {
-                            "vnext": [{
-                                "address": config['add'],
-                                "port":    config['port'],
-                                "users":   [{"id": config['id'], "encryption": "none", "flow": config['flow']}],
-                            }]
-                        },
-                        "streamSettings": stream,
-                    }],
-                }
-
-            def get_free_port():
-                s = socket.socket()
-                s.bind(('', 0))
-                port = s.getsockname()[1]
-                s.close()
-                return port
-
-            def wait_port(port):
-                for _ in range(40):
-                    try:
-                        socket.create_connection(("127.0.0.1", port), 0.5)
-                        return True
-                    except:
-                        time.sleep(0.2)
-                return False
-
-            def test_proxy(port):
-                check_urls = [
-                    'http://www.gstatic.com/generate_204',
-                    'http://cp.cloudflare.com/generate_204',
-                ]
-                for url in check_urls:
-                    try:
-                        cmd = [
-                            'curl', '-s', '--max-time', '6',
-                            '-x', 'socks5h://127.0.0.1:' + str(port),
-                            '-o', '/dev/null', '-w', '%{http_code}',
-                            url,
-                        ]
-                        result = subprocess.run(cmd, capture_output=True, text=True, timeout=8)
-                        if result.returncode == 0 and result.stdout.strip() in ('204', '200'):
-                            return True
-                    except:
-                        continue
-                return False
-
-            def check_one(link):
-                try:
-                    config = parse_vless(link)
-                    if not config:
-                        return None
-                    port     = get_free_port()
-                    cfg      = generate_xray_config(config, port)
-                    cfg_file = 'cfg_' + str(port) + '.json'
-                    with open(cfg_file, 'w') as fh:
-                        json.dump(cfg, fh)
-                    p = subprocess.Popen(
-                        [XRAY_PATH, 'run', '-c', cfg_file],
-                        stdout=subprocess.DEVNULL,
-                        stderr=subprocess.DEVNULL,
-                    )
-                    time.sleep(3)
-                    if wait_port(port) and test_proxy(port):
-                        p.kill()
-                        os.remove(cfg_file)
-                        print('OK LIVE: ' + config['add'] + ':' + str(config['port']))
-                        return link
-                    p.kill()
-                    p.wait(2)
-                    try:
-                        os.remove(cfg_file)
-                    except:
-                        pass
-                except Exception as e:
-                    print('ERR ' + str(e)[:50])
-                return None
-
-            with open(VLESS_FILE) as fh:
-                links = [line.strip() for line in fh if line.strip()]
-
-            print('Testing ' + str(len(links)) + ' VLESS keys')
-
-            alive = []
-            with ThreadPoolExecutor(max_workers=3) as ex:
-                futures = [ex.submit(check_one, l) for l in links[:50]]
-                for fut in as_completed(futures):
-                    r = fut.result()
-                    if r:
-                        alive.append(r)
-
-            print('Alive: ' + str(len(alive)))
-
-            with open('githubmirror/26_proxy_subscription_raw.txt', 'w') as fh:
-                fh.write('# Alive [' + str(datetime.now(timezone.utc)) + ']\n')
-                for proxy in alive:
-                    fh.write(proxy + '\n')
-
-            if alive:
-                b64 = base64.b64encode('\n'.join(alive).encode()).decode()
-                with open('githubmirror/26_proxy_subscription_base64.txt', 'w') as fh:
-                    fh.write(b64)
-        run: python3 -c "import os; exec(os.environ['PY_CHECK'])"
-
-      - name: Debug and Commit
+      - name: RUN Python filter & checker
         run: |
-          echo "=== DEBUG ==="
-          ls -la githubmirror/
-          head -3 githubmirror/26_proxy_subscription_raw.txt || echo "Empty"
-          echo "VLESS count:"; wc -l vless_links.txt || true
-          sudo pkill -9 xray || true
-          rm -f cfg_*.json vless_links.txt xray.zip || true
+          python3 << 'PYTHON_EOF'
+          import os, socket, urllib.parse, requests, random, ipaddress, subprocess, time, json, base64, re
+          from concurrent.futures import ThreadPoolExecutor, as_completed
+          from threading import Lock
+          from datetime import datetime, timezone
+          import geoip2.database
 
-          git config user.name "GitHub Action"
-          git config user.email "action@github.com"
+          # Настройки
+          MAX_WORKERS = 10
+          TIMEOUT = 3
+          XRAY = "./xray"
+          GEO_DB = "GeoLite2-Country.mmdb"
+
+          # Источники конфигураций (обновлённый список)
+          CONFIG_URLS = [
+              "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt",
+              "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile-2.txt",
+              "https://raw.githubusercontent.com/RUNoName/V.O.I.D-VPN_Bypass/refs/heads/main/configs/url_work.txt",
+              "https://raw.githubusercontent.com/GoldCaviar/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt",
+              "https://raw.githubusercontent.com/zieng2/wl/main/vless_lite.txt",
+              "https://gitverse.ru/api/repos/RUVIPIEN/russian-white-bolt/raw/branch/master/VPNMIRRORS/v2ray/VLESS_Reality_White_3eac2d.txt",
+              "https://raw.githubusercontent.com/EtoNeYaProject/EtoNeYaProject.github.io/refs/heads/main/whitelist",
+              "https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt"
+          ]
+
+          # Российские вайтлисты
+          RU_SNI = "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/whitelist.txt"
+          RU_IP = "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/ipwhitelist.txt"
+          RU_CIDR = "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/cidrwhitelist.txt"
+
+          ALLOWED_FP = {"chrome", "firefox", "safari", "ios", "android", "edge", "360", "qq", "random", "randomized"}
+
+          # Основные флаги (сокращённый список)
+          FLAGS = {
+              'AD': '🇦🇩AD', 'AE': '🇦🇪AE', 'AF': '🇦🇫AF', 'AG': '🇦🇬AG', 'AI': '🇦🇮AI', 'AL': '🇦🇱AL',
+              'AM': '🇦🇲AM', 'AO': '🇦🇴AO', 'AQ': '🇦🇶AQ', 'AR': '🇦🇷AR', 'AS': '🇦🇸AS', 'AT': '🇦🇹AT',
+              'AU': '🇦🇺AU', 'AW': '🇦🇼AW', 'AX': '🇦🇽AX', 'AZ': '🇦🇿AZ', 'BA': '🇧🇦BA', 'BB': '🇧🇧BB',
+              'BD': '🇧🇩BD', 'BE': '🇧🇪BE', 'BF': '🇧🇫BF', 'BG': '🇧🇬BG', 'BH': '🇧🇭BH', 'BI': '🇧🇮BI',
+              'BJ': '🇧🇯BJ', 'BL': '🇧🇱BL', 'BM': '🇧🇲BM', 'BN': '🇧🇳BN', 'BO': '🇧🇴BO', 'BQ': '🇧🇶BQ',
+              'BR': '🇧🇷BR', 'BS': '🇧🇸BS', 'BT': '🇧🇹BT', 'BV': '🇧🇻BV', 'BW': '🇧🇼BW', 'BY': '🇧🇾BY',
+              'BZ': '🇧🇿BZ', 'CA': '🇨🇦CA', 'CC': '🇨🇨CC', 'CD': '🇨🇩CD', 'CF': '🇨🇫CF', 'CG': '🇨🇬CG',
+              'CH': '🇨🇭CH', 'CI': '🇨🇮CI', 'CK': '🇨🇰CK', 'CL': '🇨🇱CL', 'CM': '🇨🇲CM', 'CN': '🇨🇳CN',
+              'CO': '🇨🇴CO', 'CR': '🇨🇷CR', 'CU': '🇨🇺CU', 'CV': '🇨🇻CV', 'CW': '🇨🇼CW', 'CX': '🇨🇽CX',
+              'CY': '🇨🇾CY', 'CZ': '🇨🇿CZ', 'DE': '🇩🇪DE', 'DJ': '🇩🇯DJ', 'DK': '🇩🇰DK', 'DM': '🇩🇲DM',
+              'DO': '🇩🇴DO', 'DZ': '🇩🇿DZ', 'EC': '🇪🇨EC', 'EE': '🇪🇪EE', 'EG': '🇪🇬EG', 'EH': '🇪🇭EH',
+              'ER': '🇪🇷ER', 'ES': '🇪🇸ES', 'ET': '🇪🇹ET', 'FI': '🇫🇮FI', 'FJ': '🇫🇯FJ', 'FK': '🇫🇰FK',
+              'FM': '🇫🇲FM', 'FO': '🇫🇴FO', 'FR': '🇫🇷FR', 'GA': '🇬🇦GA', 'GB': '🇬🇧GB', 'GD': '🇬🇩GD',
+              'GE': '🇬🇪GE', 'GF': '🇬🇫GF', 'GG': '🇬🇬GG', 'GH': '🇬🇭GH', 'GI': '🇬🇮GI', 'GL': '🇬🇱GL',
+              'GM': '🇬🇲GM', 'GN': '🇬🇳GN', 'GP': '🇬🇵GP', 'GQ': '🇬🇶GQ', 'GR': '🇬🇷GR', 'GS': '🇬🇸GS',
+              'GT': '🇬🇹GT', 'GU': '🇬🇺GU', 'GW': '🇬🇼GW', 'GY': '🇬🇾GY', 'HK': '🇭🇰HK', 'HM': '🇭🇲HM',
+              'HN': '🇭🇳HN', 'HR': '🇭🇷HR', 'HT': '🇭🇹HT', 'HU': '🇭🇺HU', 'ID': '🇮🇩ID', 'IE': '🇮🇪IE',
+              'IL': '🇮🇱IL', 'IM': '🇮🇲IM', 'IN': '🇮🇳IN', 'IO': '🇮🇴IO', 'IQ': '🇮🇶IQ', 'IR': '🇮🇷IR',
+              'IS': '🇮🇸IS', 'IT': '🇮🇹IT', 'JE': '🇯🇪JE', 'JM': '🇯🇲JM', 'JO': '🇯🇴JO', 'JP': '🇯🇵JP',
+              'KE': '🇰🇪KE', 'KG': '🇰🇬KG', 'KH': '🇰🇭KH', 'KI': '🇰🇮KI', 'KM': '🇰🇲KM', 'KN': '🇰🇳KN',
+              'KP': '🇰🇵KP', 'KR': '🇰🇷KR', 'KW': '🇰🇼KW', 'KY': '🇰🇾KY', 'KZ': '🇰🇿KZ', 'LA': '🇱🇦LA',
+              'LB': '🇱🇧LB', 'LC': '🇱🇨LC', 'LI': '🇱🇮LI', 'LK': '🇱🇰LK', 'LR': '🇱🇷LR', 'LS': '🇱🇸LS',
+              'LT': '🇱🇹LT', 'LU': '🇱🇺LU', 'LV': '🇱🇻LV', 'LY': '🇱🇾LY', 'MA': '🇲🇦MA', 'MC': '🇲🇨MC',
+              'MD': '🇲🇩MD', 'ME': '🇲🇪ME', 'MF': '🇲🇫MF', 'MG': '🇲🇬MG', 'MH': '🇲🇭MH', 'MK': '🇲🇰MK',
+              'ML': '🇲🇱ML', 'MM': '🇲🇲MM', 'MN': '🇲🇳MN', 'MO': '🇲🇴MO', 'MP': '🇲🇵MP', 'MQ': '🇲🇶MQ',
+              'MR': '🇲🇷MR', 'MS': '🇲🇸MS', 'MT': '🇲🇹MT', 'MU': '🇲🇺MU', 'MV': '🇲🇻MV', 'MW': '🇲🇼MW',
+              'MX': '🇲🇽MX', 'MY': '🇲🇾MY', 'MZ': '🇲🇿MZ', 'NA': '🇳🇦NA', 'NC': '🇳🇨NC', 'NE': '🇳🇪NE',
+              'NF': '🇳🇫NF', 'NG': '🇳🇬NG', 'NI': '🇳🇮NI', 'NL': '🇳🇱NL', 'NO': '🇳🇴NO', 'NP': '🇳🇵NP',
+              'NR': '🇳🇷NR', 'NU': '🇳🇺NU', 'NZ': '🇳🇿NZ', 'OM': '🇴🇲OM', 'PA': '🇵🇦PA', 'PE': '🇵🇪PE',
+              'PF': '🇵🇫PF', 'PG': '🇵🇬PG', 'PH': '🇵🇭PH', 'PK': '🇵🇰PK', 'PL': '🇵🇱PL', 'PM': '🇵🇲PM',
+              'PN': '🇵🇳PN', 'PR': '🇵🇷PR', 'PS': '🇵🇸PS', 'PT': '🇵🇹PT', 'PW': '🇵🇼PW', 'PY': '🇵🇾PY',
+              'QA': '🇶🇦QA', 'RE': '🇷🇪RE', 'RO': '🇷🇴RO', 'RS': '🇷🇸RS', 'RU': '🇷🇺RU', 'RW': '🇷🇼RW',
+              'SA': '🇸🇦SA', 'SB': '🇸🇧SB', 'SC': '🇸🇨SC', 'SD': '🇸🇩SD', 'SE': '🇸🇪SE', 'SG': '🇸🇬SG',
+              'SH': '🇸🇭SH', 'SI': '🇸🇮SI', 'SJ': '🇸🇯SJ', 'SK': '🇸🇰SK', 'SL': '🇸🇱SL', 'SM': '🇸🇲SM',
+              'SN': '🇸🇳SN', 'SO': '🇸🇴SO', 'SR': '🇸🇷SR', 'SS': '🇸🇸SS', 'ST': '🇸🇹ST', 'SV': '🇸🇻SV',
+              'SX': '🇸🇽SX', 'SY': '🇸🇾SY', 'SZ': '🇸🇿SZ', 'TC': '🇹🇨TC', 'TD': '🇹🇩TD', 'TF': '🇹🇫TF',
+              'TG': '🇹🇬TG', 'TH': '🇹🇭TH', 'TJ': '🇹🇯TJ', 'TK': '🇹🇰TK', 'TL': '🇹🇱TL', 'TM': '🇹🇲TM',
+              'TN': '🇹🇳TN', 'TO': '🇹🇴TO', 'TR': '🇹🇷TR', 'TT': '🇹🇹TT', 'TV': '🇹🇻TV', 'TW': '🇹🇼TW',
+              'TZ': '🇹🇿TZ', 'UA': '🇺🇦UA', 'UG': '🇺🇬UG', 'UM': '🇺🇲UM', 'US': '🇺🇸US', 'UY': '🇺🇾UY',
+              'UZ': '🇺🇿UZ', 'VA': '🇻🇦VA', 'VC': '🇻🇨VC', 'VE': '🇻🇪VE', 'VG': '🇻🇬VG', 'VI': '🇻🇮VI',
+              'VN': '🇻🇳VN', 'VU': '🇻🇺VU', 'WF': '🇼🇫WF', 'WS': '🇼🇸WS', 'YE': '🇾🇪YE', 'YT': '🇾🇹YT',
+              'ZA': '🇿🇦ZA', 'ZM': '🇿🇲ZM', 'ZW': '🇿🇼ZW',
+
+              # ==== ДОБАВЛЕНО (редкие/служебные коды) ====
+              'XK': '🇽🇰XK',  # Kosovo
+              '??': '🌍??'   # fallback
+           }
+
+          dns_cache = {}
+          seen = set()
+          lock = Lock()
+          counter = 0
+          country_reader = None
+
+          def next_id():
+              global counter
+              with lock:
+                  counter += 1
+                  return counter
+
+          def load_set(url):
+              try:
+                  return set(requests.get(url, timeout=20).text.lower().split())
+              except:
+                  return set()
+
+          def load_cidr(url):
+              out = []
+              try:
+                  for line in requests.get(url, timeout=20).text.splitlines():
+                      try:
+                          out.append(ipaddress.ip_network(line.strip(), strict=False))
+                      except:
+                          pass
+              except:
+                  pass
+              return out
+
+          def ip_in(ip, networks):
+              try:
+                  ip_obj = ipaddress.ip_address(ip)
+                  return any(ip_obj in net for net in networks)
+              except:
+                  return False
+
+          def resolve(hostname):
+              if hostname in dns_cache:
+                  return dns_cache[hostname]
+              try:
+                  ip = socket.gethostbyname(hostname)
+                  dns_cache[hostname] = ip
+                  return ip
+              except:
+                  dns_cache[hostname] = None
+                  return None
+
+          def tcp_check(ip, port):
+              try:
+                  s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                  s.settimeout(TIMEOUT)
+                  result = s.connect_ex((ip, port)) == 0
+                  s.close()
+                  return result
+              except:
+                  return False
+
+          def get_country(ip):
+              try:
+                  r = country_reader.country(ip)
+                  return r.country.iso_code or "??"
+              except:
+                  return "??"
+
+          def get_flag(cc):
+              return FLAGS.get(cc, FLAGS['??'])
+
+          def download_and_parse():
+              all_links = []
+              for url in CONFIG_URLS:
+                  try:
+                      resp = requests.get(url, timeout=20, headers={"User-Agent": "Mozilla/5.0"})
+                      content = resp.text
+                      links = re.findall(r'(vless://[^\s#]+)', content)
+                      print(f"[+] {url.split('/')[-1]}: {len(links)} VLESS")
+                      all_links.extend(links)
+                  except Exception as e:
+                      print(f"[-] Error fetching {url}: {e}")
+              # Дедупликация с сохранением порядка
+              all_links = list(dict.fromkeys(all_links))
+              print(f"[✓] Total unique VLESS: {len(all_links)}")
+              return all_links
+
+          def parse_vless(link):
+              try:
+                  clean = link.split('#')[0]
+                  u = urllib.parse.urlparse(clean)
+                  if u.scheme != 'vless':
+                      return None
+                  q = urllib.parse.parse_qs(u.query)
+                  return {
+                      'hostname': u.hostname,
+                      'port': int(u.port) if u.port else 443,
+                      'id': u.username,
+                      'net': q.get('type', ['tcp'])[0],
+                      'security': q.get('security', ['none'])[0],
+                      'sni': q.get('sni', [''])[0],
+                      'fp': q.get('fp', ['chrome'])[0],
+                      'pbk': q.get('pbk', [''])[0],
+                      'sid': q.get('sid', [''])[0],
+                      'flow': q.get('flow', [''])[0],
+                      'original': link
+                  }
+              except:
+                  return None
+
+          def build_xray_cfg(cfg, local_port):
+              stream = {'network': cfg['net'], 'security': 'none'}
+              if cfg['security'] == 'tls':
+                  stream['security'] = 'tls'
+                  stream['tlsSettings'] = {
+                      'serverName': cfg['sni'],
+                      'fingerprint': cfg['fp'],
+                      'allowInsecure': True
+                  }
+              elif cfg['security'] == 'reality':
+                  stream['security'] = 'reality'
+                  stream['realitySettings'] = {
+                      'serverName': cfg['sni'],
+                      'publicKey': cfg['pbk'],
+                      'shortId': cfg['sid'],
+                      'fingerprint': cfg['fp']
+                  }
+              return {
+                  "inbounds": [{
+                      "listen": "127.0.0.1",
+                      "port": local_port,
+                      "protocol": "socks",
+                      "settings": {"auth": "noauth", "udp": False}
+                  }],
+                  "outbounds": [{
+                      "protocol": "vless",
+                      "settings": {
+                          "vnext": [{
+                              "address": cfg['hostname'],
+                              "port": cfg['port'],
+                              "users": [{"id": cfg['id'], "encryption": "none", "flow": cfg['flow']}]
+                          }]
+                      },
+                      "streamSettings": stream
+                  }]
+              }
+
+          def get_free_port():
+              with socket.socket() as s:
+                  s.bind(('', 0))
+                  return s.getsockname()[1]
+
+          def wait_port(port, retries=40):
+              for _ in range(retries):
+                  try:
+                      socket.create_connection(("127.0.0.1", port), timeout=0.5)
+                      return True
+                  except:
+                      time.sleep(0.2)
+              return False
+
+          def test_proxy(port):
+              urls = [
+                  'http://www.gstatic.com/generate_204',
+                  'http://cp.cloudflare.com/generate_204'
+              ]
+              for url in urls:
+                  try:
+                      cmd = [
+                          'curl', '-s', '--max-time', '6',
+                          '-x', f'socks5h://127.0.0.1:{port}',
+                          '-o', '/dev/null', '-w', '%{http_code}',
+                          url
+                      ]
+                      res = subprocess.run(cmd, capture_output=True, text=True, timeout=8)
+                      if res.returncode == 0 and res.stdout.strip() in ('200', '204'):
+                          return True
+                  except:
+                      continue
+              return False
+
+          def get_exit_ip(port):
+              try:
+                  cmd = [
+                      'curl', '-s', '--max-time', '8',
+                      '-x', f'socks5h://127.0.0.1:{port}',
+                      'https://api.ipify.org'
+                  ]
+                  res = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
+                  if res.returncode == 0 and res.stdout.strip():
+                      return res.stdout.strip()
+              except:
+                  pass
+              return None
+
+          def check_one(link):
+              try:
+                  cfg = parse_vless(link)
+                  if not cfg:
+                      return None
+
+                  # Базовая валидация (порт 443 НЕ фильтруем!)
+                  if cfg['flow'] != 'xtls-rprx-vision':
+                      return None
+                  if cfg['fp'] not in ALLOWED_FP:
+                      return None
+
+                  # Резолв + TCP-проверка
+                  ip = resolve(cfg['hostname'])
+                  if not ip or not tcp_check(ip, cfg['port']):
+                      return None
+
+                  # Проверка по российскому вайтлисту
+                  sni = cfg['sni'].lower()
+                  if not (sni in sni_wl or ip in ip_wl or ip_in(ip, cidr_wl)):
+                      return None
+
+                  # Дедупликация
+                  key = (cfg['hostname'], cfg['port'], sni)
+                  with lock:
+                      if key in seen:
+                          return None
+                      seen.add(key)
+
+                  # Запуск Xray
+                  local_port = get_free_port()
+                  xray_cfg = build_xray_cfg(cfg, local_port)
+                  cfg_file = f'cfg_{local_port}.json'
+                  with open(cfg_file, 'w') as f:
+                      json.dump(xray_cfg, f)
+
+                  proc = subprocess.Popen(
+                      [XRAY, 'run', '-c', cfg_file],
+                      stdout=subprocess.DEVNULL,
+                      stderr=subprocess.DEVNULL
+                  )
+                  time.sleep(3)
+
+                  if not wait_port(local_port) or not test_proxy(local_port):
+                      proc.kill()
+                      try: os.remove(cfg_file)
+                      except: pass
+                      return None
+
+                  # Гео-проверка выходного IP
+                  exit_ip = get_exit_ip(local_port)
+                  proc.kill()
+                  proc.wait(2)
+                  try: os.remove(cfg_file)
+                  except: pass
+
+                  if exit_ip:
+                      cc = get_country(exit_ip)
+                      if cc == "RU":
+                          return None
+                      exit_flag = get_flag(cc)
+                  else:
+                      exit_flag = FLAGS['??']
+
+                  # Формирование имени
+                  server_flag = get_flag(get_country(ip))
+                  num = next_id()
+                  sni_disp = cfg['sni'] if cfg['sni'] else cfg['hostname']
+                  star = "⭐" if cfg['net'] == 'xhttp' else ""
+                  name = f"{star}{server_flag}→{num}→{exit_flag} SNI:{sni_disp}"
+
+                  base = link.split("#")[0]
+                  return f"{base}#{name}"
+
+              except Exception as e:
+                  print(f"[!] Error: {link[:60]}... -> {e}")
+                  return None
+
+          # ==================== MAIN ====================
+          print("🌍 Loading GeoIP database...")
+          global country_reader
+          country_reader = geoip2.database.Reader(GEO_DB)
+
+          print("📥 Loading Russian whitelists...")
+          sni_wl = load_set(RU_SNI)
+          ip_wl = load_set(RU_IP)
+          cidr_wl = load_cidr(RU_CIDR)
+          print(f"✓ SNI:{len(sni_wl)} IP:{len(ip_wl)} CIDR:{len(cidr_wl)}")
+
+          print("🔗 Downloading configs...")
+          links = download_and_parse()
+          random.shuffle(links)
+
+          print(f"🔍 Testing {len(links)} links with {MAX_WORKERS} workers...")
+          results = []
+          with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+              futures = [executor.submit(check_one, l) for l in links]
+              for f in as_completed(futures):
+                  r = f.result()
+                  if r:
+                      results.append(r)
+
+          print(f"✅ FINAL: {len(results)} working configs")
+
+          # Запись результатов
+          os.makedirs("githubmirror", exist_ok=True)
+          with open("githubmirror/26_proxy_subscription_raw.txt", "w") as f:
+              f.write(f'# Alive [{datetime.now(timezone.utc)}]\n')
+              for line in results:
+                  f.write(line + "\n")
+
+          with open("githubmirror/26_proxy_subscription_base64.txt", "w") as f:
+              if results:
+                  f.write(base64.b64encode('\n'.join(results).encode()).decode())
+              else:
+                  f.write("")
+
+          country_reader.close()
+          print("📦 Done. Files written to githubmirror/")
+          PYTHON_EOF
+
+      - name: Commit and Push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           git add githubmirror/*.txt
-
-          if git diff --staged --quiet; then
-            echo "No changes"
-          else
-            git commit -m "Update VPN keys [$(date -u +'%Y-%m-%d %H:%M UTC')]"
-            git push origin main
-          fi
+          git commit -m "🔄 Update: $(date +'%Y-%m-%d %H:%M UTC') [${{ github.run_number }}]" || exit 0
+          git push
