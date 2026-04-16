@@ -441,53 +441,110 @@ jobs:
         run: |
           echo "📤 Uploading to Yandex Disk..."
           
-          # Создаём папку /vpn если нет
-          curl -s -X MKCOL -H "Authorization: OAuth $YANDEX_TOKEN" \
-            "https://cloud-api.yandex.net/v1/disk/resources?path=/vpn" 2>/dev/null || true
+          # Функция для загрузки файла
+          upload_file() {
+            local SOURCE_FILE=$1
+            local DISK_PATH=$2
+            local FILE_NAME=$3
+            
+            if [ ! -f "$SOURCE_FILE" ]; then
+              echo "⚠️ File not found: $SOURCE_FILE"
+              return 1
+            fi
+            
+            echo "⬆️ Uploading $FILE_NAME..."
+            
+            # Шаг 1: Получаем ссылку для загрузки
+            UPLOAD_URL=$(curl -s -X GET \
+              -H "Authorization: OAuth $YANDEX_TOKEN" \
+              "https://cloud-api.yandex.net/v1/disk/resources/upload?path=$DISK_PATH&overwrite=true" \
+              | jq -r '.href' 2>/dev/null)
+            
+            if [ -z "$UPLOAD_URL" ] || [ "$UPLOAD_URL" = "null" ]; then
+              echo "❌ Failed to get upload URL for $FILE_NAME"
+              return 1
+            fi
+            
+            # Шаг 2: Загружаем файл по полученной ссылке
+            UPLOAD_RESULT=$(curl -s -X PUT \
+              -H "Content-Type: application/octet-stream" \
+              --data-binary @"$SOURCE_FILE" \
+              "$UPLOAD_URL")
+            
+            if echo "$UPLOAD_RESULT" | grep -q '"error"'; then
+              echo "❌ Upload failed for $FILE_NAME: $UPLOAD_RESULT"
+              return 1
+            fi
+            
+            echo "✅ Uploaded: $FILE_NAME"
+            return 0
+          }
           
-          # Загружаем RAW-файл
-          if [ -f "githubmirror/26_proxy_subscription_raw.txt" ]; then
-            curl -s -X PUT -H "Authorization: OAuth $YANDEX_TOKEN" \
-              -H "Content-Type: text/plain" \
-              --data-binary @githubmirror/26_proxy_subscription_raw.txt \
-              "https://cloud-api.yandex.net/v1/disk/resources/upload?path=/vpn/sub_raw.txt&overwrite=true"
-            echo "✅ Uploaded: sub_raw.txt"
+          # Функция для публикации файла
+          publish_file() {
+            local DISK_PATH=$1
+            local FILE_NAME=$2
+            
+            echo "🌐 Publishing $FILE_NAME..."
+            
+            # Получаем информацию о файле и публикуем
+            PUBLISH_RESULT=$(curl -s -X PATCH \
+              -H "Authorization: OAuth $YANDEX_TOKEN" \
+              -H "Content-Type: application/json" \
+              -d '{"public": true}' \
+              "https://cloud-api.yandex.net/v1/disk/resources?path=$DISK_PATH")
+            
+            if echo "$PUBLISH_RESULT" | grep -q '"public_url"'; then
+              echo "$PUBLISH_RESULT" | jq -r '.public_url' 2>/dev/null
+              return 0
+            else
+              echo "⚠️ Could not publish $FILE_NAME"
+              return 1
+            fi
+          }
+          
+          # Загружаем файлы
+          upload_file "githubmirror/26_proxy_subscription_raw.txt" "/vpn/sub_raw.txt" "sub_raw.txt"
+          RAW_UPLOAD=$?
+          
+          upload_file "githubmirror/26_proxy_subscription_base64.txt" "/vpn/sub_b64.txt" "sub_b64.txt"
+          B64_UPLOAD=$?
+          
+          # Ждём обработки
+          sleep 5
+          
+          # Получаем публичные ссылки
+          echo "🔗 Getting public links..."
+          
+          if [ $RAW_UPLOAD -eq 0 ]; then
+            RAW_LINK=$(publish_file "/vpn/sub_raw.txt" "sub_raw.txt")
+          else
+            RAW_LINK="N/A"
           fi
           
-          # Загружаем Base64-файл
-          if [ -f "githubmirror/26_proxy_subscription_base64.txt" ]; then
-            curl -s -X PUT -H "Authorization: OAuth $YANDEX_TOKEN" \
-              -H "Content-Type: text/plain" \
-              --data-binary @githubmirror/26_proxy_subscription_base64.txt \
-              "https://cloud-api.yandex.net/v1/disk/resources/upload?path=/vpn/sub_b64.txt&overwrite=true"
-            echo "✅ Uploaded: sub_b64.txt"
+          if [ $B64_UPLOAD -eq 0 ]; then
+            B64_LINK=$(publish_file "/vpn/sub_b64.txt" "sub_b64.txt")
+          else
+            B64_LINK="N/A"
           fi
           
-          # Публикуем файлы
-          curl -s -X PUT -H "Authorization: OAuth $YANDEX_TOKEN" \
-            -H "Content-Type: application/json" \
-            -d '{"public": true}' \
-            "https://cloud-api.yandex.net/v1/disk/resources/publish?path=/vpn/sub_raw.txt" 2>/dev/null || true
-          curl -s -X PUT -H "Authorization: OAuth $YANDEX_TOKEN" \
-            -H "Content-Type: application/json" \
-            -d '{"public": true}' \
-            "https://cloud-api.yandex.net/v1/disk/resources/publish?path=/vpn/sub_b64.txt" 2>/dev/null || true
-          
-          sleep 3
-          
-          # Получаем ссылки
           echo "🔗 Public links:"
-          RAW_LINK=$(curl -s -H "Authorization: OAuth $YANDEX_TOKEN" \
-            "https://cloud-api.yandex.net/v1/disk/resources?path=/vpn/sub_raw.txt" 2>/dev/null | grep -o '"public_url":"[^"]*"' | cut -d'"' -f4 || echo "N/A")
-          B64_LINK=$(curl -s -H "Authorization: OAuth $YANDEX_TOKEN" \
-            "https://cloud-api.yandex.net/v1/disk/resources?path=/vpn/sub_b64.txt" 2>/dev/null | grep -o '"public_url":"[^"]*"' | cut -d'"' -f4 || echo "N/A")
-          
           echo "RAW:  $RAW_LINK"
           echo "B64:  $B64_LINK"
           
+          # Сохраняем ссылки в файл
           echo "🔗 Yandex Disk Links (updated $(date -u +'%Y-%m-%d %H:%M UTC'))" > githubmirror/yandex_links.txt
           echo "RAW: $RAW_LINK" >> githubmirror/yandex_links.txt
           echo "B64: $B64_LINK" >> githubmirror/yandex_links.txt
+          
+          # Выводим ссылки для удобного копирования из логов
+          echo ""
+          echo "═══════════════════════════════════════"
+          echo "📋 КОПИРУЙТЕ ЭТИ ССЫЛКИ ДЛЯ КЛИЕНТОВ:"
+          echo "═══════════════════════════════════════"
+          echo "✅ RAW:  $RAW_LINK"
+          echo "✅ B64:  $B64_LINK"
+          echo "═══════════════════════════════════════"
           
       - name: Commit and Push
         run: |
