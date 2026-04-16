@@ -1,4 +1,4 @@
-name: Check VPN keys via Xray (v2rayNG/NekoBox/Karing style - FIXED)
+name: "Check VPN keys via Xray (v2rayNG/NekoBox/Karing style - FIXED)"
 
 on:
   schedule:
@@ -35,14 +35,14 @@ jobs:
           chmod +x xray
           ./xray version
 
-      - name: Setup & Prepare
+      - name: Setup and Prepare
         run: |
           mkdir -p githubmirror
           : > githubmirror/26_proxy_subscription_raw.txt
           : > githubmirror/26_proxy_subscription_base64.txt
           : > debug.log
 
-      - name: Download & Parse subscription
+      - name: Download and Parse subscription
         run: |
           echo "📥 Downloading..."
           curl -s -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" \
@@ -61,7 +61,7 @@ open('vless_links.txt', 'w').write('\n'.join(links) + '\n')
 
       - name: Check VLESS via Xray
         run: |
-          python3 << EOF
+          python3 << 'EOF'
 import subprocess
 import time
 import json
@@ -218,7 +218,7 @@ if alive:
         f.write(b64)
 EOF
 
-      - name: Debug & Commit
+      - name: Debug and Commit
         run: |
           echo "=== DEBUG ==="
           ls -la githubmirror/
