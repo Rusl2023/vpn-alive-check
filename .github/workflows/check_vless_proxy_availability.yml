@@ -433,7 +433,62 @@ jobs:
           country_reader.close()
           print("📦 Done. Files written to githubmirror/")
           PYTHON_EOF
-
+          
+      - name: Upload to Yandex Disk
+        if: always()
+        env:
+          YANDEX_TOKEN: ${{ secrets.YANDEX_OAUTH_TOKEN }}
+        run: |
+          echo "📤 Uploading to Yandex Disk..."
+          
+          # Создаём папку /vpn если нет
+          curl -s -X MKCOL -H "Authorization: OAuth $YANDEX_TOKEN" \
+            "https://cloud-api.yandex.net/v1/disk/resources?path=/vpn" 2>/dev/null || true
+          
+          # Загружаем RAW-файл
+          if [ -f "githubmirror/26_proxy_subscription_raw.txt" ]; then
+            curl -s -X PUT -H "Authorization: OAuth $YANDEX_TOKEN" \
+              -H "Content-Type: text/plain" \
+              --data-binary @githubmirror/26_proxy_subscription_raw.txt \
+              "https://cloud-api.yandex.net/v1/disk/resources/upload?path=/vpn/sub_raw.txt&overwrite=true"
+            echo "✅ Uploaded: sub_raw.txt"
+          fi
+          
+          # Загружаем Base64-файл
+          if [ -f "githubmirror/26_proxy_subscription_base64.txt" ]; then
+            curl -s -X PUT -H "Authorization: OAuth $YANDEX_TOKEN" \
+              -H "Content-Type: text/plain" \
+              --data-binary @githubmirror/26_proxy_subscription_base64.txt \
+              "https://cloud-api.yandex.net/v1/disk/resources/upload?path=/vpn/sub_b64.txt&overwrite=true"
+            echo "✅ Uploaded: sub_b64.txt"
+          fi
+          
+          # Публикуем файлы
+          curl -s -X PUT -H "Authorization: OAuth $YANDEX_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d '{"public": true}' \
+            "https://cloud-api.yandex.net/v1/disk/resources/publish?path=/vpn/sub_raw.txt" 2>/dev/null || true
+          curl -s -X PUT -H "Authorization: OAuth $YANDEX_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d '{"public": true}' \
+            "https://cloud-api.yandex.net/v1/disk/resources/publish?path=/vpn/sub_b64.txt" 2>/dev/null || true
+          
+          sleep 3
+          
+          # Получаем ссылки
+          echo "🔗 Public links:"
+          RAW_LINK=$(curl -s -H "Authorization: OAuth $YANDEX_TOKEN" \
+            "https://cloud-api.yandex.net/v1/disk/resources?path=/vpn/sub_raw.txt" 2>/dev/null | grep -o '"public_url":"[^"]*"' | cut -d'"' -f4 || echo "N/A")
+          B64_LINK=$(curl -s -H "Authorization: OAuth $YANDEX_TOKEN" \
+            "https://cloud-api.yandex.net/v1/disk/resources?path=/vpn/sub_b64.txt" 2>/dev/null | grep -o '"public_url":"[^"]*"' | cut -d'"' -f4 || echo "N/A")
+          
+          echo "RAW:  $RAW_LINK"
+          echo "B64:  $B64_LINK"
+          
+          echo "🔗 Yandex Disk Links (updated $(date -u +'%Y-%m-%d %H:%M UTC'))" > githubmirror/yandex_links.txt
+          echo "RAW: $RAW_LINK" >> githubmirror/yandex_links.txt
+          echo "B64: $B64_LINK" >> githubmirror/yandex_links.txt
+          
       - name: Commit and Push
         run: |
           git config user.name "github-actions[bot]"
