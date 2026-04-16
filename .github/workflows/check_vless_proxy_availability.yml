@@ -16,9 +16,6 @@ jobs:
     permissions:
       contents: write
 
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -134,7 +131,7 @@ jobs:
           seen = set()
           lock = Lock()
           counter = 0
-          country_reader = None  # Инициализация на уровне модуля
+          country_reader = None
 
           def next_id():
               global counter
@@ -327,6 +324,10 @@ jobs:
                   if not cfg:
                       return None
 
+                  # 🔒 ФИЛЬТР ПО ПОРТУ 443 (добавлено по запросу)
+                  if cfg['port'] != 443:
+                      return None
+
                   if cfg['flow'] != 'xtls-rprx-vision':
                       return None
                   if cfg['fp'] not in ALLOWED_FP:
@@ -394,7 +395,7 @@ jobs:
 
           # ==================== MAIN ====================
           print("🌍 Loading GeoIP database...")
-          country_reader = geoip2.database.Reader(GEO_DB)  # Прямое присваивание без global
+          country_reader = geoip2.database.Reader(GEO_DB)
 
           print("📥 Loading Russian whitelists...")
           sni_wl = load_set(RU_SNI)
