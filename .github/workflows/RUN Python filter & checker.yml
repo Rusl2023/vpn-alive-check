@@ -1,16 +1,13 @@
-name: RU MAX FILTER (v2.3 SOFT Mobile by Grok)
+name: RU MAX FILTER (v2.5 SMART WL Mobile)
 
 on:
   schedule:
-    - cron: '0 */3 * * *'      # каждые 3 часа
+    - cron: '0 */3 * * *'
   workflow_dispatch:
 
 concurrency:
-  group: ru-max-soft-mobile
+  group: ru-max-smart
   cancel-in-progress: true
-
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true  # Fix Node.js 20 deprecation
 
 jobs:
   check:
@@ -20,441 +17,306 @@ jobs:
       contents: write
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Install dependencies
+      - name: Install
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y curl jq unzip python3 python3-pip
           pip3 install -q requests geoip2
 
-      - name: Download Xray
+      - name: Xray
         run: |
           XRAY_VER=$(curl -s https://api.github.com/repos/XTLS/Xray-core/releases/latest | jq -r .tag_name)
-          curl -L -o xray.zip "https://github.com/XTLS/Xray-core/releases/download/${XRAY_VER}/Xray-linux-64.zip"
+          curl -L -o xray.zip https://github.com/XTLS/Xray-core/releases/download/${XRAY_VER}/Xray-linux-64.zip
           unzip -o xray.zip xray geoip.dat geosite.dat
           chmod +x xray
 
-      - name: Download GeoLite2 Country
+      - name: GeoIP
         run: |
           curl -L -o GeoLite2-Country.mmdb https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-Country.mmdb
 
-      - name: Prepare output directory
-        run: mkdir -p githubmirror
-
-      - name: RUN Python filter & checker (v2.3 SOFT Mobile by Grok)
+      - name: Run
         run: |
-          python3 << 'PYTHON_EOF'
-          import os, socket, urllib.parse, requests, random, ipaddress, subprocess, time, json, base64, re, hashlib
-          from concurrent.futures import ThreadPoolExecutor, as_completed          from threading import Lock
-          from datetime import datetime, timezone
-          from urllib.parse import parse_qs, urlparse, unquote
+          python3 << 'PY'
+          import os, socket, requests, random, subprocess, time, json, base64, re
+          from concurrent.futures import ThreadPoolExecutor
+          from urllib.parse import urlparse, parse_qs, unquote
+          from threading import Lock
           import geoip2.database
 
-          # ==================== НАСТРОЙКИ v2.3 SOFT MOBILE ====================
-          MAX_WORKERS = 25
-          TIMEOUT_TCP = 3.0
-          TIMEOUT_PROXY = 8
-          MAX_LATENCY_MS = 4000
-          XRAY = "./xray"
-          GEO_DB = "GeoLite2-Country.mmdb"
-          MIN_SNI_LENGTH = 3
+          XRAY="./xray"
+          GEO="GeoLite2-Country.mmdb"
 
-          CONFIG_URLS = [
-              "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt",
-              "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile-2.txt",
-              "https://raw.githubusercontent.com/RUNoName/V.O.I.D-VPN_Bypass/refs/heads/main/configs/url_work.txt",
-              "https://raw.githubusercontent.com/GoldCaviar/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt",
-              "https://raw.githubusercontent.com/zieng2/wl/main/vless_lite.txt",
-              "https://gitverse.ru/api/repos/RUVIPIEN/russian-white-bolt/raw/branch/master/VPNMIRRORS/v2ray/VLESS_Reality_White_3eac2d.txt",
-              "https://raw.githubusercontent.com/EtoNeYaProject/EtoNeYaProject.github.io/refs/heads/main/whitelist",
-              "https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt"
+          MAX_WORKERS=20
+          TIMEOUT_TCP=3
+          MAX_LAT=4000
+
+          CONFIG_URLS=[
+              "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt"
           ]
 
-          RU_SNI = "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/whitelist.txt"
-
-          # Расширенные SNI для мобильных операторов 2026
-          SNI_PATTERNS = [
-              r'.*\.x5\.ru\( ', r'.*\.oneme\.ru \)', r'.*\.sbermarket\.ru\( ', r'.*\.max\.ru \)',
-              r'.*\.yandex\.(ru|net|com)\( ', r'.*\.vk\.com \)', r'.*\.userapi\.com$',
-              r'.*\.mail\.ru\( ', r'.*\.ok\.ru \)', r'.*\.wildberries\.ru\( ', r'.*\.ozon\.ru \)',
-              r'.*\.sberbank\.ru\( ', r'browser\.yandex\.com \)', r'ads\.x5\.ru\( ', r'5post-gate\.x5\.ru \)',
-              r'www\.vk\.ru\( ', r'i\.oneme\.ru \)', r'kinopoisk\.ru\( ', r'rutube\.ru \)'
+          # 📡 MULTI SOURCE WHITELIST
+          WL_URLS=[
+              "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/whitelist.txt",
+              "https://raw.githubusercontent.com/itdoginfo/allow-domains/main/Russia/inside-dnsmasq.txt"
           ]
 
-          ALLOWED_FP = {"chrome", "firefox", "safari", "ios", "android", "edge", "360", "qq", "random", "randomized"}
-          PREFERRED_NET = {"tcp", "xhttp", "grpc", "ws", "httpupgrade"}
-          ALLOWED_PORTS = {443, 8443, 2053, 2083, 2087, 2096, 5443, 9443, 4443, 8443}
-
-          ALLOWED_EXIT_COUNTRIES = {'DE', 'NL', 'FI', 'EE', 'LV', 'LT', 'PL', 'CZ', 'AT', 'CH', 'SE', 'NO', 'DK', 'KZ', 'BY', 'UA', 'TR', 'AE', 'FR', 'IT', 'ES', 'RO', 'BG'}
-          BLOCKED_EXIT_COUNTRIES = {'RU', 'CN', 'IR', 'KP'}
-
-          BLOCKED_ASN_RANGES = [
-              ipaddress.ip_network('3.0.0.0/8'),       # AWS (частично)
+          # fallback patterns
+          SNI_PATTERNS=[
+              r'.*\.yandex\.(ru|net|com)$',
+              r'.*\.vk\.com$',
+              r'.*\.mail\.ru$',
+              r'.*\.ozon\.ru$',
+              r'.*\.wildberries\.ru$',
+              r'.*\.sberbank\.ru$'
           ]
 
-          FLAGS = {
-              'DE': '🇩🇪DE', 'NL': '🇳🇱NL', 'FI': '🇫🇮FI', 'EE': '🇪🇪EE', 'LV': '🇱🇻LV', 'LT': '🇱🇹LT',
-              'PL': '🇵🇱PL', 'CZ': '🇨🇿CZ', 'AT': '🇦🇹AT', 'CH': '🇨🇭CH', 'SE': '🇸🇪SE', 'NO': '🇳🇴NO',              'DK': '🇩🇰DK', 'KZ': '🇰🇿KZ', 'BY': '🇧🇾BY', 'UA': '🇺🇦UA', 'TR': '🇹🇷TR', 'AE': '🇦🇪AE',
-              'FR': '🇫🇷FR', 'IT': '🇮🇹IT', 'ES': '🇪🇸ES', 'RO': '🇷🇴RO', 'BG': '🇧🇬BG',
-              '??': '🌍??'
-          }
+          ALLOWED_PORTS={443,8443,2053,2083,2087,2096,5443,9443}
+          BLOCKED_CC={'RU','CN','IR','KP'}
 
-          dns_cache = {}
-          seen_hashes = set()
-          seen_keys = set()
-          lock = Lock()
-          counter = 0
-          country_reader = None
-          sni_wl = set()
+          lock=Lock()
+          seen=set()
+          counter=0
+          WL=set()
 
           def next_id():
               global counter
               with lock:
-                  counter += 1
+                  counter+=1
                   return counter
 
-          def load_set(url):
-              try:
-                  resp = requests.get(url, timeout=25, headers={"User-Agent": "Mozilla/5.0"})
-                  return set(line.strip().lower() for line in resp.text.splitlines() if line.strip() and not line.startswith('#'))
-              except Exception as e:
-                  print(f"[!] Failed to load {url}: {e}")
-                  return set()
+          # 🔥 SMART WL LOADER
+          def load_wl():
+              out=set()
+              for url in WL_URLS:
+                  try:
+                      r=requests.get(url,timeout=20)
+                      for line in r.text.splitlines():
+                          d=line.strip().lower()
 
-          def resolve_with_fallback(hostname: str) -> str | None:
-              if hostname in dns_cache: return dns_cache[hostname]
-              try:
-                  ip = socket.gethostbyname(hostname)
-                  dns_cache[hostname] = ip
-                  return ip
-              except: pass
-              try:
-                  resp = requests.get(f"https://common.dot.dns.yandex.net/dns-query?name={hostname}&type=A", headers={"Accept": "application/dns-json"}, timeout=4)
-                  data = resp.json()
-                  if data.get('Answer'):
-                      ip = data['Answer'][0]['data']
-                      dns_cache[hostname] = ip
-                      return ip
-              except: pass
-              dns_cache[hostname] = None
-              return None
+                          if not d or d.startswith("#"):
+                              continue
 
-          def tcp_check(ip: str, port: int, timeout: float = TIMEOUT_TCP) -> bool:
+                          # normalize
+                          d=d.replace("server=/","").replace("/","")
+                          d=d.replace("address=/","")
+
+                          # remove wildcards
+                          d=d.lstrip(".*")
+
+                          if "." in d and len(d)>3:
+                              out.add(d)
+                  except:
+                      pass
+              return out
+
+          def resolve(h):
+              try: return socket.gethostbyname(h)
+              except: return None
+
+          def tcp(ip,p):
               try:
-                  s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                  s.settimeout(timeout)
-                  result = s.connect_ex((ip, port)) == 0                  s.close()
-                  return result
-              except: return False
-
-          def get_country(ip: str) -> str:
-              try:
-                  r = country_reader.country(ip)
-                  return r.country.iso_code or "??"
-              except: return "??"
-
-          def get_flag(cc: str) -> str:
-              return FLAGS.get(cc, FLAGS['??'])
-
-          def generate_config_hash(cfg: dict) -> str:
-              key = f"{cfg['hostname']}:{cfg['port']}:{cfg['id']}:{cfg.get('pbk','')[:16]}"
-              return hashlib.sha256(key.encode()).hexdigest()[:16]
-
-          def validate_pbk(pbk: str) -> bool:
-              if not pbk or len(pbk) != 44: return False
-              try:
-                  base64.b64decode(pbk, validate=True)
+                  s=socket.create_connection((ip,p),timeout=TIMEOUT_TCP)
+                  s.close()
                   return True
               except: return False
 
-          def validate_sid(sid: str) -> bool:
-              if not sid: return True
-              return bool(re.match(r'^[0-9a-fA-F]{2,8}$', sid))
-
-          def has_anti_dpi_features(cfg: dict) -> bool:
-              return cfg.get('fp') in ALLOWED_FP and cfg.get('net') in PREFERRED_NET
-
-          def download_and_parse():
-              all_links = []
-              for url in CONFIG_URLS:
-                  try:
-                      resp = requests.get(url, timeout=30, headers={"User-Agent": "Mozilla/5.0"})
-                      links = re.findall(r'(vless://[^\s#"\']+(?:#[^#\n]*)?)', resp.text)
-                      print(f"[+] {url.split('/')[-1]}: {len(links)} VLESS found")
-                      all_links.extend(links)
-                  except Exception as e:
-                      print(f"[-] Error fetching {url}: {e}")
-              all_links = list(dict.fromkeys(all_links))
-              print(f"[✓] Total unique VLESS URIs: {len(all_links)}")
-              return all_links
-
-          def parse_vless(link: str) -> dict | None:
+          def parse(link):
               try:
-                  clean = link.split('#')[0]
-                  u = urlparse(clean)
-                  if u.scheme != 'vless' or not u.hostname: return None                  q = parse_qs(u.query)
-                  cfg = {
-                      'hostname': u.hostname,
-                      'port': int(u.port) if u.port else 443,
-                      'id': unquote(u.username or ''),
-                      'net': q.get('type', ['tcp'])[0].lower(),
-                      'security': q.get('security', ['none'])[0].lower(),
-                      'sni': q.get('sni', [''])[0].lower(),
-                      'fp': q.get('fp', ['chrome'])[0].lower(),
-                      'pbk': q.get('pbk', [''])[0],
-                      'sid': q.get('sid', [''])[0],
-                      'flow': q.get('flow', [''])[0],
-                      'path': q.get('path', [''])[0],
+                  u=urlparse(link.split('#')[0])
+                  q=parse_qs(u.query)
+                  return {
+                      "host":u.hostname,
+                      "port":int(u.port or 443),
+                      "id":unquote(u.username or ''),
+                      "net":q.get('type',['tcp'])[0],
+                      "sni":q.get('sni',[''])[0],
+                      "fp":q.get('fp',['chrome'])[0],
+                      "pbk":q.get('pbk',[''])[0],
+                      "sec":q.get('security',[''])[0]
                   }
-                  if cfg['security'] != 'reality': return None
-                  if not validate_pbk(cfg['pbk']): return None
-                  if not validate_sid(cfg['sid']): return None
-                  if len(cfg['sni']) < MIN_SNI_LENGTH: return None
-                  return cfg
               except: return None
 
-          def build_xray_cfg(cfg: dict, local_port: int) -> dict:
-              stream = {'network': cfg['net'], 'security': 'none'}
-              if cfg['security'] == 'reality':
-                  reality = {'serverName': cfg['sni'], 'publicKey': cfg['pbk'], 'fingerprint': cfg['fp']}
-                  if cfg.get('sid'): reality['shortId'] = cfg['sid']
-                  stream['security'] = 'reality'
-                  stream['realitySettings'] = reality
+          def sni_ok(sni):
+              if not sni: return False
 
-              if cfg['net'] == 'xhttp':
-                  stream['xhttpSettings'] = {"mode": "packet-up", "path": cfg.get('path') or "/"}
-              elif cfg['net'] == 'grpc':
-                  stream['grpcSettings'] = {"serviceName": ""}
-              elif cfg['net'] in ['ws', 'httpupgrade']:
-                  stream['wsSettings'] = {"path": cfg.get('path') or "/"}
+              if sni in WL:
+                  return True
 
-              # ✅ ИСПРАВЛЕНО: корректное закрытие скобок в outbounds
+              # subdomain match
+              for d in WL:
+                  if sni.endswith("."+d):
+                      return True
+
+              # fallback patterns
+              return any(re.match(p,sni) for p in SNI_PATTERNS)
+
+          def build(cfg,port):
               return {
-                  "log": {"loglevel": "error"},
-                  "inbounds": [{"listen": "127.0.0.1", "port": local_port, "protocol": "socks", "settings": {"auth": "noauth", "udp": False}}],
-                  "outbounds": [{
-                      "protocol": "vless",
-                      "settings": {
-                          "vnext": [{
-                              "address": cfg['hostname'],
-                              "port": cfg['port'],
-                              "users": [{
-                                  "id": cfg['id'],
-                                  "encryption": "none",
-                                  "flow": cfg.get('flow') or ''                              }]
-                          }]
-                      },
-                      "streamSettings": stream,
-                      "tag": "proxy"
-                  }],
-                  "routing": {"rules": [{"type": "field", "ip": ["geoip:private"], "outboundTag": "direct"}]}
+                  "inbounds":[{"port":port,"listen":"127.0.0.1","protocol":"socks"}],
+                  "outbounds":[{
+                      "protocol":"vless",
+                      "settings":{"vnext":[{"address":cfg['host'],"port":cfg['port'],
+                      "users":[{"id":cfg['id'],"encryption":"none"}]}]},
+                      "streamSettings":{
+                          "network":cfg['net'],
+                          "security":"reality",
+                          "realitySettings":{
+                              "serverName":cfg['sni'],
+                              "publicKey":cfg['pbk'],
+                              "fingerprint":cfg['fp']
+                          }
+                      }
+                  }]
               }
 
-          def get_free_port() -> int:
-              with socket.socket() as s:
-                  s.bind(('', 0))
-                  return s.getsockname()[1]
+          def free_port():
+              s=socket.socket()
+              s.bind(('',0))
+              p=s.getsockname()[1]
+              s.close()
+              return p
 
-          def wait_port(port: int, retries: int = 40, delay: float = 0.3) -> bool:
-              for _ in range(retries):
+          def wait(p):
+              for _ in range(30):
                   try:
-                      socket.create_connection(("127.0.0.1", port), timeout=0.6)
+                      socket.create_connection(("127.0.0.1",p),timeout=0.5)
                       return True
-                  except: time.sleep(delay)
+                  except: time.sleep(0.2)
               return False
 
-          def test_proxy_latency(port: int) -> float | None:
-              test_urls = ['https://httpbin.org/ip', 'https://api.ipify.org?format=json', 'https://ifconfig.me/ip']
-              for url in test_urls:
-                  try:
-                      cmd = ['curl', '-s', '--max-time', str(TIMEOUT_PROXY), '-x', f'socks5h://127.0.0.1:{port}', '-w', '%{time_total}', '-o', '/dev/null', url]
-                      res = subprocess.run(cmd, capture_output=True, text=True, timeout=TIMEOUT_PROXY + 4)
-                      if res.returncode == 0 and res.stdout.strip():
-                          latency = float(res.stdout.strip()) * 1000
-                          if latency < MAX_LATENCY_MS: return latency
-                  except: continue
-              return None
-
-          def get_exit_ip(port: int) -> str | None:
+          def latency(p):
               try:
-                  cmd = ['curl', '-s', '--max-time', '12', '-x', f'socks5h://127.0.0.1:{port}', 'https://api.ipify.org']
-                  res = subprocess.run(cmd, capture_output=True, text=True, timeout=15)
-                  if res.returncode == 0 and res.stdout.strip(): return res.stdout.strip()
-              except: pass
-              return None
+                  t=time.time()
+                  subprocess.run(
+                      ["curl","-s","--max-time","6","-x",f"socks5h://127.0.0.1:{p}","https://api.ipify.org"],
+                      stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL
+                  )
+                  return (time.time()-t)*1000
+              except: return None
 
-          def is_hosting_blocked(ip: str) -> bool:
+          def exit_ip(p):
               try:
-                  ip_obj = ipaddress.ip_address(ip)
-                  return any(ip_obj in net for net in BLOCKED_ASN_RANGES)
-              except: return False
+                  r=subprocess.run(
+                      ["curl","-s","--max-time","8","-x",f"socks5h://127.0.0.1:{p}","https://api.ipify.org"],
+                      capture_output=True,text=True
+                  )
+                  return r.stdout.strip()
+              except: return None
 
-          def calculate_score(cfg: dict, latency_ms: float, exit_cc: str) -> int:
-              score = 80              if cfg['net'] == 'xhttp': score += 30
-              if cfg['net'] == 'grpc': score += 15
-              if cfg['net'] in ['ws', 'httpupgrade']: score += 10
-              if cfg['fp'] in ['random', 'randomized']: score += 12
-              if cfg['port'] == 443: score += 8
-              if latency_ms < 800: score += 20
-              elif latency_ms < 2000: score += 12
-              if exit_cc in BLOCKED_EXIT_COUNTRIES: score -= 60
-              return max(0, score)
+          reader=geoip2.database.Reader(GEO)
 
-          def check_one(link: str) -> str | None:
-              reason = ""
-              cfg = None
+          def cc(ip):
+              try: return reader.country(ip).country.iso_code or "??"
+              except: return "??"
+
+          def score(lat):
+              if lat<800: return 100
+              if lat<2000: return 80
+              return 50
+
+          def check(link):
+              proc=None
+              file=None
               try:
-                  cfg = parse_vless(link)
-                  if not cfg:
-                      reason = "parse failed"
+                  cfg=parse(link)
+                  if not cfg or cfg['sec']!="reality":
                       return None
 
                   if cfg['port'] not in ALLOWED_PORTS:
-                      reason = f"bad port {cfg['port']}"
-                      return None
-                  if not has_anti_dpi_features(cfg):
-                      reason = f"bad fp/net {cfg.get('fp')} / {cfg.get('net')}"
                       return None
 
-                  ip = resolve_with_fallback(cfg['hostname'])
-                  if not ip or not tcp_check(ip, cfg['port']):
-                      reason = "tcp check failed"
+                  if not sni_ok(cfg['sni']):
                       return None
 
-                  sni_match = any(re.match(p, cfg['sni'], re.I) for p in SNI_PATTERNS) or cfg['sni'] in sni_wl
-                  if not sni_match:
-                      reason = f"SNI not in whitelist: {cfg['sni']}"
+                  ip=resolve(cfg['host'])
+                  if not ip or not tcp(ip,cfg['port']):
                       return None
 
-                  cfg_hash = generate_config_hash(cfg)
-                  dedup_key = (cfg['hostname'], cfg['port'], cfg['sni'], cfg['pbk'][:12])
+                  key=(cfg['host'],cfg['port'],cfg['sni'])
                   with lock:
-                      if cfg_hash in seen_hashes or dedup_key in seen_keys:
-                          reason = "duplicate"
-                          return None
-                      seen_hashes.add(cfg_hash)
-                      seen_keys.add(dedup_key)
+                      if key in seen: return None
+                      seen.add(key)
 
-                  local_port = get_free_port()
-                  xray_cfg = build_xray_cfg(cfg, local_port)
-                  cfg_file = f'cfg_{local_port}.json'
-                  with open(cfg_file, 'w') as f: json.dump(xray_cfg, f)
-                  proc = subprocess.Popen([XRAY, 'run', '-c', cfg_file], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
-                  time.sleep(3)
+                  port=free_port()
+                  file=f"cfg_{port}.json"
 
-                  if not wait_port(local_port):
-                      reason = "xray not listening"
-                      proc.kill()
-                      try: os.remove(cfg_file)
-                      except: pass
+                  with open(file,"w") as f:
+                      json.dump(build(cfg,port),f)
+
+                  proc=subprocess.Popen([XRAY,"run","-c",file],
+                      stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+
+                  time.sleep(2)
+
+                  if not wait(port):
                       return None
 
-                  latency = test_proxy_latency(local_port)
-                  if not latency:
-                      reason = "latency test failed"
-                      proc.kill()
-                      try: os.remove(cfg_file)
-                      except: pass
+                  lat=latency(port)
+                  if not lat or lat>MAX_LAT:
                       return None
 
-                  exit_ip = get_exit_ip(local_port)
-                  proc.kill()
-                  proc.wait(2)
-                  try: os.remove(cfg_file)
-                  except: pass
-
-                  if not exit_ip:
-                      reason = "no exit ip"
+                  eip=exit_ip(port)
+                  if not eip:
                       return None
 
-                  exit_cc = get_country(exit_ip)
-                  if exit_cc in BLOCKED_EXIT_COUNTRIES or is_hosting_blocked(exit_ip):
-                      reason = f"bad exit country {exit_cc} or hosting"
+                  country=cc(eip)
+                  if country in BLOCKED_CC:
                       return None
 
-                  exit_flag = get_flag(exit_cc)
-                  server_cc = get_country(ip)
-                  server_flag = get_flag(server_cc)
+                  sc=score(lat)
+                  num=next_id()
 
-                  score = calculate_score(cfg, latency, exit_cc)
-                  if score < 30:
-                      reason = f"low score {score}"
-                      return None
+                  name=f"{country}-{num}-{int(lat)}ms★{sc}"
+                  return link.split("#")[0]+"#"+name
 
-                  num = next_id()
-                  sni_disp = cfg['sni'] if cfg['sni'] else cfg['hostname']
-                  star = "⭐" if cfg['net'] == 'xhttp' else "◆" if cfg['net'] == 'grpc' else "◈" if cfg['net'] in ['ws','httpupgrade'] else ""
-                  latency_tag = f"{int(latency)}ms"
-
-                  name = f"{star}{server_flag}→{num}→{exit_flag} SNI:{sni_disp} {latency_tag}★{score} [{cfg['net']}]"
-
-                  base = link.split("#")[0]                  return f"{base}#{name}"
-
-              except Exception as e:
-                  reason = f"exception: {str(e)[:80]}"
+              except:
                   return None
               finally:
-                  if reason and cfg and random.random() < 0.05:
-                      print(f"[SKIP] {reason} | SNI: {cfg.get('sni','?')} Net: {cfg.get('net','?')}")
+                  if proc:
+                      try: proc.kill()
+                      except: pass
+                  if file and os.path.exists(file):
+                      try: os.remove(file)
+                      except: pass
 
-          # ==================== MAIN ====================
-          print("🌍 Loading GeoIP database...")
-          country_reader = geoip2.database.Reader(GEO_DB)
+          print("LOAD WL...")
+          WL=load_wl()
+          print("WL size:",len(WL))
 
-          print("📥 Loading Russian mobile SNI whitelist...")
-          sni_wl = load_set(RU_SNI)
-          print(f"✓ Loaded SNI whitelist: {len(sni_wl)} domains")
+          links=[]
+          for u in CONFIG_URLS:
+              try:
+                  r=requests.get(u,timeout=20)
+                  links+=re.findall(r'vless://[^\s]+',r.text)
+              except: pass
 
-          print("🔗 Downloading configs from sources...")
-          links = download_and_parse()
+          links=list(set(links))
           random.shuffle(links)
 
-          print(f"🔍 Testing {len(links)} configs with {MAX_WORKERS} workers (v2.3 SOFT Mobile)...")
-          start_time = time.time()
-          results = []
-
-          with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-              futures = [executor.submit(check_one, l) for l in links]
-              for i, f in enumerate(as_completed(futures), 1):
-                  r = f.result()
+          results=[]
+          with ThreadPoolExecutor(MAX_WORKERS) as ex:
+              for r in ex.map(check,links):
                   if r: results.append(r)
-                  if i % 40 == 0:
-                      elapsed = time.time() - start_time
-                      rate = i / elapsed if elapsed > 0 else 0
-                      print(f"⏳ Progress: {i}/{len(links)} | Found: {len(results)} | Rate: {rate:.1f}/s")
 
-          elapsed = time.time() - start_time
-          print(f"\n✅ FINAL v2.3 SOFT Mobile: {len(results)} working configs in {elapsed:.1f}s")
+          results.sort(reverse=True)
 
-          results.sort(key=lambda x: int(x.split('★')[-1]) if '★' in x else 0, reverse=True)
+          os.makedirs("githubmirror",exist_ok=True)
 
-          RAW_FILE = "githubmirror/26_proxy_subscription_raw_v2.3_mobile.txt"
-          BASE64_FILE = "githubmirror/26_proxy_subscription_base64_v2.3_mobile.txt"
+          with open("githubmirror/sub.txt","w") as f:
+              f.write("\n".join(results))
 
-          with open(RAW_FILE, "w", encoding='utf-8') as f:
-              f.write(f'# ✅ RU Mobile Alive v2.3 SOFT by Grok [{datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")}]\n')
-              f.write(f'# Optimized for Russian mobile operators (MTS/Megafon/Beeline/Tele2) - weaker filters\n\n')
-              for line in results:
-                  f.write(line + "\n")
+          with open("githubmirror/sub64.txt","w") as f:
+              f.write(base64.b64encode("\n".join(results).encode()).decode())
 
-          with open(BASE64_FILE, "w", encoding='utf-8') as f:              content = '\n'.join(results) if results else ""
-              f.write(base64.b64encode(content.encode()).decode())
+          print("DONE",len(results))
+          PY
 
-          country_reader.close()
-          print(f"📦 Files written: {RAW_FILE} | {BASE64_FILE} | Total: {len(results)} configs")
-          PYTHON_EOF
-
-      - name: Commit and Push results
+      - name: Push
         run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git config --global user.name bot
+          git config --global user.email bot@bot.com
           git add githubmirror/
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "Update: RU Mobile Alive v2.3 SOFT by Grok [$(date -u +'%Y-%m-%d %H:%M UTC')]"
-            git push
-          fi
-        shell: bash
+          git commit -m "update smart wl" || echo "no changes"
+          git push
