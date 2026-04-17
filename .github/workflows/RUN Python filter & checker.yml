@@ -1,20 +1,13 @@
-name: RU MAX FILTER (v2.5 SMART WL Mobile)
+name: RU MAX FILTER (v2.6 WORKING)
 
 on:
   schedule:
     - cron: '0 */3 * * *'
   workflow_dispatch:
 
-concurrency:
-  group: ru-max-smart
-  cancel-in-progress: true
-
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 70
-    permissions:
-      contents: write
 
     steps:
       - uses: actions/checkout@v4
@@ -23,93 +16,56 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y curl jq unzip python3 python3-pip
-          pip3 install -q requests geoip2
+          pip3 install requests geoip2
 
       - name: Xray
         run: |
           XRAY_VER=$(curl -s https://api.github.com/repos/XTLS/Xray-core/releases/latest | jq -r .tag_name)
           curl -L -o xray.zip https://github.com/XTLS/Xray-core/releases/download/${XRAY_VER}/Xray-linux-64.zip
-          unzip -o xray.zip xray geoip.dat geosite.dat
+          unzip -o xray.zip xray
           chmod +x xray
-
-      - name: GeoIP
-        run: |
-          curl -L -o GeoLite2-Country.mmdb https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-Country.mmdb
 
       - name: Run
         run: |
           python3 << 'PY'
-          import os, socket, requests, random, subprocess, time, json, base64, re
+          import os,requests,re,socket,subprocess,time,random,json,base64
+          from urllib.parse import urlparse,parse_qs,unquote
           from concurrent.futures import ThreadPoolExecutor
-          from urllib.parse import urlparse, parse_qs, unquote
-          from threading import Lock
-          import geoip2.database
 
           XRAY="./xray"
-          GEO="GeoLite2-Country.mmdb"
-
-          MAX_WORKERS=20
-          TIMEOUT_TCP=3
-          MAX_LAT=4000
 
           CONFIG_URLS=[
-              "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt"
+              "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt",
+              "https://raw.githubusercontent.com/RUNoName/V.O.I.D-VPN_Bypass/refs/heads/main/configs/url_work.txt"
           ]
 
-          # 📡 MULTI SOURCE WHITELIST
-          WL_URLS=[
-              "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/whitelist.txt",
-              "https://raw.githubusercontent.com/itdoginfo/allow-domains/main/Russia/inside-dnsmasq.txt"
-          ]
+          # 🔥 SOFT whitelist
+          WL_URL="https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/whitelist.txt"
 
-          # fallback patterns
-          SNI_PATTERNS=[
-              r'.*\.yandex\.(ru|net|com)$',
-              r'.*\.vk\.com$',
-              r'.*\.mail\.ru$',
-              r'.*\.ozon\.ru$',
-              r'.*\.wildberries\.ru$',
-              r'.*\.sberbank\.ru$'
-          ]
-
-          ALLOWED_PORTS={443,8443,2053,2083,2087,2096,5443,9443}
-          BLOCKED_CC={'RU','CN','IR','KP'}
-
-          lock=Lock()
-          seen=set()
-          counter=0
-          WL=set()
-
-          def next_id():
-              global counter
-              with lock:
-                  counter+=1
-                  return counter
-
-          # 🔥 SMART WL LOADER
           def load_wl():
-              out=set()
-              for url in WL_URLS:
-                  try:
-                      r=requests.get(url,timeout=20)
-                      for line in r.text.splitlines():
-                          d=line.strip().lower()
+              try:
+                  r=requests.get(WL_URL,timeout=20)
+                  return set([x.strip().lower() for x in r.text.splitlines() if "." in x])
+              except:
+                  return set()
 
-                          if not d or d.startswith("#"):
-                              continue
+          WL=load_wl()
 
-                          # normalize
-                          d=d.replace("server=/","").replace("/","")
-                          d=d.replace("address=/","")
-
-                          # remove wildcards
-                          d=d.lstrip(".*")
-
-                          if "." in d and len(d)>3:
-                              out.add(d)
-                  except:
-                      pass
-              return out
+          def parse(link):
+              try:
+                  u=urlparse(link.split("#")[0])
+                  q=parse_qs(u.query)
+                  return {
+                      "host":u.hostname,
+                      "port":int(u.port or 443),
+                      "id":unquote(u.username or ''),
+                      "sni":q.get("sni",[""])[0],
+                      "pbk":q.get("pbk",[""])[0],
+                      "sec":q.get("security",[""])[0],
+                      "net":q.get("type",["tcp"])[0]
+                  }
+              except:
+                  return None
 
           def resolve(h):
               try: return socket.gethostbyname(h)
@@ -117,40 +73,28 @@ jobs:
 
           def tcp(ip,p):
               try:
-                  s=socket.create_connection((ip,p),timeout=TIMEOUT_TCP)
+                  s=socket.create_connection((ip,p),timeout=3)
                   s.close()
                   return True
               except: return False
 
-          def parse(link):
-              try:
-                  u=urlparse(link.split('#')[0])
-                  q=parse_qs(u.query)
-                  return {
-                      "host":u.hostname,
-                      "port":int(u.port or 443),
-                      "id":unquote(u.username or ''),
-                      "net":q.get('type',['tcp'])[0],
-                      "sni":q.get('sni',[''])[0],
-                      "fp":q.get('fp',['chrome'])[0],
-                      "pbk":q.get('pbk',[''])[0],
-                      "sec":q.get('security',[''])[0]
-                  }
-              except: return None
-
           def sni_ok(sni):
               if not sni: return False
 
+              # strict
               if sni in WL:
                   return True
 
-              # subdomain match
+              # subdomain
               for d in WL:
                   if sni.endswith("."+d):
                       return True
 
-              # fallback patterns
-              return any(re.match(p,sni) for p in SNI_PATTERNS)
+              # 🔥 SOFT fallback (очень важно)
+              if any(x in sni for x in ["yandex","vk","mail","ozon","sber"]):
+                  return True
+
+              return False
 
           def build(cfg,port):
               return {
@@ -165,66 +109,15 @@ jobs:
                           "realitySettings":{
                               "serverName":cfg['sni'],
                               "publicKey":cfg['pbk'],
-                              "fingerprint":cfg['fp']
+                              "fingerprint":"chrome"
                           }
                       }
                   }]
               }
 
-          def free_port():
-              s=socket.socket()
-              s.bind(('',0))
-              p=s.getsockname()[1]
-              s.close()
-              return p
-
-          def wait(p):
-              for _ in range(30):
-                  try:
-                      socket.create_connection(("127.0.0.1",p),timeout=0.5)
-                      return True
-                  except: time.sleep(0.2)
-              return False
-
-          def latency(p):
+          def test(cfg):
               try:
-                  t=time.time()
-                  subprocess.run(
-                      ["curl","-s","--max-time","6","-x",f"socks5h://127.0.0.1:{p}","https://api.ipify.org"],
-                      stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL
-                  )
-                  return (time.time()-t)*1000
-              except: return None
-
-          def exit_ip(p):
-              try:
-                  r=subprocess.run(
-                      ["curl","-s","--max-time","8","-x",f"socks5h://127.0.0.1:{p}","https://api.ipify.org"],
-                      capture_output=True,text=True
-                  )
-                  return r.stdout.strip()
-              except: return None
-
-          reader=geoip2.database.Reader(GEO)
-
-          def cc(ip):
-              try: return reader.country(ip).country.iso_code or "??"
-              except: return "??"
-
-          def score(lat):
-              if lat<800: return 100
-              if lat<2000: return 80
-              return 50
-
-          def check(link):
-              proc=None
-              file=None
-              try:
-                  cfg=parse(link)
-                  if not cfg or cfg['sec']!="reality":
-                      return None
-
-                  if cfg['port'] not in ALLOWED_PORTS:
+                  if cfg['sec']!="reality":
                       return None
 
                   if not sni_ok(cfg['sni']):
@@ -234,83 +127,60 @@ jobs:
                   if not ip or not tcp(ip,cfg['port']):
                       return None
 
-                  key=(cfg['host'],cfg['port'],cfg['sni'])
-                  with lock:
-                      if key in seen: return None
-                      seen.add(key)
+                  port=random.randint(20000,60000)
 
-                  port=free_port()
-                  file=f"cfg_{port}.json"
-
-                  with open(file,"w") as f:
+                  fname=f"c{port}.json"
+                  with open(fname,"w") as f:
                       json.dump(build(cfg,port),f)
 
-                  proc=subprocess.Popen([XRAY,"run","-c",file],
+                  p=subprocess.Popen([XRAY,"run","-c",fname],
                       stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
 
                   time.sleep(2)
 
-                  if not wait(port):
-                      return None
+                  try:
+                      r=subprocess.run(
+                          ["curl","-s","--max-time","6","-x",f"socks5h://127.0.0.1:{port}","https://api.ipify.org"],
+                          capture_output=True,text=True
+                      )
+                      if r.stdout.strip():
+                          return cfg
+                  except:
+                      pass
 
-                  lat=latency(port)
-                  if not lat or lat>MAX_LAT:
-                      return None
-
-                  eip=exit_ip(port)
-                  if not eip:
-                      return None
-
-                  country=cc(eip)
-                  if country in BLOCKED_CC:
-                      return None
-
-                  sc=score(lat)
-                  num=next_id()
-
-                  name=f"{country}-{num}-{int(lat)}ms★{sc}"
-                  return link.split("#")[0]+"#"+name
-
+                  p.kill()
+                  os.remove(fname)
               except:
-                  return None
-              finally:
-                  if proc:
-                      try: proc.kill()
-                      except: pass
-                  if file and os.path.exists(file):
-                      try: os.remove(file)
-                      except: pass
-
-          print("LOAD WL...")
-          WL=load_wl()
-          print("WL size:",len(WL))
+                  pass
+              return None
 
           links=[]
           for u in CONFIG_URLS:
               try:
                   r=requests.get(u,timeout=20)
                   links+=re.findall(r'vless://[^\s]+',r.text)
-              except: pass
+              except:
+                  pass
 
           links=list(set(links))
           random.shuffle(links)
 
           results=[]
-          with ThreadPoolExecutor(MAX_WORKERS) as ex:
-              for r in ex.map(check,links):
-                  if r: results.append(r)
-
-          results.sort(reverse=True)
+          with ThreadPoolExecutor(20) as ex:
+              for cfg in ex.map(lambda x:test(parse(x)),links):
+                  if cfg:
+                      results.append(cfg)
 
           os.makedirs("githubmirror",exist_ok=True)
 
-          with open("githubmirror/sub.txt","w") as f:
-              f.write("\n".join(results))
+          out=[]
+          for c in results:
+              out.append(f"vless://{c['id']}@{c['host']}:{c['port']}?security=reality&sni={c['sni']}#{c['sni']}")
 
-          with open("githubmirror/sub64.txt","w") as f:
-              f.write(base64.b64encode("\n".join(results).encode()).decode())
+          open("githubmirror/sub.txt","w").write("\n".join(out))
+          open("githubmirror/sub64.txt","w").write(base64.b64encode("\n".join(out).encode()).decode())
 
-          print("DONE",len(results))
+          print("FOUND:",len(out))
           PY
 
       - name: Push
@@ -318,5 +188,5 @@ jobs:
           git config --global user.name bot
           git config --global user.email bot@bot.com
           git add githubmirror/
-          git commit -m "update smart wl" || echo "no changes"
+          git commit -m "working update" || echo ok
           git push
