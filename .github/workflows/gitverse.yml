@@ -1,9 +1,7 @@
 name: Sync VPN Config to GitVerse
 
 on:
-  schedule:
-    - cron: '0 * * * *'
-  workflow_dispatch:
+  workflow_dispatch:  # Пока только ручной запуск для отладки
 
 jobs:
   sync-files:
@@ -12,26 +10,41 @@ jobs:
       - name: Checkout current repository (VPN Alive)
         uses: actions/checkout@v4
 
-      - name: Push file to GitVerse
+      - name: Debug Push to GitVerse
         env:
           GITVERSE_TOKEN: ${{ secrets.GITVERSE_TOKEN }}
         run: |
           git config --global user.name "GitHub Actions Bot"
           git config --global user.email "actions@github.com"
           
-          echo "Клонирую целевой репозиторий..."
-          # Клонируем с явным указанием токена в URL. Это работает, если у токена есть права.
+          echo "=== ШАГ 1: Клонирование ==="
           git clone https://oauth2:${GITVERSE_TOKEN}@gitverse.ru/Rusl2023/Files_2026.git target_repo
           
           cd target_repo
           
-          echo "Обновляю файл my_files.txt..."
+          echo "=== ШАГ 2: Текущий remote ==="
+          git remote -v
+          
+          echo "=== ШАГ 3: Принудительно меняю push URL ==="
+          # Пробуем разные варианты URL
+          git remote set-url --push origin https://oauth2:${GITVERSE_TOKEN}@gitverse.ru/Rusl2023/Files_2026.git
+          
+          echo "=== ШАГ 4: Remote после изменений ==="
+          git remote -v
+          
+          echo "=== ШАГ 5: Проверка связи с сервером ==="
+          git ls-remote origin
+          
+          echo "=== ШАГ 6: Создание тестового коммита ==="
           cp ../githubmirror/26_proxy_subscription_raw.txt ./my_files.txt
           
           if [[ -n $(git status -s) ]]; then
             git add my_files.txt
-            git commit -m "Автообновление от $(date +'%Y-%m-%d %H:%M:%S')"
-            git push origin HEAD
+            git commit -m "Тест от $(date +'%Y-%m-%d %H:%M:%S')"
+            
+            echo "=== ШАГ 7: Попытка push ==="
+            # Включаем подробный вывод git
+            GIT_TRACE=1 GIT_CURL_VERBOSE=1 git push origin HEAD
           else
             echo "Файл не изменился, пропускаю."
           fi
