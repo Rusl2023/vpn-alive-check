@@ -1,11 +1,8 @@
 name: Sync VPN Config to GitVerse
 
 on:
-  # Автоматический запуск каждый час (в начале каждого часа)
   schedule:
     - cron: '0 * * * *'
-  
-  # Ручной запуск через кнопку в интерфейсе GitHub
   workflow_dispatch:
 
 jobs:
@@ -15,38 +12,26 @@ jobs:
       - name: Checkout current repository (VPN Alive)
         uses: actions/checkout@v4
 
-      - name: Download source subscription file
-        run: |
-          echo "Скачиваю актуальный файл из текущего репозитория..."
-          cp ./githubmirror/26_proxy_subscription_raw.txt ./26_proxy_subscription_raw.txt
-
-      - name: Clone GitVerse repository and push update
+      - name: Push file to GitVerse
         env:
           GITVERSE_TOKEN: ${{ secrets.GITVERSE_TOKEN }}
         run: |
-          # Настройка git user
           git config --global user.name "GitHub Actions Bot"
           git config --global user.email "actions@github.com"
           
-          echo "Клонирую целевой репозиторий с GitVerse..."
-          # ВАЖНОЕ ИЗМЕНЕНИЕ: Используем пользователя 'oauth2' как требует GitVerse для токенов
+          echo "Клонирую целевой репозиторий..."
+          # Клонируем с явным указанием токена в URL. Это работает, если у токена есть права.
           git clone https://oauth2:${GITVERSE_TOKEN}@gitverse.ru/Rusl2023/Files_2026.git target_repo
           
           cd target_repo
           
-          # Убедимся, что мы на правильной ветке (обычно main или master)
-          git checkout main 2>/dev/null || git checkout master
+          echo "Обновляю файл my_files.txt..."
+          cp ../githubmirror/26_proxy_subscription_raw.txt ./my_files.txt
           
-          echo "Копирую файл с новым именем..."
-          cp ../26_proxy_subscription_raw.txt ./my_files.txt
-          
-          echo "Проверяю наличие изменений..."
           if [[ -n $(git status -s) ]]; then
-            echo "Изменения обнаружены, коммичу и пушу..."
             git add my_files.txt
-            git commit -m "Автообновление my_files.txt от $(date +'%Y-%m-%d %H:%M:%S')"
-            # ВАЖНОЕ ИЗМЕНЕНИЕ: Явно указываем ветку для пуша
+            git commit -m "Автообновление от $(date +'%Y-%m-%d %H:%M:%S')"
             git push origin HEAD
           else
-            echo "Файл не изменился, пуш не требуется."
+            echo "Файл не изменился, пропускаю."
           fi
