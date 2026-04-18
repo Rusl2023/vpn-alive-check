@@ -72,5 +72,5 @@ ________________________________________________________________________________
 ## ℹ️ Мая подписка бесплатных ключей ℹ️
 Создал для своей семьи, своих родственников и друзей. 
 Копируем ссылку в подписку:
-- [`подписка Free VPN "Белые списки" 2026г`](https://raw.githubusercontent.com/Rusl2023/vpn-alive-check/refs/heads/main/githubmirror/26_proxy_subscription_base64.txt)
+- [`подписка mobile РФ 2026г`](https://gitverse.ru/api/repos/Rusl2023/Files_2026/raw/branch/master/content%2Fmaster%2Fmy_files.txt)
 - [`config.yaml`](https://raw.githubusercontent.com/Rusl2023/vpn-alive-check/refs/heads/generated-config/config.yaml)
