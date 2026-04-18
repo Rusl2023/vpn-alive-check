@@ -1,90 +1,51 @@
-name: Sync to GitVerse
+name: Sync VPN Config to GitVerse
 
 on:
-  push:
-    branches: [ main ]        # измените на вашу ветку
-  workflow_dispatch:          # для ручного запуска
-
-env:
-  GITVERSE_API: https://api.gitverse.ru
-  GITVERSE_OWNER: ${{ secrets.GITVERSE_OWNER }}
-  GITVERSE_REPO: ${{ secrets.GITVERSE_REPO }}
-  GITVERSE_BRANCH: main
-  GITVERSE_PATH: path/to/your/file.txt
+  # Автоматический запуск каждый час (в начале каждого часа)
+  schedule:
+    - cron: '0 * * * *'
+  
+  # Ручной запуск через кнопку в интерфейсе GitHub
+  workflow_dispatch:
 
 jobs:
-  sync-file:
+  sync-files:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout репозитория
+      - name: Checkout current repository (VPN Alive)
         uses: actions/checkout@v4
 
-      - name: Чтение локального файла и кодирование в base64
-        id: read_file
+      - name: Download source subscription file
         run: |
-          FILE_PATH="./local/path/to/file.txt"   # укажите актуальный путь
-          echo "content_b64=$(base64 -w0 "$FILE_PATH")" >> "$GITHUB_OUTPUT"
+          echo "Скачиваю актуальный файл из текущего репозитория..."
+          # Файл уже есть в checkout, копируем его в рабочую директорию
+          cp ./githubmirror/26_proxy_subscription_raw.txt ./26_proxy_subscription_raw.txt
 
-      - name: Получение SHA существующего файла (если есть)
-        id: get_sha
+      - name: Clone GitVerse repository and push update
+        env:
+          GITVERSE_TOKEN: ${{ secrets.GITVERSE_TOKEN }}
         run: |
-          RESPONSE=$(curl -s -w "\n%{http_code}" \
-            -H "Authorization: Bearer ${{ secrets.GITVERSE_TOKEN }}" \
-            -H "Accept: application/vnd.gitverse.object+json;version=1" \
-            "${{ env.GITVERSE_API }}/repos/${{ env.GITVERSE_OWNER }}/${{ env.GITVERSE_REPO }}/contents/${{ env.GITVERSE_PATH }}?ref=${{ env.GITVERSE_BRANCH }}")
+          # Настройка git user
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
           
-          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
-          BODY=$(echo "$RESPONSE" | sed '$d')
+          echo "Клонирую целевой репозиторий с GitVerse..."
+          # Используем токен для клонирования через HTTPS
+          # Ссылка вида: https://{username}:{token}@gitverse.ru/{username}/{repo}.git
+          git clone https://Rusl2023:${GITVERSE_TOKEN}@gitverse.ru/Rusl2023/Files_2026.git target_repo
           
-          if [ "$HTTP_CODE" = "200" ]; then
-            SHA=$(echo "$BODY" | jq -r '.sha')
-            echo "sha=$SHA" >> "$GITHUB_OUTPUT"
-            echo "📄 Файл найден, SHA: $SHA"
+          cd target_repo
+          
+          echo "Переименовываю и копирую файл..."
+          # Перемещаем файл в корень репозитория с новым именем
+          cp ../26_proxy_subscription_raw.txt ./my_files.txt
+          
+          echo "Проверяю наличие изменений..."
+          if [[ -n $(git status -s) ]]; then
+            echo "Изменения обнаружены, коммичу и пушу..."
+            git add my_files.txt
+            git commit -m "Автообновление my_files.txt от $(date +'%Y-%m-%d %H:%M:%S')"
+            git push origin master  # Или main, если ветка называется main
           else
-            echo "📄 Файл не найден (код $HTTP_CODE), будет создан новый."
-          fi
-
-      - name: 🚀 Отправка файла на GitVerse через API
-        run: |
-          # Подготовка данных
-          COMMIT_DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          FILE_SHA="${{ steps.get_sha.outputs.sha }}"
-          CONTENT_B64="${{ steps.read_file.outputs.content_b64 }}"
-
-          # Формирование JSON тела запроса
-          if [ -n "$FILE_SHA" ]; then
-            echo "🔄 Обновляем существующий файл..."
-            JSON_BODY="$(jq -n \
-              --arg content "$CONTENT_B64" \
-              --arg message "🤖 Авто-синхронизация: обновление подписки $COMMIT_DATE" \
-              --arg branch "${{ env.GITVERSE_BRANCH }}" \
-              --arg sha "$FILE_SHA" \
-              '{content: $content, message: $message, branch: $branch, sha: $sha}')"
-          else
-            echo "✨ Создаём новый файл..."
-            JSON_BODY="$(jq -n \
-              --arg content "$CONTENT_B64" \
-              --arg message "🤖 Авто-синхронизация: создание подписки $COMMIT_DATE" \
-              --arg branch "${{ env.GITVERSE_BRANCH }}" \
-              '{content: $content, message: $message, branch: $branch}')"
-          fi
-
-          # Отправка PUT-запроса
-          RESPONSE="$(curl -s -w "\n%{http_code}" -X PUT \
-            -H "Authorization: Bearer ${{ secrets.GITVERSE_TOKEN }}" \
-            -H "Accept: application/vnd.gitverse.object+json;version=1" \
-            -H "Content-Type: application/json" \
-            -d "$JSON_BODY" \
-            "${{ env.GITVERSE_API }}/repos/${{ env.GITVERSE_OWNER }}/${{ env.GITVERSE_REPO }}/contents/${{ env.GITVERSE_PATH }}")"
-
-          HTTP_CODE="$(echo "$RESPONSE" | tail -n1)"
-          BODY="$(echo "$RESPONSE" | sed '$d')"
-
-          if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "201" ]; then
-            COMMIT_URL="$(echo "$BODY" | jq -r '.commit.html_url // "N/A"')"
-            echo "✅ Успешно! Файл обновлён/создан: $COMMIT_URL"
-          else
-            echo "❌ Ошибка (код $HTTP_CODE):"
-            echo "$BODY" | jq . 2>/dev/null || echo "$BODY"
-            exit 1
+            echo "Файл не изменился, пуш не требуется."
           fi
