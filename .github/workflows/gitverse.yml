@@ -1,86 +1,82 @@
-# .github/workflows/sync-to-gitverse.yml
+# .github/workflows/gitverse.yml
 name: 🔄 Sync to GitVerse
 
 on:
   schedule:
-    - cron: '0 * * * *'  # Каждый час
-  workflow_dispatch:
+    - cron: '0 * * * *'  # Каждый час в 00 минут
+  workflow_dispatch:     # Ручной запуск
     inputs:
-      force:
-        description: 'Принудительная синхронизация'
+      debug:
+        description: 'Включить отладочный вывод'
         required: false
         default: 'false'
         type: boolean
 
 jobs:
-  sync-file:
+  sync:
     runs-on: ubuntu-latest
-    
     steps:
-      # 🔐 1. Отладка: проверяем, что секреты доступны
-      - name: 🔍 Debug secrets (удалить после настройки)
+      # 🔐 Проверка секретов (можно удалить после настройки)
+      - name: 🔍 Validate secrets
         run: |
-          echo "USERNAME length: ${#USERNAME}"
-          echo "TOKEN length: ${#TOKEN}"
-          if [ -z "$USERNAME" ] || [ -z "$TOKEN" ]; then
-            echo "❌ ОШИБКА: Секреты пустые! Проверьте Settings → Secrets"
+          if [ -z "${{ secrets.GITVERSE_USERNAME }}" ]; then
+            echo "❌ GITVERSE_USERNAME не найден!"
             exit 1
           fi
-        env:
-          USERNAME: ${{ secrets.GITVERSE_USERNAME }}
-          TOKEN: ${{ secrets.GITVERSE_TOKEN }}
+          if [ -z "${{ secrets.GITVERSE_TOKEN }}" ]; then
+            echo "❌ GITVERSE_TOKEN не найден!"
+            exit 1
+          fi
+          echo "✅ Секреты загружены успешно"
 
-      # 2️⃣ Клонируем исходный репозиторий
-      - name: 📥 Checkout source
+      # 📥 Исходный репозиторий
+      - name: 📦 Checkout source
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
-          path: source-repo
+          path: src
 
-      # 3️⃣ Клонируем GitVerse с явной авторизацией
-      - name: 📥 Clone GitVerse repo
+      # 📥 GitVerse репозиторий с авторизацией
+      - name: 🌐 Clone GitVerse
         run: |
-          # Используем credential.helper для надёжной аутентификации [[58]]
+          # Настраиваем credential.helper для HTTPS-авторизации [[58]]
           git config --global credential.helper store
           echo "https://${{ secrets.GITVERSE_USERNAME }}:${{ secrets.GITVERSE_TOKEN }}@gitverse.ru" > ~/.git-credentials
           chmod 600 ~/.git-credentials
           
-          git clone --depth 1 \
-            "https://gitverse.ru/Rusl2023/Files_2026.git" \
-            gitverse-repo
+          git clone --depth 1 --branch master \
+            https://gitverse.ru/Rusl2023/Files_2026.git \
+            gv-repo
         env:
-          GIT_ASKPASS: /bin/echo
+          GIT_ASKPASS: /bin/true
 
-      # 4️⃣ Копируем и переименовываем файл
-      - name: 📄 Copy & rename file
+      # 📄 Копирование файла
+      - name: ✂️ Copy & rename
         run: |
-          mkdir -p gitverse-repo/content/master/
-          cp "source-repo/githubmirror/26_proxy_subscription_raw.txt" \
-             "gitverse-repo/content/master/my_files.txt"
-          echo "✅ Файл подготовлен:"
-          head -3 "gitverse-repo/content/master/my_files.txt"
+          mkdir -p gv-repo/content/master/
+          cp src/githubmirror/26_proxy_subscription_raw.txt \
+             gv-repo/content/master/my_files.txt
+          echo "📊 Размер файла: $(wc -c < gv-repo/content/master/my_files.txt) байт"
 
-      # 5️⃣ Коммит и пуш
-      - name: 🚀 Push to GitVerse
-        working-directory: gitverse-repo
+      # 🚀 Коммит и пуш
+      - name: 💾 Push to GitVerse
+        working-directory: gv-repo
         run: |
           git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           
           git add content/master/my_files.txt
           
-          if ! git diff --staged --quiet; then
-            git commit -m "🤖 Auto-sync: my_files.txt [${{ github.run_id }}]"
-            
-            # Пушим — credential.helper подставит токен из ~/.git-credentials
-            git push origin HEAD:master
-            echo "✅ Успешно!"
+          if git diff --staged --quiet; then
+            echo "⚪ Изменений нет, пуш пропущен"
           else
-            echo "⚠️ Изменений нет"
+            git commit -m "🤖 Auto-update: my_files.txt [run:${{ github.run_id }}]"
+            git -c http.extraHeader="Authorization: Bearer ${{ secrets.GITVERSE_TOKEN }}" \
+              push origin HEAD:master
+            echo "✅ Синхронизация завершена!"
           fi
 
-      # 6️⃣ Очистка
-      - name: 🧹 Cleanup
+      # 🧹 Очистка
+      - name: 🗑️ Cleanup
         if: always()
-        run: |
-          rm -rf source-repo gitverse-repo ~/.git-credentials
+        run: rm -rf src gv-repo ~/.git-credentials
