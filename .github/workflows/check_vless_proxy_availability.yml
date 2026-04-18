@@ -68,6 +68,7 @@ jobs:
               "https://gitverse.ru/api/repos/RUVIPIEN/russian-white-bolt/raw/branch/master/VPNMIRRORS/v2ray/VLESS_Reality_White_3eac2d.txt",
               "https://raw.githubusercontent.com/EtoNeYaProject/EtoNeYaProject.github.io/refs/heads/main/whitelist",
               "https://raw.githubusercontent.com/kort0881/vpn-vless-configs-russia/main/githubmirror/clean/vless.txt",
+              "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Cable.txt",
               "https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt"
           ]
 
@@ -329,8 +330,10 @@ jobs:
                   if cfg['port'] != 443:
                       return None
 
-                  if cfg['flow'] != 'xtls-rprx-vision':
+                  allowed_flows = {'xtls-rprx-vision', 'xtls-rprx-vision-udp443', '', None}
+                  if cfg['flow'] not in allowed_flows:
                       return None
+                      
                   if cfg['fp'] not in ALLOWED_FP:
                       return None
 
