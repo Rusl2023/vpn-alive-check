@@ -1,53 +1,69 @@
-      # 📥 Скачивание и переименование файлов
-      - name: 📥 Download & rename files
+name: Sync to GitVerse
+
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
+    inputs:
+      debug:
+        description: 'Enable debug output'
+        required: false
+        default: 'false'
+        type: boolean
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate secrets
+        run: |
+          if [ -z "${{ secrets.GITVERSE_USERNAME }}" ] || [ -z "${{ secrets.GITVERSE_TOKEN }}" ]; then
+            echo "❌ Missing secrets!"
+            exit 1
+          fi
+
+      - name: Clone GitVerse repo
+        run: |
+          git config --global credential.helper store
+          echo "https://${{ secrets.GITVERSE_USERNAME }}:${{ secrets.GITVERSE_TOKEN }}@gitverse.ru" > ~/.git-credentials
+          chmod 600 ~/.git-credentials
+          git clone --depth 1 --branch master https://gitverse.ru/Rusl2023/Files_2026.git gv-repo
+        env:
+          GIT_ASKPASS: /bin/true
+
+      - name: Download configs
         run: |
           set +e
           mkdir -p gv-repo/content/master/
-          
-          # Ассоциативный массив для счётчиков по авторам
           declare -A author_counts
           
-          # Читаем URL построчно из heredoc (безопасно для YAML)
           while IFS= read -r url || [ -n "$url" ]; do
-            # Пропускаем пустые строки и комментарии
             [[ -z "$url" || "$url" =~ ^# ]] && continue
+            echo "🔄 $url"
             
-            echo "🔄 Обработка: $url"
-            
-            # Определяем автора через безопасный regex
             author=""
             if [[ "$url" =~ raw\.githubusercontent\.com/([^/]+)/ ]]; then
               author="${BASH_REMATCH[1]}"
             elif [[ "$url" =~ gitverse\.ru/api/repos/([^/]+)/ ]]; then
               author="${BASH_REMATCH[1]}"
             fi
+            [ -z "$author" ] && author="unknown_$$"
             
-            # Фоллбэк если автор не определён
-            if [ -z "$author" ]; then
-              echo "⚠️ Не удалось определить автора для: $url"
-              author="unknown_$$"
-            fi
-            
-            # Увеличиваем счётчик (безопасно для set -e)
             current_count=${author_counts[$author]:-0}
             current_count=$((current_count + 1))
             author_counts[$author]=$current_count
             
-            # Имя файла и путь
             filename="${author}_${current_count}.txt"
-            dest_path="gv-repo/content/master/$filename"
+            dest="gv-repo/content/master/$filename"
             
-            # Скачивание с проверкой HTTP-кода
-            http_code=$(curl -s -w "%{http_code}" -o "$dest_path" --retry 3 --retry-delay 2 -L "$url" 2>/dev/null || echo "000")
-            
+            http_code=$(curl -s -w "%{http_code}" -o "$dest" --retry 2 -L "$url" 2>/dev/null || echo "000")
             if [ "$http_code" = "200" ] || [ "$http_code" = "304" ]; then
-              size=$(stat -c%s "$dest_path" 2>/dev/null || wc -c < "$dest_path" 2>/dev/null || echo "0")
-              echo "✅ Скачан: $filename ($size байт, HTTP $http_code)"
+              echo "✅ $filename"
             else
-              echo "❌ Ошибка скачивания (HTTP $http_code): $url"
-              rm -f "$dest_path"
+              echo "❌ Failed: $url"
+              rm -f "$dest"
             fi
-          done << 'EOF'
+          done << 'URLS'
 https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt
 https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile-2.txt
 https://raw.githubusercontent.com/RUNoName/V.O.I.D-VPN_Bypass/refs/heads/main/configs/url_work.txt
@@ -58,9 +74,19 @@ https://raw.githubusercontent.com/EtoNeYaProject/EtoNeYaProject.github.io/refs/h
 https://raw.githubusercontent.com/kort0881/vpn-vless-configs-russia/main/githubmirror/clean/vless.txt
 https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Cable.txt
 https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt
-EOF
-          
-          # Статистика
-          echo "📁 Файлы в директории:"
-          ls -lh gv-repo/content/master/ 2>/dev/null || echo "(пусто)"
-          set -e
+URLS
+
+      - name: Push to GitVerse
+        working-directory: gv-repo
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add content/master/*.txt
+          git diff --staged --quiet || {
+            git commit -m "Auto-update configs"
+            git -c http.extraHeader="Authorization: Bearer ${{ secrets.GITVERSE_TOKEN }}" push origin HEAD:master
+          }
+
+      - name: Cleanup
+        if: always()
+        run: rm -rf gv-repo ~/.git-credentials
