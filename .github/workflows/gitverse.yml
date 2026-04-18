@@ -1,92 +1,103 @@
-name: Sync to GitVerse
+name: 🔄 Sync to GitVerse
 
 on:
   schedule:
-    - cron: '0 * * * *'
+    - cron: '0 * * * *'  # Каждый час
   workflow_dispatch:
-    inputs:
-      debug:
-        description: 'Enable debug output'
-        required: false
-        default: 'false'
-        type: boolean
 
 jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - name: Validate secrets
+      # 🔐 Проверка секретов
+      - name: 🔍 Validate secrets
         run: |
-          if [ -z "${{ secrets.GITVERSE_USERNAME }}" ] || [ -z "${{ secrets.GITVERSE_TOKEN }}" ]; then
-            echo "❌ Missing secrets!"
+          if [ -z "${{ secrets.GITVERSE_USERNAME }}" ]; then
+            echo "❌ GITVERSE_USERNAME не найден!"
             exit 1
           fi
+          if [ -z "${{ secrets.GITVERSE_TOKEN }}" ]; then
+            echo "❌ GITVERSE_TOKEN не найден!"
+            exit 1
+          fi
+          echo "✅ Секреты загружены успешно"
 
-      - name: Clone GitVerse repo
+      # 📥 Checkout (можно оставить, но не обязателен)
+      - name: 📦 Checkout source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          path: src
+
+      # 🌐 Клонируем GitVerse
+      - name: 🌐 Clone GitVerse
         run: |
           git config --global credential.helper store
           echo "https://${{ secrets.GITVERSE_USERNAME }}:${{ secrets.GITVERSE_TOKEN }}@gitverse.ru" > ~/.git-credentials
           chmod 600 ~/.git-credentials
-          git clone --depth 1 --branch master https://gitverse.ru/Rusl2023/Files_2026.git gv-repo
+
+          git clone --depth 1 --branch master \
+            https://gitverse.ru/Rusl2023/Files_2026.git \
+            gv-repo
         env:
           GIT_ASKPASS: /bin/true
 
-      - name: Download configs
+      # 📄 Скачивание файлов
+      - name: ✂️ Download & organize
         run: |
-          set +e
           mkdir -p gv-repo/content/master/
-          declare -A author_counts
-          
-          while IFS= read -r url || [ -n "$url" ]; do
-            [[ -z "$url" || "$url" =~ ^# ]] && continue
-            echo "🔄 $url"
-            
-            author=""
-            if [[ "$url" =~ raw\.githubusercontent\.com/([^/]+)/ ]]; then
-              author="${BASH_REMATCH[1]}"
-            elif [[ "$url" =~ gitverse\.ru/api/repos/([^/]+)/ ]]; then
-              author="${BASH_REMATCH[1]}"
-            fi
-            [ -z "$author" ] && author="unknown_$$"
-            
-            current_count=${author_counts[$author]:-0}
-            current_count=$((current_count + 1))
-            author_counts[$author]=$current_count
-            
-            filename="${author}_${current_count}.txt"
-            dest="gv-repo/content/master/$filename"
-            
-            http_code=$(curl -s -w "%{http_code}" -o "$dest" --retry 2 -L "$url" 2>/dev/null || echo "000")
-            if [ "$http_code" = "200" ] || [ "$http_code" = "304" ]; then
-              echo "✅ $filename"
-            else
-              echo "❌ Failed: $url"
-              rm -f "$dest"
-            fi
-          done << 'URLS'
-https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt
-https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile-2.txt
-https://raw.githubusercontent.com/RUNoName/V.O.I.D-VPN_Bypass/refs/heads/main/configs/url_work.txt
-https://raw.githubusercontent.com/GoldCaviar/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt
-https://raw.githubusercontent.com/zieng2/wl/main/vless_lite.txt
-https://gitverse.ru/api/repos/RUVIPIEN/russian-white-bolt/raw/branch/master/VPNMIRRORS/v2ray/VLESS_Reality_White_3eac2d.txt
-https://raw.githubusercontent.com/EtoNeYaProject/EtoNeYaProject.github.io/refs/heads/main/whitelist
-https://raw.githubusercontent.com/kort0881/vpn-vless-configs-russia/main/githubmirror/clean/vless.txt
-https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Cable.txt
-https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt
-URLS
+          cd gv-repo/content/master/
 
-      - name: Push to GitVerse
+          urls=(
+            "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt"
+            "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile-2.txt"
+            "https://raw.githubusercontent.com/RUNoName/V.O.I.D-VPN_Bypass/refs/heads/main/configs/url_work.txt"
+            "https://raw.githubusercontent.com/GoldCaviar/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt"
+            "https://raw.githubusercontent.com/zieng2/wl/main/vless_lite.txt"
+            "https://gitverse.ru/api/repos/RUVIPIEN/russian-white-bolt/raw/branch/master/VPNMIRRORS/v2ray/VLESS_Reality_White_3eac2d.txt"
+            "https://raw.githubusercontent.com/EtoNeYaProject/EtoNeYaProject.github.io/refs/heads/main/whitelist"
+            "https://raw.githubusercontent.com/kort0881/vpn-vless-configs-russia/main/githubmirror/clean/vless.txt"
+            "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Cable.txt"
+            "https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt"
+            "https://raw.githubusercontent.com/Rusl2023/vpn-alive-check/main/githubmirror/26_proxy_subscription_raw.txt"
+          )
+
+          declare -A counters
+
+          for url in "${urls[@]}"; do
+            repo=$(echo "$url" | awk -F/ '{print $4}')
+            counters[$repo]=$((counters[$repo]+1))
+            filename="${repo}_${counters[$repo]}.txt"
+
+            echo "⬇️ $url -> $filename"
+
+            if curl -fsSL "$url" -o "$filename"; then
+              echo "✅ OK: $(wc -c < "$filename") bytes"
+            else
+              echo "❌ FAILED: $url"
+              rm -f "$filename"
+            fi
+          done
+
+      # 🚀 Коммит и пуш
+      - name: 💾 Push to GitVerse
         working-directory: gv-repo
         run: |
           git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          git add content/master/*.txt
-          git diff --staged --quiet || {
-            git commit -m "Auto-update configs"
-            git -c http.extraHeader="Authorization: Bearer ${{ secrets.GITVERSE_TOKEN }}" push origin HEAD:master
-          }
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Cleanup
+          git add content/master/*.txt
+
+          if git diff --staged --quiet; then
+            echo "⚪ Изменений нет"
+          else
+            git commit -m "🤖 Auto-update files [run:${{ github.run_id }}]"
+            git -c http.extraHeader="Authorization: Bearer ${{ secrets.GITVERSE_TOKEN }}" \
+              push origin HEAD:master
+            echo "✅ Готово"
+          fi
+
+      # 🧹 Очистка
+      - name: 🗑️ Cleanup
         if: always()
-        run: rm -rf gv-repo ~/.git-credentials
+        run: rm -rf src gv-repo ~/.git-credentials
