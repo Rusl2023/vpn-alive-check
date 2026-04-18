@@ -1,41 +1,44 @@
-       - name: 🚀 Отправка файла на GitVerse через API
-        run: |
-          # Подготовка JSON-тела запроса
-          if [ -n "${{ steps.get_sha.outputs.sha }}" ]; then
-            # Обновление существующего файла
-            JSON_BODY=$(jq -n \
-              --arg content "${{ steps.read_file.outputs.content_b64 }}" \
-              --arg message "🤖 Авто-синхронизация: обновление подписки $(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-              --arg branch "${{ env.GITVERSE_BRANCH }}" \
-              --arg sha "${{ steps.get_sha.outputs.sha }}" \
-              '{content: $content, message: $message, branch: $branch, sha: $sha}')
-            echo "🔄 Обновляем существующий файл..."
-          else
-            # Создание нового файла
-            JSON_BODY=$(jq -n \
-              --arg content "${{ steps.read_file.outputs.content_b64 }}" \
-              --arg message "🤖 Авто-синхронизация: создание подписки $(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-              --arg branch "${{ env.GITVERSE_BRANCH }}" \
-              '{content: $content, message: $message, branch: $branch}')
-            echo "✨ Создаём новый файл..."
-          fi
+- name: GitVerse
+  run: |
+    # Подготовка данных
+    COMMIT_DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+    FILE_SHA="${{ steps.get_sha.outputs.sha }}"
+    CONTENT_B64="${{ steps.read_file.outputs.content_b64 }}"
 
-          # Отправка PUT-запроса
-          RESPONSE=$(curl -s -w "\n%{http_code}" -X PUT \
-            -H "Authorization: Bearer ${{ secrets.GITVERSE_TOKEN }}" \
-            -H "Accept: application/vnd.gitverse.object+json;version=1" \
-            -H "Content-Type: application/json" \
-            -d "$JSON_BODY" \
-            "${{ env.GITVERSE_API }}/repos/${{ env.GITVERSE_OWNER }}/${{ env.GITVERSE_REPO }}/contents/${{ env.GITVERSE_PATH }}")
+    # Формирование JSON тела запроса
+    if [ -n "$FILE_SHA" ]; then
+      echo "🔄 Обновляем существующий файл..."
+      JSON_BODY="$(jq -n \
+        --arg content "$CONTENT_B64" \
+        --arg message "🤖 Авто-синхронизация: обновление подписки $COMMIT_DATE" \
+        --arg branch "${{ env.GITVERSE_BRANCH }}" \
+        --arg sha "$FILE_SHA" \
+        '{content: $content, message: $message, branch: $branch, sha: $sha}')"
+    else
+      echo "✨ Создаём новый файл..."
+      JSON_BODY="$(jq -n \
+        --arg content "$CONTENT_B64" \
+        --arg message "🤖 Авто-синхронизация: создание подписки $COMMIT_DATE" \
+        --arg branch "${{ env.GITVERSE_BRANCH }}" \
+        '{content: $content, message: $message, branch: $branch}')"
+    fi
 
-          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
-          BODY=$(echo "$RESPONSE" | sed '$d')
+    # Отправка PUT-запроса
+    RESPONSE="$(curl -s -w "\n%{http_code}" -X PUT \
+      -H "Authorization: Bearer ${{ secrets.GITVERSE_TOKEN }}" \
+      -H "Accept: application/vnd.gitverse.object+json;version=1" \
+      -H "Content-Type: application/json" \
+      -d "$JSON_BODY" \
+      "${{ env.GITVERSE_API }}/repos/${{ env.GITVERSE_OWNER }}/${{ env.GITVERSE_REPO }}/contents/${{ env.GITVERSE_PATH }}")"
 
-          if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "201" ]; then
-            COMMIT_URL=$(echo "$BODY" | jq -r '.commit.html_url // "N/A"')
-            echo "✅ Успешно! Файл обновлён/создан: $COMMIT_URL"
-          else
-            echo "❌ Ошибка (код $HTTP_CODE):"
-            echo "$BODY" | jq . 2>/dev/null || echo "$BODY"
-            exit 1
-          fi
+    HTTP_CODE="$(echo "$RESPONSE" | tail -n1)"
+    BODY="$(echo "$RESPONSE" | sed '$d')"
+
+    if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "201" ]; then
+      COMMIT_URL="$(echo "$BODY" | jq -r '.commit.html_url // "N/A"')"
+      echo "✅ Успешно! Файл обновлён/создан: $COMMIT_URL"
+    else
+      echo "❌ Ошибка (код $HTTP_CODE):"
+      echo "$BODY" | jq . 2>/dev/null || echo "$BODY"
+      exit 1
+    fi
