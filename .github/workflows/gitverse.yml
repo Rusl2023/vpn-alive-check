@@ -18,7 +18,6 @@ jobs:
       - name: Download source subscription file
         run: |
           echo "Скачиваю актуальный файл из текущего репозитория..."
-          # Файл уже есть в checkout, копируем его в рабочую директорию
           cp ./githubmirror/26_proxy_subscription_raw.txt ./26_proxy_subscription_raw.txt
 
       - name: Clone GitVerse repository and push update
@@ -30,14 +29,15 @@ jobs:
           git config --global user.email "actions@github.com"
           
           echo "Клонирую целевой репозиторий с GitVerse..."
-          # Используем токен для клонирования через HTTPS
-          # Ссылка вида: https://{username}:{token}@gitverse.ru/{username}/{repo}.git
-          git clone https://Rusl2023:${GITVERSE_TOKEN}@gitverse.ru/Rusl2023/Files_2026.git target_repo
+          # ВАЖНОЕ ИЗМЕНЕНИЕ: Используем пользователя 'oauth2' как требует GitVerse для токенов
+          git clone https://oauth2:${GITVERSE_TOKEN}@gitverse.ru/Rusl2023/Files_2026.git target_repo
           
           cd target_repo
           
-          echo "Переименовываю и копирую файл..."
-          # Перемещаем файл в корень репозитория с новым именем
+          # Убедимся, что мы на правильной ветке (обычно main или master)
+          git checkout main 2>/dev/null || git checkout master
+          
+          echo "Копирую файл с новым именем..."
           cp ../26_proxy_subscription_raw.txt ./my_files.txt
           
           echo "Проверяю наличие изменений..."
@@ -45,7 +45,8 @@ jobs:
             echo "Изменения обнаружены, коммичу и пушу..."
             git add my_files.txt
             git commit -m "Автообновление my_files.txt от $(date +'%Y-%m-%d %H:%M:%S')"
-            git push origin master  # Или main, если ветка называется main
+            # ВАЖНОЕ ИЗМЕНЕНИЕ: Явно указываем ветку для пуша
+            git push origin HEAD
           else
             echo "Файл не изменился, пуш не требуется."
           fi
