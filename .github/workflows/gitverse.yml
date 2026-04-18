@@ -16,7 +16,7 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      # 🔐 Проверка секретов (можно удалить после настройки)
+      # 🔐 Проверка секретов
       - name: 🔍 Validate secrets
         run: |
           if [ -z "${{ secrets.GITVERSE_USERNAME }}" ]; then
@@ -29,17 +29,9 @@ jobs:
           fi
           echo "✅ Секреты загружены успешно"
 
-      # 📥 Исходный репозиторий
-      - name: 📦 Checkout source
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-          path: src
-
-      # 📥 GitVerse репозиторий с авторизацией
+      # 📥 Клонируем репозиторий GitVerse
       - name: 🌐 Clone GitVerse
         run: |
-          # Настраиваем credential.helper для HTTPS-авторизации [[58]]
           git config --global credential.helper store
           echo "https://${{ secrets.GITVERSE_USERNAME }}:${{ secrets.GITVERSE_TOKEN }}@gitverse.ru" > ~/.git-credentials
           chmod 600 ~/.git-credentials
@@ -50,27 +42,82 @@ jobs:
         env:
           GIT_ASKPASS: /bin/true
 
-      # 📄 Копирование файла
-      - name: ✂️ Copy & rename
+      # 📥 Скачивание и переименование файлов
+      - name: 📥 Download & rename files
         run: |
           mkdir -p gv-repo/content/master/
-          cp src/githubmirror/26_proxy_subscription_raw.txt \
-             gv-repo/content/master/my_files.txt
-          echo "📊 Размер файла: $(wc -c < gv-repo/content/master/my_files.txt) байт"
+          
+          # Массив ссылок
+          declare -a urls=(
+            "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt"
+            "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile-2.txt"
+            "https://raw.githubusercontent.com/RUNoName/V.O.I.D-VPN_Bypass/refs/heads/main/configs/url_work.txt"
+            "https://raw.githubusercontent.com/GoldCaviar/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt"
+            "https://raw.githubusercontent.com/zieng2/wl/main/vless_lite.txt"
+            "https://gitverse.ru/api/repos/RUVIPIEN/russian-white-bolt/raw/branch/master/VPNMIRRORS/v2ray/VLESS_Reality_White_3eac2d.txt"
+            "https://raw.githubusercontent.com/EtoNeYaProject/EtoNeYaProject.github.io/refs/heads/main/whitelist"
+            "https://raw.githubusercontent.com/kort0881/vpn-vless-configs-russia/main/githubmirror/clean/vless.txt"
+            "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Cable.txt"
+            "https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt"
+            "https://github.com/Rusl2023/vpn-alive-check/blob/main/githubmirror/26_proxy_subscription_raw.txt"
+          )
+          
+          # Ассоциативный массив для счётчиков по авторам
+          declare -A author_counts
+          
+          for url in "${urls[@]}"; do
+            echo "🔄 Обработка: $url"
+            
+            # Определяем автора/репозиторий
+            if [[ "$url" == *"raw.githubusercontent.com/"* ]]; then
+              # Формат: github.com/USER/REPO/...
+              author=$(echo "$url" | sed -n 's|.*/raw\.githubusercontent\.com/\([^/]*\)/.*|\1|p')
+            elif [[ "$url" == *"gitverse.ru/api/repos/"* ]]; then
+              # Формат: gitverse.ru/api/repos/USER/REPO/...
+              author=$(echo "$url" | sed -n 's|.*/api/repos/\([^/]*\)/.*|\1|p')
+            else
+              author="unknown"
+            fi
+            
+            # Увеличиваем счётчик для этого автора
+            current_count=${author_counts[$author]:-0}
+            ((current_count++))
+            author_counts[$author]=$current_count
+            
+            # Формируем имя файла: author_N.txt
+            filename="${author}_${current_count}.txt"
+            dest_path="gv-repo/content/master/$filename"
+            
+            # Скачиваем файл с обработкой ошибок
+            if curl -fsSL --retry 3 --retry-delay 2 "$url" -o "$dest_path"; then
+              size=$(wc -c < "$dest_path")
+              echo "✅ Скачан: $filename ($size байт)"
+            else
+              echo "❌ Ошибка скачивания: $url"
+              # Не прерываем весь процесс, если один файл не скачался
+              rm -f "$dest_path"
+            fi
+          done
+          
+          # Вывод статистики
+          echo "📊 Всего файлов обработано: ${#urls[@]}"
+          echo "📁 Файлы в директории:"
+          ls -lh gv-repo/content/master/
 
-      # 🚀 Коммит и пуш
+      # 🚀 Коммит и пуш изменений
       - name: 💾 Push to GitVerse
         working-directory: gv-repo
         run: |
           git config user.name "GitHub Actions"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           
-          git add content/master/my_files.txt
+          git add content/master/*.txt
           
           if git diff --staged --quiet; then
             echo "⚪ Изменений нет, пуш пропущен"
           else
-            git commit -m "🤖 Auto-update: my_files.txt [run:${{ github.run_id }}]"
+            timestamp=$(date -u +"%Y-%m-%d %H:%M UTC")
+            git commit -m "🤖 Auto-update: VPN configs [$timestamp] [run:${{ github.run_id }}]"
             git -c http.extraHeader="Authorization: Bearer ${{ secrets.GITVERSE_TOKEN }}" \
               push origin HEAD:master
             echo "✅ Синхронизация завершена!"
@@ -79,4 +126,4 @@ jobs:
       # 🧹 Очистка
       - name: 🗑️ Cleanup
         if: always()
-        run: rm -rf src gv-repo ~/.git-credentials
+        run: rm -rf gv-repo ~/.git-credentials
