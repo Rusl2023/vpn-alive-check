@@ -1,90 +1,86 @@
+# .github/workflows/sync-to-gitverse.yml
 name: 🔄 Sync to GitVerse
 
 on:
-  # Запуск по расписанию: каждый час
   schedule:
-    - cron: '0 * * * *'  # В 00 минут каждого часа
-  
-  # Ручной запуск через интерфейс GitHub
+    - cron: '0 * * * *'  # Каждый час
   workflow_dispatch:
     inputs:
       force:
-        description: 'Принудительная синхронизация (игнорировать кэш)'
+        description: 'Принудительная синхронизация'
         required: false
         default: 'false'
         type: boolean
 
-  # Опционально: запуск при изменении исходного файла
-  # push:
-  #   paths:
-  #     - 'githubmirror/26_proxy_subscription_raw.txt'
-  #   branches: [main]
-
 jobs:
   sync-file:
     runs-on: ubuntu-latest
-    env:
-      # Настройки для авторизации в GitVerse
-      GITVERSE_REPO: 'https://gitverse.ru/Rusl2023/Files_2026.git'
-      SOURCE_FILE: 'githubmirror/26_proxy_subscription_raw.txt'
-      DEST_FILE: 'content/master/my_files.txt'
-      
+    
     steps:
-      # 1️⃣ Клонируем исходный репозиторий (где лежит файл)
-      - name: 📥 Checkout source repository
+      # 🔐 1. Отладка: проверяем, что секреты доступны
+      - name: 🔍 Debug secrets (удалить после настройки)
+        run: |
+          echo "USERNAME length: ${#USERNAME}"
+          echo "TOKEN length: ${#TOKEN}"
+          if [ -z "$USERNAME" ] || [ -z "$TOKEN" ]; then
+            echo "❌ ОШИБКА: Секреты пустые! Проверьте Settings → Secrets"
+            exit 1
+          fi
+        env:
+          USERNAME: ${{ secrets.GITVERSE_USERNAME }}
+          TOKEN: ${{ secrets.GITVERSE_TOKEN }}
+
+      # 2️⃣ Клонируем исходный репозиторий
+      - name: 📥 Checkout source
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
           path: source-repo
 
-      # 2️⃣ Клонируем репозиторий GitVerse с авторизацией
-      - name: 📥 Checkout GitVerse repository
+      # 3️⃣ Клонируем GitVerse с явной авторизацией
+      - name: 📥 Clone GitVerse repo
         run: |
+          # Используем credential.helper для надёжной аутентификации [[58]]
+          git config --global credential.helper store
+          echo "https://${{ secrets.GITVERSE_USERNAME }}:${{ secrets.GITVERSE_TOKEN }}@gitverse.ru" > ~/.git-credentials
+          chmod 600 ~/.git-credentials
+          
           git clone --depth 1 \
-            "https://${{ secrets.GITVERSE_USERNAME }}:${{ secrets.GITVERSE_TOKEN }}@gitverse.ru/Rusl2023/Files_2026.git" \
+            "https://gitverse.ru/Rusl2023/Files_2026.git" \
             gitverse-repo
         env:
           GIT_ASKPASS: /bin/echo
 
-      # 3️⃣ Копируем и переименовываем файл
-      - name: 📄 Copy and rename file
+      # 4️⃣ Копируем и переименовываем файл
+      - name: 📄 Copy & rename file
         run: |
-          # Создаём директорию назначения, если её нет
           mkdir -p gitverse-repo/content/master/
-          
-          # Копируем файл с новым именем
-          cp "source-repo/${{ env.SOURCE_FILE }}" "gitverse-repo/${{ env.DEST_FILE }}"
-          
-          # Проверяем, что файл скопирован
-          echo "✅ Файл скопирован:"
-          ls -la "gitverse-repo/${{ env.DEST_FILE }}"
+          cp "source-repo/githubmirror/26_proxy_subscription_raw.txt" \
+             "gitverse-repo/content/master/my_files.txt"
+          echo "✅ Файл подготовлен:"
+          head -3 "gitverse-repo/content/master/my_files.txt"
 
-      # 4️⃣ Коммитим и пушим изменения в GitVerse
-      - name: 🚀 Commit and push to GitVerse
+      # 5️⃣ Коммит и пуш
+      - name: 🚀 Push to GitVerse
         working-directory: gitverse-repo
         run: |
-          # Настраиваем пользователя для коммита
-          git config user.name "GitHub Actions Bot"
+          git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           
-          # Добавляем изменения
-          git add "${{ env.DEST_FILE }}"
+          git add content/master/my_files.txt
           
-          # Создаём коммит только если есть изменения
           if ! git diff --staged --quiet; then
-            git commit -m "🤖 Auto-sync: обновлён my_files.txt [${{ github.run_id }}]"
+            git commit -m "🤖 Auto-sync: my_files.txt [${{ github.run_id }}]"
             
-            # Пушим с явной авторизацией в URL
-            git push "https://${{ secrets.GITVERSE_USERNAME }}:${{ secrets.GITVERSE_TOKEN }}@gitverse.ru/Rusl2023/Files_2026.git" HEAD:main
-            echo "✅ Успешно отправлено в GitVerse!"
+            # Пушим — credential.helper подставит токен из ~/.git-credentials
+            git push origin HEAD:master
+            echo "✅ Успешно!"
           else
-            echo "⚠️ Изменений нет, пуш пропущен"
+            echo "⚠️ Изменений нет"
           fi
 
-      # 5️⃣ Очистка чувствительных данных (опционально, но рекомендуется)
-      - name: 🧹 Cleanup sensitive data
+      # 6️⃣ Очистка
+      - name: 🧹 Cleanup
         if: always()
         run: |
-          # Удаляем локальные копии репозиториев
-          rm -rf source-repo gitverse-repo
-          echo "🧹 Очистка завершена"
+          rm -rf source-repo gitverse-repo ~/.git-credentials
