@@ -72,5 +72,5 @@ ________________________________________________________________________________
 ## ℹ️ Мая подписка бесплатных ключей ℹ️
 Создал для своей семьи, своих родственников и друзей. 
 Копируем ссылку в подписку:
-- [`подписка mobile РФ 2026г`](https://gitverse.ru/api/repos/Rusl2023/Files_2026/raw/branch/master/content%2Fmaster%2Fmy_files.txt)
+- [`подписка mobile РФ 2026г`](https://gitverse.ru/api/repos/Rusl2023/Files_2026/raw/branch/master/content%2Fmaster%2FRusl2023_1.txt)
 - [`config.yaml`](https://raw.githubusercontent.com/Rusl2023/vpn-alive-check/refs/heads/generated-config/config.yaml)
