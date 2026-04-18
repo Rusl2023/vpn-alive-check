@@ -1,81 +1,8 @@
-# .github/workflows/sync-to-gitverse.yml
-name: Perenos Files
-
-on:
-  # Запуск каждый час (в начале часа)
-  schedule:
-    - cron: '0 * * * *'  # UTC время: 0 минут каждого часа
-  # Ручной запуск через интерфейс GitHub
-  workflow_dispatch:
-    inputs:
-      force_update:
-        description: 'Принудительно обновить файл (игнорировать изменения)'
-        required: false
-        default: 'false'
-        type: boolean
-
-env:
-  # Настройки для синхронизации
-  SOURCE_FILE: 'githubmirror/26_proxy_subscription_raw.txt'
-  GITVERSE_OWNER: 'Rusl2023'
-  GITVERSE_REPO: 'Files_2026'
-  GITVERSE_BRANCH: 'master'
-  GITVERSE_PATH: 'content/master/my_files.txt'  # ← ИЗМЕНЕНО: теперь my_files.txt вместо 26_proxy_subscription_raw.txt
-  GITVERSE_API: 'https://api.gitverse.ru/public/api'
-
-jobs:
-  sync-subscription:
-    runs-on: ubuntu-latest
-    steps:
-      - name: 📦 Checkout исходного репозитория
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - name: 📄 Чтение исходного файла
-        id: read_file
-        run: |
-          if [ ! -f "${{ env.SOURCE_FILE }}" ]; then
-            echo "❌ Файл ${{ env.SOURCE_FILE }} не найден!"
-            exit 1
-          fi
-          # Кодируем содержимое в base64 (без переносов строк)
-          CONTENT_B64=$(base64 -w 0 "${{ env.SOURCE_FILE }}")
-          echo "content_b64=$CONTENT_B64" >> $GITHUB_OUTPUT
-          echo "✅ Файл прочитан и закодирован"
-
-      - name: 🔍 Получение SHA текущего файла на GitVerse (для обновления)
-        id: get_sha
-        continue-on-error: true
-        run: |
-          RESPONSE=$(curl -s -w "\n%{http_code}" \
-            -H "Authorization: Bearer ${{ secrets.GITVERSE_TOKEN }}" \
-            -H "Accept: application/vnd.gitverse.object+json;version=1" \
-            "${{ env.GITVERSE_API }}/repos/${{ env.GITVERSE_OWNER }}/${{ env.GITVERSE_REPO }}/contents/${{ env.GITVERSE_PATH }}?ref=${{ env.GITVERSE_BRANCH }}")
-          
-          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
-          BODY=$(echo "$RESPONSE" | sed '$d')
-          
-          if [ "$HTTP_CODE" = "200" ]; then
-            # Файл существует — извлекаем SHA
-            SHA=$(echo "$BODY" | jq -r '.sha // empty')
-            if [ -n "$SHA" ] && [ "$SHA" != "null" ]; then
-              echo "sha=$SHA" >> $GITHUB_OUTPUT
-              echo "✅ Найден существующий файл, SHA: ${SHA:0:8}..."
-            else
-              echo "⚠️ Файл найден, но SHA не получен — будет создан новый"
-            fi
-          elif [ "$HTTP_CODE" = "404" ]; then
-            echo "ℹ️ Файл не существует на GitVerse — будет создан"
-          else
-            echo "⚠️ Ошибка проверки файла (код $HTTP_CODE), пробуем создать"
-          fi
-
-      - name: 🚀 Отправка файла на GitVerse через API
+       - name: 🚀 Отправка файла на GitVerse через API
         run: |
           # Подготовка JSON-тела запроса
           if [ -n "${{ steps.get_sha.outputs.sha }}" ]; then
-            # Обновление существующего файла (требуется SHA)
+            # Обновление существующего файла
             JSON_BODY=$(jq -n \
               --arg content "${{ steps.read_file.outputs.content_b64 }}" \
               --arg message "🤖 Авто-синхронизация: обновление подписки $(date -u +%Y-%m-%dT%H:%M:%SZ)" \
@@ -92,30 +19,23 @@ jobs:
               '{content: $content, message: $message, branch: $branch}')
             echo "✨ Создаём новый файл..."
           fi
-          
-          # Отправка PUT-запроса к API GitVerse
+
+          # Отправка PUT-запроса
           RESPONSE=$(curl -s -w "\n%{http_code}" -X PUT \
             -H "Authorization: Bearer ${{ secrets.GITVERSE_TOKEN }}" \
             -H "Accept: application/vnd.gitverse.object+json;version=1" \
             -H "Content-Type: application/json" \
             -d "$JSON_BODY" \
             "${{ env.GITVERSE_API }}/repos/${{ env.GITVERSE_OWNER }}/${{ env.GITVERSE_REPO }}/contents/${{ env.GITVERSE_PATH }}")
-          
+
           HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
           BODY=$(echo "$RESPONSE" | sed '$d')
-          
-          if [ "$HTTP_CODE" = "200" ]; then
+
+          if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "201" ]; then
             COMMIT_URL=$(echo "$BODY" | jq -r '.commit.html_url // "N/A"')
-            echo "✅ Успешно! Файл обновлён: $COMMIT_URL"
+            echo "✅ Успешно! Файл обновлён/создан: $COMMIT_URL"
           else
             echo "❌ Ошибка (код $HTTP_CODE):"
             echo "$BODY" | jq . 2>/dev/null || echo "$BODY"
             exit 1
           fi
-
-      - name: 📋 Логирование результата
-        run: |
-          echo "🕐 Время выполнения: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          echo "📁 Исходный файл: ${{ env.SOURCE_FILE }}"
-          echo "🎯 Целевой путь: ${{ env.GITVERSE_PATH }}"
-          echo "🔗 Репозиторий: ${{ env.GITVERSE_OWNER }}/${{ env.GITVERSE_REPO }}"
