@@ -64,7 +64,7 @@ jobs:
           import geoip2.database
 
           # Настройки
-          MAX_WORKERS = 10
+          MAX_WORKERS = 40
           TIMEOUT = 5
           XRAY = "./xray"
           GEO_DB = "GeoLite2-Country.mmdb"
@@ -306,7 +306,7 @@ jobs:
               for url in urls:
                   try:
                       cmd = [
-                          'curl', '-s', '--max-time', '6',
+                          'curl', '-s', '--max-time', '4',
                           '-x', f'socks5h://127.0.0.1:{port}',
                           '-o', '/dev/null', '-w', '%{http_code}',
                           url
@@ -376,7 +376,7 @@ jobs:
                       stdout=subprocess.DEVNULL,
                       stderr=subprocess.DEVNULL
                   )
-                  time.sleep(3)
+                  time.sleep(1)
 
                   if not wait_port(local_port) or not test_proxy(local_port):
                       proc.kill()
