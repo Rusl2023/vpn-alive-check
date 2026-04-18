@@ -332,6 +332,39 @@ jobs:
                   pass
               return None
 
+                        # Основные hxehex (остаются)
+          sni_wl = load_set(RU_SNI)
+          ip_wl = load_set(RU_IP)
+          cidr_wl = load_cidr(RU_CIDR)
+          
+          # ==================== ДОПОЛНИТЕЛЬНЫЕ СПИСКИ ====================
+          # 1. igareck — извлекаем SNI из WHITE-SNI-RU-all.txt (конфиги, но с белыми доменами)
+          EXTRA_SNI_URL = "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/WHITE-SNI-RU-all.txt"
+          
+          def load_sni_from_configs(url):
+              try:
+                  resp = requests.get(url, timeout=20).text
+                  snis = set()
+                  for line in resp.splitlines():
+                      # Ищем sni=... в vless/trojan строках
+                      match = re.search(r'sni=([^&?#\s]+)', line.lower())
+                      if match:
+                          snis.add(match.group(1).strip())
+                  return snis
+              except Exception as e:
+                  print(f"[-] Error loading extra SNI from {url}: {e}")
+                  return set()
+          
+          extra_sni = load_sni_from_configs(EXTRA_SNI_URL)
+          sni_wl = sni_wl | extra_sni
+          print(f"✓ + Extra SNI from igareck WHITE-SNI: {len(extra_sni)} (total SNI: {len(sni_wl)})")
+          
+          # 2. escapingworm — дополнительный CIDR (белые подсети мобильных операторов)
+          EXTRA_CIDR_URL = "https://raw.githubusercontent.com/escapingworm/russia-whitelist/refs/heads/main/ru-whitelist-cidr.txt"
+          cidr_extra = load_cidr(EXTRA_CIDR_URL)
+          cidr_wl.extend(cidr_extra)  # добавляем в существующий список
+          print(f"✓ + Extra CIDR from escapingworm: {len(cidr_extra)} (total CIDR: {len(cidr_wl)})")
+
           def check_one(link):
               try:
                   cfg = parse_vless(link)
@@ -413,41 +446,8 @@ jobs:
           print("🌍 Loading GeoIP database...")
           country_reader = geoip2.database.Reader(GEO_DB)
 
-          print("📥 Loading Russian whitelists...")
-          
-          # Основные hxehex (остаются)
-          sni_wl = load_set(RU_SNI)
-          ip_wl = load_set(RU_IP)
-          cidr_wl = load_cidr(RU_CIDR)
-          
-          # ==================== ДОПОЛНИТЕЛЬНЫЕ СПИСКИ ====================
-          # 1. igareck — извлекаем SNI из WHITE-SNI-RU-all.txt (конфиги, но с белыми доменами)
-          EXTRA_SNI_URL = "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/WHITE-SNI-RU-all.txt"
-          
-          def load_sni_from_configs(url):
-              try:
-                  resp = requests.get(url, timeout=20).text
-                  snis = set()
-                  for line in resp.splitlines():
-                      # Ищем sni=... в vless/trojan строках
-                      match = re.search(r'sni=([^&?#\s]+)', line.lower())
-                      if match:
-                          snis.add(match.group(1).strip())
-                  return snis
-              except Exception as e:
-                  print(f"[-] Error loading extra SNI from {url}: {e}")
-                  return set()
-          
-          extra_sni = load_sni_from_configs(EXTRA_SNI_URL)
-          sni_wl = sni_wl | extra_sni
-          print(f"✓ + Extra SNI from igareck WHITE-SNI: {len(extra_sni)} (total SNI: {len(sni_wl)})")
-          
-          # 2. escapingworm — дополнительный CIDR (белые подсети мобильных операторов)
-          EXTRA_CIDR_URL = "https://raw.githubusercontent.com/escapingworm/russia-whitelist/refs/heads/main/ru-whitelist-cidr.txt"
-          cidr_extra = load_cidr(EXTRA_CIDR_URL)
-          cidr_wl.extend(cidr_extra)  # добавляем в существующий список
-          print(f"✓ + Extra CIDR from escapingworm: {len(cidr_extra)} (total CIDR: {len(cidr_wl)})")
-          
+          print("✓ Whitelists already loaded")
+                    
           # Итоговый вывод
           print(f"✅ FINAL WHITELIST → SNI:{len(sni_wl)} IP:{len(ip_wl)} CIDR:{len(cidr_wl)}")
 
