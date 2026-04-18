@@ -53,8 +53,8 @@ jobs:
           import geoip2.database
 
           # Настройки
-          MAX_WORKERS = 15
-          TIMEOUT = 3
+          MAX_WORKERS = 10
+          TIMEOUT = 5
           XRAY = "./xray"
           GEO_DB = "GeoLite2-Country.mmdb"
 
@@ -69,6 +69,7 @@ jobs:
               "https://raw.githubusercontent.com/EtoNeYaProject/EtoNeYaProject.github.io/refs/heads/main/whitelist",
               "https://raw.githubusercontent.com/kort0881/vpn-vless-configs-russia/main/githubmirror/clean/vless.txt",
               "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Cable.txt",
+              "https://raw.githubusercontent.com/whoahaow/rjsxrd/refs/heads/main/githubmirror/bypass/bypass-all.txt",
               "https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt"
           ]
 
@@ -330,7 +331,7 @@ jobs:
                   if cfg['port'] != 443:
                       return None
 
-                  allowed_flows = {'xtls-rprx-vision', 'xtls-rprx-vision-udp443', '', None}
+                  allowed_flows = {'xtls-rprx-vision', 'xtls-rprx-vision-udp443', '', None, 'xtls-rprx-origin'} 
                   if cfg['flow'] not in allowed_flows:
                       return None
                       
@@ -342,8 +343,10 @@ jobs:
                       return None
 
                   sni = cfg['sni'].lower()
-                  if not (sni in sni_wl or ip in ip_wl or ip_in(ip, cidr_wl)):
-                      return None
+                  # if not (sni in sni_wl or ip in ip_wl or ip_in(ip, cidr_wl)):
+                  #     return None
+                  print(f"[+] Passed basic filters: {cfg['hostname']} (SNI: {sni})")
+                  
 
                   key = (cfg['hostname'], cfg['port'], sni)
                   with lock:
@@ -388,7 +391,7 @@ jobs:
                   num = next_id()
                   sni_disp = cfg['sni'] if cfg['sni'] else cfg['hostname']
                   star = "⭐" if cfg['net'] == 'xhttp' else ""
-                  name = f"{star}{server_flag}→{num}→{exit_flag} SNI:{sni_disp}"
+                  name = f"{star}{server_flag}→{num}→{exit_flag} {cfg['net']}-R {sni_disp}"
 
                   base = link.split("#")[0]
                   return f"{base}#{name}"
