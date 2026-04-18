@@ -365,13 +365,13 @@ jobs:
           cidr_wl.extend(cidr_extra)  # добавляем в существующий список
           print(f"✓ + Extra CIDR from escapingworm: {len(cidr_extra)} (total CIDR: {len(cidr_wl)})")
 
-          def check_one(link):
+              def check_one(link):
               try:
                   cfg = parse_vless(link)
                   if not cfg:
                       return None
 
-                  # 🔒 ФИЛЬТР ПО ПОРТУ 443 (добавлено по запросу)
+                  # 🔒 ФИЛЬТР ПО ПОРТУ 443
                   if cfg['port'] != 443:
                       return None
 
@@ -396,6 +396,9 @@ jobs:
                           return None
                       seen.add(key)
 
+                  # >>> [1] ПОКАЗЫВАЕМ, ЧТО КЛЮЧ ПРОВЕРЯЕТСЯ (только прошедшие фильтры)
+                  print(f"[🔄] Проверка: {cfg['hostname']}:{cfg['port']} | SNI: {cfg['sni'] or '—'}", flush=True)
+
                   local_port = get_free_port()
                   xray_cfg = build_xray_cfg(cfg, local_port)
                   cfg_file = f'cfg_{local_port}.json'
@@ -411,8 +414,10 @@ jobs:
 
                   if not wait_port(local_port) or not test_proxy(local_port):
                       proc.kill()
-                      try: os.remove(cfg_file)
-                      except: pass
+                      try: os.remove(cfg_file)                      except: pass
+                      # [2] Неудачи не логируем (или очень редко для отладки):
+                      # if random.random() < 0.01:
+                      #     print(f"[❌] Не прошёл: {cfg['hostname']}", flush=True)
                       return None
 
                   exit_ip = get_exit_ip(local_port)
@@ -429,17 +434,21 @@ jobs:
                   else:
                       exit_flag = FLAGS['??']
 
+                  # >>> [3] ГЛАВНЫЙ УСПЕХ — ОБЯЗАТЕЛЬНО ПОКАЗЫВАЕМ
                   server_flag = get_flag(get_country(ip))
                   num = next_id()
                   sni_disp = cfg['sni'] if cfg['sni'] else cfg['hostname']
                   star = "⭐" if cfg['net'] == 'xhttp' else ""
                   name = f"{star}{server_flag}→{num}→{exit_flag} {cfg['net']}-R {sni_disp}"
+                  
+                  print(f"[✅] {server_flag}→{exit_flag} | {cfg['hostname']} | {sni_disp}", flush=True)
 
                   base = link.split("#")[0]
                   return f"{base}#{name}"
 
               except Exception as e:
-                  print(f"[!] Error: {link[:60]}... -> {e}")
+                  # Ошибки тоже не спамим, только если очень нужно:
+                  # print(f"[!] Error: {link[:60]}... -> {e}", flush=True)
                   return None
 
           # ==================== MAIN ====================
@@ -447,8 +456,6 @@ jobs:
           country_reader = geoip2.database.Reader(GEO_DB)
 
           print("✓ Whitelists already loaded")
-                    
-          # Итоговый вывод
           print(f"✅ FINAL WHITELIST → SNI:{len(sni_wl)} IP:{len(ip_wl)} CIDR:{len(cidr_wl)}")
 
           print("🔗 Downloading configs...")
@@ -456,13 +463,23 @@ jobs:
           random.shuffle(links)
 
           print(f"🔍 Testing {len(links)} links with {MAX_WORKERS} workers...")
+          print("[📊] Прогресс: 0% (только ✅ успехи и каждые 100 проверок)", flush=True)          
           results = []
+          tested = 0
+          total = len(links)
+          
           with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
               futures = [executor.submit(check_one, l) for l in links]
               for f in as_completed(futures):
                   r = f.result()
                   if r:
                       results.append(r)
+                  
+                  # >>> [4] ПРОГРЕСС КАЖДЫЕ 100 ПРОВЕРОК
+                  tested += 1
+                  if tested % 100 == 0:
+                      pct = 100 * tested // total
+                      print(f"[📊] Прогресс: {tested}/{total} ({pct}%) | Найдено: {len(results)}", flush=True)
 
           print(f"✅ FINAL: {len(results)} working configs")
 
