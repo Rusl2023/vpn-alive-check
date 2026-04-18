@@ -28,10 +28,21 @@ jobs:
 
       - name: Download Xray
         run: |
-          XRAY_VER=$(curl -s https://api.github.com/repos/XTLS/Xray-core/releases/latest | jq -r .tag_name)
-          curl -L -o xray.zip "https://github.com/XTLS/Xray-core/releases/download/${XRAY_VER}/Xray-linux-64.zip"
-          unzip -o xray.zip xray geoip.dat geosite.dat
-          chmod +x xray
+         set -e
+         echo "🔍 Fetching latest Xray version..."
+         XRAY_VER=$(curl -s https://api.github.com/repos/XTLS/Xray-core/releases/latest | jq -r .tag_name)
+         if [ -z "$XRAY_VER" ] || [ "$XRAY_VER" = "null" ]; then
+         echo "❌ Failed to get Xray version"
+         exit 1
+         fi
+         echo "✅ Version: $XRAY_VER"
+         URL="https://github.com/XTLS/Xray-core/releases/download/${XRAY_VER}/Xray-linux-64.zip"
+         echo "⬇️ Downloading: $URL"
+         curl -L --fail --retry 3 -o xray.zip "$URL"
+         echo "📦 Checking archive..."
+         file xray.zip
+         unzip -o xray.zip xray geoip.dat geosite.dat
+         chmod +x xray
 
       - name: Download GeoLite2 Country
         run: |
