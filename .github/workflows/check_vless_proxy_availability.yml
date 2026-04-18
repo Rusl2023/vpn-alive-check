@@ -354,7 +354,7 @@ jobs:
                       return None
 
                   sni = cfg['sni'].lower()
-                   if not (sni in sni_wl or ip in ip_wl or ip_in(ip, cidr_wl)):
+                  if not (sni in sni_wl or ip in ip_wl or ip_in(ip, cidr_wl)):
                        return None
                   
                   key = (cfg['hostname'], cfg['port'], sni)
