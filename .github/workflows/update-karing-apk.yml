@@ -10,12 +10,13 @@ on:
 jobs:
   sync:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # 🔥 Разрешение на запись в репозиторий
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-        with:
-          persist-credentials: false
+        # 🔥 Убрали persist-credentials: false — теперь токен работает для пуша
 
       # ---------------- Android ----------------
       - name: Fetch latest Karing Android release
@@ -45,8 +46,8 @@ jobs:
         run: |
           if [ -d apk ] && [ "$(ls -A apk/*.apk 2>/dev/null)" ]; then
             sha256sum apk/*.apk > apk/SHA256SUMS
-            ARM64_SHA=$(grep arm64 apk/SHA256SUMS | awk '{print $1}' || echo "")
-            ARMV7_SHA=$(grep armeabi apk/SHA256SUMS | awk '{print $1}' || echo "")
+            ARM64_SHA=$(grep arm64 apk/SHA256SUMS | awk '{print $1}' | tr -d '\r\n' || echo "")
+            ARMV7_SHA=$(grep armeabi apk/SHA256SUMS | awk '{print $1}' | tr -d '\r\n' || echo "")
             echo "ARM64_SHA=$ARM64_SHA" >> $GITHUB_ENV
             echo "ARMV7_SHA=$ARMV7_SHA" >> $GITHUB_ENV
           fi
@@ -79,8 +80,8 @@ jobs:
         run: |
           if [ -d windows ] && [ "$(ls -A windows/*.exe 2>/dev/null)" ]; then
             sha256sum windows/*.exe > windows/SHA256SUMS
-            X64_SHA=$(grep x64 windows/SHA256SUMS | awk '{print $1}' || echo "")
-            X86_SHA=$(grep x86 windows/SHA256SUMS | awk '{print $1}' || echo "")
+            X64_SHA=$(grep x64 windows/SHA256SUMS | awk '{print $1}' | tr -d '\r\n' || echo "")
+            X86_SHA=$(grep x86 windows/SHA256SUMS | awk '{print $1}' | tr -d '\r\n' || echo "")
             echo "X64_SHA=$X64_SHA" >> $GITHUB_ENV
             echo "X86_SHA=$X86_SHA" >> $GITHUB_ENV
           fi
@@ -114,9 +115,9 @@ jobs:
         run: |
           if [ -d geolite2 ] && [ "$(ls -A geolite2/*.mmdb 2>/dev/null)" ]; then
             sha256sum geolite2/*.mmdb > geolite2/SHA256SUMS
-            ASN_SHA=$(grep ASN geolite2/SHA256SUMS | awk '{print $1}' || echo "")
-            CITY_SHA=$(grep City geolite2/SHA256SUMS | awk '{print $1}' || echo "")
-            COUNTRY_SHA=$(grep Country geolite2/SHA256SUMS | awk '{print $1}' || echo "")
+            ASN_SHA=$(grep ASN geolite2/SHA256SUMS | awk '{print $1}' | tr -d '\r\n' || echo "")
+            CITY_SHA=$(grep City geolite2/SHA256SUMS | awk '{print $1}' | tr -d '\r\n' || echo "")
+            COUNTRY_SHA=$(grep Country geolite2/SHA256SUMS | awk '{print $1}' | tr -d '\r\n' || echo "")
             echo "ASN_SHA=$ASN_SHA" >> $GITHUB_ENV
             echo "CITY_SHA=$CITY_SHA" >> $GITHUB_ENV
             echo "COUNTRY_SHA=$COUNTRY_SHA" >> $GITHUB_ENV
@@ -137,8 +138,8 @@ jobs:
         run: |
           if [ -d geoip ] && [ "$(ls -A geoip/* 2>/dev/null)" ]; then
             sha256sum geoip/* > geoip/SHA256SUMS
-            GEOIP_SHA=$(grep geoip.dat geoip/SHA256SUMS | awk '{print $1}' || echo "")
-            GEOSITE_SHA=$(grep geosite.dat geoip/SHA256SUMS | awk '{print $1}' || echo "")
+            GEOIP_SHA=$(grep geoip.dat geoip/SHA256SUMS | awk '{print $1}' | tr -d '\r\n' || echo "")
+            GEOSITE_SHA=$(grep geosite.dat geoip/SHA256SUMS | awk '{print $1}' | tr -d '\r\n' || echo "")
             echo "GEOIP_SHA=$GEOIP_SHA" >> $GITHUB_ENV
             echo "GEOSITE_SHA=$GEOSITE_SHA" >> $GITHUB_ENV
           fi
@@ -158,14 +159,11 @@ jobs:
           sed -i "s|^GEOIP_SHA=.*|GEOIP_SHA=$GEOIP_SHA|g" README.md
           sed -i "s|^GEOSITE_SHA=.*|GEOSITE_SHA=$GEOSITE_SHA|g" README.md
 
-      # ---------------- Commit & Push ----------------
-      - name: Commit changes
+      # ---------------- Commit & Push 🔥 ----------------
+      - name: Commit and Push
         run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           git add apk windows geolite2 geoip README.md
-          git diff --cached --quiet || git commit -m "Update Karing Android/Windows + GeoLite2 + GeoIP $ANDROID_VERSION / $WIN_VERSION"
-
-      - name: Push
-        run: |
-          git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }} HEAD:main
+          git commit -m "🔄 Update Karing $ANDROID_VERSION / $WIN_VERSION + Geo [$(date +'%Y-%m-%d %H:%M UTC')]" || exit 0
+          git push
