@@ -88,6 +88,9 @@ jobs:
           RU_IP = "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/ipwhitelist.txt"
           RU_CIDR = "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/cidrwhitelist.txt"
 
+          # Вайтлист IP из openlibrecommunity (JSON с подсетями и IP)
+          WHITE_IP_URL = "https://raw.githubusercontent.com/openlibrecommunity/twl/main/code/subnet/out/subnets.json"
+
           ALLOWED_FP = {"chrome", "firefox", "safari", "ios", "android", "edge", "360", "qq", "random", "randomized"}
 
           # Только основные флаги (26 ключевых стран)
@@ -168,6 +171,31 @@ jobs:
               except:
                   pass
               return out
+
+          def load_white_ips_from_json(url):
+              """Загружает все IP из JSON-файла вида [{cidr, ips: [...]}, ...]"""
+              try:
+                  resp = requests.get(url, timeout=20)
+                  data = resp.json()
+                  ips = set()
+                  # Поддержка двух форматов: список или одиночный объект
+                  if isinstance(data, list):
+                      for entry in data:
+                          if isinstance(entry, dict) and 'ips' in entry:
+                              for ip in entry['ips']:
+                                  # Нормализация IP (удаление пробелов)
+                                  ip_clean = ip.strip()
+                                  if ip_clean:
+                                      ips.add(ip_clean)
+                  elif isinstance(data, dict) and 'ips' in data:
+                      for ip in data['ips']:
+                          ip_clean = ip.strip()
+                          if ip_clean:
+                              ips.add(ip_clean)
+                  return ips
+              except Exception as e:
+                  print(f"[-] Error loading white IPs from {url}: {e}")
+                  return set()
 
           def ip_in(ip, networks):
               try:
@@ -363,6 +391,10 @@ jobs:
           cidr_wl.extend(cidr_extra)  # добавляем в существующий список
           print(f"✓ + Extra CIDR from escapingworm: {len(cidr_extra)} (total CIDR: {len(cidr_wl)})")
 
+          # 3. openlibrecommunity — белые IP из subnet-списка
+          white_ips = load_white_ips_from_json(WHITE_IP_URL)
+          print(f"✓ + White IPs from openlibrecommunity: {len(white_ips)} (total IPs now: {len(ip_wl) + len(white_ips)})")
+
           def check_one(link):
               try:
                   cfg = parse_vless(link)
@@ -380,7 +412,7 @@ jobs:
                   if not ip or not tcp_check(ip, cfg['port']):
                       return None
                   sni = cfg['sni'].lower()
-                  if not (sni in sni_wl or ip in ip_wl or ip_in(ip, cidr_wl)):
+                  if not (sni in sni_wl or ip in ip_wl or ip_in(ip, cidr_wl) or ip in white_ips):
                       return None
 
                   key = (cfg['hostname'], cfg['port'], sni)
@@ -446,8 +478,8 @@ jobs:
           # ==================== MAIN ====================
           print("🌍 Loading GeoIP database...")
           country_reader = geoip2.database.Reader(GEO_DB)
-          print("✓ Whitelists already loaded")
-          print(f"✅ FINAL WHITELIST → SNI:{len(sni_wl)} IP:{len(ip_wl)} CIDR:{len(cidr_wl)}")
+          print("✓ Whitelists loaded")
+          print(f"✅ FINAL WHITELIST → SNI:{len(sni_wl)} IP:{len(ip_wl)} CIDR:{len(cidr_wl)} WhiteIPs:{len(white_ips)}")
           print("🔗 Downloading configs...")
           links = download_and_parse()
           random.shuffle(links)
