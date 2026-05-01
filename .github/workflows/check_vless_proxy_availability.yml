@@ -62,13 +62,11 @@ jobs:
           from datetime import datetime, timezone
           import geoip2.database
 
-          # Настройки
           MAX_WORKERS = 40
           TIMEOUT = 5
           XRAY = "./xray"
           GEO_DB = "GeoLite2-Country.mmdb"
 
-          # Источники конфигураций
           CONFIG_URLS = [
               "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt",
               "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile-2.txt",
@@ -82,17 +80,15 @@ jobs:
               "https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt"
           ]
 
-          # Российские вайтлисты
           RU_SNI = "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/whitelist.txt"
           RU_IP = "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/ipwhitelist.txt"
           RU_CIDR = "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/cidrwhitelist.txt"
 
-          # Вайтлист IP из openlibrecommunity (JSON с подсетями и IP)
           WHITE_IP_URL = "https://raw.githubusercontent.com/openlibrecommunity/twl/main/code/subnet/out/subnets.json"
+          EXTRA_CIDR_URL = "https://raw.githubusercontent.com/escapingworm/russia-whitelist/refs/heads/main/ru-whitelist-cidr.txt"
 
           ALLOWED_FP = {"chrome", "firefox", "safari", "ios", "android", "edge", "360", "qq", "random", "randomized"}
 
-          # Только основные флаги (26 ключевых стран)
           FLAGS = {
               'AD': '🇦🇩AD', 'AE': '🇦🇪AE', 'AF': '🇦🇫AF', 'AG': '🇦🇬AG', 'AI': '🇦🇮AI', 'AL': '🇦🇱AL',
               'AM': '🇦🇲AM', 'AO': '🇦🇴AO', 'AQ': '🇦🇶AQ', 'AR': '🇦🇷AR', 'AS': '🇦🇸AS', 'AT': '🇦🇹AT',
@@ -136,22 +132,12 @@ jobs:
               'UZ': '🇺🇿UZ', 'VA': '🇻🇦VA', 'VC': '🇻🇨VC', 'VE': '🇻🇪VE', 'VG': '🇻🇬VG', 'VI': '🇻🇮VI',
               'VN': '🇻🇳VN', 'VU': '🇻🇺VU', 'WF': '🇼🇫WF', 'WS': '🇼🇸WS', 'YE': '🇾🇪YE', 'YT': '🇾🇹YT',
               'ZA': '🇿🇦ZA', 'ZM': '🇿🇲ZM', 'ZW': '🇿🇼ZW',
-              # ==== ДОБАВЛЕНО (редкие/служебные коды) ====
-              'XK': '🇽🇰XK',  # Kosovo
-              '??': '🌍??'   # fallback
+              'XK': '🇽🇰XK', '??': '🌍??'
           }
 
           dns_cache = {}
-          seen = set()
           lock = Lock()
-          counter = 0
           country_reader = None
-
-          def next_id():
-              global counter
-              with lock:
-                  counter += 1
-                  return counter
 
           def load_set(url):
               try:
@@ -171,30 +157,45 @@ jobs:
                   pass
               return out
 
-          def load_white_ips_from_json(url):
-              """Загружает все IP из JSON-файла вида [{cidr, ips: [...]}, ...]"""
+          def load_sni_from_configs(url):
               try:
-                  resp = requests.get(url, timeout=20)
-                  data = resp.json()
-                  ips = set()
-                  # Поддержка двух форматов: список или одиночный объект
-                  if isinstance(data, list):
-                      for entry in data:
-                          if isinstance(entry, dict) and 'ips' in entry:
-                              for ip in entry['ips']:
-                                  # Нормализация IP (удаление пробелов)
-                                  ip_clean = ip.strip()
-                                  if ip_clean:
-                                      ips.add(ip_clean)
-                  elif isinstance(data, dict) and 'ips' in data:
-                      for ip in data['ips']:
-                          ip_clean = ip.strip()
-                          if ip_clean:
-                              ips.add(ip_clean)
-                  return ips
+                  resp = requests.get(url, timeout=20).text
+                  snis = set()
+                  for line in resp.splitlines():
+                      match = re.search(r'sni=([^&?#\s]+)', line.lower())
+                      if match:
+                          snis.add(match.group(1).strip())
+                  return snis
               except Exception as e:
-                  print(f"[-] Error loading white IPs from {url}: {e}")
+                  print(f"[-] Error loading extra SNI from {url}: {e}")
                   return set()
+
+          def load_white_ips_and_cidrs_from_json(url):
+              try:
+                  resp = requests.get(url, timeout=25)
+                  resp.raise_for_status()
+                  data = resp.json()
+                  all_ips = set()
+                  cidr_list = []
+                  for entry in data:
+                      if not isinstance(entry, dict):
+                          continue
+                      if 'cidr' in entry:
+                          try:
+                              cidr_obj = ipaddress.ip_network(entry['cidr'], strict=False)
+                              cidr_list.append(cidr_obj)
+                          except Exception:
+                              pass
+                      if 'ips' in entry and isinstance(entry['ips'], list):
+                          for ip_str in entry['ips']:
+                              ip_clean = str(ip_str).strip()
+                              if ip_clean:
+                                  all_ips.add(ip_clean)
+                  print(f"✓ Loaded from openlibrecommunity/subnets.json → CIDRs: {len(cidr_list)} | Unique IPs: {len(all_ips)}")
+                  return all_ips, cidr_list
+              except Exception as e:
+                  print(f"[-] Error loading subnets.json: {e}")
+                  return set(), []
 
           def ip_in(ip, networks):
               try:
@@ -359,49 +360,29 @@ jobs:
                   pass
               return None
 
-          # Основные hxehex (остаются)
+          # ============ ЗАГРУЗКА БЕЛЫХ СПИСКОВ ============
           sni_wl = load_set(RU_SNI)
           ip_wl = load_set(RU_IP)
           cidr_wl = load_cidr(RU_CIDR)
 
-          # ==================== ДОПОЛНИТЕЛЬНЫЕ СПИСКИ ====================
-          # 1. igareck — извлекаем SNI из WHITE-SNI-RU-all.txt (конфиги, но с белыми доменами)
-          EXTRA_SNI_URL = "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/WHITE-SNI-RU-all.txt"
-
-          def load_sni_from_configs(url):
-              try:
-                  resp = requests.get(url, timeout=20).text
-                  snis = set()
-                  for line in resp.splitlines():
-                      # Ищем sni=... в vless/trojan строках
-                      match = re.search(r'sni=([^&?#\s]+)', line.lower())
-                      if match:
-                          snis.add(match.group(1).strip())
-                  return snis
-              except Exception as e:
-                  print(f"[-] Error loading extra SNI from {url}: {e}")
-                  return set()
-
-          extra_sni = load_sni_from_configs(EXTRA_SNI_URL)
+          # Дополнительные SNI из конфигов igareck
+          extra_sni = load_sni_from_configs(CONFIG_URLS[7])  # WHITE-SNI-RU-all.txt
           sni_wl = sni_wl | extra_sni
           print(f"✓ + Extra SNI from igareck WHITE-SNI: {len(extra_sni)} (total SNI: {len(sni_wl)})")
 
-          # 2. escapingworm — дополнительный CIDR (белые подсети мобильных операторов)
-          EXTRA_CIDR_URL = "https://raw.githubusercontent.com/escapingworm/russia-whitelist/refs/heads/main/ru-whitelist-cidr.txt"
+          # Дополнительные CIDR из escapingworm
           cidr_extra = load_cidr(EXTRA_CIDR_URL)
-          cidr_wl.extend(cidr_extra)  # добавляем в существующий список
+          cidr_wl.extend(cidr_extra)
           print(f"✓ + Extra CIDR from escapingworm: {len(cidr_extra)} (total CIDR: {len(cidr_wl)})")
 
-          # 3. openlibrecommunity — белые IP из subnet-списка
-          white_ips = load_white_ips_from_json(WHITE_IP_URL)
-          print(f"✓ + White IPs from openlibrecommunity: {len(white_ips)} (total IPs now: {len(ip_wl) + len(white_ips)})")
+          # subnets.json от openlibrecommunity (и точные IP, и CIDR)
+          white_ips_set, white_cidrs = load_white_ips_and_cidrs_from_json(WHITE_IP_URL)
 
           def check_one(link):
               try:
                   cfg = parse_vless(link)
                   if not cfg:
                       return None
-                  # 🔒 ФИЛЬТР ПО ПОРТУ 443
                   if cfg['port'] != 443:
                       return None
                   allowed_flows = {'xtls-rprx-vision', 'xtls-rprx-vision-udp443', '', None, 'xtls-rprx-origin'}
@@ -412,148 +393,106 @@ jobs:
                   ip = resolve(cfg['hostname'])
                   if not ip or not tcp_check(ip, cfg['port']):
                       return None
-                  sni = cfg['sni'].lower()
-                  if not (sni in sni_wl or ip in ip_wl or ip_in(ip, cidr_wl) or ip in white_ips):
-                      return None
 
-                  key = (cfg['hostname'], cfg['port'], sni)
-                  with lock:
-                      if key in seen:
-                          return None
-                      seen.add(key)
-
-                  # >>> [1] ПОКАЗЫВАЕМ, ЧТО КЛЮЧ ПРОВЕРЯЕТСЯ (только прошедшие фильтры)
-                  print(f"[🔄] Проверка: {cfg['hostname']}:{cfg['port']} | SNI: {cfg['sni'] or '—'}", flush=True)
-
-                  local_port = get_free_port()
-                  xray_cfg = build_xray_cfg(cfg, local_port)
-                  cfg_file = f'cfg_{local_port}.json'
-                  with open(cfg_file, 'w') as f:
-                      json.dump(xray_cfg, f)
-
-                  proc = subprocess.Popen(
-                      [XRAY, 'run', '-c', cfg_file],
-                      stdout=subprocess.DEVNULL,
-                      stderr=subprocess.DEVNULL
+                  sni = cfg['sni'].lower() if cfg['sni'] else ''
+                  is_white = (
+                      sni in sni_wl or
+                      ip in ip_wl or
+                      ip_in(ip, cidr_wl) or
+                      ip in white_ips_set or
+                      ip_in(ip, white_cidrs)
                   )
-
-                  time.sleep(3)
-                  if not wait_port(local_port) or not test_proxy(local_port):
-                      proc.kill()
-                      try:
-                          os.remove(cfg_file)
-                      except:
-                          pass
+                  if not is_white:
                       return None
-
-                  exit_ip = get_exit_ip(local_port)
-                  proc.kill()
-                  proc.wait(2)
-                  try:
-                      os.remove(cfg_file)
-                  except:
-                      pass
-
-                  if exit_ip:
-                      cc = get_country(exit_ip)
-                      if cc == "RU":
-                          return None
-                      exit_flag = get_flag(cc)
-                  else:
-                      exit_flag = FLAGS['??']
-
-                  # >>> [3] ГЛАВНЫЙ УСПЕХ — ОБЯЗАТЕЛЬНО ПОКАЗЫВАЕМ
-                  server_flag = get_flag(get_country(ip))
-                  num = next_id()
-                  sni_disp = cfg['sni'] if cfg['sni'] else cfg['hostname']
-                  star = "⭐" if cfg['net'] == 'xhttp' else ""
-                  name = f"{star}{server_flag}→{num}→{exit_flag} {cfg['net']}-R {sni_disp}"
-
-                  print(f"[✅] {server_flag}→{exit_flag} | {cfg['hostname']} | {sni_disp}", flush=True)
-                  base = link.split("#")[0]
-                  return f"{base}#{name}"
-
-              except Exception as e:
+                  return cfg
+              except:
                   return None
 
-          # ==================== MAIN ====================
-          print("🌍 Loading GeoIP database...")
-          country_reader = geoip2.database.Reader(GEO_DB)
-          print("✓ Whitelists loaded")
-          print(f"✅ FINAL WHITELIST → SNI:{len(sni_wl)} IP:{len(ip_wl)} CIDR:{len(cidr_wl)} WhiteIPs:{len(white_ips)}")
-          print("🔗 Downloading configs...")
+          # ============ СКАЧИВАЕМ И ПАРСИМ ВСЕ ССЫЛКИ ============
           links = download_and_parse()
-          random.shuffle(links)
-          print(f"🔍 Testing {len(links)} links with {MAX_WORKERS} workers...")
-          print("[📊] Прогресс: 0% (только ✅ успехи и каждые 100 проверок)", flush=True)
-
-          results = []
-          tested = 0
-          total = len(links)
-
+          print(f"Начинаем быструю фильтрацию {len(links)} ссылок...")
+          valid_cfgs = []
           with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-              futures = [executor.submit(check_one, l) for l in links]
-              for f in as_completed(futures):
-                  r = f.result()
-                  if r:
-                      results.append(r)
+              futures = {executor.submit(check_one, link): link for link in links}
+              for future in as_completed(futures):
+                  res = future.result()
+                  if res:
+                      valid_cfgs.append(res)
+          print(f"После быстрой фильтрации: {len(valid_cfgs)} конфигов")
 
-                  # >>> [4] ПРОГРЕСС КАЖДЫЕ 100 ПРОВЕРОК
-                  tested += 1
-                  if tested % 100 == 0:
-                      pct = 100 * tested // total
-                      print(f"[📊] Прогресс: {tested}/{total} ({pct}%) | Найдено: {len(results)}", flush=True)
+          # ============ ТЕСТИРОВАНИЕ ЧЕРЕЗ XRAY ============
+          country_reader = geoip2.database.Reader(GEO_DB)
+          good_links = []
+          lock = Lock()
 
-          print(f"✅ FINAL: {len(results)} working configs")
+          def test_cfg(cfg):
+              local_port = get_free_port()
+              xray_cfg = build_xray_cfg(cfg, local_port)
+              cfg_path = f"/tmp/xray_{local_port}.json"
+              with open(cfg_path, 'w') as f:
+                  json.dump(xray_cfg, f)
+              proc = subprocess.Popen([XRAY, 'run', '-c', cfg_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+              try:
+                  if not wait_port(local_port, 20):
+                      return None
+                  if not test_proxy(local_port):
+                      return None
+                  exit_ip = get_exit_ip(local_port)
+                  if not exit_ip:
+                      return None
+                  cc = get_country(exit_ip)
+                  flag = get_flag(cc)
+                  if cc == 'RU':
+                      return None
+                  # Формируем итоговую ссылку с флагом
+                  mark = f"{flag} {cc} | {cfg['hostname']}"
+                  link_with_flag = cfg['original'] + '#' + mark
+                  return link_with_flag
+              except Exception as e:
+                  return None
+              finally:
+                  proc.terminate()
+                  try:
+                      proc.wait(timeout=3)
+                  except:
+                      proc.kill()
+                  os.remove(cfg_path)
 
-          os.makedirs("githubmirror", exist_ok=True)
-          with open("githubmirror/26_proxy_subscription_raw.txt", "w") as f:
-              f.write(f'# Alive [{datetime.now(timezone.utc)}]\n')
-              for line in results:
-                  f.write(line + "\n")
+          print(f"Запускаем Xray-тест для {len(valid_cfgs)} кандидатов...")
+          tested = []
+          with ThreadPoolExecutor(max_workers=min(20, len(valid_cfgs))) as executor:
+              futures = {executor.submit(test_cfg, cfg): cfg for cfg in valid_cfgs}
+              for i, future in enumerate(as_completed(futures), 1):
+                  link = future.result()
+                  if link:
+                      tested.append(link)
+                      print(f"[{i}/{len(valid_cfgs)}] ✅ {link.split('#')[1] if '#' in link else link}")
+          print(f"✅ Успешно прошли Xray: {len(tested)}")
 
-          with open("githubmirror/26_proxy_subscription_base64.txt", "w") as f:
-              if results:
-                  f.write(base64.b64encode('\n'.join(results).encode()).decode())
-              else:
-                  f.write("")
+          # ============ ДЕДУПЛИКАЦИЯ ПО HOSTNAME+SNI+UUID ============
+          dedup = {}
+          for link in tested:
+              cfg = parse_vless(link)
+              if not cfg:
+                  continue
+              key = (cfg['hostname'], cfg['sni'], cfg['id'])
+              if key not in dedup:
+                  dedup[key] = link
+          final_links = list(dedup.values())
+          print(f"После дедупликации: {len(final_links)} уникальных прокси")
 
-          country_reader.close()
-          print("📦 Done. Files written to githubmirror/")
+          # ============ СОХРАНЕНИЕ ============
+          raw_path = "githubmirror/26_proxy_subscription_raw.txt"
+          b64_path = "githubmirror/26_proxy_subscription_base64.txt"
+
+          with open(raw_path, 'w', encoding='utf-8') as f:
+              for link in final_links:
+                  f.write(link + '\n')
+
+          b64_content = base64.b64encode('\n'.join(final_links).encode('utf-8')).decode('utf-8')
+          with open(b64_path, 'w', encoding='utf-8') as f:
+              f.write(b64_content)
+
+          print(f"Сохранено: {raw_path} ({len(final_links)} строк)")
+          print(f"Сохранено: {b64_path} ({len(b64_content)} символов base64)")
           PYTHON_EOF
-      - name: Upload to Yandex Disk + Generate Links
-        if: always()
-        env:
-          YANDEX_TOKEN: ${{ secrets.YANDEX_OAUTH_TOKEN }}
-        run: |
-          echo "📤 Uploading to Yandex Disk..."
-          BASE_PATH="/My%20Github%20Uploader"
-          PUBLIC_ID="xUd8uTcaD9YU2Q"
-
-          upload() {
-            local FILE=$1
-            local NAME=$2
-            local FULL_PATH="${BASE_PATH}/${NAME}"
-            [ ! -f "$FILE" ] && { echo "⚠️ File not found: $FILE"; return 1; }
-            RESP=$(curl -s -w "\n%{http_code}" -H "Authorization: OAuth $YANDEX_TOKEN" \
-              "https://cloud-api.yandex.net/v1/disk/resources/upload?path=${FULL_PATH}&overwrite=true")
-            HTTP_CODE=$(echo "$RESP" | tail -n1)
-            if [ "$HTTP_CODE" != "200" ]; then
-              echo "❌ Upload failed: $HTTP_CODE"
-              return 1
-            fi
-            UPLOAD_URL=$(echo "$RESP" | sed '$d' | jq -r '.href')
-            curl -s -X PUT --data-binary @"$FILE" "$UPLOAD_URL" >/dev/null
-            echo "✅ Uploaded: $NAME"
-          }
-
-          upload "githubmirror/26_proxy_subscription_raw.txt" "sub_raw.txt"
-          upload "githubmirror/26_proxy_subscription_base64.txt" "sub_b64.txt"
-
-      - name: Commit and Push
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add githubmirror/*.txt
-          git commit -m "🔄 Update: $(date +'%Y-%m-%d %H:%M UTC') [${{ github.run_number }}]" || exit 0
-          git push
