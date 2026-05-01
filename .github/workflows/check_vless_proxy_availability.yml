@@ -28,15 +28,8 @@ jobs:
       - name: Download Xray
         run: |
           set -e
-          echo "🔍 Fetching latest Xray version..."
-          XRAY_VER=$(curl -s https://api.github.com/repos/XTLS/Xray-core/releases/latest | jq -r .tag_name)
-          if [ -z "$XRAY_VER" ] || [ "$XRAY_VER" = "null" ]; then
-            echo "❌ Failed to get Xray version"
-            exit 1
-          fi
-          echo "✅ Version: $XRAY_VER"
-          URL="https://github.com/XTLS/Xray-core/releases/download/${XRAY_VER}/Xray-linux-64.zip"
-          echo "⬇️ Downloading: $URL"
+          echo "⬇️ Downloading latest Xray..."
+          URL="https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-64.zip"
           curl -L --fail --retry 3 -o xray.zip "$URL"
           echo "📦 Checking archive..."
           file xray.zip
@@ -366,8 +359,8 @@ jobs:
           ip_wl = load_set(RU_IP)
           cidr_wl = load_cidr(RU_CIDR)
 
-          # Дополнительные SNI из конфигов igareck
-          extra_sni = load_sni_from_configs(CONFIG_URLS[7])  # WHITE-SNI-RU-all.txt
+          # Дополнительные SNI из конфигов igareck (теперь индекс 8, т.к. добавили WHITE-CIDR-RU-all.txt)
+          extra_sni = load_sni_from_configs(CONFIG_URLS[8])  # WHITE-SNI-RU-all.txt
           sni_wl = sni_wl | extra_sni
           print(f"✓ + Extra SNI from igareck WHITE-SNI: {len(extra_sni)} (total SNI: {len(sni_wl)})")
 
@@ -378,6 +371,15 @@ jobs:
 
           # subnets.json от openlibrecommunity (и точные IP, и CIDR)
           white_ips_set, white_cidrs = load_white_ips_and_cidrs_from_json(WHITE_IP_URL)
+
+          # Дополнительные CIDR от igareck (WHITE-CIDR-RU-all.txt уже используется в CONFIG_URLS, но можно и отдельно)
+          extra_cidr_urls = [
+              "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/WHITE-CIDR-RU-all.txt",
+          ]
+          for url in extra_cidr_urls:
+              extra = load_cidr(url)
+              cidr_wl.extend(extra)
+              print(f"✓ + {len(extra)} CIDRs from {url.split('/')[-1]}")
 
           def check_one(link):
               try:
@@ -445,7 +447,6 @@ jobs:
                   flag = get_flag(cc)
                   if cc == 'RU':
                       return None
-                  # Формируем итоговую ссылку с флагом
                   mark = f"{flag} {cc} | {cfg['hostname']}"
                   link_with_flag = cfg['original'] + '#' + mark
                   return link_with_flag
@@ -497,8 +498,9 @@ jobs:
           print(f"Сохранено: {raw_path} ({len(final_links)} строк)")
           print(f"Сохранено: {b64_path} ({len(b64_content)} символов base64)")
           PYTHON_EOF
-          - name: Commit and push updated files
-          run: |
+
+      - name: Commit and push updated files
+        run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add githubmirror/26_proxy_subscription_raw.txt githubmirror/26_proxy_subscription_base64.txt
