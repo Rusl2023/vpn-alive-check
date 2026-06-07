@@ -511,12 +511,11 @@ jobs:
               config = generate_clash_config(fixed_proxies)
 
               now_utc = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-              header = (
-                  f"# Обновлено: {now_utc}
-                  f"# Всего в источнике: {len(all_proxies)}
-                  f"# Живых серверов: {len(alive_proxies)}
-                  f"# Источник: 26_proxy_subscription_raw.txt
-              )
+              header = f"""# Обновлено: {now_utc}
+# Всего в источнике: {len(all_proxies)}
+# Живых серверов: {len(alive_proxies)}
+# Источник: 26_proxy_subscription_raw.txt
+"""
 
               with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
                   f.write(header)
