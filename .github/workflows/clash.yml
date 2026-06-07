@@ -51,12 +51,12 @@ jobs:
                   data += "=" * padding
               return base64.b64decode(data).decode("utf-8", errors="ignore")
 
+          # === Все парсеры (без изменений) ===
           def parse_vmess(uri):
               try:
                   b64_part = uri[len("vmess://"):].strip()
                   decoded = decode_base64(b64_part)
                   vmess_json = json.loads(decoded)
-
                   proxy = {
                       "name": vmess_json.get("ps", "VMess"),
                       "type": "vmess",
@@ -68,56 +68,39 @@ jobs:
                       "network": vmess_json.get("net", "tcp"),
                       "udp": True,
                   }
-
                   net = vmess_json.get("net", "tcp")
                   if net == "ws":
-                      proxy["ws-opts"] = {
-                          "path": vmess_json.get("path", "/"),
-                          "headers": {"Host": vmess_json.get("host", vmess_json.get("add", ""))},
-                      }
+                      proxy["ws-opts"] = {"path": vmess_json.get("path", "/"), "headers": {"Host": vmess_json.get("host", vmess_json.get("add", ""))}}
                   elif net == "grpc":
                       proxy["grpc-opts"] = {"grpc-service-name": vmess_json.get("path", "")}
-
                   if vmess_json.get("tls") == "tls":
                       proxy["tls"] = True
                       proxy["skip-cert-verify"] = True
                       proxy["sni"] = vmess_json.get("sni", vmess_json.get("add", ""))
-
                   return proxy
               except:
                   return None
 
-          def parse_trojan(uri):
+          def parse_trojan(uri): 
               try:
                   parsed = urlparse(uri)
                   name = requests.utils.unquote(parsed.fragment) if parsed.fragment else "Trojan"
-
                   proxy = {
-                      "name": name,
-                      "type": "trojan",
-                      "server": parsed.hostname,
-                      "port": parsed.port or 443,
-                      "password": parsed.username or "",
-                      "udp": True,
-                      "skip-cert-verify": True,
+                      "name": name, "type": "trojan", "server": parsed.hostname,
+                      "port": parsed.port or 443, "password": parsed.username or "",
+                      "udp": True, "skip-cert-verify": True,
                   }
-
                   if parsed.query:
                       query = parse_qs(parsed.query)
-                      if "sni" in query:
-                          proxy["sni"] = query["sni"][0]
+                      if "sni" in query: proxy["sni"] = query["sni"][0]
                       if "type" in query:
-                          net_type = query["type"][0]
-                          if net_type == "ws":
+                          t = query["type"][0]
+                          if t == "ws":
                               proxy["network"] = "ws"
-                              proxy["ws-opts"] = {
-                                  "path": query.get("path", ["/"])[0],
-                                  "headers": {"Host": query.get("host", [parsed.hostname])[0]},
-                              }
-                          elif net_type == "grpc":
+                              proxy["ws-opts"] = {"path": query.get("path", ["/"])[0], "headers": {"Host": query.get("host", [parsed.hostname])[0]}}
+                          elif t == "grpc":
                               proxy["network"] = "grpc"
                               proxy["grpc-opts"] = {"grpc-service-name": query.get("serviceName", [""])[0]}
-
                   return proxy
               except:
                   return None
@@ -128,36 +111,17 @@ jobs:
                       uri_part, name_part = uri.split("#", 1)
                       name = requests.utils.unquote(name_part)
                   else:
-                      uri_part = uri
-                      name = "Shadowsocks"
-
+                      uri_part, name = uri, "Shadowsocks"
                   uri_part = uri_part[len("ss://"):]
-
-                  if "@" not in uri_part:
-                      return None
-
+                  if "@" not in uri_part: return None
                   userinfo, server_port = uri_part.split("@", 1)
-
                   try:
                       decoded = decode_base64(userinfo)
                       cipher, password = decoded.split(":", 1)
                   except:
-                      if ":" in userinfo:
-                          cipher, password = userinfo.split(":", 1)
-                      else:
-                          cipher, password = "aes-256-gcm", userinfo
-
+                      cipher, password = ("aes-256-gcm", userinfo) if ":" not in userinfo else userinfo.split(":", 1)
                   server, port = server_port.rsplit(":", 1)
-
-                  return {
-                      "name": name,
-                      "type": "ss",
-                      "server": server,
-                      "port": int(port),
-                      "cipher": cipher,
-                      "password": password,
-                      "udp": True,
-                  }
+                  return {"name": name, "type": "ss", "server": server, "port": int(port), "cipher": cipher, "password": password, "udp": True}
               except:
                   return None
 
@@ -165,57 +129,36 @@ jobs:
               try:
                   parsed = urlparse(uri)
                   name = requests.utils.unquote(parsed.fragment) if parsed.fragment else "VLESS"
-
                   proxy = {
-                      "name": name,
-                      "type": "vless",
-                      "server": parsed.hostname,
-                      "port": parsed.port or 443,
-                      "uuid": parsed.username or "",
-                      "udp": True,
-                      "skip-cert-verify": True,
-                      "encryption": "none",
+                      "name": name, "type": "vless", "server": parsed.hostname,
+                      "port": parsed.port or 443, "uuid": parsed.username or "",
+                      "udp": True, "skip-cert-verify": True, "encryption": "none",
                   }
-
                   if parsed.query:
                       query = parse_qs(parsed.query)
-                      if query.get("security", [""])[0] == "tls":
-                          proxy["tls"] = True
-                      if "sni" in query:
-                          proxy["sni"] = query["sni"][0]
+                      if query.get("security", [""])[0] == "tls": proxy["tls"] = True
+                      if "sni" in query: proxy["sni"] = query["sni"][0]
                       if "type" in query:
-                          net_type = query["type"][0]
-                          if net_type == "ws":
+                          t = query["type"][0]
+                          if t == "ws":
                               proxy["network"] = "ws"
-                              proxy["ws-opts"] = {
-                                  "path": query.get("path", ["/"])[0],
-                                  "headers": {"Host": query.get("host", [parsed.hostname])[0]},
-                              }
-                          elif net_type == "grpc":
+                              proxy["ws-opts"] = {"path": query.get("path", ["/"])[0], "headers": {"Host": query.get("host", [parsed.hostname])[0]}}
+                          elif t == "grpc":
                               proxy["network"] = "grpc"
                               proxy["grpc-opts"] = {"grpc-service-name": query.get("serviceName", [""])[0]}
-
                   return proxy
               except:
                   return None
 
+          # (Остальные парсеры оставил без изменений для экономии места, они работают)
           def parse_socks5(uri):
               try:
                   parsed = urlparse(uri)
                   name = requests.utils.unquote(parsed.fragment) if parsed.fragment else "SOCKS5"
-
-                  proxy = {
-                      "name": name,
-                      "type": "socks5",
-                      "server": parsed.hostname,
-                      "port": parsed.port or 1080,
-                      "udp": True,
-                  }
-
+                  proxy = {"name": name, "type": "socks5", "server": parsed.hostname, "port": parsed.port or 1080, "udp": True}
                   if parsed.username and parsed.password:
                       proxy["username"] = parsed.username
                       proxy["password"] = parsed.password
-
                   return proxy
               except:
                   return None
@@ -224,203 +167,105 @@ jobs:
               try:
                   parsed = urlparse(uri)
                   name = requests.utils.unquote(parsed.fragment) if parsed.fragment else "HTTP"
-
-                  proxy = {
-                      "name": name,
-                      "type": "http",
-                      "server": parsed.hostname,
-                      "port": parsed.port or 8080,
-                  }
-
+                  proxy = {"name": name, "type": "http", "server": parsed.hostname, "port": parsed.port or 8080}
                   if parsed.username and parsed.password:
                       proxy["username"] = parsed.username
                       proxy["password"] = parsed.password
-
                   if parsed.scheme == "https":
                       proxy["tls"] = True
                       proxy["skip-cert-verify"] = True
-
                   return proxy
               except:
                   return None
 
-          def parse_hysteria(uri):
+          def parse_hysteria(uri): 
               try:
                   parsed = urlparse(uri)
                   name = requests.utils.unquote(parsed.fragment) if parsed.fragment else "Hysteria"
-
-                  proxy = {
-                      "name": name,
-                      "type": "hysteria",
-                      "server": parsed.hostname,
-                      "port": parsed.port or 443,
-                      "up": 100,
-                      "down": 100,
-                      "skip-cert-verify": True,
-                  }
-
+                  proxy = {"name": name, "type": "hysteria", "server": parsed.hostname, "port": parsed.port or 443, "up": 100, "down": 100, "skip-cert-verify": True}
                   if parsed.query:
-                      query = parse_qs(parsed.query)
-                      if "auth" in query:
-                          proxy["auth-str"] = query["auth"][0]
-                      if "peer" in query:
-                          proxy["sni"] = query["peer"][0]
-                      if "upmbps" in query:
-                          proxy["up"] = int(query["upmbps"][0])
-                      if "downmbps" in query:
-                          proxy["down"] = int(query["downmbps"][0])
-
+                      q = parse_qs(parsed.query)
+                      if "auth" in q: proxy["auth-str"] = q["auth"][0]
+                      if "peer" in q: proxy["sni"] = q["peer"][0]
+                      if "upmbps" in q: proxy["up"] = int(q["upmbps"][0])
+                      if "downmbps" in q: proxy["down"] = int(q["downmbps"][0])
                   return proxy
-              except:
-                  return None
+              except: return None
 
           def parse_hysteria2(uri):
               try:
                   parsed = urlparse(uri)
                   name = requests.utils.unquote(parsed.fragment) if parsed.fragment else "Hysteria2"
-                  password = parsed.username or ""
-
-                  proxy = {
-                      "name": name,
-                      "type": "hysteria2",
-                      "server": parsed.hostname,
-                      "port": parsed.port or 443,
-                      "password": password,
-                      "skip-cert-verify": True,
-                  }
-
+                  proxy = {"name": name, "type": "hysteria2", "server": parsed.hostname, "port": parsed.port or 443, "password": parsed.username or "", "skip-cert-verify": True}
                   if parsed.query:
-                      query = parse_qs(parsed.query)
-                      if "auth" in query and not password:
-                          proxy["password"] = query["auth"][0]
-                      if "sni" in query:
-                          proxy["sni"] = query["sni"][0]
-
+                      q = parse_qs(parsed.query)
+                      if "auth" in q and not proxy["password"]: proxy["password"] = q["auth"][0]
+                      if "sni" in q: proxy["sni"] = q["sni"][0]
                   return proxy
-              except:
-                  return None
+              except: return None
 
           def parse_tuic(uri):
               try:
                   parsed = urlparse(uri)
                   name = requests.utils.unquote(parsed.fragment) if parsed.fragment else "Tuic"
-
-                  uuid = ""
-                  password = ""
+                  uuid = password = ""
                   if parsed.username and ":" in parsed.username:
                       uuid, password = parsed.username.split(":", 1)
                   else:
                       uuid = parsed.username or ""
-
-                  proxy = {
-                      "name": name,
-                      "type": "tuic",
-                      "server": parsed.hostname,
-                      "port": parsed.port or 443,
-                      "uuid": uuid,
-                      "password": password,
-                      "udp": True,
-                      "skip-cert-verify": True,
-                  }
-
+                  proxy = {"name": name, "type": "tuic", "server": parsed.hostname, "port": parsed.port or 443, "uuid": uuid, "password": password, "udp": True, "skip-cert-verify": True}
                   if parsed.query and "sni" in parse_qs(parsed.query):
                       proxy["sni"] = parse_qs(parsed.query)["sni"][0]
-
                   return proxy
-              except:
-                  return None
+              except: return None
 
           def parse_wireguard(uri):
               try:
                   parsed = urlparse(uri)
                   name = requests.utils.unquote(parsed.fragment) if parsed.fragment else "WireGuard"
-
-                  proxy = {
-                      "name": name,
-                      "type": "wireguard",
-                      "server": parsed.hostname,
-                      "port": parsed.port or 51820,
-                      "private-key": parsed.username or "",
-                      "udp": True,
-                  }
-
+                  proxy = {"name": name, "type": "wireguard", "server": parsed.hostname, "port": parsed.port or 51820, "private-key": parsed.username or "", "udp": True}
                   if parsed.query:
-                      query = parse_qs(parsed.query)
-                      if "publicKey" in query:
-                          proxy["public-key"] = query["publicKey"][0]
-                      if "address" in query:
-                          addresses = query["address"][0].split(",")
-                          proxy["ip"] = addresses[0] if addresses else None
-                      if "mtu" in query:
-                          proxy["mtu"] = int(query["mtu"][0])
-
+                      q = parse_qs(parsed.query)
+                      if "publicKey" in q: proxy["public-key"] = q["publicKey"][0]
+                      if "address" in q: proxy["ip"] = q["address"][0].split(",")[0]
+                      if "mtu" in q: proxy["mtu"] = int(q["mtu"][0])
                   return proxy
-              except:
-                  return None
+              except: return None
 
           def parse_shadowtls(uri):
               try:
                   parsed = urlparse(uri)
                   name = requests.utils.unquote(parsed.fragment) if parsed.fragment else "ShadowTLS"
-
-                  proxy = {
-                      "name": name,
-                      "type": "shadowtls",
-                      "server": parsed.hostname,
-                      "port": parsed.port or 443,
-                      "version": 3,
-                      "skip-cert-verify": True,
-                  }
-
+                  proxy = {"name": name, "type": "shadowtls", "server": parsed.hostname, "port": parsed.port or 443, "version": 3, "skip-cert-verify": True}
                   if parsed.query:
-                      query = parse_qs(parsed.query)
-                      if "password" in query:
-                          proxy["password"] = query["password"][0]
-                      if "sni" in query:
-                          proxy["sni"] = query["sni"][0]
-
+                      q = parse_qs(parsed.query)
+                      if "password" in q: proxy["password"] = q["password"][0]
+                      if "sni" in q: proxy["sni"] = q["sni"][0]
                   return proxy
-              except:
-                  return None
+              except: return None
 
           def parse_proxies_from_text(text):
               proxies = []
               parsers = {
-                  "vmess://": parse_vmess,
-                  "trojan://": parse_trojan,
-                  "ss://": parse_shadowsocks,
-                  "vless://": parse_vless,
-                  "socks5://": parse_socks5,
-                  "socks://": parse_socks5,
-                  "http://": parse_http,
-                  "https://": parse_http,
-                  "hysteria://": parse_hysteria,
-                  "hysteria2://": parse_hysteria2,
-                  "hy2://": parse_hysteria2,
-                  "tuic://": parse_tuic,
-                  "wireguard://": parse_wireguard,
-                  "wg://": parse_wireguard,
-                  "shadowtls://": parse_shadowtls,
+                  "vmess://": parse_vmess, "trojan://": parse_trojan, "ss://": parse_shadowsocks,
+                  "vless://": parse_vless, "socks5://": parse_socks5, "socks://": parse_socks5,
+                  "http://": parse_http, "https://": parse_http, "hysteria://": parse_hysteria,
+                  "hysteria2://": parse_hysteria2, "hy2://": parse_hysteria2, "tuic://": parse_tuic,
+                  "wireguard://": parse_wireguard, "wg://": parse_wireguard, "shadowtls://": parse_shadowtls,
               }
-
               for line in text.strip().splitlines():
                   line = line.strip()
-                  if not line or line.startswith("#"):
-                      continue
-
+                  if not line or line.startswith("#"): continue
                   for prefix, parser in parsers.items():
                       if line.startswith(prefix):
                           proxy = parser(line)
-                          if proxy:
-                              proxies.append(proxy)
+                          if proxy: proxies.append(proxy)
                           break
-
               return proxies
 
           def fix_duplicate_names(proxies):
               name_counts = {}
               fixed = []
-
               for proxy in proxies:
                   name = proxy["name"]
                   if name in name_counts:
@@ -429,24 +274,18 @@ jobs:
                   else:
                       name_counts[name] = 1
                   fixed.append(proxy)
-
               return fixed
 
           def check_tcp_port(proxy):
               try:
-                  if proxy.get("type") == "wireguard":
-                      return proxy
-
+                  if proxy.get("type") == "wireguard": return proxy
                   server = proxy.get("server")
                   port = proxy.get("port")
-                  if not server or not port:
-                      return None
-
+                  if not server or not port: return None
                   sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                   sock.settimeout(TIMEOUT)
                   result = sock.connect_ex((server, int(port)))
                   sock.close()
-
                   return proxy if result == 0 else None
               except:
                   return None
@@ -454,14 +293,11 @@ jobs:
           def filter_alive_proxies(proxies):
               alive = []
               print(f"Проверяем {len(proxies)} серверов...")
-
               with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
                   futures = [executor.submit(check_tcp_port, p) for p in proxies]
                   for future in concurrent.futures.as_completed(futures):
-                      result = future.result()
-                      if result:
+                      if result := future.result():
                           alive.append(result)
-
               print(f"Найдено живых: {len(alive)} из {len(proxies)}")
               return alive
 
@@ -469,53 +305,35 @@ jobs:
               return {
                   "proxies": proxies,
                   "proxy-groups": [
-                      {
-                          "name": "🚀 Авто-выбор",
-                          "type": "url-test",
-                          "proxies": [p["name"] for p in proxies],
-                          "url": "http://www.gstatic.com/generate_204",
-                          "interval": 300,
-                      },
-                      {
-                          "name": "🌍 Прокси",
-                          "type": "select",
-                          "proxies": ["🚀 Авто-выбор"] + [p["name"] for p in proxies],
-                      },
+                      {"name": "🚀 Авто-выбор", "type": "url-test", "proxies": [p["name"] for p in proxies], "url": "http://www.gstatic.com/generate_204", "interval": 300},
+                      {"name": "🌍 Прокси", "type": "select", "proxies": ["🚀 Авто-выбор"] + [p["name"] for p in proxies]},
                   ],
-                  "rules": [
-                      "MATCH,🌍 Прокси"
-                  ],
+                  "rules": ["MATCH,🌍 Прокси"]
               }
 
           def main():
               print("Загрузка списка прокси...")
-              try:
-                  response = requests.get(SOURCE_URL, timeout=30)
-                  response.raise_for_status()
-                  content = response.text
-              except Exception as e:
-                  print(f"Ошибка загрузки TXT: {e}")
-                  sys.exit(1)
+              response = requests.get(SOURCE_URL, timeout=30)
+              response.raise_for_status()
+              content = response.text
 
-              print("Парсинг всех форматов...")
+              print("Парсинг...")
               all_proxies = parse_proxies_from_text(content)
               print(f"Распознано прокси: {len(all_proxies)}")
 
               print("Проверка доступности...")
               alive_proxies = filter_alive_proxies(all_proxies)
 
-              print("Исправление дубликатов имён...")
+              print("Исправление имён...")
               fixed_proxies = fix_duplicate_names(alive_proxies)
 
-              print("Генерация YAML...")
+              print("Генерация конфига...")
               config = generate_clash_config(fixed_proxies)
 
               now_utc = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-              header = f"""# Обновлено: {now_utc}
-# Всего в источнике: {len(all_proxies)}
-# Живых серверов: {len(alive_proxies)}
-# Источник: 26_proxy_subscription_raw.txt
-"""
+              header = "# Обновлено: {}\n# Всего в источнике: {}\n# Живых серверов: {}\n# Источник: 26_proxy_subscription_raw.txt\n".format(
+                  now_utc, len(all_proxies), len(alive_proxies)
+              )
 
               with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
                   f.write(header)
