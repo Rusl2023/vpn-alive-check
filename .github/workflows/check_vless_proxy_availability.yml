@@ -11,8 +11,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -22,6 +20,10 @@ jobs:
       - name: Install dependencies
         run: |
           pip install requests geoip2
+
+      - name: Download GeoIP database
+        run: |
+          wget -q https://git.io/GeoLite2-Country.mmdb -O GeoLite2-Country.mmdb
 
       - name: Download xray
         run: |
@@ -388,15 +390,15 @@ jobs:
 
           print(f"Готово! Хороших ключей: {len(final_links)}")
           PYTHON_EOF
-          
-          - name: Commit and push updated files
-          run: |
-           git config user.name "github-actions[bot]"
-           git config user.email "github-actions[bot]@users.noreply.github.com"
-           git add githubmirror/26_proxy_subscription_raw.txt githubmirror/26_proxy_subscription_base64.txt
-           if git diff --staged --quiet; then
-           echo "No changes to commit"
-           else
-           git commit -m "🔄 Auto-update proxy list [skip ci]"
-           git push origin main --force
-           fi
+
+      - name: Commit and push updated files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add githubmirror/26_proxy_subscription_raw.txt githubmirror/26_proxy_subscription_base64.txt
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "🔄 Auto-update proxy list [skip ci]"
+            git push origin main --force
+          fi
