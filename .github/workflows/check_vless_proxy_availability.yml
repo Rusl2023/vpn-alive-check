@@ -108,6 +108,7 @@ jobs:
           try:
               if os.path.exists(GEO_DB):
                   country_reader = geoip2.database.Reader(GEO_DB)
+                  print(f"✓ GeoIP database loaded successfully")
               else:
                   print(f"Warning: {GEO_DB} not found. Country detection will be disabled.")
           except Exception as e:
@@ -192,7 +193,10 @@ jobs:
                   return "??"
               try:
                   r = country_reader.country(ip)
-                  return r.country.iso_code or "??"
+                  cc = r.country.iso_code
+                  if cc:
+                      return cc
+                  return "??"
               except:
                   return "??"
 
