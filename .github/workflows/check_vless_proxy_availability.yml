@@ -388,17 +388,15 @@ jobs:
 
           print(f"Готово! Хороших ключей: {len(final_links)}")
           PYTHON_EOF
-
-      - name: Commit and push updated files
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add githubmirror/26_proxy_subscription_raw.txt githubmirror/26_proxy_subscription_base64.txt
-          if git diff --staged --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "🔄 Auto-update proxy list [skip ci]"
-            git fetch origin main
-            git rebase origin/main || git rebase --abort
-            git push origin main
-          fi
+          
+          - name: Commit and push updated files
+          run: |
+           git config user.name "github-actions[bot]"
+           git config user.email "github-actions[bot]@users.noreply.github.com"
+           git add githubmirror/26_proxy_subscription_raw.txt githubmirror/26_proxy_subscription_base64.txt
+           if git diff --staged --quiet; then
+           echo "No changes to commit"
+           else
+           git commit -m "🔄 Auto-update proxy list [skip ci]"
+           git push origin main --force
+           fi
