@@ -1,344 +1,384 @@
- - name: RUN Python filter & checker
-   run: |
-    python3 << 'PYTHON_EOF'
-    import os, socket, urllib.parse, requests, random, ipaddress, subprocess, time, json, base64, re
-    from concurrent.futures import ThreadPoolExecutor, as_completed
-    from threading import Lock
-    import geoip2.database
+  - name: RUN Python filter & checker
+    run: |
+      python3 << 'PYTHON_EOF'
+      import os, socket, urllib.parse, requests, random, ipaddress, subprocess, time, json, base64, re
+      from concurrent.futures import ThreadPoolExecutor, as_completed
+      from threading import Lock
+      import geoip2.database
 
-    # --- CONFIGURATION ---
-    MAX_WORKERS = 35
-    TIMEOUT = 6
-    XRAY = "./xray"
-    GEO_DB = "GeoLite2-Country.mmdb"
+      # --- CONFIGURATION ---
+      MAX_WORKERS = 35
+      TIMEOUT = 6
+      XRAY = "./xray"
+      GEO_DB = "GeoLite2-Country.mmdb"
 
-    CONFIG_URLS = [
-        "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt",
-        "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile-2.txt",
-        "https://raw.githubusercontent.com/GoldCaviar/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt",
-        "https://raw.githubusercontent.com/zieng2/wl/main/vless_lite.txt",
-        "https://key.zarazaex.xyz/sub",
-        "https://gitverse.ru/api/repos/RUVIPIEN/russian-white-bolt/raw/branch/master/VPNMIRRORS/v2ray/VLESS_Reality_White_3eac2d.txt",
-        "https://raw.githubusercontent.com/EtoNeYaProject/EtoNeYaProject.github.io/refs/heads/main/whitelist",
-        "https://raw.githubusercontent.com/kort0881/vpn-vless-configs-russia/main/githubmirror/clean/vless.txt",
-        "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/WHITE-CIDR-RU-all.txt",
-        "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/WHITE-SNI-RU-all.txt",
-        "https://raw.githubusercontent.com/whoahaow/rjsxrd/refs/heads/main/githubmirror/bypass/bypass-all.txt",
-        "https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt"
-    ]
+      CONFIG_URLS = [
+          "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt",
+          "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile-2.txt",
+          "https://raw.githubusercontent.com/GoldCaviar/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt",
+          "https://raw.githubusercontent.com/zieng2/wl/main/vless_lite.txt",
+          "https://key.zarazaex.xyz/sub",
+          "https://gitverse.ru/api/repos/RUVIPIEN/russian-white-bolt/raw/branch/master/VPNMIRRORS/v2ray/VLESS_Reality_White_3eac2d.txt",
+          "https://raw.githubusercontent.com/EtoNeYaProject/EtoNeYaProject.github.io/refs/heads/main/whitelist",
+          "https://raw.githubusercontent.com/kort0881/vpn-vless-configs-russia/main/githubmirror/clean/vless.txt",
+          "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/WHITE-CIDR-RU-all.txt",
+          "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/WHITE-SNI-RU-all.txt",
+          "https://raw.githubusercontent.com/whoahaow/rjsxrd/refs/heads/main/githubmirror/bypass/bypass-all.txt",
+          "https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt"
+      ]
 
-    RU_SNI_URLS = [
-        "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/whitelist.txt",
-        "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/WHITE-SNI-RU-all.txt",
-    ]
+      RU_SNI_URLS = [
+          "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/whitelist.txt",
+          "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/WHITE-SNI-RU-all.txt",
+      ]
 
-    RU_CIDR_URLS = [
-        "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/cidrwhitelist.txt",
-        "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/WHITE-CIDR-RU-all.txt",
-        "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/WHITE-CIDR-RU-checked.txt",
-        "https://raw.githubusercontent.com/escapingworm/russia-whitelist/refs/heads/main/ru-whitelist-cidr.txt",
-    ]
+      RU_CIDR_URLS = [
+          "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/cidrwhitelist.txt",
+          "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/WHITE-CIDR-RU-all.txt",
+          "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/WHITE-CIDR-RU-checked.txt",
+          "https://raw.githubusercontent.com/escapingworm/russia-whitelist/refs/heads/main/ru-whitelist-cidr.txt",
+      ]
 
-    WHITE_IP_URL = "https://raw.githubusercontent.com/openlibrecommunity/twl/main/code/subnet/out/subnets.json"
+      WHITE_IP_URL = "https://raw.githubusercontent.com/openlibrecommunity/twl/main/code/subnet/out/subnets.json"
 
-    ALLOWED_FP = {"chrome", "firefox", "random", "randomized"}
-    ALLOWED_FLOWS = {'xtls-rprx-vision', 'xtls-rprx-vision-udp443', ''}
+      ALLOWED_FP = {"chrome", "firefox", "random", "randomized"}
+      ALLOWED_FLOWS = {'xtls-rprx-vision', 'xtls-rprx-vision-udp443', ''}
 
-    # Only first 3 flags as requested
-    FLAGS = {
-        'AD': '🇦🇩', 
-        'AE': '🇦🇪',         'AF': '🇦🇫', 
-        '??': '🌍'
-    }
+      
+         FLAGS = {
+              'AD': '🇦🇩AD', 'AE': '🇦🇪AE', 'AF': '🇦🇫AF', 'AG': '🇦🇬AG', 'AI': '🇦🇮AI', 'AL': '🇦🇱AL',
+              'AM': '🇦🇲AM', 'AO': '🇦🇴AO', 'AQ': '🇦🇶AQ', 'AR': '🇦🇷AR', 'AS': '🇦🇸AS', 'AT': '🇦🇹AT',
+              'AU': '🇦🇺AU', 'AW': '🇦🇼AW', 'AX': '🇦🇽AX', 'AZ': '🇦🇿AZ', 'BA': '🇧🇦BA', 'BB': '🇧🇧BB',
+              'BD': '🇧🇩BD', 'BE': '🇧🇪BE', 'BF': '🇧🇫BF', 'BG': '🇧🇬BG', 'BH': '🇧🇭BH', 'BI': '🇧🇮BI',
+              'BJ': '🇧🇯BJ', 'BL': '🇧🇱BL', 'BM': '🇧🇲BM', 'BN': '🇧🇳BN', 'BO': '🇧🇴BO', 'BQ': '🇧🇶BQ',
+              'BR': '🇧🇷BR', 'BS': '🇧🇸BS', 'BT': '🇧🇹BT', 'BV': '🇧🇻BV', 'BW': '🇧🇼BW', 'BY': '🇧🇾BY',
+              'BZ': '🇧🇿BZ', 'CA': '🇨🇦CA', 'CC': '🇨🇨CC', 'CD': '🇨🇩CD', 'CF': '🇨🇫CF', 'CG': '🇨🇬CG',
+              'CH': '🇨🇭CH', 'CI': '🇨🇮CI', 'CK': '🇨🇰CK', 'CL': '🇨🇱CL', 'CM': '🇨🇲CM', 'CN': '🇨🇳CN',
+              'CO': '🇨🇴CO', 'CR': '🇨🇷CR', 'CU': '🇨🇺CU', 'CV': '🇨🇻CV', 'CW': '🇨🇼CW', 'CX': '🇨🇽CX',
+              'CY': '🇨🇾CY', 'CZ': '🇨🇿CZ', 'DE': '🇩🇪DE', 'DJ': '🇩🇯DJ', 'DK': '🇩🇰DK', 'DM': '🇩🇲DM',
+              'DO': '🇩🇴DO', 'DZ': '🇩🇿DZ', 'EC': '🇪🇨EC', 'EE': '🇪🇪EE', 'EG': '🇪🇬EG', 'EH': '🇪🇭EH',
+              'ER': '🇪🇷ER', 'ES': '🇪🇸ES', 'ET': '🇪🇹ET', 'FI': '🇫🇮FI', 'FJ': '🇫🇯FJ', 'FK': '🇫🇰FK',
+              'FM': '🇫🇲FM', 'FO': '🇫🇴FO', 'FR': '🇫🇷FR', 'GA': '🇬🇦GA', 'GB': '🇬🇧GB', 'GD': '🇬🇩GD',
+              'GE': '🇬🇪GE', 'GF': '🇬🇫GF', 'GG': '🇬🇬GG', 'GH': '🇬🇭GH', 'GI': '🇬🇮GI', 'GL': '🇬🇱GL',
+              'GM': '🇬🇲GM', 'GN': '🇬🇳GN', 'GP': '🇬🇵GP', 'GQ': '🇬🇶GQ', 'GR': '🇬🇷GR', 'GS': '🇬🇸GS',
+              'GT': '🇬🇹GT', 'GU': '🇬🇺GU', 'GW': '🇬🇼GW', 'GY': '🇬🇾GY', 'HK': '🇭🇰HK', 'HM': '🇭🇲HM',
+              'HN': '🇭🇳HN', 'HR': '🇭🇷HR', 'HT': '🇭🇹HT', 'HU': '🇭🇺HU', 'ID': '🇮🇩ID', 'IE': '🇮🇪IE',
+              'IL': '🇮🇱IL', 'IM': '🇮🇲IM', 'IN': '🇮🇳IN', 'IO': '🇮🇴IO', 'IQ': '🇮🇶IQ', 'IR': '🇮🇷IR',
+              'IS': '🇮🇸IS', 'IT': '🇮🇹IT', 'JE': '🇯🇪JE', 'JM': '🇯🇲JM', 'JO': '🇯🇴JO', 'JP': '🇯🇵JP',
+              'KE': '🇰🇪KE', 'KG': '🇰🇬KG', 'KH': '🇰🇭KH', 'KI': '🇰🇮KI', 'KM': '🇰🇲KM', 'KN': '🇰🇳KN',
+              'KP': '🇰🇵KP', 'KR': '🇰🇷KR', 'KW': '🇰🇼KW', 'KY': '🇰🇾KY', 'KZ': '🇰🇿KZ', 'LA': '🇱🇦LA',
+              'LB': '🇱🇧LB', 'LC': '🇱🇨LC', 'LI': '🇱🇮LI', 'LK': '🇱🇰LK', 'LR': '🇱🇷LR', 'LS': '🇱🇸LS',
+              'LT': '🇱🇹LT', 'LU': '🇱🇺LU', 'LV': '🇱🇻LV', 'LY': '🇱🇾LY', 'MA': '🇲🇦MA', 'MC': '🇲🇨MC',
+              'MD': '🇲🇩MD', 'ME': '🇲🇪ME', 'MF': '🇲🇫MF', 'MG': '🇲🇬MG', 'MH': '🇲🇭MH', 'MK': '🇲🇰MK',
+              'ML': '🇲🇱ML', 'MM': '🇲🇲MM', 'MN': '🇲🇳MN', 'MO': '🇲🇴MO', 'MP': '🇲🇵MP', 'MQ': '🇲🇶MQ',
+              'MR': '🇲🇷MR', 'MS': '🇲🇸MS', 'MT': '🇲🇹MT', 'MU': '🇲🇺MU', 'MV': '🇲🇻MV', 'MW': '🇲🇼MW',
+              'MX': '🇲🇽MX', 'MY': '🇲🇾MY', 'MZ': '🇲🇿MZ', 'NA': '🇳🇦NA', 'NC': '🇳🇨NC', 'NE': '🇳🇪NE',
+              'NF': '🇳🇫NF', 'NG': '🇳🇬NG', 'NI': '🇳🇮NI', 'NL': '🇳🇱NL', 'NO': '🇳🇴NO', 'NP': '🇳🇵NP',
+              'NR': '🇳🇷NR', 'NU': '🇳🇺NU', 'NZ': '🇳🇿NZ', 'OM': '🇴🇲OM', 'PA': '🇵🇦PA', 'PE': '🇵🇪PE',
+              'PF': '🇵🇫PF', 'PG': '🇵🇬PG', 'PH': '🇵🇭PH', 'PK': '🇵🇰PK', 'PL': '🇵🇱PL', 'PM': '🇵🇲PM',
+              'PN': '🇵🇳PN', 'PR': '🇵🇷PR', 'PS': '🇵🇸PS', 'PT': '🇵🇹PT', 'PW': '🇵🇼PW', 'PY': '🇵🇾PY',
+              'QA': '🇶🇦QA', 'RE': '🇷🇪RE', 'RO': '🇷🇴RO', 'RS': '🇷🇸RS', 'RU': '🇷🇺RU', 'RW': '🇷🇼RW',
+              'SA': '🇸🇦SA', 'SB': '🇸🇧SB', 'SC': '🇸🇨SC', 'SD': '🇸🇩SD', 'SE': '🇸🇪SE', 'SG': '🇸🇬SG',
+              'SH': '🇸🇭SH', 'SI': '🇸🇮SI', 'SJ': '🇸🇯SJ', 'SK': '🇸🇰SK', 'SL': '🇸🇱SL', 'SM': '🇸🇲SM',
+              'SN': '🇸🇳SN', 'SO': '🇸🇴SO', 'SR': '🇸🇷SR', 'SS': '🇸🇸SS', 'ST': '🇸🇹ST', 'SV': '🇸🇻SV',
+              'SX': '🇸🇽SX', 'SY': '🇸🇾SY', 'SZ': '🇸🇿SZ', 'TC': '🇹🇨TC', 'TD': '🇹🇩TD', 'TF': '🇹🇫TF',
+              'TG': '🇹🇬TG', 'TH': '🇹🇭TH', 'TJ': '🇹🇯TJ', 'TK': '🇹🇰TK', 'TL': '🇹🇱TL', 'TM': '🇹🇲TM',
+              'TN': '🇹🇳TN', 'TO': '🇹🇴TO', 'TR': '🇹🇷TR', 'TT': '🇹🇹TT', 'TV': '🇹🇻TV', 'TW': '🇹🇼TW',
+              'TZ': '🇹🇿TZ', 'UA': '🇺🇦UA', 'UG': '🇺🇬UG', 'UM': '🇺🇲UM', 'US': '🇺🇸US', 'UY': '🇺🇾UY',
+              'UZ': '🇺🇿UZ', 'VA': '🇻🇦VA', 'VC': '🇻🇨VC', 'VE': '🇻🇪VE', 'VG': '🇻🇬VG', 'VI': '🇻🇮VI',
+              'VN': '🇻🇳VN', 'VU': '🇻🇺VU', 'WF': '🇼🇫WF', 'WS': '🇼🇸WS', 'YE': '🇾🇪YE', 'YT': '🇾🇹YT',
+              'ZA': '🇿🇦ZA', 'ZM': '🇿🇲ZM', 'ZW': '🇿🇼ZW',
+              'XK': '🇽🇰XK', '??': '🌍??'
+          }
+          
+      dns_cache = {}
+      lock = Lock()
+      
+      # Initialize GeoIP reader globally to avoid threading issues
+      try:
+          if os.path.exists(GEO_DB):
+              country_reader = geoip2.database.Reader(GEO_DB)
+          else:
+              print(f"Warning: {GEO_DB} not found. Country detection will be disabled.")
+              country_reader = None
+      except Exception as e:
+          print(f"Error loading GeoIP DB: {e}")
+          country_reader = None
 
-    dns_cache = {}
-    lock = Lock()
-    
-    # Initialize GeoIP reader globally to avoid threading issues
-    try:
-        if os.path.exists(GEO_DB):
-            country_reader = geoip2.database.Reader(GEO_DB)
-        else:
-            print(f"Warning: {GEO_DB} not found. Country detection will be disabled.")
-            country_reader = None
-    except Exception as e:
-        print(f"Error loading GeoIP DB: {e}")
-        country_reader = None
+      def load_multi_set(urls):
+          s = set()
+          for url in urls:
+              try:
+                  resp = requests.get(url, timeout=20).text.lower()
+                  s.update(line.strip() for line in resp.splitlines() if line.strip())
+              except:
+                  pass
+          return s
 
-    def load_multi_set(urls):
-        s = set()
-        for url in urls:
-            try:
-                resp = requests.get(url, timeout=20).text.lower()
-                s.update(line.strip() for line in resp.splitlines() if line.strip())
-            except:
-                pass
-        return s
+      def load_multi_cidr(urls):
+          out = []
+          for url in urls:
+              try:
+                  for line in requests.get(url, timeout=20).text.splitlines():
+                      if line.strip():
+                          try:
+                              out.append(ipaddress.ip_network(line.strip(), strict=False))
+                          except:
+                              pass
+              except:
+                  pass
+          return out
 
-    def load_multi_cidr(urls):
-        out = []
-        for url in urls:
-            try:
-                for line in requests.get(url, timeout=20).text.splitlines():
-                    if line.strip():
-                        try:
-                            out.append(ipaddress.ip_network(line.strip(), strict=False))
-                        except:
-                            pass
-            except:
-                pass
-        return out
+      def load_white_ips_and_cidrs_from_json(url):
+          try:
+              resp = requests.get(url, timeout=25)
+              resp.raise_for_status()
+              data = resp.json()
+              all_ips = set()
+              cidr_list = []
+              for entry in data:                  if not isinstance(entry, dict): continue
+                  if 'cidr' in entry:
+                      try:
+                          cidr_list.append(ipaddress.ip_network(entry['cidr'], strict=False))
+                      except: pass
+                  if 'ips' in entry and isinstance(entry['ips'], list):
+                      for ip_str in entry['ips']:
+                          if str(ip_str).strip():
+                              all_ips.add(str(ip_str).strip())
+              print(f"✓ Loaded subnets.json → CIDRs: {len(cidr_list)} | IPs: {len(all_ips)}")
+              return all_ips, cidr_list
+          except Exception as e:
+              print(f"[-] Error loading subnets: {e}")
+              return set(), []
 
-    def load_white_ips_and_cidrs_from_json(url):
-        try:
-            resp = requests.get(url, timeout=25)
-            resp.raise_for_status()
-            data = resp.json()
-            all_ips = set()
-            cidr_list = []
-            for entry in data:                if not isinstance(entry, dict): continue
-                if 'cidr' in entry:
-                    try:
-                        cidr_list.append(ipaddress.ip_network(entry['cidr'], strict=False))
-                    except: pass
-                if 'ips' in entry and isinstance(entry['ips'], list):
-                    for ip_str in entry['ips']:
-                        if str(ip_str).strip():
-                            all_ips.add(str(ip_str).strip())
-            print(f"✓ Loaded subnets.json → CIDRs: {len(cidr_list)} | IPs: {len(all_ips)}")
-            return all_ips, cidr_list
-        except Exception as e:
-            print(f"[-] Error loading subnets: {e}")
-            return set(), []
+      def ip_in(ip, networks):
+          try:
+              ip_obj = ipaddress.ip_address(ip)
+              return any(ip_obj in net for net in networks)
+          except:
+              return False
 
-    def ip_in(ip, networks):
-        try:
-            ip_obj = ipaddress.ip_address(ip)
-            return any(ip_obj in net for net in networks)
-        except:
-            return False
+      def resolve(hostname):
+          if hostname in dns_cache: return dns_cache[hostname]
+          try:
+              ip = socket.gethostbyname(hostname)
+              dns_cache[hostname] = ip
+              return ip
+          except:
+              dns_cache[hostname] = None
+              return None
 
-    def resolve(hostname):
-        if hostname in dns_cache: return dns_cache[hostname]
-        try:
-            ip = socket.gethostbyname(hostname)
-            dns_cache[hostname] = ip
-            return ip
-        except:
-            dns_cache[hostname] = None
-            return None
+      def tcp_check(ip, port):
+          try:
+              s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+              s.settimeout(TIMEOUT)
+              result = s.connect_ex((ip, port)) == 0
+              s.close()
+              return result
+          except:
+              return False
 
-    def tcp_check(ip, port):
-        try:
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.settimeout(TIMEOUT)
-            result = s.connect_ex((ip, port)) == 0
-            s.close()
-            return result
-        except:
-            return False
+      def get_country(ip):
+          if not country_reader:
+              return "??"
+          try:
+              r = country_reader.country(ip)
+              return r.country.iso_code or "??"
+          except:
+              return "??"
+      def get_flag(cc):
+          return FLAGS.get(cc, FLAGS.get('??', '🌍'))
 
-    def get_country(ip):
-        if not country_reader:
-            return "??"
-        try:
-            r = country_reader.country(ip)
-            return r.country.iso_code or "??"
-        except:
-            return "??"
-    def get_flag(cc):
-        return FLAGS.get(cc, FLAGS.get('??', '🌍'))
+      def download_and_parse():
+          all_links = []
+          for url in CONFIG_URLS:
+              try:
+                  resp = requests.get(url, timeout=20, headers={"User-Agent": "Mozilla/5.0"})
+                  links = re.findall(r'(vless://[^\s#]+)', resp.text)
+                  print(f"[+] {url.split('/')[-1]}: {len(links)} VLESS")
+                  all_links.extend(links)
+              except Exception as e:
+                  print(f"[-] Error {url}: {e}")
+          all_links = list(dict.fromkeys(all_links))
+          print(f"[✓] Total unique VLESS: {len(all_links)}")
+          return all_links
 
-    def download_and_parse():
-        all_links = []
-        for url in CONFIG_URLS:
-            try:
-                resp = requests.get(url, timeout=20, headers={"User-Agent": "Mozilla/5.0"})
-                links = re.findall(r'(vless://[^\s#]+)', resp.text)
-                print(f"[+] {url.split('/')[-1]}: {len(links)} VLESS")
-                all_links.extend(links)
-            except Exception as e:
-                print(f"[-] Error {url}: {e}")
-        all_links = list(dict.fromkeys(all_links))
-        print(f"[✓] Total unique VLESS: {len(all_links)}")
-        return all_links
+      def parse_vless(link):
+          try:
+              clean = link.split('#')[0]
+              u = urllib.parse.urlparse(clean)
+              if u.scheme != 'vless': return None
+              q = urllib.parse.parse_qs(u.query)
+              return {
+                  'hostname': u.hostname,
+                  'port': int(u.port) if u.port else 443,
+                  'id': u.username,
+                  'net': q.get('type', ['tcp'])[0],
+                  'security': q.get('security', ['none'])[0],
+                  'sni': q.get('sni', [''])[0],
+                  'fp': q.get('fp', ['chrome'])[0],
+                  'pbk': q.get('pbk', [''])[0],
+                  'sid': q.get('sid', [''])[0],
+                  'flow': q.get('flow', [''])[0],
+                  'original': link
+              }
+          except:
+              return None
 
-    def parse_vless(link):
-        try:
-            clean = link.split('#')[0]
-            u = urllib.parse.urlparse(clean)
-            if u.scheme != 'vless': return None
-            q = urllib.parse.parse_qs(u.query)
-            return {
-                'hostname': u.hostname,
-                'port': int(u.port) if u.port else 443,
-                'id': u.username,
-                'net': q.get('type', ['tcp'])[0],
-                'security': q.get('security', ['none'])[0],
-                'sni': q.get('sni', [''])[0],
-                'fp': q.get('fp', ['chrome'])[0],
-                'pbk': q.get('pbk', [''])[0],
-                'sid': q.get('sid', [''])[0],
-                'flow': q.get('flow', [''])[0],
-                'original': link
-            }
-        except:
-            return None
+      def build_xray_cfg(cfg, local_port):
+          stream = {'network': cfg['net'], 'security': 'none'}
+          if cfg['security'] == 'reality':
+              stream['security'] = 'reality'
+              stream['realitySettings'] = {
+                  'serverName': cfg['sni'],
+                  'publicKey': cfg['pbk'],
+                  'shortId': cfg['sid'],
+                  'fingerprint': cfg['fp']
+              }          return {
+              "inbounds": [{"listen": "127.0.0.1", "port": local_port, "protocol": "socks", "settings": {"auth": "noauth", "udp": False}}],
+              "outbounds": [{
+                  "protocol": "vless",
+                  "settings": {"vnext": [{"address": cfg['hostname'], "port": cfg['port'], "users": [{"id": cfg['id'], "encryption": "none", "flow": cfg['flow']}]}]},
+                  "streamSettings": stream
+              }]
+          }
 
-    def build_xray_cfg(cfg, local_port):
-        stream = {'network': cfg['net'], 'security': 'none'}
-        if cfg['security'] == 'reality':
-            stream['security'] = 'reality'
-            stream['realitySettings'] = {
-                'serverName': cfg['sni'],
-                'publicKey': cfg['pbk'],
-                'shortId': cfg['sid'],
-                'fingerprint': cfg['fp']
-            }        return {
-            "inbounds": [{"listen": "127.0.0.1", "port": local_port, "protocol": "socks", "settings": {"auth": "noauth", "udp": False}}],
-            "outbounds": [{
-                "protocol": "vless",
-                "settings": {"vnext": [{"address": cfg['hostname'], "port": cfg['port'], "users": [{"id": cfg['id'], "encryption": "none", "flow": cfg['flow']}]}]},
-                "streamSettings": stream
-            }]
-        }
+      def get_free_port():
+          with socket.socket() as s:
+              s.bind(('', 0))
+              return s.getsockname()[1]
 
-    def get_free_port():
-        with socket.socket() as s:
-            s.bind(('', 0))
-            return s.getsockname()[1]
+      def wait_port(port, retries=30):
+          for _ in range(retries):
+              try:
+                  socket.create_connection(("127.0.0.1", port), timeout=0.5)
+                  return True
+              except:
+                  time.sleep(0.3)
+          return False
 
-    def wait_port(port, retries=30):
-        for _ in range(retries):
-            try:
-                socket.create_connection(("127.0.0.1", port), timeout=0.5)
-                return True
-            except:
-                time.sleep(0.3)
-        return False
+      def improved_test_proxy(port):
+          urls = [
+              'https://www.youtube.com/generate_204',
+              'https://speed.cloudflare.com/__down?bytes=200000',
+              'https://api.ipify.org',
+              'https://www.google.com/generate_204'
+          ]
+          for url in urls:
+              try:
+                  cmd = ['curl', '-s', '--max-time', '10', '-x', f'socks5h://127.0.0.1:{port}', '-o', '/dev/null', '-w', '%{http_code}', url]
+                  res = subprocess.run(cmd, capture_output=True, text=True, timeout=12)
+                  if res.returncode != 0 or res.stdout.strip() not in ('200', '204'):
+                      return False
+              except:
+                  return False
+          return True
 
-    def improved_test_proxy(port):
-        urls = [
-            'https://www.youtube.com/generate_204',
-            'https://speed.cloudflare.com/__down?bytes=200000',
-            'https://api.ipify.org',
-            'https://www.google.com/generate_204'
-        ]
-        for url in urls:
-            try:
-                cmd = ['curl', '-s', '--max-time', '10', '-x', f'socks5h://127.0.0.1:{port}', '-o', '/dev/null', '-w', '%{http_code}', url]
-                res = subprocess.run(cmd, capture_output=True, text=True, timeout=12)
-                if res.returncode != 0 or res.stdout.strip() not in ('200', '204'):
-                    return False
-            except:
-                return False
-        return True
+      def get_exit_ip(port):
+          try:
+              cmd = ['curl', '-s', '--max-time', '8', '-x', f'socks5h://127.0.0.1:{port}', 'https://api.ipify.org']
+              res = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
+              return res.stdout.strip() if res.returncode == 0 else None
+          except:
+              return None
 
-    def get_exit_ip(port):
-        try:
-            cmd = ['curl', '-s', '--max-time', '8', '-x', f'socks5h://127.0.0.1:{port}', 'https://api.ipify.org']
-            res = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
-            return res.stdout.strip() if res.returncode == 0 else None
-        except:
-            return None
+      # --- MAIN EXECUTION ---
+      sni_wl = load_multi_set(RU_SNI_URLS)      cidr_wl = load_multi_cidr(RU_CIDR_URLS)
+      white_ips_set, white_cidrs = load_white_ips_and_cidrs_from_json(WHITE_IP_URL)
+      print(f"Loaded SNI: {len(sni_wl)}, CIDR total: {len(cidr_wl)}")
 
-    # --- MAIN EXECUTION ---
-    sni_wl = load_multi_set(RU_SNI_URLS)    cidr_wl = load_multi_cidr(RU_CIDR_URLS)
-    white_ips_set, white_cidrs = load_white_ips_and_cidrs_from_json(WHITE_IP_URL)
-    print(f"Loaded SNI: {len(sni_wl)}, CIDR total: {len(cidr_wl)}")
+      def check_one(link):
+          try:
+              cfg = parse_vless(link)
+              if not cfg or cfg['port'] != 443: return None
+              if cfg['flow'] not in ALLOWED_FLOWS or cfg['fp'] not in ALLOWED_FP: return None
+              ip = resolve(cfg['hostname'])
+              if not ip or not tcp_check(ip, cfg['port']): return None
+              sni = cfg['sni'].lower() if cfg['sni'] else ''
+              is_white = (sni in sni_wl or ip in white_ips_set or ip_in(ip, cidr_wl) or ip_in(ip, white_cidrs))
+              return cfg if is_white else None
+          except:
+              return None
 
-    def check_one(link):
-        try:
-            cfg = parse_vless(link)
-            if not cfg or cfg['port'] != 443: return None
-            if cfg['flow'] not in ALLOWED_FLOWS or cfg['fp'] not in ALLOWED_FP: return None
-            ip = resolve(cfg['hostname'])
-            if not ip or not tcp_check(ip, cfg['port']): return None
-            sni = cfg['sni'].lower() if cfg['sni'] else ''
-            is_white = (sni in sni_wl or ip in white_ips_set or ip_in(ip, cidr_wl) or ip_in(ip, white_cidrs))
-            return cfg if is_white else None
-        except:
-            return None
+      links = download_and_parse()
+      print(f"Начинаем фильтрацию {len(links)} ссылок...")
+      valid_cfgs = []
+      with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+          futures = {executor.submit(check_one, link): link for link in links}
+          for future in as_completed(futures):
+              res = future.result()
+              if res: valid_cfgs.append(res)
 
-    links = download_and_parse()
-    print(f"Начинаем фильтрацию {len(links)} ссылок...")
-    valid_cfgs = []
-    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-        futures = {executor.submit(check_one, link): link for link in links}
-        for future in as_completed(futures):
-            res = future.result()
-            if res: valid_cfgs.append(res)
+      print(f"Кандидатов после фильтра: {len(valid_cfgs)}")
 
-    print(f"Кандидатов после фильтра: {len(valid_cfgs)}")
+      good_links = []
 
-    good_links = []
+      def test_cfg(cfg):
+          local_port = get_free_port()
+          xray_cfg = build_xray_cfg(cfg, local_port)
+          cfg_path = f"/tmp/xray_{local_port}.json"
+          with open(cfg_path, 'w') as f:
+              json.dump(xray_cfg, f)
+          
+          proc = None
+          try:
+              proc = subprocess.Popen([XRAY, 'run', '-c', cfg_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+              if not wait_port(local_port): return None
+              if not improved_test_proxy(local_port): return None
+              exit_ip = get_exit_ip(local_port)
+              if not exit_ip: return None
+              cc = get_country(exit_ip)
+              if cc == 'RU': return None
+              flag = get_flag(cc)
+              mark = f"{flag} {cc} | {cfg['hostname']}"
+              return cfg['original'] + '#' + mark
+          finally:              if proc:
+                  proc.terminate()
+                  try: proc.wait(timeout=3)
+                  except: proc.kill()
+              try: os.remove(cfg_path)
+              except: pass
 
-    def test_cfg(cfg):
-        local_port = get_free_port()
-        xray_cfg = build_xray_cfg(cfg, local_port)
-        cfg_path = f"/tmp/xray_{local_port}.json"
-        with open(cfg_path, 'w') as f:
-            json.dump(xray_cfg, f)
-        
-        proc = None
-        try:
-            proc = subprocess.Popen([XRAY, 'run', '-c', cfg_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            if not wait_port(local_port): return None
-            if not improved_test_proxy(local_port): return None
-            exit_ip = get_exit_ip(local_port)
-            if not exit_ip: return None
-            cc = get_country(exit_ip)
-            if cc == 'RU': return None
-            flag = get_flag(cc)
-            mark = f"{flag} {cc} | {cfg['hostname']}"
-            return cfg['original'] + '#' + mark
-        finally:            if proc:
-                proc.terminate()
-                try: proc.wait(timeout=3)
-                except: proc.kill()
-            try: os.remove(cfg_path)
-            except: pass
+      print(f"Запускаем полный тест для {len(valid_cfgs)}...")
+      tested = []
+      # Limit workers for testing to avoid resource exhaustion
+      test_workers = min(15, len(valid_cfgs)) if valid_cfgs else 1
+      with ThreadPoolExecutor(max_workers=test_workers) as executor:
+          futures = {executor.submit(test_cfg, cfg): cfg for cfg in valid_cfgs}
+          for future in as_completed(futures):
+              link = future.result()
+              if link:
+                  tested.append(link)
+                  print(f"✅ {link.split('#')[-1]}")
 
-    print(f"Запускаем полный тест для {len(valid_cfgs)}...")
-    tested = []
-    # Limit workers for testing to avoid resource exhaustion
-    test_workers = min(15, len(valid_cfgs)) if valid_cfgs else 1
-    with ThreadPoolExecutor(max_workers=test_workers) as executor:
-        futures = {executor.submit(test_cfg, cfg): cfg for cfg in valid_cfgs}
-        for future in as_completed(futures):
-            link = future.result()
-            if link:
-                tested.append(link)
-                print(f"✅ {link.split('#')[-1]}")
+      dedup = {}
+      for link in tested:
+          cfg = parse_vless(link)
+          if cfg:
+              key = (cfg['hostname'], cfg.get('sni',''), cfg['id'])
+              if key not in dedup:
+                  dedup[key] = link
+      final_links = list(dedup.values())
 
-    dedup = {}
-    for link in tested:
-        cfg = parse_vless(link)
-        if cfg:
-            key = (cfg['hostname'], cfg.get('sni',''), cfg['id'])
-            if key not in dedup:
-                dedup[key] = link
-    final_links = list(dedup.values())
+      raw_path = "githubmirror/26_proxy_subscription_raw.txt"
+      b64_path = "githubmirror/26_proxy_subscription_base64.txt"
 
-    raw_path = "githubmirror/26_proxy_subscription_raw.txt"
-    b64_path = "githubmirror/26_proxy_subscription_base64.txt"
+      os.makedirs("githubmirror", exist_ok=True)
 
-    os.makedirs("githubmirror", exist_ok=True)
+      with open(raw_path, 'w', encoding='utf-8') as f:
+          f.write('\n'.join(final_links))
 
-    with open(raw_path, 'w', encoding='utf-8') as f:
-        f.write('\n'.join(final_links))
+      b64_content = base64.b64encode('\n'.join(final_links).encode('utf-8')).decode('utf-8')
+      with open(b64_path, 'w', encoding='utf-8') as f:
+          f.write(b64_content)
 
-    b64_content = base64.b64encode('\n'.join(final_links).encode('utf-8')).decode('utf-8')
-    with open(b64_path, 'w', encoding='utf-8') as f:
-        f.write(b64_content)
-
-    print(f"Готово! Хороших ключей: {len(final_links)}")
-    PYTHON_EOF
-    
-    - name: Commit and push updated files
-  run: |
-    git config user.name "github-actions[bot]"
-    git config user.email "github-actions[bot]@users.noreply.github.com"
-    git add githubmirror/26_proxy_subscription_raw.txt githubmirror/26_proxy_subscription_base64.txt
-    git diff --staged --quiet || git commit -m "🔄 Auto-update proxy list [skip ci]"
-    git push
+      print(f"Готово! Хороших ключей: {len(final_links)}")
+      PYTHON_EOF
+      
+      - name: Commit and push updated files
+     run: |
+      git config user.name "github-actions[bot]"
+      git config user.email "github-actions[bot]@users.noreply.github.com"
+      git add githubmirror/26_proxy_subscription_raw.txt githubmirror/26_proxy_subscription_base64.txt
+      git diff --staged --quiet || git commit -m "🔄 Auto-update proxy list [skip ci]"
+      git push
