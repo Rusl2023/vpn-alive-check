@@ -23,6 +23,9 @@ jobs:
       - name: Install dependencies
         run: pip install requests PyYAML
 
+      - name: Create output directory
+        run: mkdir -p githubmirror
+
       - name: Run Updater
         run: |
           cat > updater.py << 'EOF'
@@ -44,10 +47,10 @@ jobs:
 
           def parse_vmess(uri):
               try:
-                  b64_part = uri[8:].strip()
-                  padding = 4 - (len(b64_part) % 4)
+                  b64_part = uri[8:].strip()                  padding = 4 - (len(b64_part) % 4)
                   if padding != 4:
-                      b64_part += '=' * padding                  decoded = base64.b64decode(b64_part).decode('utf-8')
+                      b64_part += '=' * padding
+                  decoded = base64.b64decode(b64_part).decode('utf-8')
                   vmess_json = json.loads(decoded)
                   
                   proxy = {
@@ -93,10 +96,10 @@ jobs:
                       "password": parsed.username or "",
                       "udp": True,
                       "skip-cert-verify": True
-                  }
-                  
+                  }                  
                   if parsed.query:
-                      query = parse_qs(parsed.query)                      if "sni" in query:
+                      query = parse_qs(parsed.query)
+                      if "sni" in query:
                           proxy["sni"] = query["sni"][0]
                       if "type" in query:
                           net_type = query["type"][0]
@@ -142,10 +145,10 @@ jobs:
                       return None
                   
                   server, port = server_port.rsplit(':', 1)
-                  
-                  proxy = {
+                                    proxy = {
                       "name": name,
-                      "type": "ss",                      "server": server,
+                      "type": "ss",
+                      "server": server,
                       "port": int(port),
                       "cipher": cipher,
                       "password": password,
@@ -192,9 +195,9 @@ jobs:
                   return proxy
               except:
                   return None
-
           def parse_socks5(uri):
-              try:                  parsed = urlparse(uri)
+              try:
+                  parsed = urlparse(uri)
                   name = requests.utils.unquote(parsed.fragment) if parsed.fragment else "SOCKS5"
                   
                   proxy = {
@@ -240,10 +243,10 @@ jobs:
           def parse_hysteria(uri):
               try:
                   parsed = urlparse(uri)
-                  name = requests.utils.unquote(parsed.fragment) if parsed.fragment else "Hysteria"
-                  
+                  name = requests.utils.unquote(parsed.fragment) if parsed.fragment else "Hysteria"                  
                   proxy = {
-                      "name": name,                      "type": "hysteria",
+                      "name": name,
+                      "type": "hysteria",
                       "server": parsed.hostname,
                       "port": parsed.port or 443,
                       "up": 100,
@@ -289,9 +292,9 @@ jobs:
                       if "sni" in query:
                           proxy["sni"] = query["sni"][0]
                           
-                  return proxy
-              except:
+                  return proxy              except:
                   return None
+
           def parse_tuic(uri):
               try:
                   parsed = urlparse(uri)
@@ -338,10 +341,10 @@ jobs:
                       "udp": True
                   }
                   
-                  if parsed.query:
-                      query = parse_qs(parsed.query)
+                  if parsed.query:                      query = parse_qs(parsed.query)
                       if "publicKey" in query:
-                          proxy["public-key"] = query["publicKey"][0]                      if "address" in query:
+                          proxy["public-key"] = query["publicKey"][0]
+                      if "address" in query:
                           addresses = query["address"][0].split(',')
                           proxy["ip"] = addresses[0] if addresses else None
                       if "mtu" in query:
@@ -387,10 +390,10 @@ jobs:
                   'vless://': parse_vless,
                   'socks5://': parse_socks5,
                   'socks://': parse_socks5,
-                  'http://': parse_http,
-                  'https://': parse_http,
+                  'http://': parse_http,                  'https://': parse_http,
                   'hysteria://': parse_hysteria,
-                  'hysteria2://': parse_hysteria2,                  'hy2://': parse_hysteria2,
+                  'hysteria2://': parse_hysteria2,
+                  'hy2://': parse_hysteria2,
                   'tuic://': parse_tuic,
                   'wireguard://': parse_wireguard,
                   'wg://': parse_wireguard,
@@ -436,10 +439,10 @@ jobs:
 
           def check_tcp_port(proxy):
               try:
-                  if proxy.get("type") == "wireguard":
-                      return proxy
+                  if proxy.get("type") == "wireguard":                      return proxy
                       
-                  server = proxy.get("server")                  port = proxy.get("port")
+                  server = proxy.get("server")
+                  port = proxy.get("port")
                   if not server or not port:
                       return None
                       
@@ -485,10 +488,10 @@ jobs:
                           "type": "select",
                           "proxies": ["🚀 Авто-выбор"] + [p["name"] for p in proxies]
                       }
-                  ],
-                  "rules": [
+                  ],                  "rules": [
                       "MATCH,🌍 Прокси"
-                  ]              }
+                  ]
+              }
               return config
 
           def main():
@@ -534,5 +537,4 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add githubmirror/clash_config.yaml
-          git diff --quiet && git diff --staged --quiet || (git commit -m "🔄 Auto-update clash config [skip ci]" && git push)
+          git add githubmirror/clash_config.yaml          git diff --quiet && git diff --staged --quiet || (git commit -m "🔄 Auto-update clash config [skip ci]" && git push)
