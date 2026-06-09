@@ -1,38 +1,11 @@
-# Обновлено: 2026-06-09 06:39 UTC
+# Обновлено: 2026-06-09 10:27 UTC
 # Всего в источнике: 11
-# Живых серверов: 11
+# Живых серверов: 8
 # Источник: 26_proxy_subscription_raw.txt
 proxies:
 - name: 🇷🇴 RO | 195.74.93.254
   type: vless
   server: 195.74.93.254
-  port: 443
-  uuid: 146eb6cf-a99c-4022-85ca-022cf81502dc
-  udp: true
-  skip-cert-verify: true
-  encryption: none
-  sni: web.max.ru
-- name: 🇲🇩 MD | 91.225.217.94
-  type: vless
-  server: 91.225.217.94
-  port: 443
-  uuid: 69a2af58-d74a-44ca-864a-e09b493f4274
-  udp: true
-  skip-cert-verify: true
-  encryption: none
-  sni: api-maps.yandex.ru
-- name: 🇸🇪 SE | 89.22.230.82
-  type: vless
-  server: 89.22.230.82
-  port: 443
-  uuid: de3104b0-0c51-49df-8350-da4bbe654820
-  udp: true
-  skip-cert-verify: true
-  encryption: none
-  sni: ya.ru
-- name: 🇷🇴 RO | 93.114.194.131
-  type: vless
-  server: 93.114.194.131
   port: 443
   uuid: 146eb6cf-a99c-4022-85ca-022cf81502dc
   udp: true
@@ -48,6 +21,33 @@ proxies:
   skip-cert-verify: true
   encryption: none
   sni: ya.ru
+- name: 🇲🇩 MD | 91.225.217.94
+  type: vless
+  server: 91.225.217.94
+  port: 443
+  uuid: 69a2af58-d74a-44ca-864a-e09b493f4274
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: api-maps.yandex.ru
+- name: 🇷🇴 RO | 93.114.194.131
+  type: vless
+  server: 93.114.194.131
+  port: 443
+  uuid: 146eb6cf-a99c-4022-85ca-022cf81502dc
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: web.max.ru
+- name: 🇸🇪 SE | 89.22.230.82
+  type: vless
+  server: 89.22.230.82
+  port: 443
+  uuid: de3104b0-0c51-49df-8350-da4bbe654820
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: ya.ru
 - name: 🇩🇪 DE | de1.vitok.cc
   type: vless
   server: de1.vitok.cc
@@ -57,33 +57,6 @@ proxies:
   skip-cert-verify: true
   encryption: none
   sni: max.ru
-- name: 🇫🇮 FI | 62.238.32.25
-  type: vless
-  server: 62.238.32.25
-  port: 443
-  uuid: 1b9e301d-cecd-4eb1-8b36-eef811c2696d
-  udp: true
-  skip-cert-verify: true
-  encryption: none
-  sni: yastatic.net
-- name: 🇫🇷 FR | 147.45.99.249
-  type: vless
-  server: 147.45.99.249
-  port: 443
-  uuid: e438ed18-0208-4620-b7f4-56ba7045f397
-  udp: true
-  skip-cert-verify: true
-  encryption: none
-  sni: gb.sellflow.org
-- name: 🇫🇮 FI | fi2.vitok.cc
-  type: vless
-  server: fi2.vitok.cc
-  port: 443
-  uuid: 1b9e301d-cecd-4eb1-8b36-eef811c2696d
-  udp: true
-  skip-cert-verify: true
-  encryption: none
-  sni: yastatic.net
 - name: 🇰🇿 KZ | vpnv1.aspidnet.xyz
   type: vless
   server: vpnv1.aspidnet.xyz
@@ -93,30 +66,27 @@ proxies:
   skip-cert-verify: true
   encryption: none
   sni: web.max.ru
-- name: 🇫🇷 FR | 45.95.233.82
+- name: 🇫🇷 FR | 147.45.99.249
   type: vless
-  server: 45.95.233.82
+  server: 147.45.99.249
   port: 443
-  uuid: 6422cd50-ebf9-49d9-a9f3-ff21fa1a2325
+  uuid: e438ed18-0208-4620-b7f4-56ba7045f397
   udp: true
   skip-cert-verify: true
   encryption: none
-  sni: ya.ru
+  sni: gb.sellflow.org
 proxy-groups:
 - name: 🚀 Авто-выбор
   type: url-test
   proxies:
   - 🇷🇴 RO | 195.74.93.254
-  - 🇲🇩 MD | 91.225.217.94
-  - 🇸🇪 SE | 89.22.230.82
-  - 🇷🇴 RO | 93.114.194.131
   - 🇫🇮 FI | 62.60.255.11
+  - 🇲🇩 MD | 91.225.217.94
+  - 🇷🇴 RO | 93.114.194.131
+  - 🇸🇪 SE | 89.22.230.82
   - 🇩🇪 DE | de1.vitok.cc
-  - 🇫🇮 FI | 62.238.32.25
-  - 🇫🇷 FR | 147.45.99.249
-  - 🇫🇮 FI | fi2.vitok.cc
   - 🇰🇿 KZ | vpnv1.aspidnet.xyz
-  - 🇫🇷 FR | 45.95.233.82
+  - 🇫🇷 FR | 147.45.99.249
   url: http://www.gstatic.com/generate_204
   interval: 300
 - name: 🌍 Прокси
@@ -124,15 +94,12 @@ proxy-groups:
   proxies:
   - 🚀 Авто-выбор
   - 🇷🇴 RO | 195.74.93.254
-  - 🇲🇩 MD | 91.225.217.94
-  - 🇸🇪 SE | 89.22.230.82
-  - 🇷🇴 RO | 93.114.194.131
   - 🇫🇮 FI | 62.60.255.11
+  - 🇲🇩 MD | 91.225.217.94
+  - 🇷🇴 RO | 93.114.194.131
+  - 🇸🇪 SE | 89.22.230.82
   - 🇩🇪 DE | de1.vitok.cc
-  - 🇫🇮 FI | 62.238.32.25
-  - 🇫🇷 FR | 147.45.99.249
-  - 🇫🇮 FI | fi2.vitok.cc
   - 🇰🇿 KZ | vpnv1.aspidnet.xyz
-  - 🇫🇷 FR | 45.95.233.82
+  - 🇫🇷 FR | 147.45.99.249
 rules:
 - MATCH,🌍 Прокси
