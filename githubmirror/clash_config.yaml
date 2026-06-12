@@ -1,35 +1,17 @@
-# Обновлено: 2026-06-12 13:58 UTC
-# Всего в источнике: 17
-# Живых серверов: 16
+# Обновлено: 2026-06-12 16:42 UTC
+# Всего в источнике: 13
+# Живых серверов: 13
 # Источник: 26_proxy_subscription_raw.txt
 proxies:
-- name: 🇳🇱 NL | 194.127.179.220
+- name: 🇳🇱 NL | 193.233.82.126
   type: vless
-  server: 194.127.179.220
+  server: 193.233.82.126
   port: 443
-  uuid: 146eb6cf-a99c-4022-85ca-022cf81502dc
+  uuid: 3ea2d8f2-12c1-4189-8cc5-91d0ee9f5ca0
   udp: true
   skip-cert-verify: true
   encryption: none
-  sni: web.max.ru
-- name: 🇩🇪 DE | 88.210.62.5
-  type: vless
-  server: 88.210.62.5
-  port: 443
-  uuid: 75e3f61c-9ade-41b8-840f-39d41d8208c6
-  udp: true
-  skip-cert-verify: true
-  encryption: none
-  sni: listwhite.cc
-- name: 🇳🇱 NL | 185.112.59.30
-  type: vless
-  server: 185.112.59.30
-  port: 443
-  uuid: b0ce99fa-9ecc-4ebf-8400-8c1e21f5f1f3
-  udp: true
-  skip-cert-verify: true
-  encryption: none
-  sni: nl1.foxnezia.dev
+  sni: cloudflare.com
 - name: 🇳🇱 NL | 144.31.30.69
   type: vless
   server: 144.31.30.69
@@ -39,15 +21,6 @@ proxies:
   skip-cert-verify: true
   encryption: none
   sni: eh.vk.com
-- name: 🇩🇪 DE | 88.210.62.3
-  type: vless
-  server: 88.210.62.3
-  port: 443
-  uuid: 75e3f61c-9ade-41b8-840f-39d41d8208c6
-  udp: true
-  skip-cert-verify: true
-  encryption: none
-  sni: sun6-21.userapi.com
 - name: 🇷🇴 RO | 195.74.93.254
   type: vless
   server: 195.74.93.254
@@ -57,29 +30,41 @@ proxies:
   skip-cert-verify: true
   encryption: none
   sni: web.max.ru
-- name: 🇫🇮 FI | 94.237.115.30
+- name: 🇳🇱 NL | 87.228.52.147
   type: vless
-  server: 94.237.115.30
+  server: 87.228.52.147
   port: 443
-  uuid: a957d0fb-4641-4307-aa38-1f893b1ae987
+  uuid: 13bbbb75-2ec5-4262-9784-fe8b6e94510b
   udp: true
   skip-cert-verify: true
   encryption: none
-  sni: cloudcdn-m9-9.cdn.yandex.net
-- name: 🇷🇴 RO | 93.114.194.131
-  type: vless
-  server: 93.114.194.131
-  port: 443
-  uuid: 146eb6cf-a99c-4022-85ca-022cf81502dc
-  udp: true
-  skip-cert-verify: true
-  encryption: none
-  sni: web.max.ru
+  sni: timeweb.cloud
 - name: 🇫🇮 FI | 62.60.255.11
   type: vless
   server: 62.60.255.11
   port: 443
   uuid: ad8a53f2-b109-4873-9156-fc3bcb0d7fe4
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: ya.ru
+- name: 🇫🇷 FR | 78.159.250.16
+  type: vless
+  server: 78.159.250.16
+  port: 443
+  uuid: 2647e245-66b0-4d5c-b3ff-9ed846d897d8
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: ads.x5.ru
+  network: grpc
+  grpc-opts:
+    grpc-service-name: ''
+- name: 🇺🇸 US | 31.76.34.86
+  type: vless
+  server: 31.76.34.86
+  port: 443
+  uuid: 08fc840b-e673-4031-aa2f-2663cadf838a
   udp: true
   skip-cert-verify: true
   encryption: none
@@ -93,24 +78,36 @@ proxies:
   skip-cert-verify: true
   encryption: none
   sni: ya.ru
-- name: 🇺🇸 US | 31.76.34.86
+- name: 🇷🇴 RO | 93.114.194.131
   type: vless
-  server: 31.76.34.86
+  server: 93.114.194.131
   port: 443
-  uuid: 08fc840b-e673-4031-aa2f-2663cadf838a
+  uuid: 146eb6cf-a99c-4022-85ca-022cf81502dc
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: web.max.ru
+- name: 🇸🇬 SG | 31.76.34.85
+  type: vless
+  server: 31.76.34.85
+  port: 443
+  uuid: be018243-71b9-4e87-a6d0-db512d31c554
   udp: true
   skip-cert-verify: true
   encryption: none
   sni: ya.ru
-- name: 🇺🇸 US | sw.pink-perfect.ru
+- name: 🇳🇱 NL | 78.159.250.78
   type: vless
-  server: sw.pink-perfect.ru
+  server: 78.159.250.78
   port: 443
-  uuid: 8ea0665e-dee3-418c-8822-1f70f350f2db
+  uuid: 2647e245-66b0-4d5c-b3ff-9ed846d897d8
   udp: true
   skip-cert-verify: true
   encryption: none
-  sni: yandex.net
+  sni: api.cs7777.vk.ru
+  network: grpc
+  grpc-opts:
+    grpc-service-name: ''
 - name: 🇰🇿 KZ | 38.180.39.171
   type: vless
   server: 38.180.39.171
@@ -129,65 +126,41 @@ proxies:
   skip-cert-verify: true
   encryption: none
   sni: web.max.ru
-- name: 🇲🇩 MD | md.riotvpn.eu
-  type: vless
-  server: md.riotvpn.eu
-  port: 443
-  uuid: c470171c-2951-4806-988d-61d4d811486d
-  udp: true
-  skip-cert-verify: true
-  encryption: none
-  sni: avatars.mds.yandex.net
-- name: 🇫🇮 FI | fi.riotvpn.eu
-  type: vless
-  server: fi.riotvpn.eu
-  port: 443
-  uuid: c470171c-2951-4806-988d-61d4d811486d
-  udp: true
-  skip-cert-verify: true
-  encryption: none
-  sni: avatars.mds.yandex.net
 proxy-groups:
 - name: 🚀 Авто-выбор
   type: url-test
   proxies:
-  - 🇳🇱 NL | 194.127.179.220
-  - 🇩🇪 DE | 88.210.62.5
-  - 🇳🇱 NL | 185.112.59.30
+  - 🇳🇱 NL | 193.233.82.126
   - 🇳🇱 NL | 144.31.30.69
-  - 🇩🇪 DE | 88.210.62.3
   - 🇷🇴 RO | 195.74.93.254
-  - 🇫🇮 FI | 94.237.115.30
-  - 🇷🇴 RO | 93.114.194.131
+  - 🇳🇱 NL | 87.228.52.147
   - 🇫🇮 FI | 62.60.255.11
-  - 🇮🇱 IL | 31.76.34.81
+  - 🇫🇷 FR | 78.159.250.16
   - 🇺🇸 US | 31.76.34.86
-  - 🇺🇸 US | sw.pink-perfect.ru
+  - 🇮🇱 IL | 31.76.34.81
+  - 🇷🇴 RO | 93.114.194.131
+  - 🇸🇬 SG | 31.76.34.85
+  - 🇳🇱 NL | 78.159.250.78
   - 🇰🇿 KZ | 38.180.39.171
   - 🇰🇿 KZ | vpnv1.aspidnet.xyz
-  - 🇲🇩 MD | md.riotvpn.eu
-  - 🇫🇮 FI | fi.riotvpn.eu
   url: http://www.gstatic.com/generate_204
   interval: 300
 - name: 🌍 Прокси
   type: select
   proxies:
   - 🚀 Авто-выбор
-  - 🇳🇱 NL | 194.127.179.220
-  - 🇩🇪 DE | 88.210.62.5
-  - 🇳🇱 NL | 185.112.59.30
+  - 🇳🇱 NL | 193.233.82.126
   - 🇳🇱 NL | 144.31.30.69
-  - 🇩🇪 DE | 88.210.62.3
   - 🇷🇴 RO | 195.74.93.254
-  - 🇫🇮 FI | 94.237.115.30
-  - 🇷🇴 RO | 93.114.194.131
+  - 🇳🇱 NL | 87.228.52.147
   - 🇫🇮 FI | 62.60.255.11
-  - 🇮🇱 IL | 31.76.34.81
+  - 🇫🇷 FR | 78.159.250.16
   - 🇺🇸 US | 31.76.34.86
-  - 🇺🇸 US | sw.pink-perfect.ru
+  - 🇮🇱 IL | 31.76.34.81
+  - 🇷🇴 RO | 93.114.194.131
+  - 🇸🇬 SG | 31.76.34.85
+  - 🇳🇱 NL | 78.159.250.78
   - 🇰🇿 KZ | 38.180.39.171
   - 🇰🇿 KZ | vpnv1.aspidnet.xyz
-  - 🇲🇩 MD | md.riotvpn.eu
-  - 🇫🇮 FI | fi.riotvpn.eu
 rules:
 - MATCH,🌍 Прокси
