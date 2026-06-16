@@ -1,6 +1,6 @@
-# Обновлено: 2026-06-16 19:27 UTC
-# Всего в источнике: 15
-# Живых серверов: 15
+# Обновлено: 2026-06-16 21:59 UTC
+# Всего в источнике: 45
+# Живых серверов: 42
 # Источник: 26_proxy_subscription_raw.txt
 proxies:
 - name: 🇳🇱 NL | 144.31.30.69
@@ -21,15 +21,42 @@ proxies:
   skip-cert-verify: true
   encryption: none
   sni: web.max.ru
-- name: 🇺🇸 US | 193.23.222.133
+- name: 🇱🇹 LT | 185.91.53.55
   type: vless
-  server: 193.23.222.133
+  server: 185.91.53.55
   port: 443
-  uuid: f7166a73-c0d8-0001-8c33-00af87919774
+  uuid: 74a86d57-dad6-47b7-bc04-94c19d79910e
   udp: true
   skip-cert-verify: true
   encryption: none
-  sni: max.ru
+  sni: ads.x5.ru
+  network: grpc
+  grpc-opts:
+    grpc-service-name: ''
+- name: 🇳🇱 NL | 185.91.54.151
+  type: vless
+  server: 185.91.54.151
+  port: 443
+  uuid: 74a86d57-dad6-47b7-bc04-94c19d79910e
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: api-maps.yandex.ru
+  network: grpc
+  grpc-opts:
+    grpc-service-name: ''
+- name: 🇳🇱 NL | 31.129.42.122
+  type: vless
+  server: 31.129.42.122
+  port: 443
+  uuid: 74a86d57-dad6-47b7-bc04-94c19d79910e
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: api-maps.yandex.ru
+  network: grpc
+  grpc-opts:
+    grpc-service-name: ''
 - name: 🇫🇮 FI | 62.60.255.11
   type: vless
   server: 62.60.255.11
@@ -39,24 +66,87 @@ proxies:
   skip-cert-verify: true
   encryption: none
   sni: ya.ru
-- name: 🇸🇬 SG | 31.76.34.85
+- name: 🇱🇹 LT | 5.178.85.225
   type: vless
-  server: 31.76.34.85
+  server: 5.178.85.225
   port: 443
-  uuid: be018243-71b9-4e87-a6d0-db512d31c554
+  uuid: 74a86d57-dad6-47b7-bc04-94c19d79910e
   udp: true
   skip-cert-verify: true
   encryption: none
-  sni: ya.ru
-- name: 🇳🇱 NL | 31.76.34.88
+  sni: ads.x5.ru
+  network: grpc
+  grpc-opts:
+    grpc-service-name: ''
+- name: 🇩🇪 DE | 185.229.9.58
   type: vless
-  server: 31.76.34.88
+  server: 185.229.9.58
   port: 443
-  uuid: c4f21079-3f22-428d-9161-c936ad685775
+  uuid: f777818a-fa93-4096-8235-68e090c8714c
   udp: true
   skip-cert-verify: true
   encryption: none
-  sni: ya.ru
+  sni: eh.vk.com
+- name: 🇩🇪 DE | 51.250.4.238
+  type: vless
+  server: 51.250.4.238
+  port: 443
+  uuid: a027cd2f-ff2d-4dd5-9a6c-5452019a6cfe
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: www.vk.com
+- name: 🇩🇪 DE | 185.229.9.8
+  type: vless
+  server: 185.229.9.8
+  port: 443
+  uuid: eab2d48a-10b3-4de5-8018-38dba6ebcbd6
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: ads.x5.ru
+- name: 🇱🇹 LT | 84.201.159.233
+  type: vless
+  server: 84.201.159.233
+  port: 443
+  uuid: 74a86d57-dad6-47b7-bc04-94c19d79910e
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: ads.x5.ru
+  network: grpc
+  grpc-opts:
+    grpc-service-name: ''
+- name: 🇩🇪 DE | 51.250.70.186
+  type: vless
+  server: 51.250.70.186
+  port: 443
+  uuid: eab2d48a-10b3-4de5-8018-38dba6ebcbd6
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: max.ru
+- name: 🇳🇱 NL | 158.160.206.199
+  type: vless
+  server: 158.160.206.199
+  port: 443
+  uuid: 74a86d57-dad6-47b7-bc04-94c19d79910e
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: api-maps.yandex.ru
+  network: grpc
+  grpc-opts:
+    grpc-service-name: ''
+- name: 🇩🇪 DE | 51.250.47.193
+  type: vless
+  server: 51.250.47.193
+  port: 443
+  uuid: a027cd2f-ff2d-4dd5-9a6c-5452019a6cfe
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: smartcaptcha.yandexcloud.net
 - name: 🇷🇴 RO | 93.114.194.131
   type: vless
   server: 93.114.194.131
@@ -66,51 +156,234 @@ proxies:
   skip-cert-verify: true
   encryption: none
   sni: web.max.ru
-- name: 🇵🇱 PL | 155.212.146.159
+- name: 🇳🇱 NL | 5.188.114.66
   type: vless
-  server: 155.212.146.159
+  server: 5.188.114.66
   port: 443
-  uuid: 1e05097f-8aaf-0001-8d55-0732a1b373aa
+  uuid: 74a86d57-dad6-47b7-bc04-94c19d79910e
   udp: true
   skip-cert-verify: true
   encryption: none
-  sni: converso.dropluch.com
-- name: 🇳🇱 NL | 155.212.146.159
+  sni: ads.x5.ru
+  network: grpc
+  grpc-opts:
+    grpc-service-name: ''
+- name: 🇩🇪 DE | 158.160.17.171
   type: vless
-  server: 155.212.146.159
+  server: 158.160.17.171
   port: 443
-  uuid: 1e05097f-8aaf-0003-8d55-0732a1b373aa
+  uuid: a027cd2f-ff2d-4dd5-9a6c-5452019a6cfe
   udp: true
   skip-cert-verify: true
   encryption: none
-  sni: converso.dropluch.com
-- name: 🇩🇪 DE | 155.212.146.159
+  sni: api-maps.yandex.ru
+- name: 🇱🇹 LT | 84.201.165.188
   type: vless
-  server: 155.212.146.159
+  server: 84.201.165.188
   port: 443
-  uuid: 1e05097f-8aaf-0002-8d55-0732a1b373aa
+  uuid: 74a86d57-dad6-47b7-bc04-94c19d79910e
   udp: true
   skip-cert-verify: true
   encryption: none
-  sni: converso.dropluch.com
-- name: 🇫🇮 FI | 155.212.146.159
+  sni: ads.x5.ru
+  network: grpc
+  grpc-opts:
+    grpc-service-name: ''
+- name: 🇩🇪 DE | 158.160.17.171 (2)
   type: vless
-  server: 155.212.146.159
+  server: 158.160.17.171
   port: 443
-  uuid: 1e05097f-8aaf-0006-8d55-0732a1b373aa
+  uuid: a027cd2f-ff2d-4dd5-9a6c-5452019a6cfe
   udp: true
   skip-cert-verify: true
   encryption: none
-  sni: converso.dropluch.com
-- name: 🇫🇷 FR | 155.212.146.159
+  sni: smartcaptcha.yandexcloud.net
+- name: 🇳🇱 NL | 31.76.34.88
   type: vless
-  server: 155.212.146.159
+  server: 31.76.34.88
   port: 443
-  uuid: 1e05097f-8aaf-0007-8d55-0732a1b373aa
+  uuid: c4f21079-3f22-428d-9161-c936ad685775
   udp: true
   skip-cert-verify: true
   encryption: none
-  sni: converso.dropluch.com
+  sni: ya.ru
+- name: 🇱🇹 LT | 158.160.53.173
+  type: vless
+  server: 158.160.53.173
+  port: 443
+  uuid: 74a86d57-dad6-47b7-bc04-94c19d79910e
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: ads.x5.ru
+  network: grpc
+  grpc-opts:
+    grpc-service-name: ''
+- name: 🇩🇪 DE | 51.250.70.186 (2)
+  type: vless
+  server: 51.250.70.186
+  port: 443
+  uuid: eab2d48a-10b3-4de5-8018-38dba6ebcbd6
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: yandex.ru
+- name: 🇩🇪 DE | 158.160.17.171 (3)
+  type: vless
+  server: 158.160.17.171
+  port: 443
+  uuid: a027cd2f-ff2d-4dd5-9a6c-5452019a6cfe
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: ads.x5.ru
+- name: 🇩🇪 DE | 51.250.47.193 (2)
+  type: vless
+  server: 51.250.47.193
+  port: 443
+  uuid: a027cd2f-ff2d-4dd5-9a6c-5452019a6cfe
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: ads.x5.ru
+- name: 🇩🇪 DE | 84.201.153.33
+  type: vless
+  server: 84.201.153.33
+  port: 443
+  uuid: a027cd2f-ff2d-4dd5-9a6c-5452019a6cfe
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: api-maps.yandex.ru
+- name: 🇩🇪 DE | 84.201.153.33 (2)
+  type: vless
+  server: 84.201.153.33
+  port: 443
+  uuid: a027cd2f-ff2d-4dd5-9a6c-5452019a6cfe
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: smartcaptcha.yandexcloud.net
+- name: 🇸🇬 SG | 31.76.34.85
+  type: vless
+  server: 31.76.34.85
+  port: 443
+  uuid: be018243-71b9-4e87-a6d0-db512d31c554
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: ya.ru
+- name: 🇳🇱 NL | 51.250.7.246
+  type: vless
+  server: 51.250.7.246
+  port: 443
+  uuid: 74a86d57-dad6-47b7-bc04-94c19d79910e
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: ads.x5.ru
+  network: grpc
+  grpc-opts:
+    grpc-service-name: ''
+- name: 🇩🇪 DE | 51.250.4.238 (2)
+  type: vless
+  server: 51.250.4.238
+  port: 443
+  uuid: a027cd2f-ff2d-4dd5-9a6c-5452019a6cfe
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: max.ru
+- name: 🇳🇱 NL | 158.160.147.122
+  type: vless
+  server: 158.160.147.122
+  port: 443
+  uuid: 74a86d57-dad6-47b7-bc04-94c19d79910e
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: ads.x5.ru
+  network: grpc
+  grpc-opts:
+    grpc-service-name: ''
+- name: 🇳🇱 NL | 158.160.109.80
+  type: vless
+  server: 158.160.109.80
+  port: 443
+  uuid: 74a86d57-dad6-47b7-bc04-94c19d79910e
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: api-maps.yandex.ru
+  network: grpc
+  grpc-opts:
+    grpc-service-name: ''
+- name: 🇩🇪 DE | 51.250.70.186 (3)
+  type: vless
+  server: 51.250.70.186
+  port: 443
+  uuid: eab2d48a-10b3-4de5-8018-38dba6ebcbd6
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: www.vk.com
+- name: 🇩🇪 DE | 51.250.47.193 (3)
+  type: vless
+  server: 51.250.47.193
+  port: 443
+  uuid: a027cd2f-ff2d-4dd5-9a6c-5452019a6cfe
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: api-maps.yandex.ru
+- name: 🇳🇱 NL | 158.160.199.123
+  type: vless
+  server: 158.160.199.123
+  port: 443
+  uuid: a5ea9247-79f3-4655-aece-3fb51e1e669e
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: rezerv8.yunus.guru
+- name: 🇱🇹 LT | 51.250.26.148
+  type: vless
+  server: 51.250.26.148
+  port: 443
+  uuid: 74a86d57-dad6-47b7-bc04-94c19d79910e
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: ads.x5.ru
+  network: grpc
+  grpc-opts:
+    grpc-service-name: ''
+- name: 🇩🇪 DE | 84.201.153.33 (3)
+  type: vless
+  server: 84.201.153.33
+  port: 443
+  uuid: a027cd2f-ff2d-4dd5-9a6c-5452019a6cfe
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: ads.x5.ru
+- name: 🇩🇪 DE | 51.250.4.238 (3)
+  type: vless
+  server: 51.250.4.238
+  port: 443
+  uuid: a027cd2f-ff2d-4dd5-9a6c-5452019a6cfe
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: yandex.ru
+- name: 🇸🇪 SE | 31.76.34.87
+  type: vless
+  server: 31.76.34.87
+  port: 443
+  uuid: 9c387b24-56ea-458d-b113-ab750a4c9b7b
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: ya.ru
 - name: 🇫🇮 FI | fi1.vitok.cc
   type: vless
   server: fi1.vitok.cc
@@ -120,43 +393,79 @@ proxies:
   skip-cert-verify: true
   encryption: none
   sni: sberbank.ru
-- name: 🇵🇱 PL | converso.dropluch.com
+- name: 🇰🇿 KZ | 38.180.39.171
   type: vless
-  server: converso.dropluch.com
+  server: 38.180.39.171
   port: 443
-  uuid: 1e05097f-8aaf-0001-8d55-0732a1b373aa
+  uuid: 158d03db-e5d7-4540-a31c-b2daa7aa4964
   udp: true
   skip-cert-verify: true
   encryption: none
-  sni: converso.dropluch.com
-- name: 🇩🇪 DE | 155.212.146.159 (2)
+  sni: web.max.ru
+- name: 🇰🇿 KZ | vpnv1.aspidnet.xyz
   type: vless
-  server: 155.212.146.159
+  server: vpnv1.aspidnet.xyz
   port: 443
-  uuid: 1e05097f-8aaf-0005-8d55-0732a1b373aa
+  uuid: 158d03db-e5d7-4540-a31c-b2daa7aa4964
   udp: true
   skip-cert-verify: true
   encryption: none
-  sni: converso.dropluch.com
+  sni: web.max.ru
+- name: 🇲🇩 MD | md.riotvpn.eu
+  type: vless
+  server: md.riotvpn.eu
+  port: 443
+  uuid: c470171c-2951-4806-988d-61d4d811486d
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: avatars.mds.yandex.net
 proxy-groups:
 - name: 🚀 Авто-выбор
   type: url-test
   proxies:
   - 🇳🇱 NL | 144.31.30.69
   - 🇷🇴 RO | 195.74.93.254
-  - 🇺🇸 US | 193.23.222.133
+  - 🇱🇹 LT | 185.91.53.55
+  - 🇳🇱 NL | 185.91.54.151
+  - 🇳🇱 NL | 31.129.42.122
   - 🇫🇮 FI | 62.60.255.11
-  - 🇸🇬 SG | 31.76.34.85
-  - 🇳🇱 NL | 31.76.34.88
+  - 🇱🇹 LT | 5.178.85.225
+  - 🇩🇪 DE | 185.229.9.58
+  - 🇩🇪 DE | 51.250.4.238
+  - 🇩🇪 DE | 185.229.9.8
+  - 🇱🇹 LT | 84.201.159.233
+  - 🇩🇪 DE | 51.250.70.186
+  - 🇳🇱 NL | 158.160.206.199
+  - 🇩🇪 DE | 51.250.47.193
   - 🇷🇴 RO | 93.114.194.131
-  - 🇵🇱 PL | 155.212.146.159
-  - 🇳🇱 NL | 155.212.146.159
-  - 🇩🇪 DE | 155.212.146.159
-  - 🇫🇮 FI | 155.212.146.159
-  - 🇫🇷 FR | 155.212.146.159
+  - 🇳🇱 NL | 5.188.114.66
+  - 🇩🇪 DE | 158.160.17.171
+  - 🇱🇹 LT | 84.201.165.188
+  - 🇩🇪 DE | 158.160.17.171 (2)
+  - 🇳🇱 NL | 31.76.34.88
+  - 🇱🇹 LT | 158.160.53.173
+  - 🇩🇪 DE | 51.250.70.186 (2)
+  - 🇩🇪 DE | 158.160.17.171 (3)
+  - 🇩🇪 DE | 51.250.47.193 (2)
+  - 🇩🇪 DE | 84.201.153.33
+  - 🇩🇪 DE | 84.201.153.33 (2)
+  - 🇸🇬 SG | 31.76.34.85
+  - 🇳🇱 NL | 51.250.7.246
+  - 🇩🇪 DE | 51.250.4.238 (2)
+  - 🇳🇱 NL | 158.160.147.122
+  - 🇳🇱 NL | 158.160.109.80
+  - 🇩🇪 DE | 51.250.70.186 (3)
+  - 🇩🇪 DE | 51.250.47.193 (3)
+  - 🇳🇱 NL | 158.160.199.123
+  - 🇱🇹 LT | 51.250.26.148
+  - 🇩🇪 DE | 84.201.153.33 (3)
+  - 🇩🇪 DE | 51.250.4.238 (3)
+  - 🇸🇪 SE | 31.76.34.87
   - 🇫🇮 FI | fi1.vitok.cc
-  - 🇵🇱 PL | converso.dropluch.com
-  - 🇩🇪 DE | 155.212.146.159 (2)
+  - 🇰🇿 KZ | 38.180.39.171
+  - 🇰🇿 KZ | vpnv1.aspidnet.xyz
+  - 🇲🇩 MD | md.riotvpn.eu
   url: http://www.gstatic.com/generate_204
   interval: 300
 - name: 🌍 Прокси
@@ -165,18 +474,45 @@ proxy-groups:
   - 🚀 Авто-выбор
   - 🇳🇱 NL | 144.31.30.69
   - 🇷🇴 RO | 195.74.93.254
-  - 🇺🇸 US | 193.23.222.133
+  - 🇱🇹 LT | 185.91.53.55
+  - 🇳🇱 NL | 185.91.54.151
+  - 🇳🇱 NL | 31.129.42.122
   - 🇫🇮 FI | 62.60.255.11
-  - 🇸🇬 SG | 31.76.34.85
-  - 🇳🇱 NL | 31.76.34.88
+  - 🇱🇹 LT | 5.178.85.225
+  - 🇩🇪 DE | 185.229.9.58
+  - 🇩🇪 DE | 51.250.4.238
+  - 🇩🇪 DE | 185.229.9.8
+  - 🇱🇹 LT | 84.201.159.233
+  - 🇩🇪 DE | 51.250.70.186
+  - 🇳🇱 NL | 158.160.206.199
+  - 🇩🇪 DE | 51.250.47.193
   - 🇷🇴 RO | 93.114.194.131
-  - 🇵🇱 PL | 155.212.146.159
-  - 🇳🇱 NL | 155.212.146.159
-  - 🇩🇪 DE | 155.212.146.159
-  - 🇫🇮 FI | 155.212.146.159
-  - 🇫🇷 FR | 155.212.146.159
+  - 🇳🇱 NL | 5.188.114.66
+  - 🇩🇪 DE | 158.160.17.171
+  - 🇱🇹 LT | 84.201.165.188
+  - 🇩🇪 DE | 158.160.17.171 (2)
+  - 🇳🇱 NL | 31.76.34.88
+  - 🇱🇹 LT | 158.160.53.173
+  - 🇩🇪 DE | 51.250.70.186 (2)
+  - 🇩🇪 DE | 158.160.17.171 (3)
+  - 🇩🇪 DE | 51.250.47.193 (2)
+  - 🇩🇪 DE | 84.201.153.33
+  - 🇩🇪 DE | 84.201.153.33 (2)
+  - 🇸🇬 SG | 31.76.34.85
+  - 🇳🇱 NL | 51.250.7.246
+  - 🇩🇪 DE | 51.250.4.238 (2)
+  - 🇳🇱 NL | 158.160.147.122
+  - 🇳🇱 NL | 158.160.109.80
+  - 🇩🇪 DE | 51.250.70.186 (3)
+  - 🇩🇪 DE | 51.250.47.193 (3)
+  - 🇳🇱 NL | 158.160.199.123
+  - 🇱🇹 LT | 51.250.26.148
+  - 🇩🇪 DE | 84.201.153.33 (3)
+  - 🇩🇪 DE | 51.250.4.238 (3)
+  - 🇸🇪 SE | 31.76.34.87
   - 🇫🇮 FI | fi1.vitok.cc
-  - 🇵🇱 PL | converso.dropluch.com
-  - 🇩🇪 DE | 155.212.146.159 (2)
+  - 🇰🇿 KZ | 38.180.39.171
+  - 🇰🇿 KZ | vpnv1.aspidnet.xyz
+  - 🇲🇩 MD | md.riotvpn.eu
 rules:
 - MATCH,🌍 Прокси
