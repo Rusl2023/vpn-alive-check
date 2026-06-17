@@ -1,17 +1,8 @@
-# Обновлено: 2026-06-17 20:59 UTC
-# Всего в источнике: 10
-# Живых серверов: 10
+# Обновлено: 2026-06-17 22:45 UTC
+# Всего в источнике: 12
+# Живых серверов: 12
 # Источник: 26_proxy_subscription_raw.txt
 proxies:
-- name: 🇷🇴 RO | 195.74.93.254
-  type: vless
-  server: 195.74.93.254
-  port: 443
-  uuid: 146eb6cf-a99c-4022-85ca-022cf81502dc
-  udp: true
-  skip-cert-verify: true
-  encryption: none
-  sni: web.max.ru
 - name: 🇳🇱 NL | 144.31.30.69
   type: vless
   server: 144.31.30.69
@@ -21,15 +12,15 @@ proxies:
   skip-cert-verify: true
   encryption: none
   sni: eh.vk.com
-- name: 🇫🇮 FI | 62.60.255.11
+- name: 🇷🇴 RO | 195.74.93.254
   type: vless
-  server: 62.60.255.11
+  server: 195.74.93.254
   port: 443
-  uuid: ad8a53f2-b109-4873-9156-fc3bcb0d7fe4
+  uuid: 146eb6cf-a99c-4022-85ca-022cf81502dc
   udp: true
   skip-cert-verify: true
   encryption: none
-  sni: ya.ru
+  sni: web.max.ru
 - name: 🇫🇮 FI | 31.76.80.76
   type: vless
   server: 31.76.80.76
@@ -42,15 +33,51 @@ proxies:
   network: grpc
   grpc-opts:
     grpc-service-name: ''
-- name: 🇩🇪 DE | 51.250.70.186
+- name: 🇫🇮 FI | 62.60.255.11
   type: vless
-  server: 51.250.70.186
+  server: 62.60.255.11
   port: 443
-  uuid: 227c06df-a2d7-4a8c-9230-b6b5cc043895
+  uuid: ad8a53f2-b109-4873-9156-fc3bcb0d7fe4
   udp: true
   skip-cert-verify: true
   encryption: none
-  sni: www.vk.com
+  sni: ya.ru
+- name: 🇩🇪 DE | 62.152.58.111
+  type: vless
+  server: 62.152.58.111
+  port: 443
+  uuid: f0933f3c-4a73-4409-93ad-8d3a43d253c0
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: sun1-87.userapi.com
+- name: 🇩🇪 DE | 185.229.9.58
+  type: vless
+  server: 185.229.9.58
+  port: 443
+  uuid: f777818a-fa93-4096-8235-68e090c8714c
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: eh.vk.com
+- name: 🇵🇱 PL | 109.237.98.81
+  type: vless
+  server: 109.237.98.81
+  port: 443
+  uuid: 99bab912-34c6-4db1-96b8-ec6a3703fa4e
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: api-maps.yandex.ru
+- name: 🇺🇸 US | 94.139.247.211
+  type: vless
+  server: 94.139.247.211
+  port: 443
+  uuid: a1c11603-aefe-0007-9df3-4856f085811a
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: b02.connectv.net
 - name: 🇷🇴 RO | 93.114.194.131
   type: vless
   server: 93.114.194.131
@@ -60,15 +87,6 @@ proxies:
   skip-cert-verify: true
   encryption: none
   sni: web.max.ru
-- name: 🇩🇪 DE | 51.250.70.186 (2)
-  type: vless
-  server: 51.250.70.186
-  port: 443
-  uuid: 227c06df-a2d7-4a8c-9230-b6b5cc043895
-  udp: true
-  skip-cert-verify: true
-  encryption: none
-  sni: max.ru
 - name: 🇫🇮 FI | fi1.vitok.cc
   type: vless
   server: fi1.vitok.cc
@@ -100,13 +118,15 @@ proxy-groups:
 - name: 🚀 Авто-выбор
   type: url-test
   proxies:
-  - 🇷🇴 RO | 195.74.93.254
   - 🇳🇱 NL | 144.31.30.69
-  - 🇫🇮 FI | 62.60.255.11
+  - 🇷🇴 RO | 195.74.93.254
   - 🇫🇮 FI | 31.76.80.76
-  - 🇩🇪 DE | 51.250.70.186
+  - 🇫🇮 FI | 62.60.255.11
+  - 🇩🇪 DE | 62.152.58.111
+  - 🇩🇪 DE | 185.229.9.58
+  - 🇵🇱 PL | 109.237.98.81
+  - 🇺🇸 US | 94.139.247.211
   - 🇷🇴 RO | 93.114.194.131
-  - 🇩🇪 DE | 51.250.70.186 (2)
   - 🇫🇮 FI | fi1.vitok.cc
   - 🇰🇿 KZ | 38.180.39.171
   - 🇰🇿 KZ | vpnv1.aspidnet.xyz
@@ -116,13 +136,15 @@ proxy-groups:
   type: select
   proxies:
   - 🚀 Авто-выбор
-  - 🇷🇴 RO | 195.74.93.254
   - 🇳🇱 NL | 144.31.30.69
-  - 🇫🇮 FI | 62.60.255.11
+  - 🇷🇴 RO | 195.74.93.254
   - 🇫🇮 FI | 31.76.80.76
-  - 🇩🇪 DE | 51.250.70.186
+  - 🇫🇮 FI | 62.60.255.11
+  - 🇩🇪 DE | 62.152.58.111
+  - 🇩🇪 DE | 185.229.9.58
+  - 🇵🇱 PL | 109.237.98.81
+  - 🇺🇸 US | 94.139.247.211
   - 🇷🇴 RO | 93.114.194.131
-  - 🇩🇪 DE | 51.250.70.186 (2)
   - 🇫🇮 FI | fi1.vitok.cc
   - 🇰🇿 KZ | 38.180.39.171
   - 🇰🇿 KZ | vpnv1.aspidnet.xyz
