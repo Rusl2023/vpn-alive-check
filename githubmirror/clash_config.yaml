@@ -1,6 +1,6 @@
-# Обновлено: 2026-06-18 12:45 UTC
-# Всего в источнике: 28
-# Живых серверов: 28
+# Обновлено: 2026-06-18 16:21 UTC
+# Всего в источнике: 22
+# Живых серверов: 22
 # Источник: 26_proxy_subscription_raw.txt
 proxies:
 - name: 🇳🇱 NL | 144.31.30.69
@@ -12,15 +12,6 @@ proxies:
   skip-cert-verify: true
   encryption: none
   sni: eh.vk.com
-- name: 🇷🇴 RO | 195.74.93.254
-  type: vless
-  server: 195.74.93.254
-  port: 443
-  uuid: 146eb6cf-a99c-4022-85ca-022cf81502dc
-  udp: true
-  skip-cert-verify: true
-  encryption: none
-  sni: web.max.ru
 - name: 🇳🇱 NL | 146.19.254.109
   type: vless
   server: 146.19.254.109
@@ -33,18 +24,27 @@ proxies:
   network: grpc
   grpc-opts:
     grpc-service-name: ''
-- name: 🇫🇮 FI | 31.76.80.76
+- name: 🇳🇱 NL | 146.19.254.109 (2)
   type: vless
-  server: 31.76.80.76
+  server: 146.19.254.109
   port: 443
-  uuid: 9dcf8c2a-1f2d-431b-9df3-824297921734
+  uuid: 68001b7e-e48a-5a02-8243-c1a2a37b66b7
   udp: true
   skip-cert-verify: true
   encryption: none
-  sni: stats.vk-portal.net
+  sni: ya.ru
   network: grpc
   grpc-opts:
     grpc-service-name: ''
+- name: 🇷🇴 RO | 195.74.93.254
+  type: vless
+  server: 195.74.93.254
+  port: 443
+  uuid: 146eb6cf-a99c-4022-85ca-022cf81502dc
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: web.max.ru
 - name: 🇷🇴 RO | 93.114.194.131
   type: vless
   server: 93.114.194.131
@@ -54,11 +54,20 @@ proxies:
   skip-cert-verify: true
   encryption: none
   sni: web.max.ru
-- name: 🇨🇭 CH | 185.130.115.132
+- name: 🇩🇪 DE | 51.250.47.193
   type: vless
-  server: 185.130.115.132
+  server: 51.250.47.193
   port: 443
-  uuid: 4099a934-23f6-421a-8591-2e666238d101
+  uuid: a1533a8f-cc88-46ff-99f5-e43a393a29e5
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: smartcaptcha.yandexcloud.net
+- name: 🇩🇪 DE | 51.250.4.238
+  type: vless
+  server: 51.250.4.238
+  port: 443
+  uuid: a1533a8f-cc88-46ff-99f5-e43a393a29e5
   udp: true
   skip-cert-verify: true
   encryption: none
@@ -72,110 +81,65 @@ proxies:
   skip-cert-verify: true
   encryption: none
   sni: ya.ru
-- name: 🇩🇪 DE | 51.250.47.193
+- name: 🇩🇪 DE | 51.250.4.238 (2)
   type: vless
-  server: 51.250.47.193
+  server: 51.250.4.238
   port: 443
-  uuid: 394ad4c2-efff-4bc7-86ff-e20ba599c50c
+  uuid: a1533a8f-cc88-46ff-99f5-e43a393a29e5
   udp: true
   skip-cert-verify: true
   encryption: none
-  sni: smartcaptcha.yandexcloud.net
-- name: 🇨🇭 CH | 51.250.47.219
-  type: vless
-  server: 51.250.47.219
-  port: 443
-  uuid: 4099a934-23f6-421a-8591-2e666238d101
-  udp: true
-  skip-cert-verify: true
-  encryption: none
-  sni: yandex.ru
+  sni: www.vk.com
 - name: 🇩🇪 DE | 158.160.17.171
   type: vless
   server: 158.160.17.171
   port: 443
-  uuid: 394ad4c2-efff-4bc7-86ff-e20ba599c50c
+  uuid: a1533a8f-cc88-46ff-99f5-e43a393a29e5
   udp: true
   skip-cert-verify: true
   encryption: none
-  sni: smartcaptcha.yandexcloud.net
-- name: 🇩🇪 DE | 51.250.4.238
-  type: vless
-  server: 51.250.4.238
-  port: 443
-  uuid: 394ad4c2-efff-4bc7-86ff-e20ba599c50c
-  udp: true
-  skip-cert-verify: true
-  encryption: none
-  sni: max.ru
+  sni: ads.x5.ru
 - name: 🇩🇪 DE | 51.250.47.193 (2)
   type: vless
   server: 51.250.47.193
   port: 443
-  uuid: 394ad4c2-efff-4bc7-86ff-e20ba599c50c
+  uuid: a1533a8f-cc88-46ff-99f5-e43a393a29e5
   udp: true
   skip-cert-verify: true
   encryption: none
-  sni: api-maps.yandex.ru
+  sni: ads.x5.ru
 - name: 🇩🇪 DE | 158.160.17.171 (2)
   type: vless
   server: 158.160.17.171
   port: 443
-  uuid: 394ad4c2-efff-4bc7-86ff-e20ba599c50c
-  udp: true
-  skip-cert-verify: true
-  encryption: none
-  sni: ads.x5.ru
-- name: 🇨🇭 CH | 185.130.114.211
-  type: vless
-  server: 185.130.114.211
-  port: 443
-  uuid: 4099a934-23f6-421a-8591-2e666238d101
-  udp: true
-  skip-cert-verify: true
-  encryption: none
-  sni: yandex.ru
-- name: 🇩🇪 DE | 51.250.47.193 (3)
-  type: vless
-  server: 51.250.47.193
-  port: 443
-  uuid: 394ad4c2-efff-4bc7-86ff-e20ba599c50c
-  udp: true
-  skip-cert-verify: true
-  encryption: none
-  sni: ads.x5.ru
-- name: 🇩🇪 DE | 158.160.17.171 (3)
-  type: vless
-  server: 158.160.17.171
-  port: 443
-  uuid: 394ad4c2-efff-4bc7-86ff-e20ba599c50c
+  uuid: a1533a8f-cc88-46ff-99f5-e43a393a29e5
   udp: true
   skip-cert-verify: true
   encryption: none
   sni: api-maps.yandex.ru
-- name: 🇩🇪 DE | 185.229.9.8
+- name: 🇩🇪 DE | 51.250.4.238 (3)
   type: vless
-  server: 185.229.9.8
+  server: 51.250.4.238
   port: 443
-  uuid: c7795be0-e1aa-4713-9a02-6cb946bf5c39
+  uuid: a1533a8f-cc88-46ff-99f5-e43a393a29e5
   udp: true
   skip-cert-verify: true
   encryption: none
-  sni: ads.x5.ru
-- name: 🇩🇪 DE | 51.250.70.186
-  type: vless
-  server: 51.250.70.186
-  port: 443
-  uuid: c7795be0-e1aa-4713-9a02-6cb946bf5c39
-  udp: true
-  skip-cert-verify: true
-  encryption: none
-  sni: yandex.ru
+  sni: max.ru
 - name: 🇩🇪 DE | 84.201.153.33
   type: vless
   server: 84.201.153.33
   port: 443
-  uuid: 394ad4c2-efff-4bc7-86ff-e20ba599c50c
+  uuid: a1533a8f-cc88-46ff-99f5-e43a393a29e5
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: smartcaptcha.yandexcloud.net
+- name: 🇩🇪 DE | 51.250.47.193 (3)
+  type: vless
+  server: 51.250.47.193
+  port: 443
+  uuid: a1533a8f-cc88-46ff-99f5-e43a393a29e5
   udp: true
   skip-cert-verify: true
   encryption: none
@@ -184,20 +148,29 @@ proxies:
   type: vless
   server: 84.201.153.33
   port: 443
-  uuid: 394ad4c2-efff-4bc7-86ff-e20ba599c50c
-  udp: true
-  skip-cert-verify: true
-  encryption: none
-  sni: smartcaptcha.yandexcloud.net
-- name: 🇩🇪 DE | 84.201.153.33 (3)
-  type: vless
-  server: 84.201.153.33
-  port: 443
-  uuid: 394ad4c2-efff-4bc7-86ff-e20ba599c50c
+  uuid: a1533a8f-cc88-46ff-99f5-e43a393a29e5
   udp: true
   skip-cert-verify: true
   encryption: none
   sni: ads.x5.ru
+- name: 🇩🇪 DE | 84.201.153.33 (3)
+  type: vless
+  server: 84.201.153.33
+  port: 443
+  uuid: a1533a8f-cc88-46ff-99f5-e43a393a29e5
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: api-maps.yandex.ru
+- name: 🇩🇪 DE | 158.160.17.171 (3)
+  type: vless
+  server: 158.160.17.171
+  port: 443
+  uuid: a1533a8f-cc88-46ff-99f5-e43a393a29e5
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: smartcaptcha.yandexcloud.net
 - name: 🇫🇮 FI | fi1.vitok.cc
   type: vless
   server: fi1.vitok.cc
@@ -207,24 +180,6 @@ proxies:
   skip-cert-verify: true
   encryption: none
   sni: sberbank.ru
-- name: 🇩🇪 DE | 51.250.4.238 (2)
-  type: vless
-  server: 51.250.4.238
-  port: 443
-  uuid: 394ad4c2-efff-4bc7-86ff-e20ba599c50c
-  udp: true
-  skip-cert-verify: true
-  encryption: none
-  sni: yandex.ru
-- name: 🇩🇪 DE | 51.250.70.186 (2)
-  type: vless
-  server: 51.250.70.186
-  port: 443
-  uuid: c7795be0-e1aa-4713-9a02-6cb946bf5c39
-  udp: true
-  skip-cert-verify: true
-  encryption: none
-  sni: max.ru
 - name: 🇰🇿 KZ | 38.180.39.171
   type: vless
   server: 38.180.39.171
@@ -234,6 +189,18 @@ proxies:
   skip-cert-verify: true
   encryption: none
   sni: web.max.ru
+- name: 🇫🇮 FI | 31.76.80.76
+  type: vless
+  server: 31.76.80.76
+  port: 443
+  uuid: 9dcf8c2a-1f2d-431b-9df3-824297921734
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: stats.vk-portal.net
+  network: grpc
+  grpc-opts:
+    grpc-service-name: ''
 - name: 🇰🇿 KZ | vpnv1.aspidnet.xyz
   type: vless
   server: vpnv1.aspidnet.xyz
@@ -243,56 +210,32 @@ proxies:
   skip-cert-verify: true
   encryption: none
   sni: web.max.ru
-- name: 🇩🇪 DE | 51.250.70.186 (3)
-  type: vless
-  server: 51.250.70.186
-  port: 443
-  uuid: c7795be0-e1aa-4713-9a02-6cb946bf5c39
-  udp: true
-  skip-cert-verify: true
-  encryption: none
-  sni: www.vk.com
-- name: 🇩🇪 DE | 51.250.4.238 (3)
-  type: vless
-  server: 51.250.4.238
-  port: 443
-  uuid: 394ad4c2-efff-4bc7-86ff-e20ba599c50c
-  udp: true
-  skip-cert-verify: true
-  encryption: none
-  sni: www.vk.com
 proxy-groups:
 - name: 🚀 Авто-выбор
   type: url-test
   proxies:
   - 🇳🇱 NL | 144.31.30.69
-  - 🇷🇴 RO | 195.74.93.254
   - 🇳🇱 NL | 146.19.254.109
-  - 🇫🇮 FI | 31.76.80.76
+  - 🇳🇱 NL | 146.19.254.109 (2)
+  - 🇷🇴 RO | 195.74.93.254
   - 🇷🇴 RO | 93.114.194.131
-  - 🇨🇭 CH | 185.130.115.132
-  - 🇫🇮 FI | 62.60.255.11
   - 🇩🇪 DE | 51.250.47.193
-  - 🇨🇭 CH | 51.250.47.219
-  - 🇩🇪 DE | 158.160.17.171
   - 🇩🇪 DE | 51.250.4.238
+  - 🇫🇮 FI | 62.60.255.11
+  - 🇩🇪 DE | 51.250.4.238 (2)
+  - 🇩🇪 DE | 158.160.17.171
   - 🇩🇪 DE | 51.250.47.193 (2)
   - 🇩🇪 DE | 158.160.17.171 (2)
-  - 🇨🇭 CH | 185.130.114.211
-  - 🇩🇪 DE | 51.250.47.193 (3)
-  - 🇩🇪 DE | 158.160.17.171 (3)
-  - 🇩🇪 DE | 185.229.9.8
-  - 🇩🇪 DE | 51.250.70.186
+  - 🇩🇪 DE | 51.250.4.238 (3)
   - 🇩🇪 DE | 84.201.153.33
+  - 🇩🇪 DE | 51.250.47.193 (3)
   - 🇩🇪 DE | 84.201.153.33 (2)
   - 🇩🇪 DE | 84.201.153.33 (3)
+  - 🇩🇪 DE | 158.160.17.171 (3)
   - 🇫🇮 FI | fi1.vitok.cc
-  - 🇩🇪 DE | 51.250.4.238 (2)
-  - 🇩🇪 DE | 51.250.70.186 (2)
   - 🇰🇿 KZ | 38.180.39.171
+  - 🇫🇮 FI | 31.76.80.76
   - 🇰🇿 KZ | vpnv1.aspidnet.xyz
-  - 🇩🇪 DE | 51.250.70.186 (3)
-  - 🇩🇪 DE | 51.250.4.238 (3)
   url: http://www.gstatic.com/generate_204
   interval: 300
 - name: 🌍 Прокси
@@ -300,32 +243,26 @@ proxy-groups:
   proxies:
   - 🚀 Авто-выбор
   - 🇳🇱 NL | 144.31.30.69
-  - 🇷🇴 RO | 195.74.93.254
   - 🇳🇱 NL | 146.19.254.109
-  - 🇫🇮 FI | 31.76.80.76
+  - 🇳🇱 NL | 146.19.254.109 (2)
+  - 🇷🇴 RO | 195.74.93.254
   - 🇷🇴 RO | 93.114.194.131
-  - 🇨🇭 CH | 185.130.115.132
-  - 🇫🇮 FI | 62.60.255.11
   - 🇩🇪 DE | 51.250.47.193
-  - 🇨🇭 CH | 51.250.47.219
-  - 🇩🇪 DE | 158.160.17.171
   - 🇩🇪 DE | 51.250.4.238
+  - 🇫🇮 FI | 62.60.255.11
+  - 🇩🇪 DE | 51.250.4.238 (2)
+  - 🇩🇪 DE | 158.160.17.171
   - 🇩🇪 DE | 51.250.47.193 (2)
   - 🇩🇪 DE | 158.160.17.171 (2)
-  - 🇨🇭 CH | 185.130.114.211
-  - 🇩🇪 DE | 51.250.47.193 (3)
-  - 🇩🇪 DE | 158.160.17.171 (3)
-  - 🇩🇪 DE | 185.229.9.8
-  - 🇩🇪 DE | 51.250.70.186
+  - 🇩🇪 DE | 51.250.4.238 (3)
   - 🇩🇪 DE | 84.201.153.33
+  - 🇩🇪 DE | 51.250.47.193 (3)
   - 🇩🇪 DE | 84.201.153.33 (2)
   - 🇩🇪 DE | 84.201.153.33 (3)
+  - 🇩🇪 DE | 158.160.17.171 (3)
   - 🇫🇮 FI | fi1.vitok.cc
-  - 🇩🇪 DE | 51.250.4.238 (2)
-  - 🇩🇪 DE | 51.250.70.186 (2)
   - 🇰🇿 KZ | 38.180.39.171
+  - 🇫🇮 FI | 31.76.80.76
   - 🇰🇿 KZ | vpnv1.aspidnet.xyz
-  - 🇩🇪 DE | 51.250.70.186 (3)
-  - 🇩🇪 DE | 51.250.4.238 (3)
 rules:
 - MATCH,🌍 Прокси
