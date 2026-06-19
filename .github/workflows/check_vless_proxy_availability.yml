@@ -302,11 +302,10 @@ jobs:
               return False
 
           async def test_url(session, proxy, url):
-              """Тестирует один URL"""
               try:
                   async with session.get(url, proxy=proxy, timeout=aiohttp.ClientTimeout(total=6)) as resp:
                       if resp.status in (200, 204, 301, 302):
-                          if 'ipify' in url or 'geoip' in url:
+                          if 'geoip' in url or 'ipify' in url:
                               return await resp.text()
                           return True
               except:
@@ -314,9 +313,6 @@ jobs:
               return False
 
           async def improved_test_proxy_async(port):
-              """
-              Асинхронная проверка прокси для белых списков РФ
-              """
               urls = [
                   'https://www.google.com/generate_204',
                   'https://x.com',
@@ -420,7 +416,6 @@ jobs:
               try:
                   if not wait_port(local_port): return None
                   
-                  # Асинхронная проверка
                   loop = asyncio.new_event_loop()
                   asyncio.set_event_loop(loop)
                   try:
@@ -494,11 +489,28 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Добавляем файлы
           git add githubmirror/26_proxy_subscription_raw.txt githubmirror/26_proxy_subscription_base64.txt
+          
+          # Проверяем есть ли изменения
           if git diff --staged --quiet; then
             echo "No changes to commit"
-          else
-            git commit -m "🔄 Auto-update proxy list [$(date -u +'%Y-%m-%d %H:%M UTC')]"
-            git pull --rebase origin main
-            git push origin main
+            exit 0
           fi
+          
+          # Коммитим изменения
+          git commit -m "🔄 Auto-update proxy list [$(date -u +'%Y-%m-%d %H:%M UTC')]"
+          
+          # Пробуем запушить с rebase
+          git pull --rebase origin main || {
+            echo "Rebase failed, resetting and retrying with force push"
+            git rebase --abort 2>/dev/null || true
+            git fetch origin main
+            git reset --soft origin/main
+            git add githubmirror/26_proxy_subscription_raw.txt githubmirror/26_proxy_subscription_base64.txt
+            git commit -m "🔄 Auto-update proxy list [$(date -u +'%Y-%m-%d %H:%M UTC')]"
+          }
+          
+          # Пушим
+          git push origin main
