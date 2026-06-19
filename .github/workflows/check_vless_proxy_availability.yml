@@ -346,7 +346,7 @@ jobs:
                   if not cfg: return None
                   
                   # Базовые проверки
-                  if cfg['port'] not in [443, 8443, 2053, 2083, 2087, 2096]: return None
+                  if cfg['port'] not in [443]: return None
                   if cfg['flow'] not in ALLOWED_FLOWS: return None
                   if cfg['fp'] not in ALLOWED_FP: return None
                   if cfg['net'] not in ALLOWED_NETWORKS: return None
