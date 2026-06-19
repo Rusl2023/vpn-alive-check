@@ -5,6 +5,10 @@ on:
     - cron: '*/30 * * * *'  
   workflow_dispatch:
 
+concurrency:
+  group: proxy-check
+  cancel-in-progress: true
+
 jobs:
   check-proxies:
     runs-on: ubuntu-latest
@@ -27,7 +31,7 @@ jobs:
 
       - name: Download xray
         run: |
-          wget -q https://github.com/XTLS/Xray-core/releases/download/v1.8.21/Xray-linux-64.zip
+          wget -q https://github.com/XTLS/Xray-core/releases/download/v26.6.1/Xray-linux-64.zip -O Xray-linux-64.zip
           unzip -o Xray-linux-64.zip
           chmod +x xray
 
@@ -41,7 +45,7 @@ jobs:
 
           # --- CONFIGURATION ---
           MAX_WORKERS = 35
-          TIMEOUT = 6
+          TIMEOUT = 8
           XRAY = "./xray"
           GEO_DB = "GeoLite2-Country.mmdb"
 
@@ -49,15 +53,12 @@ jobs:
               "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt",
               "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile-2.txt",
               "https://raw.githubusercontent.com/GoldCaviar/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt",
-              "https://raw.githubusercontent.com/zieng2/wl/main/vless_lite.txt",
-              "https://key.zarazaex.xyz/sub",
-              "https://gitverse.ru/api/repos/RUVIPIEN/russian-white-bolt/raw/branch/master/VPNMIRRORS/v2ray/VLESS_Reality_White_3eac2d.txt",
-              "https://raw.githubusercontent.com/EtoNeYaProject/EtoNeYaProject.github.io/refs/heads/main/whitelist",
-              "https://raw.githubusercontent.com/kort0881/vpn-vless-configs-russia/main/githubmirror/clean/vless.txt",
               "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/WHITE-CIDR-RU-all.txt",
               "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/WHITE-SNI-RU-all.txt",
               "https://raw.githubusercontent.com/whoahaow/rjsxrd/refs/heads/main/githubmirror/bypass/bypass-all.txt",
-              "https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt"
+              "https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt",
+              "https://raw.githubusercontent.com/VOID-Anonymity/V.O.I.D-VPN_Bypass/refs/heads/main/url_work.txt",
+              "https://raw.githubusercontent.com/jsxta/whitelist-russia/main/subscription.txt"
           ]
 
           RU_SNI_URLS = [
@@ -74,8 +75,10 @@ jobs:
 
           WHITE_IP_URL = "https://raw.githubusercontent.com/openlibrecommunity/twl/main/code/subnet/out/subnets.json"
 
-          ALLOWED_FP = {"chrome", "firefox", "random", "randomized"}
+          ALLOWED_FP = {"chrome", "firefox", "qq", "random", "randomized"}
           ALLOWED_FLOWS = {'xtls-rprx-vision', 'xtls-rprx-vision-udp443', ''}
+          ALLOWED_NETWORKS = {'tcp', 'grpc', 'xhttp', 'ws'}
+          PREFERRED_SNI = {'yandex.ru', 'vk.com', 'rutube.ru', 'max.ru', 'apple.com', 'microsoft.com', 'google.com'}
 
           FLAGS = {
               'AD': '🇦🇩', 'AE': '🇦🇪', 'AF': '🇦🇫', 'AG': '🇦🇬', 'AI': '🇦🇮', 'AL': '🇦🇱', 'AM': '🇦🇲', 'AO': '🇦🇴', 'AQ': '🇦🇶', 'AR': '🇦🇷',
@@ -238,6 +241,9 @@ jobs:
                       'pbk': q.get('pbk', [''])[0],
                       'sid': q.get('sid', [''])[0],
                       'flow': q.get('flow', [''])[0],
+                      'serviceName': q.get('serviceName', [''])[0],
+                      'path': q.get('path', ['/'])[0],
+                      'alpn': q.get('alpn', [''])[0],
                       'original': link
                   }
               except:
@@ -245,6 +251,7 @@ jobs:
 
           def build_xray_cfg(cfg, local_port):
               stream = {'network': cfg['net'], 'security': 'none'}
+              
               if cfg['security'] == 'reality':
                   stream['security'] = 'reality'
                   stream['realitySettings'] = {
@@ -253,6 +260,20 @@ jobs:
                       'shortId': cfg['sid'],
                       'fingerprint': cfg['fp']
                   }
+              elif cfg['security'] == 'tls':
+                  stream['security'] = 'tls'
+                  stream['tlsSettings'] = {
+                      'serverName': cfg['sni'],
+                      'fingerprint': cfg['fp']
+                  }
+              
+              if cfg['net'] == 'grpc':
+                  stream['grpcSettings'] = {'serviceName': cfg.get('serviceName', '')}
+              elif cfg['net'] == 'ws':
+                  stream['wsSettings'] = {'path': cfg.get('path', '/')}
+              elif cfg['net'] == 'xhttp':
+                  stream['xhttpSettings'] = {'path': cfg.get('path', '/')}
+              
               return {
                   "inbounds": [{"listen": "127.0.0.1", "port": local_port, "protocol": "socks", "settings": {"auth": "noauth", "udp": False}}],
                   "outbounds": [{
@@ -267,7 +288,7 @@ jobs:
                   s.bind(('', 0))
                   return s.getsockname()[1]
 
-          def wait_port(port, retries=30):
+          def wait_port(port, retries=40):
               for _ in range(retries):
                   try:
                       socket.create_connection(("127.0.0.1", port), timeout=0.5)
@@ -278,20 +299,24 @@ jobs:
 
           def improved_test_proxy(port):
               urls = [
+                  'https://www.google.com/generate_204',
                   'https://www.youtube.com/generate_204',
-                  'https://speed.cloudflare.com/__down?bytes=200000',
-                  'https://api.ipify.org',
-                  'https://www.google.com/generate_204'
+                  'https://vk.com',
+                  'https://yandex.ru',
+                  'https://rutube.ru',
+                  'https://speed.cloudflare.com/__down?bytes=100000',
+                  'https://api.ipify.org'
               ]
+              success_count = 0
               for url in urls:
                   try:
-                      cmd = ['curl', '-s', '--max-time', '10', '-x', f'socks5h://127.0.0.1:{port}', '-o', '/dev/null', '-w', '%{http_code}', url]
-                      res = subprocess.run(cmd, capture_output=True, text=True, timeout=12)
-                      if res.returncode != 0 or res.stdout.strip() not in ('200', '204'):
-                          return False
+                      cmd = ['curl', '-s', '--max-time', '8', '-x', f'socks5h://127.0.0.1:{port}', '-o', '/dev/null', '-w', '%{http_code}', url]
+                      res = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
+                      if res.returncode == 0 and res.stdout.strip() in ('200', '204', '301', '302'):
+                          success_count += 1
                   except:
-                      return False
-              return True
+                      pass
+              return success_count >= 3
 
           def get_exit_ip(port):
               try:
@@ -309,12 +334,39 @@ jobs:
           def check_one(link):
               try:
                   cfg = parse_vless(link)
-                  if not cfg or cfg['port'] != 443: return None
-                  if cfg['flow'] not in ALLOWED_FLOWS or cfg['fp'] not in ALLOWED_FP: return None
+                  if not cfg: return None
+                  
+                  # Базовые проверки
+                  if cfg['port'] not in [443, 8443, 2053, 2083, 2087, 2096]: return None
+                  if cfg['flow'] not in ALLOWED_FLOWS: return None
+                  if cfg['fp'] not in ALLOWED_FP: return None
+                  if cfg['net'] not in ALLOWED_NETWORKS: return None
+                  
+                  # Reality checks
+                  if cfg['security'] == 'reality':
+                      if not cfg['pbk'] or not cfg['sni']: return None
+                      sni_lower = cfg['sni'].lower() if cfg['sni'] else ''
+                      if sni_lower not in sni_wl and sni_lower not in PREFERRED_SNI:
+                          return None
+                  
+                  # DNS и TCP проверка
                   ip = resolve(cfg['hostname'])
                   if not ip or not tcp_check(ip, cfg['port']): return None
-                  sni = cfg['sni'].lower() if cfg['sni'] else ''
-                  is_white = (sni in sni_wl or ip in white_ips_set or ip_in(ip, cidr_wl) or ip_in(ip, white_cidrs))
+                  
+                  # White list check
+                  sni_lower = cfg['sni'].lower() if cfg['sni'] else ''
+                  is_white = (
+                      sni_lower in sni_wl or 
+                      sni_lower in PREFERRED_SNI or
+                      ip in white_ips_set or 
+                      ip_in(ip, cidr_wl) or 
+                      ip_in(ip, white_cidrs)
+                  )
+                  
+                  # Для Reality строго требуем white list
+                  if cfg['security'] == 'reality' and not is_white:
+                      return None
+                      
                   return cfg if is_white else None
               except:
                   return None
@@ -329,6 +381,16 @@ jobs:
                   if res: valid_cfgs.append(res)
 
           print(f"Кандидатов после фильтра: {len(valid_cfgs)}")
+
+          # Сортируем: Reality с хорошими SNI в приоритете
+          def cfg_priority(cfg):
+              score = 0
+              if cfg['security'] == 'reality': score += 10
+              if cfg['sni'].lower() in PREFERRED_SNI: score += 5
+              if cfg['net'] in ['grpc', 'xhttp']: score += 3
+              return -score
+
+          valid_cfgs.sort(key=cfg_priority)
 
           good_links = []
 
@@ -347,7 +409,9 @@ jobs:
                   cc = get_country(exit_ip)
                   if cc == 'RU': return None
                   flag = get_flag(cc)
-                  mark = f"{flag} {cc} | {cfg['hostname']}"
+                  net_info = f"[{cfg['net']}]" if cfg['net'] != 'tcp' else ""
+                  reality_info = "[R]" if cfg['security'] == 'reality' else ""
+                  mark = f"{flag} {cc} {reality_info}{net_info} | {cfg['hostname']}"
                   return cfg['original'] + '#' + mark
               finally:
                   proc.terminate()
@@ -358,7 +422,7 @@ jobs:
 
           print(f"Запускаем полный тест для {len(valid_cfgs)}...")
           tested = []
-          test_workers = min(15, len(valid_cfgs)) if valid_cfgs else 1
+          test_workers = min(12, max(3, len(valid_cfgs) // 2)) if valid_cfgs else 1
           with ThreadPoolExecutor(max_workers=test_workers) as executor:
               futures = {executor.submit(test_cfg, cfg): cfg for cfg in valid_cfgs}
               for future in as_completed(futures):
@@ -367,15 +431,17 @@ jobs:
                       tested.append(link)
                       print(f"✅ {link.split('#')[-1]}")
 
+          # Дедупликация по (hostname, sni, id, pbk)
           dedup = {}
           for link in tested:
               cfg = parse_vless(link)
               if cfg:
-                  key = (cfg['hostname'], cfg.get('sni',''), cfg['id'])
+                  key = (cfg['hostname'], cfg.get('sni',''), cfg['id'], cfg.get('pbk',''))
                   if key not in dedup:
                       dedup[key] = link
           final_links = list(dedup.values())
 
+          # Сохраняем результаты
           raw_path = "githubmirror/26_proxy_subscription_raw.txt"
           b64_path = "githubmirror/26_proxy_subscription_base64.txt"
 
@@ -388,7 +454,18 @@ jobs:
           with open(b64_path, 'w', encoding='utf-8') as f:
               f.write(b64_content)
 
-          print(f"Готово! Хороших ключей: {len(final_links)}")
+          # Статистика
+          reality_count = sum(1 for l in final_links if 'reality' in (parse_vless(l) or {}).get('security', ''))
+          grpc_count = sum(1 for l in final_links if (parse_vless(l) or {}).get('net') == 'grpc')
+          xhttp_count = sum(1 for l in final_links if (parse_vless(l) or {}).get('net') == 'xhttp')
+          
+          print(f"\n{'='*50}")
+          print(f"✅ ГОТОВО! Рабочих ключей: {len(final_links)}")
+          print(f"📊 Статистика: Reality={reality_count} | gRPC={grpc_count} | XHTTP={xhttp_count}")
+          print(f"📁 Файлы сохранены:")
+          print(f"   • {raw_path}")
+          print(f"   • {b64_path}")
+          print(f"{'='*50}")
           PYTHON_EOF
 
       - name: Commit and push updated files
@@ -399,6 +476,6 @@ jobs:
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "🔄 Auto-update proxy list [skip ci]"
-            git push origin main --force
+            git commit -m "🔄 Auto-update proxy list [$(date -u +'%Y-%m-%d %H:%M UTC')]"
+            git push origin main
           fi
