@@ -24,7 +24,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install requests geoip2
+          pip install requests geoip2 aiohttp
 
       - name: Download GeoIP database
         run: |
@@ -40,10 +40,11 @@ jobs:
         timeout-minutes: 20
         run: |
           python3 << 'PYTHON_EOF'
-          import os, socket, urllib.parse, requests, random, ipaddress, subprocess, time, json, base64, re
+          import os, socket, urllib.parse, requests, random, ipaddress, subprocess, time, json, base64, re, asyncio
           from concurrent.futures import ThreadPoolExecutor, as_completed
           from threading import Lock
           import geoip2.database
+          import aiohttp
 
           # --- CONFIGURATION ---
           MAX_WORKERS = 30
@@ -300,40 +301,51 @@ jobs:
                       time.sleep(0.3)
               return False
 
-          def improved_test_proxy(port):
+          async def test_url(session, proxy, url):
+              """Тестирует один URL"""
+              try:
+                  async with session.get(url, proxy=proxy, timeout=aiohttp.ClientTimeout(total=6)) as resp:
+                      if resp.status in (200, 204, 301, 302):
+                          if 'ipify' in url or 'geoip' in url:
+                              return await resp.text()
+                          return True
+              except:
+                  pass
+              return False
+
+          async def improved_test_proxy_async(port):
+              """
+              Асинхронная проверка прокси для белых списков РФ
+              """
               urls = [
                   'https://www.google.com/generate_204',
-                  'https://vk.com',
+                  'https://x.com',
                   'https://yandex.ru',
                   'https://api.ip.sb/geoip'
               ]
-              success = 0
-              for url in urls:
-                  try:
-                      cmd = ['curl', '-s', '--max-time', '6', '-x', f'socks5h://127.0.0.1:{port}', 
-                             '-o', '/dev/null', '-w', '%{http_code}', url]
-                      res = subprocess.run(cmd, capture_output=True, text=True, timeout=8)
-                      if res.returncode == 0 and res.stdout.strip() in ('200', '204', '301', '302'):
-                          success += 1
-                  except:
-                      pass
-              return success >= 2
-
-          def get_exit_ip(port):
-              try:
-                  cmd = ['curl', '-s', '--max-time', '6', '-x', f'socks5h://127.0.0.1:{port}', 'https://api.ip.sb/geoip']
-                  res = subprocess.run(cmd, capture_output=True, text=True, timeout=8)
-                  if res.returncode == 0:
-                      data = json.loads(res.stdout)
-                      return data.get('ip', res.stdout.strip())
+              
+              proxy = f"socks5h://127.0.0.1:{port}"
+              timeout = aiohttp.ClientTimeout(total=8)
+              
+              async with aiohttp.ClientSession(timeout=timeout) as session:
+                  tasks = [test_url(session, proxy, url) for url in urls]
+                  results = await asyncio.gather(*tasks, return_exceptions=True)
+                  
+                  success = sum(1 for r in results if r is True)
+                  exit_ip = None
+                  
+                  for r in results:
+                      if isinstance(r, str):
+                          try:
+                              data = json.loads(r)
+                              exit_ip = data.get('ip', r)
+                          except:
+                              exit_ip = r.strip()
+                          break
+                  
+                  if success >= 2 or exit_ip:
+                      return exit_ip
                   return None
-              except:
-                  try:
-                      cmd = ['curl', '-s', '--max-time', '6', '-x', f'socks5h://127.0.0.1:{port}', 'https://api.ipify.org']
-                      res = subprocess.run(cmd, capture_output=True, text=True, timeout=8)
-                      return res.stdout.strip() if res.returncode == 0 else None
-                  except:
-                      return None
 
           sni_wl = load_multi_set(RU_SNI_URLS)
           cidr_wl = load_multi_cidr(RU_CIDR_URLS)
@@ -345,24 +357,20 @@ jobs:
                   cfg = parse_vless(link)
                   if not cfg: return None
                   
-                  # Базовые проверки
                   if cfg['port'] not in [443]: return None
                   if cfg['flow'] not in ALLOWED_FLOWS: return None
                   if cfg['fp'] not in ALLOWED_FP: return None
                   if cfg['net'] not in ALLOWED_NETWORKS: return None
                   
-                  # Reality checks
                   if cfg['security'] == 'reality':
                       if not cfg['pbk'] or not cfg['sni']: return None
                       sni_lower = cfg['sni'].lower() if cfg['sni'] else ''
                       if sni_lower not in sni_wl and sni_lower not in PREFERRED_SNI:
                           return None
                   
-                  # DNS и TCP проверка
                   ip = resolve(cfg['hostname'])
                   if not ip or not tcp_check(ip, cfg['port']): return None
                   
-                  # White list check
                   sni_lower = cfg['sni'].lower() if cfg['sni'] else ''
                   is_white = (
                       sni_lower in sni_wl or 
@@ -372,7 +380,6 @@ jobs:
                       ip_in(ip, white_cidrs)
                   )
                   
-                  # Для Reality строго требуем white list
                   if cfg['security'] == 'reality' and not is_white:
                       return None
                       
@@ -391,7 +398,6 @@ jobs:
 
           print(f"Кандидатов после фильтра: {len(valid_cfgs)}")
 
-          # Сортируем: Reality с хорошими SNI в приоритете
           def cfg_priority(cfg):
               score = 0
               if cfg['security'] == 'reality': score += 10
@@ -413,9 +419,17 @@ jobs:
               proc = subprocess.Popen([XRAY, 'run', '-c', cfg_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
               try:
                   if not wait_port(local_port): return None
-                  if not improved_test_proxy(local_port): return None
-                  exit_ip = get_exit_ip(local_port)
+                  
+                  # Асинхронная проверка
+                  loop = asyncio.new_event_loop()
+                  asyncio.set_event_loop(loop)
+                  try:
+                      exit_ip = loop.run_until_complete(improved_test_proxy_async(local_port))
+                  finally:
+                      loop.close()
+                  
                   if not exit_ip: return None
+                  
                   cc = get_country(exit_ip)
                   if cc == 'RU': return None
                   flag = get_flag(cc)
@@ -442,7 +456,6 @@ jobs:
                       tested.append(link)
                       print(f"✅ {link.split('#')[-1]}")
 
-          # Дедупликация по (hostname, sni, id, pbk)
           dedup = {}
           for link in tested:
               cfg = parse_vless(link)
@@ -452,7 +465,6 @@ jobs:
                       dedup[key] = link
           final_links = list(dedup.values())
 
-          # Сохраняем результаты
           raw_path = "githubmirror/26_proxy_subscription_raw.txt"
           b64_path = "githubmirror/26_proxy_subscription_base64.txt"
 
@@ -465,7 +477,6 @@ jobs:
           with open(b64_path, 'w', encoding='utf-8') as f:
               f.write(b64_content)
 
-          # Статистика
           reality_count = sum(1 for l in final_links if (parse_vless(l) or {}).get('security') == 'reality')
           grpc_count = sum(1 for l in final_links if (parse_vless(l) or {}).get('net') == 'grpc')
           xhttp_count = sum(1 for l in final_links if (parse_vless(l) or {}).get('net') == 'xhttp')
