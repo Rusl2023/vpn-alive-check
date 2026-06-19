@@ -1,80 +1,65 @@
-# Обновлено: 2026-06-19 17:29 UTC
-# Всего в источнике: 22
-# Живых серверов: 20
+# Обновлено: 2026-06-19 19:14 UTC
+# Всего в источнике: 13
+# Живых серверов: 13
 # Источник: 26_proxy_subscription_raw.txt
 proxies:
-- name: 🇳🇱 NL [R] | 144.124.253.4
+- name: 🇺🇸 US [R][grpc] | 45.90.12.239
   type: vless
-  server: 144.124.253.4
+  server: 45.90.12.239
+  port: 443
+  uuid: ad546c31-82ec-4558-ac49-5ce28883b59f
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: apple.com
+  network: grpc
+  grpc-opts:
+    grpc-service-name: xyz
+- name: 🇩🇪 DE [R] | 23.26.37.120
+  type: vless
+  server: 23.26.37.120
   port: 8443
-  uuid: 1cb91b20-49cc-59ff-8393-91808a4deede
+  uuid: dcba77d7-bb59-4802-b32c-37fd7011fca4
   udp: true
   skip-cert-verify: true
   encryption: none
-  sni: www.ozon.ru
-- name: 🇷🇴 RO [R] | 195.74.93.254
+  sni: google.com
+- name: 🇳🇱 NL [R] | 195.184.247.170
   type: vless
-  server: 195.74.93.254
+  server: 195.184.247.170
   port: 443
-  uuid: eedcee2e-7517-4162-852d-b21b864b8e3f
+  uuid: ea0a2f27-7e22-4337-820b-6703eca2d7b4
   udp: true
   skip-cert-verify: true
   encryption: none
-  sni: web.max.ru
-- name: 🇷🇴 RO [R] | 195.74.93.254 (2)
+  sni: google.com
+- name: 🇳🇱 NL [R] | 195.184.247.178
   type: vless
-  server: 195.74.93.254
+  server: 195.184.247.178
   port: 443
-  uuid: db2b7549-a616-4d83-a4bf-51eda70ff82c
+  uuid: ea0a2f27-7e22-4337-820b-6703eca2d7b4
   udp: true
   skip-cert-verify: true
   encryption: none
-  sni: web.max.ru
-- name: 🇷🇴 RO [R] | 195.74.93.254 (3)
+  sni: google.com
+- name: 🇩🇪 DE [R] | 23.26.37.121
   type: vless
-  server: 195.74.93.254
-  port: 443
-  uuid: 451ccfb4-4d9f-4d16-a748-48862ff46b86
-  udp: true
-  skip-cert-verify: true
-  encryption: none
-  sni: web.max.ru
-- name: 🇩🇪 DE [R] | 178.215.238.148
-  type: vless
-  server: 178.215.238.148
+  server: 23.26.37.121
   port: 8443
-  uuid: 21c1132b-068c-46fb-880e-3268f6a30e7f
+  uuid: dcba77d7-bb59-4802-b32c-37fd7011fca4
   udp: true
   skip-cert-verify: true
   encryption: none
-  sni: eh.vk.com
-- name: 🇳🇱 NL [R] | 144.31.30.69
+  sni: google.com
+- name: 🇩🇪 DE [R] | 23.26.37.119
   type: vless
-  server: 144.31.30.69
-  port: 443
-  uuid: f90cc83a-97ce-446d-8f80-30d3eef3351c
+  server: 23.26.37.119
+  port: 8443
+  uuid: dcba77d7-bb59-4802-b32c-37fd7011fca4
   udp: true
   skip-cert-verify: true
   encryption: none
-  sni: eh.vk.com
-- name: 🇷🇴 RO [R] | 195.74.93.254 (4)
-  type: vless
-  server: 195.74.93.254
-  port: 443
-  uuid: 146eb6cf-a99c-4022-85ca-022cf81502dc
-  udp: true
-  skip-cert-verify: true
-  encryption: none
-  sni: web.max.ru
-- name: 🇸🇪 SE [R] | 70.34.194.57
-  type: vless
-  server: 70.34.194.57
-  port: 443
-  uuid: 1b9e301d-cecd-4eb1-8b36-eef811c2696d
-  udp: true
-  skip-cert-verify: true
-  encryption: none
-  sni: yastatic.net
+  sni: google.com
 - name: 🇫🇮 FI [R][grpc] | 132.243.223.219
   type: vless
   server: 132.243.223.219
@@ -87,104 +72,56 @@ proxies:
   network: grpc
   grpc-opts:
     grpc-service-name: max.ru
-- name: 🇫🇮 FI [R] | 62.60.255.11
+- name: 🇺🇸 US [R] | 150.241.101.222
   type: vless
-  server: 62.60.255.11
+  server: 150.241.101.222
   port: 443
-  uuid: ad8a53f2-b109-4873-9156-fc3bcb0d7fe4
+  uuid: 749a5df1-2d12-45cf-80f3-f85ea6b2e405
   udp: true
   skip-cert-verify: true
   encryption: none
-  sni: ya.ru
-- name: 🇳🇱 NL [R] | 45.81.35.125
+  sni: google.com
+- name: 🇫🇮 FI [R] | 150.241.71.35
   type: vless
-  server: 45.81.35.125
-  port: 8443
-  uuid: 5f3b432c-1e4d-4aef-bf55-394ed64eaa6a
-  udp: true
-  skip-cert-verify: true
-  encryption: none
-  sni: eh.vk.com
-- name: 🇸🇪 SE [R] | se1.vitok.cc
-  type: vless
-  server: se1.vitok.cc
+  server: 150.241.71.35
   port: 443
-  uuid: 1b9e301d-cecd-4eb1-8b36-eef811c2696d
+  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
   udp: true
   skip-cert-verify: true
   encryption: none
-  sni: yastatic.net
-- name: 🇷🇴 RO [R] | 93.114.194.131
+  sni: google.com
+- name: 🇩🇪 DE [R] | 144.31.217.99
   type: vless
-  server: 93.114.194.131
+  server: 144.31.217.99
   port: 443
-  uuid: 146eb6cf-a99c-4022-85ca-022cf81502dc
+  uuid: 749a5df1-2d12-45cf-80f3-f85ea6b2e405
   udp: true
   skip-cert-verify: true
   encryption: none
-  sni: web.max.ru
-- name: 🇵🇱 PL [R] | 144.31.1.83
+  sni: google.com
+- name: 🇺🇸 US [R] | 31.76.53.0
   type: vless
-  server: 144.31.1.83
+  server: 31.76.53.0
   port: 443
-  uuid: 281da500-0018-4991-b5d7-feb4ab627f3a
+  uuid: 749a5df1-2d12-45cf-80f3-f85ea6b2e405
   udp: true
   skip-cert-verify: true
   encryption: none
-  sni: sun9-35.userapi.com
-- name: 🇷🇴 RO [R] | 83.166.253.179
+  sni: google.com
+- name: 🇰🇿 KZ [R] | 178.236.17.86
   type: vless
-  server: 83.166.253.179
-  port: 443
-  uuid: 52b71b75-4b77-4cec-990b-046ec1938e1f
-  udp: true
-  skip-cert-verify: true
-  encryption: none
-  sni: sun6-21.userapi.com
-- name: 🇲🇩 MD [R][grpc] | md.riotvpn.eu
-  type: vless
-  server: md.riotvpn.eu
-  port: 8443
-  uuid: 84b504e4-a97f-40ab-93c3-a03a5f0ff36c
-  udp: true
-  skip-cert-verify: true
-  encryption: none
-  sni: avatars.mds.yandex.net
-  network: grpc
-  grpc-opts:
-    grpc-service-name: grpc-yandex
-- name: 🇰🇿 KZ [R] | 38.180.39.171
-  type: vless
-  server: 38.180.39.171
-  port: 443
-  uuid: 158d03db-e5d7-4540-a31c-b2daa7aa4964
-  udp: true
-  skip-cert-verify: true
-  encryption: none
-  sni: web.max.ru
-- name: 🇰🇿 KZ [R] | vpnv1.aspidnet.xyz
-  type: vless
-  server: vpnv1.aspidnet.xyz
-  port: 443
-  uuid: 158d03db-e5d7-4540-a31c-b2daa7aa4964
-  udp: true
-  skip-cert-verify: true
-  encryption: none
-  sni: web.max.ru
-- name: 🇳🇱 NL [R] | v546965.hosted-by-vdsina.com
-  type: vless
-  server: v546965.hosted-by-vdsina.com
-  port: 8443
-  uuid: 1cb91b20-49cc-59ff-8393-91808a4deede
-  udp: true
-  skip-cert-verify: true
-  encryption: none
-  sni: www.ozon.ru
-- name: 🇰🇿 KZ [R] | raff-vpn-kz-server1.ru
-  type: vless
-  server: raff-vpn-kz-server1.ru
+  server: 178.236.17.86
   port: 443
   uuid: 6fdfdb73-51b0-4a14-89a5-c9355a0e0397
+  udp: true
+  skip-cert-verify: true
+  encryption: none
+  sni: google.com
+- name: 🇩🇪 DE [R] | de.ko.prod.n7.homes
+  type: vless
+  server: de.ko.prod.n7.homes
+  port: 8443
+  uuid: dcba77d7-bb59-4802-b32c-37fd7011fca4
   udp: true
   skip-cert-verify: true
   encryption: none
@@ -193,51 +130,37 @@ proxy-groups:
 - name: 🚀 Авто-выбор
   type: url-test
   proxies:
-  - 🇳🇱 NL [R] | 144.124.253.4
-  - 🇷🇴 RO [R] | 195.74.93.254
-  - 🇷🇴 RO [R] | 195.74.93.254 (2)
-  - 🇷🇴 RO [R] | 195.74.93.254 (3)
-  - 🇩🇪 DE [R] | 178.215.238.148
-  - 🇳🇱 NL [R] | 144.31.30.69
-  - 🇷🇴 RO [R] | 195.74.93.254 (4)
-  - 🇸🇪 SE [R] | 70.34.194.57
+  - 🇺🇸 US [R][grpc] | 45.90.12.239
+  - 🇩🇪 DE [R] | 23.26.37.120
+  - 🇳🇱 NL [R] | 195.184.247.170
+  - 🇳🇱 NL [R] | 195.184.247.178
+  - 🇩🇪 DE [R] | 23.26.37.121
+  - 🇩🇪 DE [R] | 23.26.37.119
   - 🇫🇮 FI [R][grpc] | 132.243.223.219
-  - 🇫🇮 FI [R] | 62.60.255.11
-  - 🇳🇱 NL [R] | 45.81.35.125
-  - 🇸🇪 SE [R] | se1.vitok.cc
-  - 🇷🇴 RO [R] | 93.114.194.131
-  - 🇵🇱 PL [R] | 144.31.1.83
-  - 🇷🇴 RO [R] | 83.166.253.179
-  - 🇲🇩 MD [R][grpc] | md.riotvpn.eu
-  - 🇰🇿 KZ [R] | 38.180.39.171
-  - 🇰🇿 KZ [R] | vpnv1.aspidnet.xyz
-  - 🇳🇱 NL [R] | v546965.hosted-by-vdsina.com
-  - 🇰🇿 KZ [R] | raff-vpn-kz-server1.ru
+  - 🇺🇸 US [R] | 150.241.101.222
+  - 🇫🇮 FI [R] | 150.241.71.35
+  - 🇩🇪 DE [R] | 144.31.217.99
+  - 🇺🇸 US [R] | 31.76.53.0
+  - 🇰🇿 KZ [R] | 178.236.17.86
+  - 🇩🇪 DE [R] | de.ko.prod.n7.homes
   url: http://www.gstatic.com/generate_204
   interval: 300
 - name: 🌍 Прокси
   type: select
   proxies:
   - 🚀 Авто-выбор
-  - 🇳🇱 NL [R] | 144.124.253.4
-  - 🇷🇴 RO [R] | 195.74.93.254
-  - 🇷🇴 RO [R] | 195.74.93.254 (2)
-  - 🇷🇴 RO [R] | 195.74.93.254 (3)
-  - 🇩🇪 DE [R] | 178.215.238.148
-  - 🇳🇱 NL [R] | 144.31.30.69
-  - 🇷🇴 RO [R] | 195.74.93.254 (4)
-  - 🇸🇪 SE [R] | 70.34.194.57
+  - 🇺🇸 US [R][grpc] | 45.90.12.239
+  - 🇩🇪 DE [R] | 23.26.37.120
+  - 🇳🇱 NL [R] | 195.184.247.170
+  - 🇳🇱 NL [R] | 195.184.247.178
+  - 🇩🇪 DE [R] | 23.26.37.121
+  - 🇩🇪 DE [R] | 23.26.37.119
   - 🇫🇮 FI [R][grpc] | 132.243.223.219
-  - 🇫🇮 FI [R] | 62.60.255.11
-  - 🇳🇱 NL [R] | 45.81.35.125
-  - 🇸🇪 SE [R] | se1.vitok.cc
-  - 🇷🇴 RO [R] | 93.114.194.131
-  - 🇵🇱 PL [R] | 144.31.1.83
-  - 🇷🇴 RO [R] | 83.166.253.179
-  - 🇲🇩 MD [R][grpc] | md.riotvpn.eu
-  - 🇰🇿 KZ [R] | 38.180.39.171
-  - 🇰🇿 KZ [R] | vpnv1.aspidnet.xyz
-  - 🇳🇱 NL [R] | v546965.hosted-by-vdsina.com
-  - 🇰🇿 KZ [R] | raff-vpn-kz-server1.ru
+  - 🇺🇸 US [R] | 150.241.101.222
+  - 🇫🇮 FI [R] | 150.241.71.35
+  - 🇩🇪 DE [R] | 144.31.217.99
+  - 🇺🇸 US [R] | 31.76.53.0
+  - 🇰🇿 KZ [R] | 178.236.17.86
+  - 🇩🇪 DE [R] | de.ko.prod.n7.homes
 rules:
 - MATCH,🌍 Прокси
