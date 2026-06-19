@@ -12,6 +12,7 @@ concurrency:
 jobs:
   check-proxies:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -36,6 +37,7 @@ jobs:
           chmod +x xray
 
       - name: RUN Python filter & checker
+        timeout-minutes: 20
         run: |
           python3 << 'PYTHON_EOF'
           import os, socket, urllib.parse, requests, random, ipaddress, subprocess, time, json, base64, re
@@ -44,13 +46,16 @@ jobs:
           import geoip2.database
 
           # --- CONFIGURATION ---
-          MAX_WORKERS = 35
+          MAX_WORKERS = 30
           TIMEOUT = 8
           XRAY = "./xray"
           GEO_DB = "GeoLite2-Country.mmdb"
+          MAX_CANDIDATES = 75
+          TEST_WORKERS = 8
 
           CONFIG_URLS = [
               "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt",
+              "https://raw.githubusercontent.com/LimeHi/LimeVPN/main/LimeVPN.txt",
               "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile-2.txt",
               "https://raw.githubusercontent.com/GoldCaviar/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt",
               "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/WHITE-CIDR-RU-all.txt",
@@ -243,7 +248,6 @@ jobs:
                       'flow': q.get('flow', [''])[0],
                       'serviceName': q.get('serviceName', [''])[0],
                       'path': q.get('path', ['/'])[0],
-                      'alpn': q.get('alpn', [''])[0],
                       'original': link
                   }
               except:
@@ -288,7 +292,7 @@ jobs:
                   s.bind(('', 0))
                   return s.getsockname()[1]
 
-          def wait_port(port, retries=40):
+          def wait_port(port, retries=25):
               for _ in range(retries):
                   try:
                       socket.create_connection(("127.0.0.1", port), timeout=0.5)
@@ -300,28 +304,26 @@ jobs:
           def improved_test_proxy(port):
               urls = [
                   'https://www.google.com/generate_204',
-                  'https://www.youtube.com/generate_204',
                   'https://vk.com',
                   'https://yandex.ru',
-                  'https://rutube.ru',
-                  'https://speed.cloudflare.com/__down?bytes=100000',
                   'https://api.ipify.org'
               ]
-              success_count = 0
+              success = 0
               for url in urls:
                   try:
-                      cmd = ['curl', '-s', '--max-time', '8', '-x', f'socks5h://127.0.0.1:{port}', '-o', '/dev/null', '-w', '%{http_code}', url]
-                      res = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
+                      cmd = ['curl', '-s', '--max-time', '6', '-x', f'socks5h://127.0.0.1:{port}', 
+                             '-o', '/dev/null', '-w', '%{http_code}', url]
+                      res = subprocess.run(cmd, capture_output=True, text=True, timeout=8)
                       if res.returncode == 0 and res.stdout.strip() in ('200', '204', '301', '302'):
-                          success_count += 1
+                          success += 1
                   except:
                       pass
-              return success_count >= 3
+              return success >= 2
 
           def get_exit_ip(port):
               try:
-                  cmd = ['curl', '-s', '--max-time', '8', '-x', f'socks5h://127.0.0.1:{port}', 'https://api.ipify.org']
-                  res = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
+                  cmd = ['curl', '-s', '--max-time', '6', '-x', f'socks5h://127.0.0.1:{port}', 'https://api.ipify.org']
+                  res = subprocess.run(cmd, capture_output=True, text=True, timeout=8)
                   return res.stdout.strip() if res.returncode == 0 else None
               except:
                   return None
@@ -391,6 +393,8 @@ jobs:
               return -score
 
           valid_cfgs.sort(key=cfg_priority)
+          valid_cfgs = valid_cfgs[:MAX_CANDIDATES]
+          print(f"Тестируем топ-{len(valid_cfgs)} лучших кандидатов...")
 
           good_links = []
 
@@ -415,15 +419,16 @@ jobs:
                   return cfg['original'] + '#' + mark
               finally:
                   proc.terminate()
-                  try: proc.wait(timeout=3)
-                  except: proc.kill()
+                  try: 
+                      proc.wait(timeout=4)
+                  except subprocess.TimeoutExpired:
+                      proc.kill()
+                      proc.wait()
                   try: os.remove(cfg_path)
                   except: pass
 
-          print(f"Запускаем полный тест для {len(valid_cfgs)}...")
           tested = []
-          test_workers = min(12, max(3, len(valid_cfgs) // 2)) if valid_cfgs else 1
-          with ThreadPoolExecutor(max_workers=test_workers) as executor:
+          with ThreadPoolExecutor(max_workers=TEST_WORKERS) as executor:
               futures = {executor.submit(test_cfg, cfg): cfg for cfg in valid_cfgs}
               for future in as_completed(futures):
                   link = future.result()
@@ -455,7 +460,7 @@ jobs:
               f.write(b64_content)
 
           # Статистика
-          reality_count = sum(1 for l in final_links if 'reality' in (parse_vless(l) or {}).get('security', ''))
+          reality_count = sum(1 for l in final_links if (parse_vless(l) or {}).get('security') == 'reality')
           grpc_count = sum(1 for l in final_links if (parse_vless(l) or {}).get('net') == 'grpc')
           xhttp_count = sum(1 for l in final_links if (parse_vless(l) or {}).get('net') == 'xhttp')
           
