@@ -55,7 +55,6 @@ jobs:
             "https://raw.githubusercontent.com/GoldCaviar/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt"
             "https://raw.githubusercontent.com/zieng2/wl/main/vless_lite.txt"
             "https://key.zarazaex.xyz/sub"
-            "https://raw.githubusercontent.com/Rusl2023/vpn-alive-check/refs/heads/main/githubmirror/clash_config.yaml"
             "https://gitverse.ru/api/repos/RUVIPIEN/russian-white-bolt/raw/branch/master/VPNMIRRORS/v2ray/VLESS_Reality_White_3eac2d.txt"
             "https://raw.githubusercontent.com/EtoNeYaProject/EtoNeYaProject.github.io/refs/heads/main/whitelist"
             "https://raw.githubusercontent.com/kort0881/vpn-vless-configs-russia/main/githubmirror/clean/vless.txt"
@@ -81,6 +80,33 @@ jobs:
             fi
           done
 
+      # 🎯 Скачиваем готовый Clash-конфиг из ветки generated-config
+      - name: 🎯 Download Clash config from generated-config branch
+        run: |
+          cd gv-repo/content/master/
+          
+          CLASH_URL="https://raw.githubusercontent.com/Rusl2023/vpn-alive-check/refs/heads/generated-config/output/config.yaml"
+          CLASH_FILE="clash_config.yaml"
+          
+          echo "⬇️ Скачиваем готовый Clash-конфиг..."
+          echo "📎 URL: $CLASH_URL"
+          
+          if curl -fsSL "$CLASH_URL" -o "$CLASH_FILE"; then
+            echo "✅ OK: $(wc -c < "$CLASH_FILE") bytes -> $CLASH_FILE"
+            echo ""
+            echo "📋 Превью файла (первые 10 строк):"
+            head -n 10 "$CLASH_FILE"
+            echo ""
+            echo "📊 Статистика:"
+            echo "   - Прокси-серверов: $(grep -c '^- name:' "$CLASH_FILE" || echo 0)"
+            echo "   - Размер: $(wc -c < "$CLASH_FILE") байт"
+          else
+            echo "⚠️ WARNING: Не удалось скачать clash_config.yaml"
+            echo "   Возможно, workflow 'Update Clash Config' ещё не отработал."
+            echo "   Создаём пустой файл-заглушку..."
+            echo "# Ожидание генерации конфига..." > "$CLASH_FILE"
+          fi
+
       # 🚀 Коммит и пуш
       - name: 💾 Push to GitVerse
         working-directory: gv-repo
@@ -88,7 +114,7 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add content/master/*.txt
+          git add content/master/*.txt content/master/clash_config.yaml
 
           if git diff --staged --quiet; then
             echo "⚪ Изменений нет"
