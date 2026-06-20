@@ -22,7 +22,7 @@ jobs:
           fi
           echo "✅ Секреты загружены успешно"
 
-      # 📥 Checkout (можно оставить, но не обязателен)
+      # 📥 Checkout
       - name: 📦 Checkout source
         uses: actions/checkout@v4
         with:
@@ -92,14 +92,22 @@ jobs:
           echo "📎 URL: $CLASH_URL"
           
           if curl -fsSL "$CLASH_URL" -o "$CLASH_FILE"; then
-            echo "✅ OK: $(wc -c < "$CLASH_FILE") bytes -> $CLASH_FILE"
+            FILE_SIZE=$(wc -c < "$CLASH_FILE")
+            PROXY_COUNT=$(grep -c '^- name:' "$CLASH_FILE" || echo 0)
+            
+            echo "✅ OK: $FILE_SIZE bytes -> $CLASH_FILE"
             echo ""
             echo "📋 Превью файла (первые 10 строк):"
             head -n 10 "$CLASH_FILE"
             echo ""
             echo "📊 Статистика:"
-            echo "   - Прокси-серверов: $(grep -c '^- name:' "$CLASH_FILE" || echo 0)"
-            echo "   - Размер: $(wc -c < "$CLASH_FILE") байт"
+            echo "   - Прокси-серверов: $PROXY_COUNT"
+            echo "   - Размер: $FILE_SIZE байт"
+            
+            if [ "$FILE_SIZE" -lt 1000 ]; then
+              echo "⚠️ WARNING: Файл слишком маленький!"
+              echo "   Возможно, workflow 'Update Clash Config' ещё не отработал."
+            fi
           else
             echo "⚠️ WARNING: Не удалось скачать clash_config.yaml"
             echo "   Возможно, workflow 'Update Clash Config' ещё не отработал."
