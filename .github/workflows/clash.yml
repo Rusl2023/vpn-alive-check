@@ -1,4 +1,4 @@
-name: Update Clash Config
+name: Update Clash Config (Mihomo Constructor)
 
 on:
   schedule:
@@ -17,131 +17,692 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Start local subconverter
-        run: |
-          echo "🚀 Запускаем локальный subconverter..."
-          docker run -d --name subconverter \
-            -p 25500:25500 \
-            --restart unless-stopped \
-            tindy2013/subconverter:latest
-          
-          # Ждём, пока контейнер запустится
-          echo "⏳ Ожидание запуска сервиса..."
-          sleep 10
-          
-          # Проверяем доступность
-          for i in {1..10}; do
-            if curl -s http://localhost:25500/version > /dev/null 2>&1; then
-              echo "✅ Subconverter запущен!"
-              curl -s http://localhost:25500/version
-              break
-            fi
-            echo "   Ожидание... ($i/10)"
-            sleep 3
-          done
-
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
       - name: Install dependencies
-        run: pip install requests
+        run: pip install requests PyYAML
 
       - name: Create output directory
         run: mkdir -p output
 
-      - name: Convert subscription via local subconverter
+      - name: Run Mihomo Constructor
         run: |
-          cat > converter.py << 'EOF'
+          cat > constructor.py << 'PYEOF'
           import requests
-          import sys
+          import yaml
+          import re
+          import socket
+          import concurrent.futures
+          from urllib.parse import urlparse, parse_qs, unquote
+          from collections import defaultdict
+          import base64
+          import json
           from datetime import datetime, timezone
 
+          # === НАСТРОЙКИ ===
           SOURCE_URL = "https://raw.githubusercontent.com/Rusl2023/vpn-alive-check/refs/heads/main/githubmirror/26_proxy_subscription_raw.txt"
           OUTPUT_FILE = "output/config.yaml"
-          LOCAL_CONVERTER = "http://localhost:25500/sub"
-          
-          # Конфиг от ACL4SSR с полной настройкой для России
-          REMOTE_CONFIG = "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_Online_Full.ini"
+          TIMEOUT = 3
+          MAX_WORKERS = 50
+          CHECK_ALIVE = True  # Проверять ли доступность серверов
+
+          # === СТРАНЫ (по доменам и IP) ===
+          COUNTRY_MAP = {
+              '🇺🇸': ['US', 'United States', 'usa', 'america'],
+              '🇳🇱': ['NL', 'Netherlands', 'holland'],
+              '🇩🇪': ['DE', 'Germany', 'deutschland'],
+              '🇬🇧': ['GB', 'UK', 'United Kingdom', 'britain'],
+              '🇫🇷': ['FR', 'France'],
+              '🇮🇹': ['IT', 'Italy'],
+              '🇪🇸': ['ES', 'Spain'],
+              '🇵🇱': ['PL', 'Poland'],
+              '🇷🇴': ['RO', 'Romania'],
+              '🇸🇪': ['SE', 'Sweden'],
+              '🇫🇮': ['FI', 'Finland'],
+              '🇱🇻': ['LV', 'Latvia'],
+              '🇰🇿': ['KZ', 'Kazakhstan'],
+              '🇲🇩': ['MD', 'Moldova'],
+              '🇨🇦': ['CA', 'Canada'],
+              '🇯🇵': ['JP', 'Japan'],
+              '🇸🇬': ['SG', 'Singapore'],
+              '🇭🇰': ['HK', 'Hong Kong'],
+              '🇹🇼': ['TW', 'Taiwan'],
+              '🇰🇷': ['KR', 'Korea'],
+              '🇦🇺': ['AU', 'Australia'],
+              '🇹🇷': ['TR', 'Turkey'],
+              '🇮🇳': ['IN', 'India'],
+              '🇧🇷': ['BR', 'Brazil'],
+          }
+
+          # === БАЗОВЫЕ ПРАВИЛА ===
+          RULES = [
+              # Локальные сети — напрямую
+              'DOMAIN-SUFFIX,local,DIRECT',
+              'DOMAIN-SUFFIX,lan,DIRECT',
+              'IP-CIDR,192.168.0.0/16,DIRECT,no-resolve',
+              'IP-CIDR,10.0.0.0/8,DIRECT,no-resolve',
+              'IP-CIDR,172.16.0.0/12,DIRECT,no-resolve',
+              'IP-CIDR,127.0.0.0/8,DIRECT,no-resolve',
+              'IP-CIDR,100.64.0.0/10,DIRECT,no-resolve',
+              'IP-CIDR,224.0.0.0/8,DIRECT,no-resolve',
+              'IP-CIDR,fe80::/16,DIRECT,no-resolve',
+              
+              # Российские сервисы — напрямую
+              'DOMAIN-SUFFIX,ru,DIRECT',
+              'DOMAIN-SUFFIX,su,DIRECT',
+              'DOMAIN-SUFFIX,rf,DIRECT',
+              'DOMAIN-SUFFIX,yandex.ru,DIRECT',
+              'DOMAIN-SUFFIX,yandex.net,DIRECT',
+              'DOMAIN-SUFFIX,ya.ru,DIRECT',
+              'DOMAIN-SUFFIX,vk.com,DIRECT',
+              'DOMAIN-SUFFIX,vkuser.net,DIRECT',
+              'DOMAIN-SUFFIX,ok.ru,DIRECT',
+              'DOMAIN-SUFFIX,mail.ru,DIRECT',
+              'DOMAIN-SUFFIX,gosuslugi.ru,DIRECT',
+              'DOMAIN-SUFFIX,sberbank.ru,DIRECT',
+              'DOMAIN-SUFFIX,tinkoff.ru,DIRECT',
+              'DOMAIN-SUFFIX,wildberries.ru,DIRECT',
+              'DOMAIN-SUFFIX,ozon.ru,DIRECT',
+              'DOMAIN-SUFFIX,aliexpress.ru,DIRECT',
+              'DOMAIN-SUFFIX,avito.ru,DIRECT',
+              'DOMAIN-SUFFIX,hh.ru,DIRECT',
+              'DOMAIN-SUFFIX,rzd.ru,DIRECT',
+              'DOMAIN-SUFFIX,aeroflot.ru,DIRECT',
+              'DOMAIN-SUFFIX,max.ru,DIRECT',
+              'DOMAIN-SUFFIX,kinopoisk.ru,DIRECT',
+              'DOMAIN-SUFFIX,mts.ru,DIRECT',
+              'DOMAIN-SUFFIX,beeline.ru,DIRECT',
+              'DOMAIN-SUFFIX,megafon.ru,DIRECT',
+              'DOMAIN-SUFFIX,tele2.ru,DIRECT',
+              'DOMAIN-SUFFIX,rostelecom.ru,DIRECT',
+              
+              # Telegram — отдельная группа
+              'DOMAIN-SUFFIX,telegram.org,📱 Telegram',
+              'DOMAIN-SUFFIX,telegram.me,📱 Telegram',
+              'DOMAIN-SUFFIX,t.me,📱 Telegram',
+              'DOMAIN-SUFFIX,telegra.ph,📱 Telegram',
+              'DOMAIN-KEYWORD,telegram,📱 Telegram',
+              'IP-CIDR,91.108.4.0/22,📱 Telegram,no-resolve',
+              'IP-CIDR,91.108.8.0/22,📱 Telegram,no-resolve',
+              'IP-CIDR,91.108.12.0/22,📱 Telegram,no-resolve',
+              'IP-CIDR,91.108.16.0/22,📱 Telegram,no-resolve',
+              'IP-CIDR,91.108.20.0/22,📱 Telegram,no-resolve',
+              'IP-CIDR,91.108.56.0/22,📱 Telegram,no-resolve',
+              'IP-CIDR,149.154.160.0/20,📱 Telegram,no-resolve',
+              
+              # YouTube — стриминг
+              'DOMAIN-SUFFIX,youtube.com,📺 Streaming',
+              'DOMAIN-SUFFIX,youtubei.googleapis.com,📺 Streaming',
+              'DOMAIN-SUFFIX,ytimg.com,📺 Streaming',
+              'DOMAIN-SUFFIX,googlevideo.com,📺 Streaming',
+              'DOMAIN-SUFFIX,youtu.be,📺 Streaming',
+              'DOMAIN-KEYWORD,youtube,📺 Streaming',
+              
+              # Стриминговые сервисы
+              'DOMAIN-SUFFIX,netflix.com,📺 Streaming',
+              'DOMAIN-SUFFIX,nflxvideo.net,📺 Streaming',
+              'DOMAIN-SUFFIX,spotify.com,📺 Streaming',
+              'DOMAIN-SUFFIX,hbo.com,📺 Streaming',
+              'DOMAIN-SUFFIX,hbomax.com,📺 Streaming',
+              'DOMAIN-SUFFIX,disneyplus.com,📺 Streaming',
+              'DOMAIN-SUFFIX,primevideo.com,📺 Streaming',
+              'DOMAIN-SUFFIX,twitch.tv,📺 Streaming',
+              'DOMAIN-SUFFIX,ttvnw.net,📺 Streaming',
+              
+              # Соцсети
+              'DOMAIN-SUFFIX,instagram.com,🌐 Social',
+              'DOMAIN-SUFFIX,facebook.com,🌐 Social',
+              'DOMAIN-SUFFIX,fbcdn.net,🌐 Social',
+              'DOMAIN-SUFFIX,twitter.com,🌐 Social',
+              'DOMAIN-SUFFIX,x.com,🌐 Social',
+              'DOMAIN-SUFFIX,twimg.com,🌐 Social',
+              'DOMAIN-SUFFIX,reddit.com,🌐 Social',
+              'DOMAIN-SUFFIX,redd.it,🌐 Social',
+              'DOMAIN-SUFFIX,redditstatic.com,🌐 Social',
+              'DOMAIN-SUFFIX,discord.com,🌐 Social',
+              'DOMAIN-SUFFIX,discordapp.com,🌐 Social',
+              'DOMAIN-SUFFIX,whatsapp.com,🌐 Social',
+              'DOMAIN-SUFFIX,whatsapp.net,🌐 Social',
+              
+              # Google
+              'DOMAIN-SUFFIX,google.com,🔍 Google',
+              'DOMAIN-SUFFIX,googleapis.com,🔍 Google',
+              'DOMAIN-SUFFIX,gstatic.com,🔍 Google',
+              'DOMAIN-SUFFIX,googleusercontent.com,🔍 Google',
+              'DOMAIN-SUFFIX,gmail.com,🔍 Google',
+              'DOMAIN-SUFFIX,blogger.com,🔍 Google',
+              'DOMAIN-SUFFIX,blogspot.com,🔍 Google',
+              'DOMAIN-SUFFIX,googlevideo.com,🔍 Google',
+              'DOMAIN-SUFFIX,gvt1.com,🔍 Google',
+              'DOMAIN-KEYWORD,google,🔍 Google',
+              
+              # GitHub и разработка
+              'DOMAIN-SUFFIX,github.com,💻 Dev',
+              'DOMAIN-SUFFIX,githubusercontent.com,💻 Dev',
+              'DOMAIN-SUFFIX,github.io,💻 Dev',
+              'DOMAIN-SUFFIX,githubassets.com,💻 Dev',
+              'DOMAIN-SUFFIX,stackoverflow.com,💻 Dev',
+              'DOMAIN-SUFFIX,gitlab.com,💻 Dev',
+              'DOMAIN-SUFFIX,npmjs.com,💻 Dev',
+              'DOMAIN-SUFFIX,pypi.org,💻 Dev',
+              'DOMAIN-SUFFIX,docker.com,💻 Dev',
+              
+              # Игры
+              'DOMAIN-SUFFIX,steampowered.com,🎮 Games',
+              'DOMAIN-SUFFIX,steamstatic.com,🎮 Games',
+              'DOMAIN-SUFFIX,steamcommunity.com,🎮 Games',
+              'DOMAIN-SUFFIX,epicgames.com,🎮 Games',
+              'DOMAIN-SUFFIX,unrealengine.com,🎮 Games',
+              'DOMAIN-SUFFIX,riotgames.com,🎮 Games',
+              'DOMAIN-SUFFIX,leagueoflegends.com,🎮 Games',
+              'DOMAIN-SUFFIX,playvalorant.com,🎮 Games',
+              'DOMAIN-SUFFIX,blizzard.com,🎮 Games',
+              'DOMAIN-SUFFIX,battle.net,🎮 Games',
+              'DOMAIN-SUFFIX,ea.com,🎮 Games',
+              'DOMAIN-SUFFIX,origin.com,🎮 Games',
+              'DOMAIN-SUFFIX,ubi.com,🎮 Games',
+              'DOMAIN-SUFFIX,playstation.com,🎮 Games',
+              'DOMAIN-SUFFIX,xbox.com,🎮 Games',
+              'DOMAIN-SUFFIX,xboxlive.com,🎮 Games',
+              'DOMAIN-SUFFIX,nintendo.net,🎮 Games',
+              
+              # Apple
+              'DOMAIN-SUFFIX,apple.com,DIRECT',
+              'DOMAIN-SUFFIX,icloud.com,DIRECT',
+              'DOMAIN-SUFFIX,mzstatic.com,DIRECT',
+              
+              # Microsoft
+              'DOMAIN-SUFFIX,microsoft.com,DIRECT',
+              'DOMAIN-SUFFIX,windows.com,DIRECT',
+              'DOMAIN-SUFFIX,windowsupdate.com,DIRECT',
+              'DOMAIN-SUFFIX,live.com,DIRECT',
+              'DOMAIN-SUFFIX,office.com,DIRECT',
+              'DOMAIN-SUFFIX,office365.com,DIRECT',
+              'DOMAIN-SUFFIX,azure.com,DIRECT',
+              
+              # Блокировки и реклама
+              'DOMAIN-KEYWORD,admarvel,BLOCK',
+              'DOMAIN-KEYWORD,admaster,BLOCK',
+              'DOMAIN-KEYWORD,adsage,BLOCK',
+              'DOMAIN-KEYWORD,adsmogo,BLOCK',
+              'DOMAIN-KEYWORD,adsrvmedia,BLOCK',
+              'DOMAIN-KEYWORD,adwords,BLOCK',
+              'DOMAIN-KEYWORD,analytics,BLOCK',
+              
+              # Всё остальное — через прокси
+              'MATCH,🚀 Auto',
+          ]
+
+          # === ПАРСЕРЫ ===
+          def decode_base64(data):
+              data = data.strip()
+              padding = (-len(data)) % 4
+              if padding:
+                  data += "=" * padding
+              try:
+                  return base64.b64decode(data).decode("utf-8", errors="ignore")
+              except:
+                  return ""
+
+          def parse_vless(uri):
+              try:
+                  parsed = urlparse(uri)
+                  name = unquote(parsed.fragment) if parsed.fragment else "VLESS"
+                  proxy = {
+                      "name": name, "type": "vless", "server": parsed.hostname,
+                      "port": parsed.port or 443, "uuid": parsed.username or "",
+                      "udp": True, "skip-cert-verify": True, "encryption": "none",
+                  }
+                  if parsed.query:
+                      query = parse_qs(parsed.query)
+                      security = query.get("security", [""])[0]
+                      if security == "tls":
+                          proxy["tls"] = True
+                      elif security == "reality":
+                          proxy["tls"] = True
+                          proxy["reality-opts"] = {}
+                          if "pbk" in query:
+                              proxy["reality-opts"]["public-key"] = query["pbk"][0]
+                          if "sid" in query:
+                              proxy["reality-opts"]["short-id"] = query["sid"][0]
+                      if "sni" in query:
+                          proxy["sni"] = query["sni"][0]
+                      if "flow" in query:
+                          proxy["flow"] = query["flow"][0]
+                      if "fp" in query:
+                          proxy["client-fingerprint"] = query["fp"][0]
+                      if "type" in query:
+                          t = query["type"][0]
+                          if t == "ws":
+                              proxy["network"] = "ws"
+                              proxy["ws-opts"] = {
+                                  "path": query.get("path", ["/"])[0],
+                                  "headers": {"Host": query.get("host", [parsed.hostname])[0]}
+                              }
+                          elif t == "grpc":
+                              proxy["network"] = "grpc"
+                              proxy["grpc-opts"] = {
+                                  "grpc-service-name": query.get("serviceName", [""])[0]
+                              }
+                          elif t == "tcp":
+                              proxy["network"] = "tcp"
+                  return proxy
+              except Exception as e:
+                  print(f"  ⚠️ Error parsing VLESS: {e}")
+                  return None
+
+          def parse_vmess(uri):
+              try:
+                  b64_part = uri[len("vmess://"):].strip()
+                  decoded = decode_base64(b64_part)
+                  vmess_json = json.loads(decoded)
+                  proxy = {
+                      "name": vmess_json.get("ps", "VMess"),
+                      "type": "vmess",
+                      "server": vmess_json.get("add", ""),
+                      "port": int(vmess_json.get("port", 0)),
+                      "uuid": vmess_json.get("id", ""),
+                      "alterId": int(vmess_json.get("aid", 0)),
+                      "cipher": vmess_json.get("scy", "auto"),
+                      "network": vmess_json.get("net", "tcp"),
+                      "udp": True,
+                  }
+                  net = vmess_json.get("net", "tcp")
+                  if net == "ws":
+                      proxy["ws-opts"] = {"path": vmess_json.get("path", "/"), "headers": {"Host": vmess_json.get("host", vmess_json.get("add", ""))}}
+                  elif net == "grpc":
+                      proxy["grpc-opts"] = {"grpc-service-name": vmess_json.get("path", "")}
+                  if vmess_json.get("tls") == "tls":
+                      proxy["tls"] = True
+                      proxy["skip-cert-verify"] = True
+                      proxy["sni"] = vmess_json.get("sni", vmess_json.get("add", ""))
+                  return proxy
+              except Exception as e:
+                  print(f"  ⚠️ Error parsing VMess: {e}")
+                  return None
+
+          def parse_trojan(uri):
+              try:
+                  parsed = urlparse(uri)
+                  name = unquote(parsed.fragment) if parsed.fragment else "Trojan"
+                  proxy = {
+                      "name": name, "type": "trojan", "server": parsed.hostname,
+                      "port": parsed.port or 443, "password": parsed.username or "",
+                      "udp": True, "skip-cert-verify": True,
+                  }
+                  if parsed.query:
+                      query = parse_qs(parsed.query)
+                      if "sni" in query: proxy["sni"] = query["sni"][0]
+                      if "type" in query:
+                          t = query["type"][0]
+                          if t == "ws":
+                              proxy["network"] = "ws"
+                              proxy["ws-opts"] = {"path": query.get("path", ["/"])[0], "headers": {"Host": query.get("host", [parsed.hostname])[0]}}
+                          elif t == "grpc":
+                              proxy["network"] = "grpc"
+                              proxy["grpc-opts"] = {"grpc-service-name": query.get("serviceName", [""])[0]}
+                  return proxy
+              except Exception as e:
+                  print(f"  ⚠️ Error parsing Trojan: {e}")
+                  return None
+
+          def parse_shadowsocks(uri):
+              try:
+                  if "#" in uri:
+                      uri_part, name_part = uri.split("#", 1)
+                      name = unquote(name_part)
+                  else:
+                      uri_part, name = uri, "Shadowsocks"
+                  uri_part = uri_part[len("ss://"):]
+                  if "@" not in uri_part: return None
+                  userinfo, server_port = uri_part.split("@", 1)
+                  try:
+                      decoded = decode_base64(userinfo)
+                      cipher, password = decoded.split(":", 1)
+                  except:
+                      cipher, password = ("aes-256-gcm", userinfo) if ":" not in userinfo else userinfo.split(":", 1)
+                  server, port = server_port.rsplit(":", 1)
+                  return {"name": name, "type": "ss", "server": server, "port": int(port), "cipher": cipher, "password": password, "udp": True}
+              except Exception as e:
+                  print(f"  ⚠️ Error parsing SS: {e}")
+                  return None
+
+          def parse_hysteria2(uri):
+              try:
+                  parsed = urlparse(uri)
+                  name = unquote(parsed.fragment) if parsed.fragment else "Hysteria2"
+                  proxy = {"name": name, "type": "hysteria2", "server": parsed.hostname, "port": parsed.port or 443, "password": parsed.username or "", "skip-cert-verify": True}
+                  if parsed.query:
+                      q = parse_qs(parsed.query)
+                      if "auth" in q and not proxy["password"]: proxy["password"] = q["auth"][0]
+                      if "sni" in q: proxy["sni"] = q["sni"][0]
+                  return proxy
+              except Exception as e:
+                  print(f"  ⚠️ Error parsing Hysteria2: {e}")
+                  return None
+
+          def parse_tuic(uri):
+              try:
+                  parsed = urlparse(uri)
+                  name = unquote(parsed.fragment) if parsed.fragment else "Tuic"
+                  uuid = password = ""
+                  if parsed.username and ":" in parsed.username:
+                      uuid, password = parsed.username.split(":", 1)
+                  else:
+                      uuid = parsed.username or ""
+                  proxy = {"name": name, "type": "tuic", "server": parsed.hostname, "port": parsed.port or 443, "uuid": uuid, "password": password, "udp": True, "skip-cert-verify": True}
+                  if parsed.query and "sni" in parse_qs(parsed.query):
+                      proxy["sni"] = parse_qs(parsed.query)["sni"][0]
+                  return proxy
+              except Exception as e:
+                  print(f"  ⚠️ Error parsing Tuic: {e}")
+                  return None
+
+          def parse_proxies_from_text(text):
+              proxies = []
+              parsers = {
+                  "vless://": parse_vless,
+                  "vmess://": parse_vmess,
+                  "trojan://": parse_trojan,
+                  "ss://": parse_shadowsocks,
+                  "hysteria2://": parse_hysteria2,
+                  "hy2://": parse_hysteria2,
+                  "tuic://": parse_tuic,
+              }
+              for line in text.strip().splitlines():
+                  line = line.strip()
+                  if not line or line.startswith("#"):
+                      continue
+                  for prefix, parser in parsers.items():
+                      if line.startswith(prefix):
+                          proxy = parser(line)
+                          if proxy:
+                              proxies.append(proxy)
+                          break
+              return proxies
+
+          def fix_duplicate_names(proxies):
+              name_counts = {}
+              fixed = []
+              for proxy in proxies:
+                  name = proxy["name"]
+                  if name in name_counts:
+                      name_counts[name] += 1
+                      proxy["name"] = f"{name} ({name_counts[name]})"
+                  else:
+                      name_counts[name] = 1
+                  fixed.append(proxy)
+              return fixed
+
+          def detect_country(proxy):
+              """Определяем страну по имени или SNI"""
+              name = (proxy.get("name") or "").lower()
+              sni = (proxy.get("sni") or "").lower()
+              
+              for flag, keywords in COUNTRY_MAP.items():
+                  for kw in keywords:
+                      if kw.lower() in name:
+                          return flag
+              return "🌍"
+
+          def check_tcp_port(proxy):
+              try:
+                  server = proxy.get("server")
+                  port = proxy.get("port")
+                  if not server or not port:
+                      return None
+                  sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                  sock.settimeout(TIMEOUT)
+                  result = sock.connect_ex((server, int(port)))
+                  sock.close()
+                  return proxy if result == 0 else None
+              except:
+                  return None
+
+          def filter_alive_proxies(proxies):
+              if not CHECK_ALIVE:
+                  return proxies
+              alive = []
+              print(f"🔍 Проверяем {len(proxies)} серверов...")
+              with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+                  futures = [executor.submit(check_tcp_port, p) for p in proxies]
+                  for future in concurrent.futures.as_completed(futures):
+                      if result := future.result():
+                          alive.append(result)
+              print(f"✅ Найдено живых: {len(alive)} из {len(proxies)}")
+              return alive
+
+          def build_proxy_groups(proxies):
+              """Создаём proxy-groups в стиле mihomo-constructor"""
+              if not proxies:
+                  return []
+              
+              all_names = [p["name"] for p in proxies]
+              
+              # Группируем по странам
+              by_country = defaultdict(list)
+              for p in proxies:
+                  country = detect_country(p)
+                  by_country[country].append(p["name"])
+              
+              groups = []
+              
+              # 🚀 Auto — автовыбор лучшего
+              groups.append({
+                  "name": "🚀 Auto",
+                  "type": "url-test",
+                  "proxies": all_names,
+                  "url": "http://www.gstatic.com/generate_204",
+                  "interval": 300,
+                  "tolerance": 150,
+                  "lazy": True
+              })
+              
+              # 🎯 Manual — ручной выбор
+              groups.append({
+                  "name": "🎯 Manual",
+                  "type": "select",
+                  "proxies": ["🚀 Auto"] + all_names
+              })
+              
+              # Группы по странам
+              country_names = {
+                  '🇺🇸': '🇺🇸 USA', '🇳🇱': '🇳🇱 Netherlands', '🇩🇪': '🇩🇪 Germany',
+                  '🇬🇧': '🇬🇧 UK', '🇫🇷': '🇫🇷 France', '🇵🇱': '🇵🇱 Poland',
+                  '🇷🇴': '🇷🇴 Romania', '🇸🇪': '🇸🇪 Sweden', '🇫🇮': '🇫🇮 Finland',
+                  '🇱🇻': '🇱🇻 Latvia', '🇰🇿': '🇰🇿 Kazakhstan', '🇲🇩': '🇲🇩 Moldova',
+                  '🇨🇦': '🇨🇦 Canada', '🇯🇵': '🇯🇵 Japan', '🇸🇬': '🇸🇬 Singapore',
+                  '🇭🇰': '🇭🇰 Hong Kong', '🇹🇼': '🇹🇼 Taiwan', '🇰🇷': '🇰🇷 Korea',
+                  '🇦🇺': '🇦🇺 Australia', '🇹🇷': '🇹🇷 Turkey', '🇮🇳': '🇮🇳 India',
+                  '🇱🇲': '🌍 Other'
+              }
+              
+              for flag, names in by_country.items():
+                  if len(names) >= 1:
+                      group_name = country_names.get(flag, f"{flag} Servers")
+                      if len(names) > 1:
+                          groups.append({
+                              "name": group_name,
+                              "type": "url-test",
+                              "proxies": names,
+                              "url": "http://www.gstatic.com/generate_204",
+                              "interval": 300,
+                              "tolerance": 150
+                          })
+                      else:
+                          groups.append({
+                              "name": group_name,
+                              "type": "select",
+                              "proxies": names
+                          })
+              
+              # Специальные группы
+              special_groups = [
+                  ("📱 Telegram", "🚀 Auto"),
+                  ("📺 Streaming", "🚀 Auto"),
+                  ("🌐 Social", "🚀 Auto"),
+                  ("🔍 Google", "🚀 Auto"),
+                  ("💻 Dev", "🚀 Auto"),
+                  ("🎮 Games", "🚀 Auto"),
+              ]
+              
+              for name, default in special_groups:
+                  groups.append({
+                      "name": name,
+                      "type": "select",
+                      "proxies": [default, "🚀 Auto", "DIRECT"] + all_names
+                  })
+              
+              # 🛡️ BLOCK
+              groups.append({
+                  "name": "🛡️ BLOCK",
+                  "type": "select",
+                  "proxies": ["REJECT", "DIRECT"]
+              })
+              
+              return groups
 
           def main():
-              print("📥 Загрузка исходной подписки...")
+              print("=" * 60)
+              print("🏗️  MIHOMO CONSTRUCTOR (GitHub Actions Edition)")
+              print("=" * 60)
+              
+              print(f"\n📥 Загрузка подписки: {SOURCE_URL}")
               try:
                   response = requests.get(SOURCE_URL, timeout=30)
                   response.raise_for_status()
                   content = response.text
-                  vless_count = content.count('vless://')
-                  print(f"📊 Найдено VLESS ссылок: {vless_count}")
-                  
-                  if vless_count == 0:
-                      print("❌ Ошибка: не найдено VLESS ссылок!")
-                      sys.exit(1)
               except Exception as e:
-                  print(f"❌ Не удалось загрузить подписку: {e}")
-                  sys.exit(1)
-
-              print("\n🔄 Конвертация через локальный subconverter...")
+                  print(f"❌ Ошибка загрузки: {e}")
+                  return 1
               
-              try:
-                  params = {
-                      'target': 'clash',
-                      'url': SOURCE_URL,
-                      'insert': 'false',
-                      'config': REMOTE_CONFIG,
-                      'emoji': 'true',
-                      'list': 'true',
-                      'udp': 'true',
-                      'tfo': 'false',
-                      'scv': 'true',
-                      'fdn': 'true',
-                      'new_name': 'true',
-                      'expand': 'true'
-                  }
-                  
-                  response = requests.get(LOCAL_CONVERTER, params=params, timeout=120)
-                  
-                  if response.status_code != 200:
-                      print(f"❌ Конвертер вернул статус {response.status_code}")
-                      print(f"Ответ: {response.text[:500]}")
-                      sys.exit(1)
-                  
-                  converted_config = response.text
-                  
-                  if 'proxies:' not in converted_config:
-                      print("❌ Ошибка: в результате нет блока proxies!")
-                      print(f"Ответ: {converted_config[:500]}")
-                      sys.exit(1)
-                  
-              except Exception as e:
-                  print(f"❌ Ошибка конвертации: {e}")
-                  sys.exit(1)
-
-              # Добавляем заголовок
+              print("🔍 Парсинг ссылок...")
+              all_proxies = parse_proxies_from_text(content)
+              print(f"📊 Найдено прокси: {len(all_proxies)}")
+              
+              if not all_proxies:
+                  print("❌ Не найдено ни одной ссылки!")
+                  return 1
+              
+              # Проверка доступности
+              alive_proxies = filter_alive_proxies(all_proxies)
+              if not alive_proxies:
+                  print("❌ Все серверы недоступны!")
+                  return 1
+              
+              # Исправляем дубликаты
+              fixed_proxies = fix_duplicate_names(alive_proxies)
+              
+              # Считаем статистику
+              stats = defaultdict(int)
+              for p in fixed_proxies:
+                  stats[p["type"]] += 1
+              print("\n📈 Статистика по типам:")
+              for t, c in stats.items():
+                  print(f"   {t}: {c}")
+              
+              reality_count = sum(1 for p in fixed_proxies if p.get("reality-opts"))
+              print(f"   🔐 Reality: {reality_count}")
+              
+              # Создаём группы
+              print("\n🔧 Создание proxy-groups...")
+              groups = build_proxy_groups(fixed_proxies)
+              print(f"   Создано групп: {len(groups)}")
+              
+              # Формируем финальный конфиг
+              config = {
+                  "mode": "rule",
+                  "log-level": "info",
+                  "unified-delay": True,
+                  "tcp-concurrent": True,
+                  "ipv6": False,
+                  "allow-lan": True,
+                  "bind-address": "*",
+                  "external-controller": "0.0.0.0:9090",
+                  "external-ui": "ui",
+                  "external-ui-url": "https://github.com/Zephyruso/zashboard/releases/latest/download/dist-no-fonts.zip",
+                  "find-process-mode": "strict",
+                  "profile": {
+                      "store-selected": True,
+                      "store-fake-ip": True
+                  },
+                  "sniffer": {
+                      "enable": True,
+                      "sniff": {
+                          "HTTP": {"ports": [80, 8080, 8880], "override-destination": True},
+                          "TLS": {"ports": [443, 8443]},
+                          "QUIC": {"ports": [443, 8443]}
+                      },
+                      "skip-domain": [
+                          "Mijia Cloud",
+                          "+.lan",
+                          "+.local",
+                          "+.ru",
+                          "+.push.apple.com"
+                      ]
+                  },
+                  "dns": {
+                      "enable": True,
+                      "listen": "0.0.0.0:1053",
+                      "ipv6": False,
+                      "enhanced-mode": "fake-ip",
+                      "fake-ip-range": "198.18.0.1/16",
+                      "fake-ip-filter": [
+                          "*.lan", "*.local", "*.ru", "*.su",
+                          "*.msftconnecttest.com", "*.msftncsi.com",
+                          "dns.msftncsi.com", "time.*.com", "time.*.gov",
+                          "localhost.ptlogin2.qq.com", "localhost.sec.qq.com",
+                          "+.stun.*.*", "+.stun.*.*.*", "+.stun.*.*.*.*"
+                      ],
+                      "default-nameserver": ["77.88.8.8", "8.8.8.8"],
+                      "nameserver": [
+                          "https://dns.google/dns-query",
+                          "https://cloudflare-dns.com/dns-query"
+                      ],
+                      "proxy-server-nameserver": [
+                          "https://dns.google/dns-query"
+                      ]
+                  },
+                  "tun": {
+                      "enable": True,
+                      "stack": "mixed",
+                      "dns-hijack": ["any:53"],
+                      "auto-route": True,
+                      "auto-redir": True,
+                      "auto-detect-interface": True
+                  },
+                  "routing-mark": 2,
+                  "proxies": fixed_proxies,
+                  "proxy-groups": groups,
+                  "rules": RULES
+              }
+              
+              # Сохраняем
               now_utc = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-              header = f"# Конвертировано через локальный subconverter\n# Обновлено: {now_utc}\n# Исходник: {SOURCE_URL}\n# VLESS серверов: {vless_count}\n\n"
+              header = f"# ═══════════════════════════════════════════════════\n"
+              header += f"# 🏗️  Mihomo Constructor — Auto Generated\n"
+              header += f"# 📅 Обновлено: {now_utc}\n"
+              header += f"# 📡 Прокси: {len(fixed_proxies)}\n"
+              header += f"# 🔐 Reality: {reality_count}\n"
+              header += f"# 📦 Групп: {len(groups)}\n"
+              header += f"# 📏 Правил: {len(RULES)}\n"
+              header += f"# ═══════════════════════════════════════════════════\n\n"
               
               with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
-                  f.write(header + converted_config)
+                  f.write(header)
+                  yaml.dump(config, f, allow_unicode=True, default_flow_style=False, sort_keys=False)
               
-              print(f"\n✅ Готово! Сохранено в {OUTPUT_FILE}")
-              print(f"📊 Размер файла: {len(converted_config)} байт")
-              
-              proxy_count = converted_config.count('- name:')
-              print(f"📡 Прокси-серверов в конфиге: {proxy_count}")
-              
-              # Проверка Reality
-              reality_count = converted_config.count('reality-opts:')
-              print(f"🔐 Reality серверов: {reality_count}")
+              print(f"\n✅ Конфиг сохранён: {OUTPUT_FILE}")
+              print(f"📊 Размер: {len(header) + len(yaml.dump(config, allow_unicode=True))} байт")
+              return 0
 
           if __name__ == "__main__":
-              main()
-          EOF
-          python converter.py
-
-      - name: Stop subconverter
-        if: always()
-        run: docker stop subconverter && docker rm subconverter || true
+              exit(main())
+          PYEOF
+          python constructor.py
 
       - name: Commit and Push to generated-config branch
         run: |
@@ -151,4 +712,4 @@ jobs:
           git checkout -B generated-config
           git add output/config.yaml
           
-          git diff --staged --quiet || (git commit -m "🔄 Auto-update clash config via local subconverter [skip ci]" && git push --set-upstream origin generated-config --force)
+          git diff --staged --quiet || (git commit -m "🏗️ Mihomo Constructor: auto-update [skip ci]" && git push --set-upstream origin generated-config --force)
