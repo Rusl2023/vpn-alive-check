@@ -17,6 +17,29 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Start local subconverter
+        run: |
+          echo "🚀 Запускаем локальный subconverter..."
+          docker run -d --name subconverter \
+            -p 25500:25500 \
+            --restart unless-stopped \
+            tindy2013/subconverter:latest
+          
+          # Ждём, пока контейнер запустится
+          echo "⏳ Ожидание запуска сервиса..."
+          sleep 10
+          
+          # Проверяем доступность
+          for i in {1..10}; do
+            if curl -s http://localhost:25500/version > /dev/null 2>&1; then
+              echo "✅ Subconverter запущен!"
+              curl -s http://localhost:25500/version
+              break
+            fi
+            echo "   Ожидание... ($i/10)"
+            sleep 3
+          done
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -28,39 +51,42 @@ jobs:
       - name: Create output directory
         run: mkdir -p output
 
-      - name: Convert subscription via subconverter
+      - name: Convert subscription via local subconverter
         run: |
           cat > converter.py << 'EOF'
           import requests
-          import base64
           import sys
           from datetime import datetime, timezone
-          from urllib.parse import quote
 
-          # Исходная подписка (VLESS Reality)
           SOURCE_URL = "https://raw.githubusercontent.com/Rusl2023/vpn-alive-check/refs/heads/main/githubmirror/26_proxy_subscription_raw.txt"
           OUTPUT_FILE = "output/config.yaml"
+          LOCAL_CONVERTER = "http://localhost:25500/sub"
           
-          # Список конвертеров (пробуем по очереди)
-          CONVERTERS = [
-              "https://sub.xeton.de/sub",
-              "https://api.dler.io/sub",
-              "https://sub.id9.cc/sub",
-              "https://suburl.v1.mk/sub",
-              "https://api.wcc.best/sub"
-          ]
-          
-          # Конфиг для конвертации (используем стандартный Clash конфиг)
+          # Конфиг от ACL4SSR с полной настройкой для России
           REMOTE_CONFIG = "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_Online_Full.ini"
 
-          def try_convert(converter_url, source_url):
-              """Пытаемся конвертировать через указанный конвертер"""
+          def main():
+              print("📥 Загрузка исходной подписки...")
               try:
-                  print(f"🔄 Пробуем конвертер: {converter_url}")
+                  response = requests.get(SOURCE_URL, timeout=30)
+                  response.raise_for_status()
+                  content = response.text
+                  vless_count = content.count('vless://')
+                  print(f"📊 Найдено VLESS ссылок: {vless_count}")
                   
+                  if vless_count == 0:
+                      print("❌ Ошибка: не найдено VLESS ссылок!")
+                      sys.exit(1)
+              except Exception as e:
+                  print(f"❌ Не удалось загрузить подписку: {e}")
+                  sys.exit(1)
+
+              print("\n🔄 Конвертация через локальный subconverter...")
+              
+              try:
                   params = {
                       'target': 'clash',
-                      'url': source_url,
+                      'url': SOURCE_URL,
                       'insert': 'false',
                       'config': REMOTE_CONFIG,
                       'emoji': 'true',
@@ -69,81 +95,60 @@ jobs:
                       'tfo': 'false',
                       'scv': 'true',
                       'fdn': 'true',
-                      'new_name': 'true'
+                      'new_name': 'true',
+                      'expand': 'true'
                   }
                   
-                  response = requests.get(converter_url, params=params, timeout=60)
+                  response = requests.get(LOCAL_CONVERTER, params=params, timeout=120)
                   
-                  if response.status_code == 200 and 'proxies:' in response.text:
-                      print(f"✅ Успешно конвертировано через {converter_url}")
-                      return response.text
-                  else:
-                      print(f"⚠️ Конвертер вернул статус {response.status_code}")
-                      return None
-              except Exception as e:
-                  print(f"❌ Ошибка при использовании {converter_url}: {e}")
-                  return None
-
-          def main():
-              print("📥 Загрузка исходной подписки...")
-              try:
-                  response = requests.get(SOURCE_URL, timeout=30)
-                  response.raise_for_status()
-                  content = response.text
-                  
-                  # Считаем количество VLESS ссылок
-                  vless_count = content.count('vless://')
-                  print(f"📊 Найдено VLESS ссылок: {vless_count}")
-                  
-                  if vless_count == 0:
-                      print("❌ Ошибка: не найдено VLESS ссылок в источнике!")
+                  if response.status_code != 200:
+                      print(f"❌ Конвертер вернул статус {response.status_code}")
+                      print(f"Ответ: {response.text[:500]}")
                       sys.exit(1)
+                  
+                  converted_config = response.text
+                  
+                  if 'proxies:' not in converted_config:
+                      print("❌ Ошибка: в результате нет блока proxies!")
+                      print(f"Ответ: {converted_config[:500]}")
+                      sys.exit(1)
+                  
               except Exception as e:
-                  print(f"❌ Не удалось загрузить подписку: {e}")
+                  print(f"❌ Ошибка конвертации: {e}")
                   sys.exit(1)
 
-              print("\n🔄 Конвертация через subconverter...")
-              converted_config = None
-              
-              for converter in CONVERTERS:
-                  converted_config = try_convert(converter, SOURCE_URL)
-                  if converted_config:
-                      break
-              
-              if not converted_config:
-                  print("❌ Ошибка: ни один конвертер не сработал!")
-                  sys.exit(1)
-
-              # Добавляем заголовок с информацией
+              # Добавляем заголовок
               now_utc = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-              header = f"# Конвертировано через subconverter\n# Обновлено: {now_utc}\n# Исходник: {SOURCE_URL}\n# VLESS серверов: {vless_count}\n\n"
+              header = f"# Конвертировано через локальный subconverter\n# Обновлено: {now_utc}\n# Исходник: {SOURCE_URL}\n# VLESS серверов: {vless_count}\n\n"
               
-              # Сохраняем результат
               with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
                   f.write(header + converted_config)
               
               print(f"\n✅ Готово! Сохранено в {OUTPUT_FILE}")
               print(f"📊 Размер файла: {len(converted_config)} байт")
               
-              # Статистика
               proxy_count = converted_config.count('- name:')
               print(f"📡 Прокси-серверов в конфиге: {proxy_count}")
+              
+              # Проверка Reality
+              reality_count = converted_config.count('reality-opts:')
+              print(f"🔐 Reality серверов: {reality_count}")
 
           if __name__ == "__main__":
               main()
           EOF
           python converter.py
 
+      - name: Stop subconverter
+        if: always()
+        run: docker stop subconverter && docker rm subconverter || true
+
       - name: Commit and Push to generated-config branch
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
-          # Создаем или переключаемся на ветку generated-config
           git checkout -B generated-config
-          
-          # Добавляем файл
           git add output/config.yaml
           
-          # Коммитим и пушим
-          git diff --staged --quiet || (git commit -m "🔄 Auto-update clash config via subconverter [skip ci]" && git push --set-upstream origin generated-config --force)
+          git diff --staged --quiet || (git commit -m "🔄 Auto-update clash config via local subconverter [skip ci]" && git push --set-upstream origin generated-config --force)
