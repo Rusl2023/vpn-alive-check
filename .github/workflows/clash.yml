@@ -637,15 +637,9 @@ jobs:
                       "enable": True,
                       "listen": "0.0.0.0:1053",
                       "ipv6": False,
-                      "enhanced-mode": "fake-ip",
+                      "enhanced-mode": "redir-host",
                       "fake-ip-range": "198.18.0.1/16",
-                      "fake-ip-filter": [
-                          "*.lan", "*.local", "*.ru", "*.su",
-                          "*.msftconnecttest.com", "*.msftncsi.com",
-                          "dns.msftncsi.com", "time.*.com", "time.*.gov",
-                          "localhost.ptlogin2.qq.com", "localhost.sec.qq.com",
-                          "+.stun.*.*", "+.stun.*.*.*", "+.stun.*.*.*.*"
-                      ],
+                      "fake-ip-filter": [],
                       "default-nameserver": ["77.88.8.8", "8.8.8.8"],
                       "nameserver": [
                           "https://dns.google/dns-query",
@@ -653,15 +647,11 @@ jobs:
                       ],
                       "proxy-server-nameserver": [
                           "https://dns.google/dns-query"
-                      ]
+                      ],
+                      "nameserver-policy": {}
                   },
                   "tun": {
-                      "enable": True,
-                      "stack": "mixed",
-                      "dns-hijack": ["any:53"],
-                      "auto-route": True,
-                      "auto-redir": True,
-                      "auto-detect-interface": True
+                      "enable": False,
                   },
                   "routing-mark": 2,
                   "proxies": fixed_proxies,
