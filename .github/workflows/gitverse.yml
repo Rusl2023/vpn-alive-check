@@ -12,33 +12,57 @@ jobs:
       # 🔐 Проверка секретов
       - name: 🔍 Validate secrets
         run: |
-          if [ -z "${{ secrets.GITVERSE_USERNAME }}" ]; then
+          if [ -z "${{ secrets.GITVERSE_USERNAME }}" ]]; then
             echo "❌ GITVERSE_USERNAME не найден!"
             exit 1
           fi
-          if [ -z "${{ secrets.GITVERSE_TOKEN }}" ]; then
+          if [ -z "${{ secrets.GITVERSE_TOKEN }}" ]]; then
             echo "❌ GITVERSE_TOKEN не найден!"
             exit 1
           fi
           echo "✅ Секреты загружены успешно"
 
-      # 📥 Checkout
-      - name: 📦 Checkout source
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-          path: src
-
-      # 🌐 Клонируем GitVerse
-      - name: 🌐 Clone GitVerse
+      # ⚙️ Настраиваем git для больших репозиториев
+      - name: ⚙️ Configure git for large repos
         run: |
+          git config --global http.postBuffer 524288000
+          git config --global http.lowSpeedLimit 0
+          git config --global http.lowSpeedTime 999999
+          git config --global core.compression 0
           git config --global credential.helper store
           echo "https://${{ secrets.GITVERSE_USERNAME }}:${{ secrets.GITVERSE_TOKEN }}@gitverse.ru" > ~/.git-credentials
           chmod 600 ~/.git-credentials
 
-          git clone --depth 1 --branch master \
-            https://gitverse.ru/Rusl2023/Files_2026.git \
-            gv-repo
+      # 🌐 Клонируем GitVerse (с retry и sparse checkout)
+      - name: 🌐 Clone GitVerse (with retry)
+        run: |
+          MAX_RETRIES=3
+          RETRY_COUNT=0
+          
+          while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+            echo "🔄 Попытка клонирования #$((RETRY_COUNT+1))..."
+            
+            if git clone --depth 1 --single-branch --branch master \
+              --filter=blob:none \
+              https://gitverse.ru/Rusl2023/Files_2026.git \
+              gv-repo 2>&1; then
+              echo "✅ Клонирование успешно!"
+              break
+            else
+              RETRY_COUNT=$((RETRY_COUNT+1))
+              echo "❌ Ошибка клонирования (попытка $RETRY_COUNT из $MAX_RETRIES)"
+              rm -rf gv-repo
+              if [ $RETRY_COUNT -lt $MAX_RETRIES ]; then
+                echo "⏳ Ждём 10 секунд перед повторной попыткой..."
+                sleep 10
+              fi
+            fi
+          done
+          
+          if [ ! -d "gv-repo" ]; then
+            echo "❌ Не удалось клонировать репозиторий после $MAX_RETRIES попыток!"
+            exit 1
+          fi
         env:
           GIT_ASKPASS: /bin/true
 
@@ -51,15 +75,9 @@ jobs:
           urls=(
             "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt"
             "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile-2.txt"
-            "https://raw.githubusercontent.com/RUNoName/V.O.I.D-VPN_Bypass/refs/heads/main/configs/url_work.txt"
-            "https://raw.githubusercontent.com/GoldCaviar/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt"
             "https://raw.githubusercontent.com/zieng2/wl/main/vless_lite.txt"
             "https://key.zarazaex.xyz/sub"
-            "https://gitverse.ru/api/repos/RUVIPIEN/russian-white-bolt/raw/branch/master/VPNMIRRORS/v2ray/VLESS_Reality_White_3eac2d.txt"
             "https://raw.githubusercontent.com/EtoNeYaProject/EtoNeYaProject.github.io/refs/heads/main/whitelist"
-            "https://raw.githubusercontent.com/kort0881/vpn-vless-configs-russia/main/githubmirror/clean/vless.txt"
-            "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Cable.txt"
-            "https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt"
             "https://raw.githubusercontent.com/Rusl2023/vpn-alive-check/main/githubmirror/26_proxy_subscription_raw.txt"
           )
 
@@ -72,12 +90,20 @@ jobs:
 
             echo "⬇️ $url -> $filename"
 
-            if curl -fsSL "$url" -o "$filename"; then
-              echo "✅ OK: $(wc -c < "$filename") bytes"
-            else
-              echo "❌ FAILED: $url"
-              rm -f "$filename"
-            fi
+            # Скачиваем с retry
+            for i in 1 2 3; do
+              if curl -fsSL --connect-timeout 30 --max-time 120 "$url" -o "$filename"; then
+                echo "✅ OK: $(wc -c < "$filename") bytes"
+                break
+              else
+                echo "⚠️ Попытка $i не удалась"
+                if [ $i -eq 3 ]; then
+                  echo "❌ FAILED: $url"
+                  rm -f "$filename"
+                fi
+                sleep 5
+              fi
+            done
           done
 
       # 🎯 Скачиваем готовый Clash-конфиг из ветки generated-config
@@ -91,36 +117,42 @@ jobs:
           echo "⬇️ Скачиваем готовый Clash-конфиг..."
           echo "📎 URL: $CLASH_URL"
           
-          if curl -fsSL "$CLASH_URL" -o "$CLASH_FILE"; then
-            FILE_SIZE=$(wc -c < "$CLASH_FILE")
-            PROXY_COUNT=$(grep -c '^- name:' "$CLASH_FILE" || echo 0)
-            
-            echo "✅ OK: $FILE_SIZE bytes -> $CLASH_FILE"
-            echo ""
-            echo "📋 Превью файла (первые 10 строк):"
-            head -n 10 "$CLASH_FILE"
-            echo ""
-            echo "📊 Статистика:"
-            echo "   - Прокси-серверов: $PROXY_COUNT"
-            echo "   - Размер: $FILE_SIZE байт"
-            
-            if [ "$FILE_SIZE" -lt 1000 ]; then
-              echo "⚠️ WARNING: Файл слишком маленький!"
-              echo "   Возможно, workflow 'Update Clash Config' ещё не отработал."
+          # Скачиваем с retry
+          for i in 1 2 3; do
+            if curl -fsSL --connect-timeout 30 --max-time 120 "$CLASH_URL" -o "$CLASH_FILE"; then
+              FILE_SIZE=$(wc -c < "$CLASH_FILE")
+              PROXY_COUNT=$(grep -c '^- name:' "$CLASH_FILE" || echo 0)
+              
+              echo "✅ OK: $FILE_SIZE bytes -> $CLASH_FILE"
+              echo ""
+              echo "📋 Превью файла (первые 10 строк):"
+              head -n 10 "$CLASH_FILE"
+              echo ""
+              echo "📊 Статистика:"
+              echo "   - Прокси-серверов: $PROXY_COUNT"
+              echo "   - Размер: $FILE_SIZE байт"
+              
+              if [ "$FILE_SIZE" -lt 1000 ]; then
+                echo "⚠️ WARNING: Файл слишком маленький!"
+              fi
+              break
+            else
+              echo "⚠️ Попытка $i не удалась"
+              if [ $i -eq 3 ]; then
+                echo "❌ Не удалось скачать clash_config.yaml"
+                echo "# Ожидание генерации конфига..." > "$CLASH_FILE"
+              fi
+              sleep 5
             fi
-          else
-            echo "⚠️ WARNING: Не удалось скачать clash_config.yaml"
-            echo "   Возможно, workflow 'Update Clash Config' ещё не отработал."
-            echo "   Создаём пустой файл-заглушку..."
-            echo "# Ожидание генерации конфига..." > "$CLASH_FILE"
-          fi
+          done
 
-      # 🚀 Коммит и пуш
-      - name: 💾 Push to GitVerse
+      # 🚀 Коммит и пуш (с retry)
+      - name: 💾 Push to GitVerse (with retry)
         working-directory: gv-repo
         run: |
           git config user.name "GitHub Actions"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config http.postBuffer 524288000
 
           git add content/master/*.txt content/master/clash_config.yaml
 
@@ -128,9 +160,23 @@ jobs:
             echo "⚪ Изменений нет"
           else
             git commit -m "🤖 Auto-update files [run:${{ github.run_id }}]"
-            git -c http.extraHeader="Authorization: Bearer ${{ secrets.GITVERSE_TOKEN }}" \
-              push origin HEAD:master
-            echo "✅ Готово"
+            
+            # Пушим с retry
+            for i in 1 2 3; do
+              echo "🔄 Попытка пуша #$i..."
+              if git -c http.extraHeader="Authorization: Bearer ${{ secrets.GITVERSE_TOKEN }}" \
+                push origin HEAD:master 2>&1; then
+                echo "✅ Пуш успешен!"
+                break
+              else
+                echo "⚠️ Попытка пуша $i не удалась"
+                if [ $i -eq 3 ]; then
+                  echo "❌ Не удалось запушить после 3 попыток"
+                  exit 1
+                fi
+                sleep 10
+              fi
+            done
           fi
 
       # 🧹 Очистка
