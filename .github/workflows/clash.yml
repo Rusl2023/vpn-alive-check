@@ -42,14 +42,12 @@ jobs:
           import json
           from datetime import datetime, timezone
 
-          # === НАСТРОЙКИ ===
           SOURCE_URL = "https://raw.githubusercontent.com/Rusl2023/vpn-alive-check/refs/heads/main/githubmirror/26_proxy_subscription_raw.txt"
           OUTPUT_FILE = "output/config.yaml"
           TIMEOUT = 3
           MAX_WORKERS = 50
-          CHECK_ALIVE = True  # Проверять ли доступность серверов
+          CHECK_ALIVE = True
 
-          # === СТРАНЫ (по доменам и IP) ===
           COUNTRY_MAP = {
               '🇺🇸': ['US', 'United States', 'usa', 'america'],
               '🇳🇱': ['NL', 'Netherlands', 'holland'],
@@ -77,9 +75,7 @@ jobs:
               '🇧🇷': ['BR', 'Brazil'],
           }
 
-          # === БАЗОВЫЕ ПРАВИЛА ===
           RULES = [
-              # Локальные сети — напрямую
               'DOMAIN-SUFFIX,local,DIRECT',
               'DOMAIN-SUFFIX,lan,DIRECT',
               'IP-CIDR,192.168.0.0/16,DIRECT,no-resolve',
@@ -89,16 +85,16 @@ jobs:
               'IP-CIDR,100.64.0.0/10,DIRECT,no-resolve',
               'IP-CIDR,224.0.0.0/8,DIRECT,no-resolve',
               'IP-CIDR,fe80::/16,DIRECT,no-resolve',
-              
-              # Российские сервисы — напрямую
               'DOMAIN-SUFFIX,ru,DIRECT',
               'DOMAIN-SUFFIX,su,DIRECT',
               'DOMAIN-SUFFIX,rf,DIRECT',
               'DOMAIN-SUFFIX,yandex.ru,DIRECT',
               'DOMAIN-SUFFIX,yandex.net,DIRECT',
               'DOMAIN-SUFFIX,ya.ru,DIRECT',
+              'DOMAIN-SUFFIX,yastatic.net,DIRECT',
               'DOMAIN-SUFFIX,vk.com,DIRECT',
               'DOMAIN-SUFFIX,vkuser.net,DIRECT',
+              'DOMAIN-SUFFIX,vk-cdn.net,DIRECT',
               'DOMAIN-SUFFIX,ok.ru,DIRECT',
               'DOMAIN-SUFFIX,mail.ru,DIRECT',
               'DOMAIN-SUFFIX,gosuslugi.ru,DIRECT',
@@ -118,8 +114,6 @@ jobs:
               'DOMAIN-SUFFIX,megafon.ru,DIRECT',
               'DOMAIN-SUFFIX,tele2.ru,DIRECT',
               'DOMAIN-SUFFIX,rostelecom.ru,DIRECT',
-              
-              # Telegram — отдельная группа
               'DOMAIN-SUFFIX,telegram.org,📱 Telegram',
               'DOMAIN-SUFFIX,telegram.me,📱 Telegram',
               'DOMAIN-SUFFIX,t.me,📱 Telegram',
@@ -132,16 +126,12 @@ jobs:
               'IP-CIDR,91.108.20.0/22,📱 Telegram,no-resolve',
               'IP-CIDR,91.108.56.0/22,📱 Telegram,no-resolve',
               'IP-CIDR,149.154.160.0/20,📱 Telegram,no-resolve',
-              
-              # YouTube — стриминг
               'DOMAIN-SUFFIX,youtube.com,📺 Streaming',
               'DOMAIN-SUFFIX,youtubei.googleapis.com,📺 Streaming',
               'DOMAIN-SUFFIX,ytimg.com,📺 Streaming',
               'DOMAIN-SUFFIX,googlevideo.com,📺 Streaming',
               'DOMAIN-SUFFIX,youtu.be,📺 Streaming',
               'DOMAIN-KEYWORD,youtube,📺 Streaming',
-              
-              # Стриминговые сервисы
               'DOMAIN-SUFFIX,netflix.com,📺 Streaming',
               'DOMAIN-SUFFIX,nflxvideo.net,📺 Streaming',
               'DOMAIN-SUFFIX,spotify.com,📺 Streaming',
@@ -151,8 +141,6 @@ jobs:
               'DOMAIN-SUFFIX,primevideo.com,📺 Streaming',
               'DOMAIN-SUFFIX,twitch.tv,📺 Streaming',
               'DOMAIN-SUFFIX,ttvnw.net,📺 Streaming',
-              
-              # Соцсети
               'DOMAIN-SUFFIX,instagram.com,🌐 Social',
               'DOMAIN-SUFFIX,facebook.com,🌐 Social',
               'DOMAIN-SUFFIX,fbcdn.net,🌐 Social',
@@ -166,8 +154,6 @@ jobs:
               'DOMAIN-SUFFIX,discordapp.com,🌐 Social',
               'DOMAIN-SUFFIX,whatsapp.com,🌐 Social',
               'DOMAIN-SUFFIX,whatsapp.net,🌐 Social',
-              
-              # Google
               'DOMAIN-SUFFIX,google.com,🔍 Google',
               'DOMAIN-SUFFIX,googleapis.com,🔍 Google',
               'DOMAIN-SUFFIX,gstatic.com,🔍 Google',
@@ -175,11 +161,8 @@ jobs:
               'DOMAIN-SUFFIX,gmail.com,🔍 Google',
               'DOMAIN-SUFFIX,blogger.com,🔍 Google',
               'DOMAIN-SUFFIX,blogspot.com,🔍 Google',
-              'DOMAIN-SUFFIX,googlevideo.com,🔍 Google',
               'DOMAIN-SUFFIX,gvt1.com,🔍 Google',
               'DOMAIN-KEYWORD,google,🔍 Google',
-              
-              # GitHub и разработка
               'DOMAIN-SUFFIX,github.com,💻 Dev',
               'DOMAIN-SUFFIX,githubusercontent.com,💻 Dev',
               'DOMAIN-SUFFIX,github.io,💻 Dev',
@@ -189,8 +172,6 @@ jobs:
               'DOMAIN-SUFFIX,npmjs.com,💻 Dev',
               'DOMAIN-SUFFIX,pypi.org,💻 Dev',
               'DOMAIN-SUFFIX,docker.com,💻 Dev',
-              
-              # Игры
               'DOMAIN-SUFFIX,steampowered.com,🎮 Games',
               'DOMAIN-SUFFIX,steamstatic.com,🎮 Games',
               'DOMAIN-SUFFIX,steamcommunity.com,🎮 Games',
@@ -208,13 +189,9 @@ jobs:
               'DOMAIN-SUFFIX,xbox.com,🎮 Games',
               'DOMAIN-SUFFIX,xboxlive.com,🎮 Games',
               'DOMAIN-SUFFIX,nintendo.net,🎮 Games',
-              
-              # Apple
               'DOMAIN-SUFFIX,apple.com,DIRECT',
               'DOMAIN-SUFFIX,icloud.com,DIRECT',
               'DOMAIN-SUFFIX,mzstatic.com,DIRECT',
-              
-              # Microsoft
               'DOMAIN-SUFFIX,microsoft.com,DIRECT',
               'DOMAIN-SUFFIX,windows.com,DIRECT',
               'DOMAIN-SUFFIX,windowsupdate.com,DIRECT',
@@ -222,8 +199,6 @@ jobs:
               'DOMAIN-SUFFIX,office.com,DIRECT',
               'DOMAIN-SUFFIX,office365.com,DIRECT',
               'DOMAIN-SUFFIX,azure.com,DIRECT',
-              
-              # Блокировки и реклама
               'DOMAIN-KEYWORD,admarvel,BLOCK',
               'DOMAIN-KEYWORD,admaster,BLOCK',
               'DOMAIN-KEYWORD,adsage,BLOCK',
@@ -231,12 +206,9 @@ jobs:
               'DOMAIN-KEYWORD,adsrvmedia,BLOCK',
               'DOMAIN-KEYWORD,adwords,BLOCK',
               'DOMAIN-KEYWORD,analytics,BLOCK',
-              
-              # Всё остальное — через прокси
               'MATCH,🚀 Auto',
           ]
 
-          # === ПАРСЕРЫ ===
           def decode_base64(data):
               data = data.strip()
               padding = (-len(data)) % 4
@@ -438,10 +410,7 @@ jobs:
               return fixed
 
           def detect_country(proxy):
-              """Определяем страну по имени или SNI"""
               name = (proxy.get("name") or "").lower()
-              sni = (proxy.get("sni") or "").lower()
-              
               for flag, keywords in COUNTRY_MAP.items():
                   for kw in keywords:
                       if kw.lower() in name:
@@ -476,13 +445,10 @@ jobs:
               return alive
 
           def build_proxy_groups(proxies):
-              """Создаём proxy-groups в стиле mihomo-constructor"""
               if not proxies:
                   return []
               
               all_names = [p["name"] for p in proxies]
-              
-              # Группируем по странам
               by_country = defaultdict(list)
               for p in proxies:
                   country = detect_country(p)
@@ -490,7 +456,6 @@ jobs:
               
               groups = []
               
-              # 🚀 Auto — автовыбор лучшего
               groups.append({
                   "name": "🚀 Auto",
                   "type": "url-test",
@@ -501,14 +466,12 @@ jobs:
                   "lazy": True
               })
               
-              # 🎯 Manual — ручной выбор
               groups.append({
                   "name": "🎯 Manual",
                   "type": "select",
                   "proxies": ["🚀 Auto"] + all_names
               })
               
-              # Группы по странам
               country_names = {
                   '🇺🇸': '🇺🇸 USA', '🇳🇱': '🇳🇱 Netherlands', '🇩🇪': '🇩🇪 Germany',
                   '🇬🇧': '🇬🇧 UK', '🇫🇷': '🇫🇷 France', '🇵🇱': '🇵🇱 Poland',
@@ -517,7 +480,7 @@ jobs:
                   '🇨🇦': '🇨🇦 Canada', '🇯🇵': '🇯🇵 Japan', '🇸🇬': '🇸🇬 Singapore',
                   '🇭🇰': '🇭🇰 Hong Kong', '🇹🇼': '🇹🇼 Taiwan', '🇰🇷': '🇰🇷 Korea',
                   '🇦🇺': '🇦🇺 Australia', '🇹🇷': '🇹🇷 Turkey', '🇮🇳': '🇮🇳 India',
-                  '🇱🇲': '🌍 Other'
+                  '🌍': '🌍 Other'
               }
               
               for flag, names in by_country.items():
@@ -539,31 +502,48 @@ jobs:
                               "proxies": names
                           })
               
-              # Специальные группы
               special_groups = [
-                  ("📱 Telegram", "🚀 Auto"),
-                  ("📺 Streaming", "🚀 Auto"),
-                  ("🌐 Social", "🚀 Auto"),
-                  ("🔍 Google", "🚀 Auto"),
-                  ("💻 Dev", "🚀 Auto"),
-                  ("🎮 Games", "🚀 Auto"),
+                  "📱 Telegram",
+                  "📺 Streaming",
+                  "🌐 Social",
+                  "🔍 Google",
+                  "💻 Dev",
+                  "🎮 Games",
               ]
               
-              for name, default in special_groups:
+              for name in special_groups:
                   groups.append({
                       "name": name,
                       "type": "select",
-                      "proxies": [default, "🚀 Auto", "DIRECT"] + all_names
+                      "proxies": ["🚀 Auto", "DIRECT"] + all_names
                   })
               
-              # 🛡️ BLOCK
+              # ВАЖНО: имя "BLOCK" должно точно совпадать с правилами!
               groups.append({
-                  "name": "🛡️ BLOCK",
+                  "name": "BLOCK",
                   "type": "select",
-                  "proxies": ["REJECT", "DIRECT"]
+                  "proxies": ["REJECT", "REJECT-DROP", "DIRECT"]
               })
               
               return groups
+
+          def validate_rules(rules, proxies, groups):
+              """Проверяем, что все имена в правилах существуют"""
+              valid_names = {"DIRECT", "REJECT", "REJECT-DROP", "PASS"}
+              for p in proxies:
+                  valid_names.add(p["name"])
+              for g in groups:
+                  valid_names.add(g["name"])
+              
+              invalid = []
+              for rule in rules:
+                  parts = rule.split(",")
+                  if len(parts) >= 2:
+                      target = parts[-1]
+                      if target not in valid_names and not target.startswith("no-resolve"):
+                          invalid.append((rule, target))
+              
+              return invalid
 
           def main():
               print("=" * 60)
@@ -587,16 +567,13 @@ jobs:
                   print("❌ Не найдено ни одной ссылки!")
                   return 1
               
-              # Проверка доступности
               alive_proxies = filter_alive_proxies(all_proxies)
               if not alive_proxies:
                   print("❌ Все серверы недоступны!")
                   return 1
               
-              # Исправляем дубликаты
               fixed_proxies = fix_duplicate_names(alive_proxies)
               
-              # Считаем статистику
               stats = defaultdict(int)
               for p in fixed_proxies:
                   stats[p["type"]] += 1
@@ -607,12 +584,24 @@ jobs:
               reality_count = sum(1 for p in fixed_proxies if p.get("reality-opts"))
               print(f"   🔐 Reality: {reality_count}")
               
-              # Создаём группы
               print("\n🔧 Создание proxy-groups...")
               groups = build_proxy_groups(fixed_proxies)
               print(f"   Создано групп: {len(groups)}")
               
-              # Формируем финальный конфиг
+              print("\n✅ Валидация правил...")
+              invalid = validate_rules(RULES, fixed_proxies, groups)
+              if invalid:
+                  print(f"   ⚠️ Найдено {len(invalid)} проблемных правил:")
+                  for rule, target in invalid[:5]:
+                      print(f"      {rule} -> {target}")
+                  print("   Исправляем...")
+                  for i, (rule, target) in enumerate(invalid):
+                      parts = RULES[[r for r in RULES].index(rule)].split(",")
+                      parts[-1] = "🚀 Auto"
+                      RULES[[r for r in RULES].index(rule)] = ",".join(parts)
+              else:
+                  print("   Все правила корректны!")
+              
               config = {
                   "mode": "rule",
                   "log-level": "info",
@@ -680,7 +669,6 @@ jobs:
                   "rules": RULES
               }
               
-              # Сохраняем
               now_utc = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
               header = f"# ═══════════════════════════════════════════════════\n"
               header += f"# 🏗️  Mihomo Constructor — Auto Generated\n"
@@ -704,6 +692,32 @@ jobs:
           PYEOF
           python constructor.py
 
+      - name: Verify generated file
+        run: |
+          echo "🔍 Проверка сгенерированного файла..."
+          if [ ! -f output/config.yaml ]; then
+            echo "❌ Файл output/config.yaml не создан!"
+            exit 1
+          fi
+          
+          FILE_SIZE=$(wc -c < output/config.yaml)
+          PROXY_COUNT=$(grep -c '^- name:' output/config.yaml || echo 0)
+          
+          echo "📊 Размер файла: $FILE_SIZE байт"
+          echo "📡 Прокси-серверов: $PROXY_COUNT"
+          
+          if [ "$FILE_SIZE" -lt 1000 ]; then
+            echo "❌ Файл слишком маленький!"
+            exit 1
+          fi
+          
+          if [ "$PROXY_COUNT" -lt 1 ]; then
+            echo "❌ Не найдено прокси-серверов!"
+            exit 1
+          fi
+          
+          echo "✅ Файл корректен"
+
       - name: Commit and Push to generated-config branch
         run: |
           git config --global user.name "github-actions[bot]"
@@ -712,4 +726,10 @@ jobs:
           git checkout -B generated-config
           git add output/config.yaml
           
-          git diff --staged --quiet || (git commit -m "🏗️ Mihomo Constructor: auto-update [skip ci]" && git push --set-upstream origin generated-config --force)
+          if git diff --staged --quiet; then
+            echo "⚪ Изменений нет"
+          else
+            git commit -m "🏗️ Mihomo Constructor: auto-update [skip ci]"
+            git push --set-upstream origin generated-config --force
+            echo "✅ Готово!"
+          fi
