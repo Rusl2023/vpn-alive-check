@@ -33,7 +33,6 @@ jobs:
           cat > constructor.py << 'PYEOF'
           import requests
           import yaml
-          import re
           import socket
           import concurrent.futures
           from urllib.parse import urlparse, parse_qs, unquote
@@ -518,7 +517,6 @@ jobs:
                       "proxies": ["🚀 Auto", "DIRECT"] + all_names
                   })
               
-              # ВАЖНО: имя "BLOCK" должно точно совпадать с правилами!
               groups.append({
                   "name": "BLOCK",
                   "type": "select",
@@ -528,7 +526,6 @@ jobs:
               return groups
 
           def validate_rules(rules, proxies, groups):
-              """Проверяем, что все имена в правилах существуют"""
               valid_names = {"DIRECT", "REJECT", "REJECT-DROP", "PASS"}
               for p in proxies:
                   valid_names.add(p["name"])
@@ -637,9 +634,24 @@ jobs:
                       "enable": True,
                       "listen": "0.0.0.0:1053",
                       "ipv6": False,
-                      "enhanced-mode": "redir-host",
+                      "enhanced-mode": "fake-ip",
                       "fake-ip-range": "198.18.0.1/16",
-                      "fake-ip-filter": [],
+                      "fake-ip-filter": [
+                          "*.lan",
+                          "*.local",
+                          "*.ru",
+                          "*.su",
+                          "*.msftconnecttest.com",
+                          "*.msftncsi.com",
+                          "dns.msftncsi.com",
+                          "time.*.com",
+                          "time.*.gov",
+                          "localhost.ptlogin2.qq.com",
+                          "localhost.sec.qq.com",
+                          "+.stun.*.*",
+                          "+.stun.*.*.*",
+                          "+.stun.*.*.*.*"
+                      ],
                       "default-nameserver": ["77.88.8.8", "8.8.8.8"],
                       "nameserver": [
                           "https://dns.google/dns-query",
@@ -651,7 +663,7 @@ jobs:
                       "nameserver-policy": {}
                   },
                   "tun": {
-                      "enable": False,
+                      "enable": False
                   },
                   "routing-mark": 2,
                   "proxies": fixed_proxies,
