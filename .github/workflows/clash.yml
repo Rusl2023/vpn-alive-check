@@ -45,7 +45,7 @@ jobs:
           OUTPUT_FILE = "output/config.yaml"
           TIMEOUT = 3
           MAX_WORKERS = 50
-          CHECK_ALIVE = True
+          CHECK_ALIVE = False  # ВАЖНО: Отключаем TCP проверку - она не работает для Reality серверов
 
           COUNTRY_MAP = {
               '🇺🇸': ['US', 'United States', 'usa', 'america'],
@@ -416,31 +416,12 @@ jobs:
                           return flag
               return "🌍"
 
-          def check_tcp_port(proxy):
-              try:
-                  server = proxy.get("server")
-                  port = proxy.get("port")
-                  if not server or not port:
-                      return None
-                  sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                  sock.settimeout(TIMEOUT)
-                  result = sock.connect_ex((server, int(port)))
-                  sock.close()
-                  return proxy if result == 0 else None
-              except:
-                  return None
-
           def filter_alive_proxies(proxies):
               if not CHECK_ALIVE:
+                  print(f"⏭️  Проверка доступности отключена — оставляем все {len(proxies)} серверов")
                   return proxies
               alive = []
               print(f"🔍 Проверяем {len(proxies)} серверов...")
-              with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-                  futures = [executor.submit(check_tcp_port, p) for p in proxies]
-                  for future in concurrent.futures.as_completed(futures):
-                      if result := future.result():
-                          alive.append(result)
-              print(f"✅ Найдено живых: {len(alive)} из {len(proxies)}")
               return alive
 
           def build_proxy_groups(proxies):
@@ -600,6 +581,9 @@ jobs:
                   print("   Все правила корректны!")
               
               config = {
+                  "mixed-port": 7890,
+                  "redir-port": 7892,
+                  "tproxy-port": 7894,
                   "mode": "rule",
                   "log-level": "info",
                   "unified-delay": True,
