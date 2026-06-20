@@ -23,223 +23,116 @@ jobs:
           python-version: '3.12'
 
       - name: Install dependencies
-        run: pip install requests PyYAML
+        run: pip install requests
 
       - name: Create output directory
         run: mkdir -p output
 
-      - name: Run Updater
+      - name: Convert subscription via subconverter
         run: |
-          cat > updater.py << 'EOF'
+          cat > converter.py << 'EOF'
           import requests
-          import yaml
-          import socket
-          import concurrent.futures
-          from urllib.parse import urlparse, parse_qs
           import base64
-          import json
           import sys
           from datetime import datetime, timezone
+          from urllib.parse import quote
 
+          # Исходная подписка (VLESS Reality)
           SOURCE_URL = "https://raw.githubusercontent.com/Rusl2023/vpn-alive-check/refs/heads/main/githubmirror/26_proxy_subscription_raw.txt"
           OUTPUT_FILE = "output/config.yaml"
-          TIMEOUT = 3
-          MAX_WORKERS = 50
+          
+          # Список конвертеров (пробуем по очереди)
+          CONVERTERS = [
+              "https://sub.xeton.de/sub",
+              "https://api.dler.io/sub",
+              "https://sub.id9.cc/sub",
+              "https://suburl.v1.mk/sub",
+              "https://api.wcc.best/sub"
+          ]
+          
+          # Конфиг для конвертации (используем стандартный Clash конфиг)
+          REMOTE_CONFIG = "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_Online_Full.ini"
 
-          def decode_base64(data):
-              data = data.strip()
-              padding = (-len(data)) % 4
-              if padding:
-                  data += "=" * padding
-              return base64.b64decode(data).decode("utf-8", errors="ignore")
-
-          def parse_vless(uri):
+          def try_convert(converter_url, source_url):
+              """Пытаемся конвертировать через указанный конвертер"""
               try:
-                  parsed = urlparse(uri)
-                  name = requests.utils.unquote(parsed.fragment) if parsed.fragment else "VLESS"
-                  proxy = {
-                      "name": name, "type": "vless", "server": parsed.hostname,
-                      "port": parsed.port or 443, "uuid": parsed.username or "",
-                      "udp": True, "skip-cert-verify": True, "encryption": "none",
-                  }
-                  if parsed.query:
-                      query = parse_qs(parsed.query)
-                      
-                      security = query.get("security", [""])[0]
-                      if security == "tls":
-                          proxy["tls"] = True
-                      elif security == "reality":
-                          proxy["tls"] = True
-                          proxy["reality-opts"] = {}
-                          if "pbk" in query:
-                              proxy["reality-opts"]["public-key"] = query["pbk"][0]
-                          if "sid" in query:
-                              proxy["reality-opts"]["short-id"] = query["sid"][0]
-                      
-                      if "sni" in query:
-                          proxy["sni"] = query["sni"][0]
-                      
-                      if "flow" in query:
-                          proxy["flow"] = query["flow"][0]
-                      
-                      if "fp" in query:
-                          proxy["client-fingerprint"] = query["fp"][0]
-                      
-                      if "type" in query:
-                          t = query["type"][0]
-                          if t == "ws":
-                              proxy["network"] = "ws"
-                              proxy["ws-opts"] = {
-                                  "path": query.get("path", ["/"])[0],
-                                  "headers": {"Host": query.get("host", [parsed.hostname])[0]}
-                              }
-                          elif t == "grpc":
-                              proxy["network"] = "grpc"
-                              proxy["grpc-opts"] = {
-                                  "grpc-service-name": query.get("serviceName", [""])[0]
-                              }
-                          elif t == "tcp":
-                              proxy["network"] = "tcp"
+                  print(f"🔄 Пробуем конвертер: {converter_url}")
                   
-                  return proxy
-              except Exception as e:
-                  print(f"Error parsing VLESS: {e}")
-                  return None
-
-          def parse_proxies_from_text(text):
-              proxies = []
-              for line in text.strip().splitlines():
-                  line = line.strip()
-                  if not line or line.startswith("#"):
-                      continue
-                  if line.startswith("vless://"):
-                      proxy = parse_vless(line)
-                      if proxy:
-                          proxies.append(proxy)
-              return proxies
-
-          def fix_duplicate_names(proxies):
-              name_counts = {}
-              fixed = []
-              for proxy in proxies:
-                  name = proxy["name"]
-                  if name in name_counts:
-                      name_counts[name] += 1
-                      proxy["name"] = f"{name} ({name_counts[name]})"
+                  params = {
+                      'target': 'clash',
+                      'url': source_url,
+                      'insert': 'false',
+                      'config': REMOTE_CONFIG,
+                      'emoji': 'true',
+                      'list': 'true',
+                      'udp': 'true',
+                      'tfo': 'false',
+                      'scv': 'true',
+                      'fdn': 'true',
+                      'new_name': 'true'
+                  }
+                  
+                  response = requests.get(converter_url, params=params, timeout=60)
+                  
+                  if response.status_code == 200 and 'proxies:' in response.text:
+                      print(f"✅ Успешно конвертировано через {converter_url}")
+                      return response.text
                   else:
-                      name_counts[name] = 1
-                  fixed.append(proxy)
-              return fixed
-
-          def check_tcp_port(proxy):
-              try:
-                  server = proxy.get("server")
-                  port = proxy.get("port")
-                  if not server or not port:
+                      print(f"⚠️ Конвертер вернул статус {response.status_code}")
                       return None
-                  sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                  sock.settimeout(TIMEOUT)
-                  result = sock.connect_ex((server, int(port)))
-                  sock.close()
-                  return proxy if result == 0 else None
-              except:
+              except Exception as e:
+                  print(f"❌ Ошибка при использовании {converter_url}: {e}")
                   return None
-
-          def filter_alive_proxies(proxies):
-              alive = []
-              print(f"Проверяем {len(proxies)} серверов...")
-              with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-                  futures = [executor.submit(check_tcp_port, p) for p in proxies]
-                  for future in concurrent.futures.as_completed(futures):
-                      if result := future.result():
-                          alive.append(result)
-              print(f"Найдено живых: {len(alive)} из {len(proxies)}")
-              return alive
-
-          def generate_clash_config(proxies):
-              if not proxies:
-                  print("WARNING: No alive proxies found!")
-                  return None
-              
-              return {
-                  "mode": "rule",
-                  "tproxy-port": 7894,
-                  "ipv6": False,
-                  "log-level": "info",
-                  "allow-lan": False,
-                  "unified-delay": True,
-                  "external-controller": "0.0.0.0:9090",
-                  "dns": {
-                      "enable": True,
-                      "listen": "0.0.0.0:7874",
-                      "ipv6": False,
-                      "enhanced-mode": "fake-ip",
-                      "fake-ip-range": "198.18.0.1/16",
-                      "fake-ip-filter": ["*.lan", "*.local", "*.msftconnecttest.com", "*.msftncsi.com"],
-                      "default-nameserver": ["77.88.8.8", "8.8.8.8"],
-                      "nameserver": ["https://dns.google/dns-query", "https://cloudflare-dns.com/dns-query"]
-                  },
-                  "profile": {"store-selected": True, "store-fake-ip": True},
-                  "routing-mark": 2,
-                  "proxies": proxies,
-                  "proxy-groups": [
-                      {
-                          "name": "🚀 Авто-выбор",
-                          "type": "url-test",
-                          "proxies": [p["name"] for p in proxies],
-                          "url": "http://www.gstatic.com/generate_204",
-                          "interval": 300,
-                          "tolerance": 150
-                      },
-                      {
-                          "name": "🌍 Прокси",
-                          "type": "select",
-                          "proxies": ["🚀 Авто-выбор"] + [p["name"] for p in proxies]
-                      }
-                  ],
-                  "rules": ["MATCH,🌍 Прокси"]
-              }
 
           def main():
-              print("Загрузка списка прокси...")
-              response = requests.get(SOURCE_URL, timeout=30)
-              response.raise_for_status()
-              content = response.text
-
-              print("Парсинг...")
-              all_proxies = parse_proxies_from_text(content)
-              print(f"Распознано прокси: {len(all_proxies)}")
-
-              if not all_proxies:
-                  print("ERROR: No proxies found in source!")
+              print("📥 Загрузка исходной подписки...")
+              try:
+                  response = requests.get(SOURCE_URL, timeout=30)
+                  response.raise_for_status()
+                  content = response.text
+                  
+                  # Считаем количество VLESS ссылок
+                  vless_count = content.count('vless://')
+                  print(f"📊 Найдено VLESS ссылок: {vless_count}")
+                  
+                  if vless_count == 0:
+                      print("❌ Ошибка: не найдено VLESS ссылок в источнике!")
+                      sys.exit(1)
+              except Exception as e:
+                  print(f"❌ Не удалось загрузить подписку: {e}")
                   sys.exit(1)
 
-              print("Проверка доступности...")
-              alive_proxies = filter_alive_proxies(all_proxies)
-
-              if not alive_proxies:
-                  print("ERROR: No alive proxies found!")
+              print("\n🔄 Конвертация через subconverter...")
+              converted_config = None
+              
+              for converter in CONVERTERS:
+                  converted_config = try_convert(converter, SOURCE_URL)
+                  if converted_config:
+                      break
+              
+              if not converted_config:
+                  print("❌ Ошибка: ни один конвертер не сработал!")
                   sys.exit(1)
 
-              print("Исправление имён...")
-              fixed_proxies = fix_duplicate_names(alive_proxies)
-
-              print("Генерация конфига...")
-              config = generate_clash_config(fixed_proxies)
-
+              # Добавляем заголовок с информацией
               now_utc = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-              header = f"# Обновлено: {now_utc}\n# Всего в источнике: {len(all_proxies)}\n# Живых серверов: {len(alive_proxies)}\n\n"
-
-              with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
-                  f.write(header)
-                  yaml.dump(config, f, allow_unicode=True, default_flow_style=False, sort_keys=False)
-
-              print(f"Готово! Сохранено в {OUTPUT_FILE}")
+              header = f"# Конвертировано через subconverter\n# Обновлено: {now_utc}\n# Исходник: {SOURCE_URL}\n# VLESS серверов: {vless_count}\n\n"
+              
+              # Сохраняем результат
+              with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
+                  f.write(header + converted_config)
+              
+              print(f"\n✅ Готово! Сохранено в {OUTPUT_FILE}")
+              print(f"📊 Размер файла: {len(converted_config)} байт")
+              
+              # Статистика
+              proxy_count = converted_config.count('- name:')
+              print(f"📡 Прокси-серверов в конфиге: {proxy_count}")
 
           if __name__ == "__main__":
               main()
           EOF
-          python updater.py
+          python converter.py
 
       - name: Commit and Push to generated-config branch
         run: |
@@ -252,5 +145,5 @@ jobs:
           # Добавляем файл
           git add output/config.yaml
           
-          # Коммитим и пушим с правильным upstream
-          git diff --staged --quiet || (git commit -m "🔄 Auto-update clash config [skip ci]" && git push --set-upstream origin generated-config --force)
+          # Коммитим и пушим
+          git diff --staged --quiet || (git commit -m "🔄 Auto-update clash config via subconverter [skip ci]" && git push --set-upstream origin generated-config --force)
