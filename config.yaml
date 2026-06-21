@@ -1,82 +1,25 @@
-# Mihomo Config (ssclash)
-# Generated: 2026-06-21 02:17 UTC
-# Proxies: 34
-
 mode: rule
-tproxy-port: 7894
+mixed-port: 7890
+allow-lan: true
+log-level: info
+ipv6: false
 tun:
-  enable: true
-  device: clash-tun
+  enable: false
   stack: gvisor
   auto-route: false
-  auto-redirect: false
-  auto-detect-interface: false
-ipv6: false
-log-level: warning
-allow-lan: true
-unified-delay: true
-tcp-concurrent: true
-external-controller: 0.0.0.0:9090
-external-ui: ./ui
-external-ui-url: https://github.com/Zephyruso/zashboard/releases/latest/download/dist-cdn-fonts.zip
 dns:
   enable: true
-  listen: 0.0.0.0:7874
+  listen: 0.0.0.0:53
   ipv6: false
-  default-nameserver:
-  - 9.9.9.9
-  - 149.112.112.112
-  nameserver:
-  - https://dns.quad9.net/dns-query
-  - https://dns10.quad9.net/dns-query
-  nameserver-policy:
-    +.lan: system
-    '*.lan': system
-    msftconnecttest.com: system
-    msftncsi.com: system
-    kion.ru: system
   enhanced-mode: fake-ip
-  fake-ip-range: 198.18.0.0/15
-  fake-ip-filter-mode: whitelist
-  fake-ip-filter:
-  - '*.4pda.to'
-  - '*.4pda.ws'
-  - ip.wtf
-  - '*.ip.wtf'
-  - workspace.turns.goog
-  - '*.workspace.turns.goog'
-  - meet.turns.goog
-  - '*.meet.turns.goog'
-  - meet.google.com
-  - '*.meet.google.com'
-keep-alive-idle: 15
-keep-alive-interval: 15
-profile:
-  store-selected: true
-  store-fake-ip: true
-routing-mark: 2
-sniffer:
-  enable: true
-  force-dns-mapping: true
-  parse-pure-ip: true
-  sniff:
-    HTTP:
-      ports:
-      - 80
-      - 8080
-      - 8880
-      override-destination: true
-    TLS:
-      ports:
-      - 443
-      - 8443
-  skip-domain:
-  - Mijia Cloud
-  - +.lan
-  - +.msftncsi.com
-  - +.openwrt.org
-  - +.vsean.net
-  - cudy.net
+  fake-ip-range: 198.18.0.1/16
+  nameserver:
+  - 8.8.8.8
+  - 1.1.1.1
+  - 9.9.9.9
+  fallback:
+  - tls://8.8.8.8
+  - tls://1.1.1.1
 proxies:
 - name: 🇺🇸 US [R][grpc] | 45.90.12.239
   type: vless
@@ -259,7 +202,7 @@ proxies:
   uuid: 8553ae90-2a81-493a-b050-8ee79c8dbe4c
   udp: true
   skip-cert-verify: true
-  network: tcp
+  network: xhttp
   encryption: none
   tls: true
   reality-opts:
@@ -274,7 +217,7 @@ proxies:
   uuid: 8553ae90-2a81-493a-b050-8ee79c8dbe4c
   udp: true
   skip-cert-verify: true
-  network: tcp
+  network: xhttp
   encryption: none
   tls: true
   reality-opts:
@@ -407,38 +350,6 @@ proxies:
   servername: eh.vk.com
   flow: xtls-rprx-vision
   client-fingerprint: qq
-- name: 🇷🇴 RO [R] | 195.74.93.254 (2)
-  type: vless
-  server: 195.74.93.254
-  port: 443
-  uuid: 146eb6cf-a99c-4022-85ca-022cf81502dc
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: 7ReQIe2kMtP4rCrptgH5glkOM-JGcSAPzHNxOED-Z0s
-    short-id: 247fd6dab1a34a48
-  servername: web.max.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇫🇮 FI [R] | 62.60.255.11
-  type: vless
-  server: 62.60.255.11
-  port: 443
-  uuid: ad8a53f2-b109-4873-9156-fc3bcb0d7fe4
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: nPcUKydxoRI66O3tT9O4QCZpLjOBvkGsiXG7pDX1BBw
-    short-id: 6ba85179e30d4fc2
-  servername: ya.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇩🇪 DE [R] | 5.35.94.215
   type: vless
   server: 5.35.94.215
@@ -550,7 +461,7 @@ proxies:
     short-id: 086007
   servername: www.kinopoisk.ru
   client-fingerprint: firefox
-- name: 🇷🇴 RO [R] | 195.74.93.254 (3)
+- name: 🇷🇴 RO [R] | 195.74.93.254 (2)
   type: vless
   server: 195.74.93.254
   port: 443
@@ -566,7 +477,7 @@ proxies:
   servername: web.max.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇷🇴 RO [R] | 195.74.93.254 (4)
+- name: 🇷🇴 RO [R] | 195.74.93.254 (3)
   type: vless
   server: 195.74.93.254
   port: 443
@@ -582,7 +493,7 @@ proxies:
   servername: web.max.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇷🇴 RO [R] | 195.74.93.254 (5)
+- name: 🇷🇴 RO [R] | 195.74.93.254 (4)
   type: vless
   server: 195.74.93.254
   port: 443
@@ -615,48 +526,62 @@ proxies:
     headers:
       Host: s10211.cdn.ngenix.net
 proxy-groups:
-- name: AI
-  type: fallback
-  interval: 300
-  include-all: true
-  exclude-filter: 🇷🇺|Russia|Россия|Беларусь|Казахстан
-- name: PROXY
+- name: 🚀 Auto
   type: url-test
-  interval: 300
-  include-all: true
-  exclude-filter: 🇷🇺|Russia|Россия|Kazakhstan
-- name: PROXY-RU
-  type: url-test
-  interval: 60
-  include-all: true
-  filter: 🇷🇺|Russia|Россия
-- name: YOUTUBE
-  type: url-test
-  interval: 30
   proxies:
-  - PROXY-RU
-  - PROXY
-- name: INSTAGRAM
-  type: fallback
+  - 🇺🇸 US [R][grpc] | 45.90.12.239
+  - 🇳🇱 NL [R][grpc] | nl-1.coinbridge.nl
+  - 🇩🇪 DE [R][grpc] | de-1.coinbridge.nl
+  - 🇵🇱 PL [R][grpc] | pl-1.coinbridge.nl
+  - 🇸🇪 SE [R][grpc] | sw-3.coinbridge.nl
+  - 🇫🇮 FI [R] | 150.241.71.35
+  - 🇬🇧 GB [R] | 144.31.217.99
+  - 🇬🇧 GB [R] | 150.241.101.222
+  - 🇩🇪 DE [R] | 103.109.234.138
+  - 🇬🇧 GB [R] | 2.26.88.109
+  url: https://www.google.com/generate_204
+  interval: 300
+  tolerance: 50
+- name: 🌍 Proxy
+  type: select
   proxies:
-  - PROXY
-  - PROXY-RU
+  - 🚀 Auto
+  - 🇺🇸 US [R][grpc] | 45.90.12.239
+  - 🇳🇱 NL [R][grpc] | nl-1.coinbridge.nl
+  - 🇩🇪 DE [R][grpc] | de-1.coinbridge.nl
+  - 🇵🇱 PL [R][grpc] | pl-1.coinbridge.nl
+  - 🇸🇪 SE [R][grpc] | sw-3.coinbridge.nl
+  - 🇫🇮 FI [R] | 150.241.71.35
+  - 🇬🇧 GB [R] | 144.31.217.99
+  - 🇬🇧 GB [R] | 150.241.101.222
+  - 🇩🇪 DE [R] | 103.109.234.138
+  - 🇬🇧 GB [R] | 2.26.88.109
+  - 🇰🇿 KZ [R] | raff-vpn-kz-server1.ru
+  - 🇵🇱 PL [R][xhttp] | 85.158.109.113
+  - 🇵🇱 PL [R][xhttp] | pol6.odavpn.online
+  - 🇸🇪 SE [R] | se1.vitok.cc
+  - 🇳🇱 NL [R] | 144.31.30.69
+  - 🇸🇪 SE [R] | 70.34.194.57
+  - 🇷🇴 RO [R] | 195.74.93.254
+  - 🇵🇱 PL [R] | 144.31.1.83
+  - 🇵🇱 PL [R] | pl1.vitok.cc
+  - 🇷🇴 RO [R] | 93.114.194.131
+  - 🇦🇹 AT [R] | 158.160.149.156
+  - 🇩🇪 DE [R] | 5.35.94.215
+  - 🇰🇿 KZ [R] | vpnv1.aspidnet.xyz
+  - 🇰🇿 KZ [R] | 38.180.39.171
+  - 🇱🇻 LV [R] | 185.145.245.113
+  - 🇩🇪 DE [R] | 31.56.188.123
+  - 🇩🇪 DE [R] | pla.webonix.ru
+  - 🇩🇪 DE [R] | 178.250.242.39
+  - 🇷🇴 RO [R] | 195.74.93.254 (2)
+  - 🇷🇴 RO [R] | 195.74.93.254 (3)
+  - 🇷🇴 RO [R] | 195.74.93.254 (4)
+  - 🇩🇪 DE [ws] | 78.41.111.87
+- name: 🎯 Direct
+  type: select
+  proxies:
+  - DIRECT
+  - 🌍 Proxy
 rules:
-- DOMAIN-KEYWORD,4pda,PROXY
-- DOMAIN-SUFFIX,ip.wtf,PROXY
-- RULE-SET,telegram,PROXY
-- RULE-SET,trae,PROXY
-- RULE-SET,tik-tok,PROXY
-- RULE-SET,whatsapp,PROXY
-- RULE-SET,google-ai,PROXY
-- RULE-SET,adobe,PROXY
-- RULE-SET,claude,AI
-- RULE-SET,discord-domain,PROXY
-- RULE-SET,facebook,INSTAGRAM
-- RULE-SET,github,PROXY
-- RULE-SET,youtube,YOUTUBE
-- RULE-SET,instagram,INSTAGRAM
-- RULE-SET,openai,AI
-- RULE-SET,ru-blocked,PROXY
-- RULE-SET,itdog-ru,PROXY
-- MATCH,GLOBAL
+- MATCH,🌍 Proxy
