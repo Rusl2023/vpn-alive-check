@@ -55,15 +55,22 @@ jobs:
                       main_part = uri_part
                       name = "VLESS"
                   
-                  # Разделяем uuid@host:port
+                  # Разделяем uuid@host:port?params
                   if '@' not in main_part:
                       print(f"⚠️ Нет @ в URI: {uri[:50]}...")
                       return None
                   
-                  uuid_part, host_port = main_part.split('@', 1)
+                  uuid_part, host_port_query = main_part.split('@', 1)
                   uuid = uuid_part
                   
-                  # Парсим host:port
+                  # ВАЖНО: Сначала отделяем параметры запроса
+                  if '?' in host_port_query:
+                      host_port, query_string = host_port_query.split('?', 1)
+                  else:
+                      host_port = host_port_query
+                      query_string = ''
+                  
+                  # Теперь парсим host:port
                   if ':' not in host_port:
                       print(f"⚠️ Нет : в host:port: {host_port}")
                       return None
@@ -95,17 +102,8 @@ jobs:
                       "encryption": "none"
                   }
                   
-                  # Парсим параметры после ?
-                  if '?' in host_port:
-                      # Для VLESS параметры обычно в конце
-                      pass
-                  
-                  # Ищем параметры в исходном URI
-                  if '?' in uri:
-                      query_string = uri.split('?', 1)[1]
-                      if '#' in query_string:
-                          query_string = query_string.split('#', 1)[0]
-                      
+                  # Парсим параметры
+                  if query_string:
                       params = parse_qs(query_string)
                       
                       # Security (tls/reality)
@@ -162,14 +160,6 @@ jobs:
                                   proxy['grpc-opts']['grpc-service-name'] = params['path'][0]
                               else:
                                   proxy['grpc-opts']['grpc-service-name'] = ''
-                      
-                      # Для gRPC без явного type, но с path
-                      if 'path' in params and params['path'][0].startswith('/'):
-                          if 'grpc' in uri.lower() or 'serviceName' in params:
-                              proxy['network'] = 'grpc'
-                              proxy['grpc-opts'] = {
-                                  'grpc-service-name': params.get('serviceName', [params['path'][0]])[0]
-                              }
                   
                   # Проверяем обязательные поля
                   if not proxy.get('uuid'):
@@ -281,7 +271,7 @@ jobs:
                       {
                           "name": "🚀 Auto",
                           "type": "url-test",
-                          "proxies": [p["name"] for p in proxies[:10]],  # Первые 10 для теста
+                          "proxies": [p["name"] for p in proxies[:10]],
                           "url": "https://www.google.com/generate_204",
                           "interval": 300,
                           "tolerance": 50
