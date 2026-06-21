@@ -25,188 +25,18 @@ jobs:
       - name: Install dependencies
         run: pip install requests PyYAML
 
-      - name: Create output directory
-        run: mkdir -p output
-
       - name: Run Mihomo Constructor
         run: |
           cat > constructor.py << 'PYEOF'
           import requests
           import yaml
-          import socket
-          import concurrent.futures
-          from urllib.parse import urlparse, parse_qs, unquote
-          from collections import defaultdict
           import base64
           import json
+          from urllib.parse import urlparse, parse_qs, unquote
           from datetime import datetime, timezone
 
           SOURCE_URL = "https://raw.githubusercontent.com/Rusl2023/vpn-alive-check/refs/heads/main/githubmirror/26_proxy_subscription_raw.txt"
-          OUTPUT_FILE = "output/config.yaml"
-          TIMEOUT = 3
-          MAX_WORKERS = 50
-          CHECK_ALIVE = False  # ВАЖНО: Отключаем TCP проверку - она не работает для Reality серверов
-
-          COUNTRY_MAP = {
-              '🇺🇸': ['US', 'United States', 'usa', 'america'],
-              '🇳🇱': ['NL', 'Netherlands', 'holland'],
-              '🇩🇪': ['DE', 'Germany', 'deutschland'],
-              '🇬🇧': ['GB', 'UK', 'United Kingdom', 'britain'],
-              '🇫🇷': ['FR', 'France'],
-              '🇮🇹': ['IT', 'Italy'],
-              '🇪🇸': ['ES', 'Spain'],
-              '🇵🇱': ['PL', 'Poland'],
-              '🇷🇴': ['RO', 'Romania'],
-              '🇸🇪': ['SE', 'Sweden'],
-              '🇫🇮': ['FI', 'Finland'],
-              '🇱🇻': ['LV', 'Latvia'],
-              '🇰🇿': ['KZ', 'Kazakhstan'],
-              '🇲🇩': ['MD', 'Moldova'],
-              '🇨🇦': ['CA', 'Canada'],
-              '🇯🇵': ['JP', 'Japan'],
-              '🇸🇬': ['SG', 'Singapore'],
-              '🇭🇰': ['HK', 'Hong Kong'],
-              '🇹🇼': ['TW', 'Taiwan'],
-              '🇰🇷': ['KR', 'Korea'],
-              '🇦🇺': ['AU', 'Australia'],
-              '🇹🇷': ['TR', 'Turkey'],
-              '🇮🇳': ['IN', 'India'],
-              '🇧🇷': ['BR', 'Brazil'],
-          }
-
-          RULES = [
-              'DOMAIN-SUFFIX,local,DIRECT',
-              'DOMAIN-SUFFIX,lan,DIRECT',
-              'IP-CIDR,192.168.0.0/16,DIRECT,no-resolve',
-              'IP-CIDR,10.0.0.0/8,DIRECT,no-resolve',
-              'IP-CIDR,172.16.0.0/12,DIRECT,no-resolve',
-              'IP-CIDR,127.0.0.0/8,DIRECT,no-resolve',
-              'IP-CIDR,100.64.0.0/10,DIRECT,no-resolve',
-              'IP-CIDR,224.0.0.0/8,DIRECT,no-resolve',
-              'IP-CIDR,fe80::/16,DIRECT,no-resolve',
-              'DOMAIN-SUFFIX,ru,DIRECT',
-              'DOMAIN-SUFFIX,su,DIRECT',
-              'DOMAIN-SUFFIX,rf,DIRECT',
-              'DOMAIN-SUFFIX,yandex.ru,DIRECT',
-              'DOMAIN-SUFFIX,yandex.net,DIRECT',
-              'DOMAIN-SUFFIX,ya.ru,DIRECT',
-              'DOMAIN-SUFFIX,yastatic.net,DIRECT',
-              'DOMAIN-SUFFIX,vk.com,DIRECT',
-              'DOMAIN-SUFFIX,vkuser.net,DIRECT',
-              'DOMAIN-SUFFIX,vk-cdn.net,DIRECT',
-              'DOMAIN-SUFFIX,ok.ru,DIRECT',
-              'DOMAIN-SUFFIX,mail.ru,DIRECT',
-              'DOMAIN-SUFFIX,gosuslugi.ru,DIRECT',
-              'DOMAIN-SUFFIX,sberbank.ru,DIRECT',
-              'DOMAIN-SUFFIX,tinkoff.ru,DIRECT',
-              'DOMAIN-SUFFIX,wildberries.ru,DIRECT',
-              'DOMAIN-SUFFIX,ozon.ru,DIRECT',
-              'DOMAIN-SUFFIX,aliexpress.ru,DIRECT',
-              'DOMAIN-SUFFIX,avito.ru,DIRECT',
-              'DOMAIN-SUFFIX,hh.ru,DIRECT',
-              'DOMAIN-SUFFIX,rzd.ru,DIRECT',
-              'DOMAIN-SUFFIX,aeroflot.ru,DIRECT',
-              'DOMAIN-SUFFIX,max.ru,DIRECT',
-              'DOMAIN-SUFFIX,kinopoisk.ru,DIRECT',
-              'DOMAIN-SUFFIX,mts.ru,DIRECT',
-              'DOMAIN-SUFFIX,beeline.ru,DIRECT',
-              'DOMAIN-SUFFIX,megafon.ru,DIRECT',
-              'DOMAIN-SUFFIX,tele2.ru,DIRECT',
-              'DOMAIN-SUFFIX,rostelecom.ru,DIRECT',
-              'DOMAIN-SUFFIX,telegram.org,📱 Telegram',
-              'DOMAIN-SUFFIX,telegram.me,📱 Telegram',
-              'DOMAIN-SUFFIX,t.me,📱 Telegram',
-              'DOMAIN-SUFFIX,telegra.ph,📱 Telegram',
-              'DOMAIN-KEYWORD,telegram,📱 Telegram',
-              'IP-CIDR,91.108.4.0/22,📱 Telegram,no-resolve',
-              'IP-CIDR,91.108.8.0/22,📱 Telegram,no-resolve',
-              'IP-CIDR,91.108.12.0/22,📱 Telegram,no-resolve',
-              'IP-CIDR,91.108.16.0/22,📱 Telegram,no-resolve',
-              'IP-CIDR,91.108.20.0/22,📱 Telegram,no-resolve',
-              'IP-CIDR,91.108.56.0/22,📱 Telegram,no-resolve',
-              'IP-CIDR,149.154.160.0/20,📱 Telegram,no-resolve',
-              'DOMAIN-SUFFIX,youtube.com,📺 Streaming',
-              'DOMAIN-SUFFIX,youtubei.googleapis.com,📺 Streaming',
-              'DOMAIN-SUFFIX,ytimg.com,📺 Streaming',
-              'DOMAIN-SUFFIX,googlevideo.com,📺 Streaming',
-              'DOMAIN-SUFFIX,youtu.be,📺 Streaming',
-              'DOMAIN-KEYWORD,youtube,📺 Streaming',
-              'DOMAIN-SUFFIX,netflix.com,📺 Streaming',
-              'DOMAIN-SUFFIX,nflxvideo.net,📺 Streaming',
-              'DOMAIN-SUFFIX,spotify.com,📺 Streaming',
-              'DOMAIN-SUFFIX,hbo.com,📺 Streaming',
-              'DOMAIN-SUFFIX,hbomax.com,📺 Streaming',
-              'DOMAIN-SUFFIX,disneyplus.com,📺 Streaming',
-              'DOMAIN-SUFFIX,primevideo.com,📺 Streaming',
-              'DOMAIN-SUFFIX,twitch.tv,📺 Streaming',
-              'DOMAIN-SUFFIX,ttvnw.net,📺 Streaming',
-              'DOMAIN-SUFFIX,instagram.com,🌐 Social',
-              'DOMAIN-SUFFIX,facebook.com,🌐 Social',
-              'DOMAIN-SUFFIX,fbcdn.net,🌐 Social',
-              'DOMAIN-SUFFIX,twitter.com,🌐 Social',
-              'DOMAIN-SUFFIX,x.com,🌐 Social',
-              'DOMAIN-SUFFIX,twimg.com,🌐 Social',
-              'DOMAIN-SUFFIX,reddit.com,🌐 Social',
-              'DOMAIN-SUFFIX,redd.it,🌐 Social',
-              'DOMAIN-SUFFIX,redditstatic.com,🌐 Social',
-              'DOMAIN-SUFFIX,discord.com,🌐 Social',
-              'DOMAIN-SUFFIX,discordapp.com,🌐 Social',
-              'DOMAIN-SUFFIX,whatsapp.com,🌐 Social',
-              'DOMAIN-SUFFIX,whatsapp.net,🌐 Social',
-              'DOMAIN-SUFFIX,google.com,🔍 Google',
-              'DOMAIN-SUFFIX,googleapis.com,🔍 Google',
-              'DOMAIN-SUFFIX,gstatic.com,🔍 Google',
-              'DOMAIN-SUFFIX,googleusercontent.com,🔍 Google',
-              'DOMAIN-SUFFIX,gmail.com,🔍 Google',
-              'DOMAIN-SUFFIX,blogger.com,🔍 Google',
-              'DOMAIN-SUFFIX,blogspot.com,🔍 Google',
-              'DOMAIN-SUFFIX,gvt1.com,🔍 Google',
-              'DOMAIN-KEYWORD,google,🔍 Google',
-              'DOMAIN-SUFFIX,github.com,💻 Dev',
-              'DOMAIN-SUFFIX,githubusercontent.com,💻 Dev',
-              'DOMAIN-SUFFIX,github.io,💻 Dev',
-              'DOMAIN-SUFFIX,githubassets.com,💻 Dev',
-              'DOMAIN-SUFFIX,stackoverflow.com,💻 Dev',
-              'DOMAIN-SUFFIX,gitlab.com,💻 Dev',
-              'DOMAIN-SUFFIX,npmjs.com,💻 Dev',
-              'DOMAIN-SUFFIX,pypi.org,💻 Dev',
-              'DOMAIN-SUFFIX,docker.com,💻 Dev',
-              'DOMAIN-SUFFIX,steampowered.com,🎮 Games',
-              'DOMAIN-SUFFIX,steamstatic.com,🎮 Games',
-              'DOMAIN-SUFFIX,steamcommunity.com,🎮 Games',
-              'DOMAIN-SUFFIX,epicgames.com,🎮 Games',
-              'DOMAIN-SUFFIX,unrealengine.com,🎮 Games',
-              'DOMAIN-SUFFIX,riotgames.com,🎮 Games',
-              'DOMAIN-SUFFIX,leagueoflegends.com,🎮 Games',
-              'DOMAIN-SUFFIX,playvalorant.com,🎮 Games',
-              'DOMAIN-SUFFIX,blizzard.com,🎮 Games',
-              'DOMAIN-SUFFIX,battle.net,🎮 Games',
-              'DOMAIN-SUFFIX,ea.com,🎮 Games',
-              'DOMAIN-SUFFIX,origin.com,🎮 Games',
-              'DOMAIN-SUFFIX,ubi.com,🎮 Games',
-              'DOMAIN-SUFFIX,playstation.com,🎮 Games',
-              'DOMAIN-SUFFIX,xbox.com,🎮 Games',
-              'DOMAIN-SUFFIX,xboxlive.com,🎮 Games',
-              'DOMAIN-SUFFIX,nintendo.net,🎮 Games',
-              'DOMAIN-SUFFIX,apple.com,DIRECT',
-              'DOMAIN-SUFFIX,icloud.com,DIRECT',
-              'DOMAIN-SUFFIX,mzstatic.com,DIRECT',
-              'DOMAIN-SUFFIX,microsoft.com,DIRECT',
-              'DOMAIN-SUFFIX,windows.com,DIRECT',
-              'DOMAIN-SUFFIX,windowsupdate.com,DIRECT',
-              'DOMAIN-SUFFIX,live.com,DIRECT',
-              'DOMAIN-SUFFIX,office.com,DIRECT',
-              'DOMAIN-SUFFIX,office365.com,DIRECT',
-              'DOMAIN-SUFFIX,azure.com,DIRECT',
-              'DOMAIN-KEYWORD,admarvel,BLOCK',
-              'DOMAIN-KEYWORD,admaster,BLOCK',
-              'DOMAIN-KEYWORD,adsage,BLOCK',
-              'DOMAIN-KEYWORD,adsmogo,BLOCK',
-              'DOMAIN-KEYWORD,adsrvmedia,BLOCK',
-              'DOMAIN-KEYWORD,adwords,BLOCK',
-              'DOMAIN-KEYWORD,analytics,BLOCK',
-              'MATCH,🚀 Auto',
-          ]
+          OUTPUT_FILE = "config.yaml"
 
           def decode_base64(data):
               data = data.strip()
@@ -221,501 +51,230 @@ jobs:
           def parse_vless(uri):
               try:
                   parsed = urlparse(uri)
-                  name = unquote(parsed.fragment) if parsed.fragment else "VLESS"
+                  name = unquote(parsed.fragment) if parsed.fragment else f"VLESS {parsed.hostname}"
+                  
                   proxy = {
-                      "name": name, "type": "vless", "server": parsed.hostname,
-                      "port": parsed.port or 443, "uuid": parsed.username or "",
-                      "udp": True, "skip-cert-verify": True, "encryption": "none",
-                  }
-                  if parsed.query:
-                      query = parse_qs(parsed.query)
-                      security = query.get("security", [""])[0]
-                      if security == "tls":
-                          proxy["tls"] = True
-                      elif security == "reality":
-                          proxy["tls"] = True
-                          proxy["reality-opts"] = {}
-                          if "pbk" in query:
-                              proxy["reality-opts"]["public-key"] = query["pbk"][0]
-                          if "sid" in query:
-                              proxy["reality-opts"]["short-id"] = query["sid"][0]
-                      if "sni" in query:
-                          proxy["sni"] = query["sni"][0]
-                      if "flow" in query:
-                          proxy["flow"] = query["flow"][0]
-                      if "fp" in query:
-                          proxy["client-fingerprint"] = query["fp"][0]
-                      if "type" in query:
-                          t = query["type"][0]
-                          if t == "ws":
-                              proxy["network"] = "ws"
-                              proxy["ws-opts"] = {
-                                  "path": query.get("path", ["/"])[0],
-                                  "headers": {"Host": query.get("host", [parsed.hostname])[0]}
-                              }
-                          elif t == "grpc":
-                              proxy["network"] = "grpc"
-                              proxy["grpc-opts"] = {
-                                  "grpc-service-name": query.get("serviceName", [""])[0]
-                              }
-                          elif t == "tcp":
-                              proxy["network"] = "tcp"
-                  return proxy
-              except Exception as e:
-                  print(f"  ⚠️ Error parsing VLESS: {e}")
-                  return None
-
-          def parse_vmess(uri):
-              try:
-                  b64_part = uri[len("vmess://"):].strip()
-                  decoded = decode_base64(b64_part)
-                  vmess_json = json.loads(decoded)
-                  proxy = {
-                      "name": vmess_json.get("ps", "VMess"),
-                      "type": "vmess",
-                      "server": vmess_json.get("add", ""),
-                      "port": int(vmess_json.get("port", 0)),
-                      "uuid": vmess_json.get("id", ""),
-                      "alterId": int(vmess_json.get("aid", 0)),
-                      "cipher": vmess_json.get("scy", "auto"),
-                      "network": vmess_json.get("net", "tcp"),
+                      "name": name,
+                      "type": "vless",
+                      "server": parsed.hostname,
+                      "port": int(parsed.port) if parsed.port else 443,
+                      "uuid": parsed.username or "",
                       "udp": True,
+                      "skip-cert-verify": True,
+                      "network": "tcp",
+                      "encryption": "none"
                   }
-                  net = vmess_json.get("net", "tcp")
-                  if net == "ws":
-                      proxy["ws-opts"] = {"path": vmess_json.get("path", "/"), "headers": {"Host": vmess_json.get("host", vmess_json.get("add", ""))}}
-                  elif net == "grpc":
-                      proxy["grpc-opts"] = {"grpc-service-name": vmess_json.get("path", "")}
-                  if vmess_json.get("tls") == "tls":
-                      proxy["tls"] = True
-                      proxy["skip-cert-verify"] = True
-                      proxy["sni"] = vmess_json.get("sni", vmess_json.get("add", ""))
-                  return proxy
-              except Exception as e:
-                  print(f"  ⚠️ Error parsing VMess: {e}")
-                  return None
 
-          def parse_trojan(uri):
-              try:
-                  parsed = urlparse(uri)
-                  name = unquote(parsed.fragment) if parsed.fragment else "Trojan"
-                  proxy = {
-                      "name": name, "type": "trojan", "server": parsed.hostname,
-                      "port": parsed.port or 443, "password": parsed.username or "",
-                      "udp": True, "skip-cert-verify": True,
-                  }
-                  if parsed.query:
-                      query = parse_qs(parsed.query)
-                      if "sni" in query: proxy["sni"] = query["sni"][0]
-                      if "type" in query:
-                          t = query["type"][0]
-                          if t == "ws":
-                              proxy["network"] = "ws"
-                              proxy["ws-opts"] = {"path": query.get("path", ["/"])[0], "headers": {"Host": query.get("host", [parsed.hostname])[0]}}
-                          elif t == "grpc":
-                              proxy["network"] = "grpc"
-                              proxy["grpc-opts"] = {"grpc-service-name": query.get("serviceName", [""])[0]}
-                  return proxy
-              except Exception as e:
-                  print(f"  ⚠️ Error parsing Trojan: {e}")
-                  return None
-
-          def parse_shadowsocks(uri):
-              try:
-                  if "#" in uri:
-                      uri_part, name_part = uri.split("#", 1)
-                      name = unquote(name_part)
-                  else:
-                      uri_part, name = uri, "Shadowsocks"
-                  uri_part = uri_part[len("ss://"):]
-                  if "@" not in uri_part: return None
-                  userinfo, server_port = uri_part.split("@", 1)
-                  try:
-                      decoded = decode_base64(userinfo)
-                      cipher, password = decoded.split(":", 1)
-                  except:
-                      cipher, password = ("aes-256-gcm", userinfo) if ":" not in userinfo else userinfo.split(":", 1)
-                  server, port = server_port.rsplit(":", 1)
-                  return {"name": name, "type": "ss", "server": server, "port": int(port), "cipher": cipher, "password": password, "udp": True}
-              except Exception as e:
-                  print(f"  ⚠️ Error parsing SS: {e}")
-                  return None
-
-          def parse_hysteria2(uri):
-              try:
-                  parsed = urlparse(uri)
-                  name = unquote(parsed.fragment) if parsed.fragment else "Hysteria2"
-                  proxy = {"name": name, "type": "hysteria2", "server": parsed.hostname, "port": parsed.port or 443, "password": parsed.username or "", "skip-cert-verify": True}
                   if parsed.query:
                       q = parse_qs(parsed.query)
-                      if "auth" in q and not proxy["password"]: proxy["password"] = q["auth"][0]
-                      if "sni" in q: proxy["sni"] = q["sni"][0]
-                  return proxy
-              except Exception as e:
-                  print(f"  ⚠️ Error parsing Hysteria2: {e}")
-                  return None
+                      security = q.get("security", [""])[0]
 
-          def parse_tuic(uri):
-              try:
-                  parsed = urlparse(uri)
-                  name = unquote(parsed.fragment) if parsed.fragment else "Tuic"
-                  uuid = password = ""
-                  if parsed.username and ":" in parsed.username:
-                      uuid, password = parsed.username.split(":", 1)
-                  else:
-                      uuid = parsed.username or ""
-                  proxy = {"name": name, "type": "tuic", "server": parsed.hostname, "port": parsed.port or 443, "uuid": uuid, "password": password, "udp": True, "skip-cert-verify": True}
-                  if parsed.query and "sni" in parse_qs(parsed.query):
-                      proxy["sni"] = parse_qs(parsed.query)["sni"][0]
+                      if security in ["tls", "reality"]:
+                          proxy["tls"] = True
+
+                      if security == "reality":
+                          proxy["reality-opts"] = {}
+                          pbk = q.get("pbk") or q.get("publickey")
+                          if pbk:
+                              proxy["reality-opts"]["public-key"] = pbk[0]
+                          sid = q.get("sid") or q.get("shortid")
+                          if sid:
+                              proxy["reality-opts"]["short-id"] = sid[0]
+
+                      sni = q.get("sni") or q.get("servername")
+                      if sni:
+                          proxy["servername"] = sni[0]
+
+                      if "flow" in q:
+                          proxy["flow"] = q["flow"][0]
+                      if "fp" in q or "fingerprint" in q:
+                          proxy["client-fingerprint"] = (q.get("fp") or q.get("fingerprint"))[0]
+
+                      t = q.get("type", ["tcp"])[0]
+                      if t == "ws":
+                          proxy["network"] = "ws"
+                          proxy["ws-opts"] = {
+                              "path": q.get("path", ["/"])[0],
+                              "headers": {"Host": q.get("host", [proxy.get("servername") or parsed.hostname])[0]}
+                          }
+                      elif t == "grpc":
+                          proxy["network"] = "grpc"
+                          proxy["grpc-opts"] = {"grpc-service-name": q.get("serviceName", [""])[0]}
+
                   return proxy
               except Exception as e:
-                  print(f"  ⚠️ Error parsing Tuic: {e}")
+                  print(f"⚠️ VLESS parse error: {e}")
                   return None
 
           def parse_proxies_from_text(text):
               proxies = []
               parsers = {
                   "vless://": parse_vless,
-                  "vmess://": parse_vmess,
-                  "trojan://": parse_trojan,
-                  "ss://": parse_shadowsocks,
-                  "hysteria2://": parse_hysteria2,
-                  "hy2://": parse_hysteria2,
-                  "tuic://": parse_tuic,
+                  "vmess://": lambda x: None,
+                  "trojan://": lambda x: None,
+                  "ss://": lambda x: None,
               }
               for line in text.strip().splitlines():
                   line = line.strip()
                   if not line or line.startswith("#"):
                       continue
                   for prefix, parser in parsers.items():
-                      if line.startswith(prefix):
-                          proxy = parser(line)
-                          if proxy:
-                              proxies.append(proxy)
+                      if line.lower().startswith(prefix):
+                          p = parser(line)
+                          if p:
+                              proxies.append(p)
                           break
               return proxies
 
           def fix_duplicate_names(proxies):
-              name_counts = {}
-              fixed = []
-              for proxy in proxies:
-                  name = proxy["name"]
-                  if name in name_counts:
-                      name_counts[name] += 1
-                      proxy["name"] = f"{name} ({name_counts[name]})"
+              seen = {}
+              for p in proxies:
+                  base = p["name"]
+                  if base in seen:
+                      seen[base] += 1
+                      p["name"] = f"{base} ({seen[base]})"
                   else:
-                      name_counts[name] = 1
-                  fixed.append(proxy)
-              return fixed
-
-          def detect_country(proxy):
-              name = (proxy.get("name") or "").lower()
-              for flag, keywords in COUNTRY_MAP.items():
-                  for kw in keywords:
-                      if kw.lower() in name:
-                          return flag
-              return "🌍"
-
-          def filter_alive_proxies(proxies):
-              if not CHECK_ALIVE:
-                  print(f"⏭️  Проверка доступности отключена — оставляем все {len(proxies)} серверов")
-                  return proxies
-              alive = []
-              print(f"🔍 Проверяем {len(proxies)} серверов...")
-              return alive
-
-          def build_proxy_groups(proxies):
-              if not proxies:
-                  return []
-              
-              all_names = [p["name"] for p in proxies]
-              by_country = defaultdict(list)
-              for p in proxies:
-                  country = detect_country(p)
-                  by_country[country].append(p["name"])
-              
-              groups = []
-              
-              groups.append({
-                  "name": "🚀 Auto",
-                  "type": "url-test",
-                  "proxies": all_names,
-                  "url": "http://www.gstatic.com/generate_204",
-                  "interval": 300,
-                  "tolerance": 150,
-                  "lazy": True
-              })
-              
-              groups.append({
-                  "name": "🎯 Manual",
-                  "type": "select",
-                  "proxies": ["🚀 Auto"] + all_names
-              })
-              
-              country_names = {
-                  '🇺🇸': '🇺🇸 USA', '🇳🇱': '🇳🇱 Netherlands', '🇩🇪': '🇩🇪 Germany',
-                  '🇬🇧': '🇬🇧 UK', '🇫🇷': '🇫🇷 France', '🇵🇱': '🇵🇱 Poland',
-                  '🇷🇴': '🇷🇴 Romania', '🇸🇪': '🇸🇪 Sweden', '🇫🇮': '🇫🇮 Finland',
-                  '🇱🇻': '🇱🇻 Latvia', '🇰🇿': '🇰🇿 Kazakhstan', '🇲🇩': '🇲🇩 Moldova',
-                  '🇨🇦': '🇨🇦 Canada', '🇯🇵': '🇯🇵 Japan', '🇸🇬': '🇸🇬 Singapore',
-                  '🇭🇰': '🇭🇰 Hong Kong', '🇹🇼': '🇹🇼 Taiwan', '🇰🇷': '🇰🇷 Korea',
-                  '🇦🇺': '🇦🇺 Australia', '🇹🇷': '🇹🇷 Turkey', '🇮🇳': '🇮🇳 India',
-                  '🌍': '🌍 Other'
-              }
-              
-              for flag, names in by_country.items():
-                  if len(names) >= 1:
-                      group_name = country_names.get(flag, f"{flag} Servers")
-                      if len(names) > 1:
-                          groups.append({
-                              "name": group_name,
-                              "type": "url-test",
-                              "proxies": names,
-                              "url": "http://www.gstatic.com/generate_204",
-                              "interval": 300,
-                              "tolerance": 150
-                          })
-                      else:
-                          groups.append({
-                              "name": group_name,
-                              "type": "select",
-                              "proxies": names
-                          })
-              
-              special_groups = [
-                  "📱 Telegram",
-                  "📺 Streaming",
-                  "🌐 Social",
-                  "🔍 Google",
-                  "💻 Dev",
-                  "🎮 Games",
-              ]
-              
-              for name in special_groups:
-                  groups.append({
-                      "name": name,
-                      "type": "select",
-                      "proxies": ["🚀 Auto", "DIRECT"] + all_names
-                  })
-              
-              groups.append({
-                  "name": "BLOCK",
-                  "type": "select",
-                  "proxies": ["REJECT", "REJECT-DROP", "DIRECT"]
-              })
-              
-              return groups
-
-          def validate_rules(rules, proxies, groups):
-              valid_names = {"DIRECT", "REJECT", "REJECT-DROP", "PASS"}
-              for p in proxies:
-                  valid_names.add(p["name"])
-              for g in groups:
-                  valid_names.add(g["name"])
-              
-              invalid = []
-              for rule in rules:
-                  parts = rule.split(",")
-                  if len(parts) >= 2:
-                      target = parts[-1]
-                      if target not in valid_names and not target.startswith("no-resolve"):
-                          invalid.append((rule, target))
-              
-              return invalid
+                      seen[base] = 1
+              return proxies
 
           def main():
-              print("=" * 60)
-              print("🏗️  MIHOMO CONSTRUCTOR (GitHub Actions Edition)")
-              print("=" * 60)
+              print("🚀 Загрузка подписки...")
+              r = requests.get(SOURCE_URL, timeout=60)
+              r.raise_for_status()
               
-              print(f"\n📥 Загрузка подписки: {SOURCE_URL}")
-              try:
-                  response = requests.get(SOURCE_URL, timeout=30)
-                  response.raise_for_status()
-                  content = response.text
-              except Exception as e:
-                  print(f"❌ Ошибка загрузки: {e}")
-                  return 1
+              proxies = parse_proxies_from_text(r.text)
+              print(f"📊 Найдено прокси: {len(proxies)}")
               
-              print("🔍 Парсинг ссылок...")
-              all_proxies = parse_proxies_from_text(content)
-              print(f"📊 Найдено прокси: {len(all_proxies)}")
-              
-              if not all_proxies:
-                  print("❌ Не найдено ни одной ссылки!")
-                  return 1
-              
-              alive_proxies = filter_alive_proxies(all_proxies)
-              if not alive_proxies:
-                  print("❌ Все серверы недоступны!")
-                  return 1
-              
-              fixed_proxies = fix_duplicate_names(alive_proxies)
-              
-              stats = defaultdict(int)
-              for p in fixed_proxies:
-                  stats[p["type"]] += 1
-              print("\n📈 Статистика по типам:")
-              for t, c in stats.items():
-                  print(f"   {t}: {c}")
-              
-              reality_count = sum(1 for p in fixed_proxies if p.get("reality-opts"))
-              print(f"   🔐 Reality: {reality_count}")
-              
-              print("\n🔧 Создание proxy-groups...")
-              groups = build_proxy_groups(fixed_proxies)
-              print(f"   Создано групп: {len(groups)}")
-              
-              print("\n✅ Валидация правил...")
-              invalid = validate_rules(RULES, fixed_proxies, groups)
-              if invalid:
-                  print(f"   ⚠️ Найдено {len(invalid)} проблемных правил:")
-                  for rule, target in invalid[:5]:
-                      print(f"      {rule} -> {target}")
-                  print("   Исправляем...")
-                  for i, (rule, target) in enumerate(invalid):
-                      parts = RULES[[r for r in RULES].index(rule)].split(",")
-                      parts[-1] = "🚀 Auto"
-                      RULES[[r for r in RULES].index(rule)] = ",".join(parts)
-              else:
-                  print("   Все правила корректны!")
-              
+              proxies = fix_duplicate_names(proxies)
+
               config = {
-                  "mixed-port": 7890,
-                  "redir-port": 7892,
-                  "tproxy-port": 7894,
                   "mode": "rule",
-                  "log-level": "info",
+                  "tproxy-port": 7894,
+                  "tun": {
+                      "enable": True,
+                      "device": "clash-tun",
+                      "stack": "gvisor",
+                      "auto-route": False,
+                      "auto-redirect": False,
+                      "auto-detect-interface": False
+                  },
+                  "ipv6": False,
+                  "log-level": "warning",
+                  "allow-lan": True,
                   "unified-delay": True,
                   "tcp-concurrent": True,
-                  "ipv6": False,
-                  "allow-lan": True,
-                  "bind-address": "*",
                   "external-controller": "0.0.0.0:9090",
-                  "external-ui": "ui",
-                  "external-ui-url": "https://github.com/Zephyruso/zashboard/releases/latest/download/dist-no-fonts.zip",
-                  "find-process-mode": "strict",
-                  "profile": {
-                      "store-selected": True,
-                      "store-fake-ip": True
-                  },
-                  "sniffer": {
-                      "enable": True,
-                      "sniff": {
-                          "HTTP": {"ports": [80, 8080, 8880], "override-destination": True},
-                          "TLS": {"ports": [443, 8443]},
-                          "QUIC": {"ports": [443, 8443]}
-                      },
-                      "skip-domain": [
-                          "Mijia Cloud",
-                          "+.lan",
-                          "+.local",
-                          "+.ru",
-                          "+.push.apple.com"
-                      ]
-                  },
+                  "external-ui": "./ui",
+                  "external-ui-url": "https://github.com/Zephyruso/zashboard/releases/latest/download/dist-cdn-fonts.zip",
+
                   "dns": {
                       "enable": True,
                       "listen": "0.0.0.0:7874",
                       "ipv6": False,
-                      "enhanced-mode": "fake-ip",
-                      "fake-ip-range": "198.18.0.1/16",
-                      "fake-ip-filter": [
-                          "*.lan",
-                          "*.local",
-                          "*.ru",
-                          "*.su",
-                          "*.msftconnecttest.com",
-                          "*.msftncsi.com",
-                          "dns.msftncsi.com",
-                          "time.*.com",
-                          "time.*.gov",
-                          "localhost.ptlogin2.qq.com",
-                          "localhost.sec.qq.com",
-                          "+.stun.*.*",
-                          "+.stun.*.*.*",
-                          "+.stun.*.*.*.*"
-                      ],
-                      "default-nameserver": ["77.88.8.8", "8.8.8.8"],
+                      "default-nameserver": ["9.9.9.9", "149.112.112.112"],
                       "nameserver": [
-                          "https://dns.google/dns-query",
-                          "https://cloudflare-dns.com/dns-query"
+                          "https://dns.quad9.net/dns-query",
+                          "https://dns10.quad9.net/dns-query"
                       ],
-                      "proxy-server-nameserver": [
-                          "https://dns.google/dns-query"
-                      ],
-                      "nameserver-policy": {}
+                      "nameserver-policy": {
+                          "+.lan": "system",
+                          "*.lan": "system",
+                          "msftconnecttest.com": "system",
+                          "msftncsi.com": "system",
+                          "kion.ru": "system"
+                      },
+                      "enhanced-mode": "fake-ip",
+                      "fake-ip-range": "198.18.0.0/15",
+                      "fake-ip-filter-mode": "whitelist",
+                      "fake-ip-filter": [
+                          "*.4pda.to", "*.4pda.ws", "ip.wtf", "*.ip.wtf",
+                          "workspace.turns.goog", "*.workspace.turns.goog",
+                          "meet.turns.goog", "*.meet.turns.goog",
+                          "meet.google.com", "*.meet.google.com"
+                      ]
                   },
-                  "tun": {
-                      "enable": False
+
+                  "keep-alive-idle": 15,
+                  "keep-alive-interval": 15,
+
+                  "profile": {
+                      "store-selected": True,
+                      "store-fake-ip": True
                   },
+
                   "routing-mark": 2,
-                  "proxies": fixed_proxies,
-                  "proxy-groups": groups,
-                  "rules": RULES
+
+                  "sniffer": {
+                      "enable": True,
+                      "force-dns-mapping": True,
+                      "parse-pure-ip": True,
+                      "sniff": {
+                          "HTTP": {"ports": [80, 8080, 8880], "override-destination": True},
+                          "TLS": {"ports": [443, 8443]}
+                      },
+                      "skip-domain": [
+                          "Mijia Cloud", "+.lan", "+.msftncsi.com",
+                          "+.openwrt.org", "+.vsean.net", "cudy.net"
+                      ]
+                  },
+
+                  "proxies": proxies,
+
+                  "proxy-groups": [
+                      {"name": "AI", "type": "fallback", "interval": 300, "include-all": True, "exclude-filter": "🇷🇺|Russia|Россия|Беларусь|Казахстан"},
+                      {"name": "PROXY", "type": "url-test", "interval": 300, "include-all": True, "exclude-filter": "🇷🇺|Russia|Россия|Kazakhstan"},
+                      {"name": "PROXY-RU", "type": "url-test", "interval": 60, "include-all": True, "filter": "🇷🇺|Russia|Россия"},
+                      {"name": "YOUTUBE", "type": "url-test", "interval": 30, "proxies": ["PROXY-RU", "PROXY"]},
+                      {"name": "INSTAGRAM", "type": "fallback", "proxies": ["PROXY", "PROXY-RU"]}
+                  ],
+
+                  "rules": [
+                      "DOMAIN-KEYWORD,4pda,PROXY",
+                      "DOMAIN-SUFFIX,ip.wtf,PROXY",
+                      "RULE-SET,telegram,PROXY",
+                      "RULE-SET,trae,PROXY",
+                      "RULE-SET,tik-tok,PROXY",
+                      "RULE-SET,whatsapp,PROXY",
+                      "RULE-SET,google-ai,PROXY",
+                      "RULE-SET,adobe,PROXY",
+                      "RULE-SET,claude,AI",
+                      "RULE-SET,discord-domain,PROXY",
+                      "RULE-SET,facebook,INSTAGRAM",
+                      "RULE-SET,github,PROXY",
+                      "RULE-SET,youtube,YOUTUBE",
+                      "RULE-SET,instagram,INSTAGRAM",
+                      "RULE-SET,openai,AI",
+                      "RULE-SET,ru-blocked,PROXY",
+                      "RULE-SET,itdog-ru,PROXY",
+                      "MATCH,GLOBAL"
+                  ]
               }
-              
-              now_utc = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-              header = f"# ═══════════════════════════════════════════════════\n"
-              header += f"# 🏗️  Mihomo Constructor — Auto Generated\n"
-              header += f"# 📅 Обновлено: {now_utc}\n"
-              header += f"# 📡 Прокси: {len(fixed_proxies)}\n"
-              header += f"# 🔐 Reality: {reality_count}\n"
-              header += f"# 📦 Групп: {len(groups)}\n"
-              header += f"# 📏 Правил: {len(RULES)}\n"
-              header += f"# ═══════════════════════════════════════════════════\n\n"
-              
-              with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
+
+              header = f"# Mihomo Config (ssclash)\n# Generated: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}\n# Proxies: {len(proxies)}\n\n"
+
+              with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
                   f.write(header)
-                  yaml.dump(config, f, allow_unicode=True, default_flow_style=False, sort_keys=False)
-              
-              print(f"\n✅ Конфиг сохранён: {OUTPUT_FILE}")
-              print(f"📊 Размер: {len(header) + len(yaml.dump(config, allow_unicode=True))} байт")
+                  yaml.dump(config, f, allow_unicode=True, sort_keys=False, default_flow_style=False)
+
+              print(f"✅ config.yaml успешно обновлён ({len(proxies)} прокси)")
               return 0
 
           if __name__ == "__main__":
-              exit(main())
+              main()
           PYEOF
           python constructor.py
 
-      - name: Verify generated file
-        run: |
-          echo "🔍 Проверка сгенерированного файла..."
-          if [ ! -f output/config.yaml ]; then
-            echo "❌ Файл output/config.yaml не создан!"
-            exit 1
-          fi
-          
-          FILE_SIZE=$(wc -c < output/config.yaml)
-          PROXY_COUNT=$(grep -c '^- name:' output/config.yaml || echo 0)
-          
-          echo "📊 Размер файла: $FILE_SIZE байт"
-          echo "📡 Прокси-серверов: $PROXY_COUNT"
-          
-          if [ "$FILE_SIZE" -lt 1000 ]; then
-            echo "❌ Файл слишком маленький!"
-            exit 1
-          fi
-          
-          if [ "$PROXY_COUNT" -lt 1 ]; then
-            echo "❌ Не найдено прокси-серверов!"
-            exit 1
-          fi
-          
-          echo "✅ Файл корректен"
-
-      - name: Commit and Push to generated-config branch
+      - name: Commit and Push
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
-          git checkout -B generated-config
-          git add output/config.yaml
+          git add config.yaml
           
           if git diff --staged --quiet; then
-            echo "⚪ Изменений нет"
+            echo "⚪ Нет изменений"
           else
-            git commit -m "🏗️ Mihomo Constructor: auto-update [skip ci]"
-            git push --set-upstream origin generated-config --force
-            echo "✅ Готово!"
+            git commit -m "🔄 Auto update config [$(date +'%Y-%m-%d %H:%M')]"
+            git push
+            echo "✅ Обновлено и запушено"
           fi
