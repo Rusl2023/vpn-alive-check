@@ -32,98 +32,185 @@ jobs:
           import yaml
           import base64
           import json
-          from urllib.parse import urlparse, parse_qs, unquote
+          import re
+          from urllib.parse import urlparse, parse_qs, unquote, quote
           from datetime import datetime, timezone
 
           SOURCE_URL = "https://raw.githubusercontent.com/Rusl2023/vpn-alive-check/refs/heads/main/githubmirror/26_proxy_subscription_raw.txt"
           OUTPUT_FILE = "config.yaml"
 
-          def decode_base64(data):
-              data = data.strip()
-              padding = (-len(data)) % 4
-              if padding:
-                  data += "=" * padding
-              try:
-                  return base64.b64decode(data).decode("utf-8", errors="ignore")
-              except:
-                  return ""
-
           def parse_vless(uri):
               try:
-                  parsed = urlparse(uri)
-                  name = unquote(parsed.fragment) if parsed.fragment else f"VLESS {parsed.hostname}"
+                  if not uri.startswith('vless://'):
+                      return None
+                  
+                  # Убираем префикс
+                  uri_part = uri[8:]
+                  
+                  # Разделяем на основную часть и фрагмент (имя)
+                  if '#' in uri_part:
+                      main_part, fragment = uri_part.rsplit('#', 1)
+                      name = unquote(fragment).strip()
+                  else:
+                      main_part = uri_part
+                      name = "VLESS"
+                  
+                  # Разделяем uuid@host:port
+                  if '@' not in main_part:
+                      print(f"⚠️ Нет @ в URI: {uri[:50]}...")
+                      return None
+                  
+                  uuid_part, host_port = main_part.split('@', 1)
+                  uuid = uuid_part
+                  
+                  # Парсим host:port
+                  if ':' not in host_port:
+                      print(f"⚠️ Нет : в host:port: {host_port}")
+                      return None
+                  
+                  # Обрабатываем IPv6 и обычные адреса
+                  if host_port.startswith('['):
+                      # IPv6
+                      match = re.match(r'\[([^\]]+)\]:(\d+)', host_port)
+                      if match:
+                          host = match.group(1)
+                          port = int(match.group(2))
+                      else:
+                          return None
+                  else:
+                      # Обычный host:port
+                      parts = host_port.rsplit(':', 1)
+                      host = parts[0]
+                      port = int(parts[1])
                   
                   proxy = {
-                      "name": name,
+                      "name": name if name else f"VLESS {host}:{port}",
                       "type": "vless",
-                      "server": parsed.hostname,
-                      "port": int(parsed.port) if parsed.port else 443,
-                      "uuid": parsed.username or "",
+                      "server": host,
+                      "port": port,
+                      "uuid": uuid,
                       "udp": True,
                       "skip-cert-verify": True,
                       "network": "tcp",
                       "encryption": "none"
                   }
-
-                  if parsed.query:
-                      q = parse_qs(parsed.query)
-                      security = q.get("security", [""])[0]
-
-                      if security in ["tls", "reality"]:
-                          proxy["tls"] = True
-
-                      if security == "reality":
-                          proxy["reality-opts"] = {}
-                          pbk = q.get("pbk") or q.get("publickey")
-                          if pbk:
-                              proxy["reality-opts"]["public-key"] = pbk[0]
-                          sid = q.get("sid") or q.get("shortid")
-                          if sid:
-                              proxy["reality-opts"]["short-id"] = sid[0]
-
-                      sni = q.get("sni") or q.get("servername")
-                      if sni:
-                          proxy["servername"] = sni[0]
-
-                      if "flow" in q:
-                          proxy["flow"] = q["flow"][0]
-                      if "fp" in q or "fingerprint" in q:
-                          proxy["client-fingerprint"] = (q.get("fp") or q.get("fingerprint"))[0]
-
-                      t = q.get("type", ["tcp"])[0]
-                      if t == "ws":
-                          proxy["network"] = "ws"
-                          proxy["ws-opts"] = {
-                              "path": q.get("path", ["/"])[0],
-                              "headers": {"Host": q.get("host", [proxy.get("servername") or parsed.hostname])[0]}
-                          }
-                      elif t == "grpc":
-                          proxy["network"] = "grpc"
-                          proxy["grpc-opts"] = {"grpc-service-name": q.get("serviceName", [""])[0]}
-
+                  
+                  # Парсим параметры после ?
+                  if '?' in host_port:
+                      # Для VLESS параметры обычно в конце
+                      pass
+                  
+                  # Ищем параметры в исходном URI
+                  if '?' in uri:
+                      query_string = uri.split('?', 1)[1]
+                      if '#' in query_string:
+                          query_string = query_string.split('#', 1)[0]
+                      
+                      params = parse_qs(query_string)
+                      
+                      # Security (tls/reality)
+                      security = params.get('security', ['none'])[0]
+                      if security == 'tls':
+                          proxy['tls'] = True
+                      elif security == 'reality':
+                          proxy['tls'] = True
+                          proxy['reality-opts'] = {}
+                          
+                          # Public key
+                          if 'pbk' in params:
+                              proxy['reality-opts']['public-key'] = params['pbk'][0]
+                          
+                          # Short ID
+                          if 'sid' in params:
+                              proxy['reality-opts']['short-id'] = params['sid'][0]
+                      
+                      # SNI
+                      if 'sni' in params:
+                          proxy['servername'] = params['sni'][0]
+                      elif 'servername' in params:
+                          proxy['servername'] = params['servername'][0]
+                      
+                      # Flow
+                      if 'flow' in params:
+                          proxy['flow'] = params['flow'][0]
+                      
+                      # Fingerprint
+                      if 'fp' in params:
+                          proxy['client-fingerprint'] = params['fp'][0]
+                      elif 'fingerprint' in params:
+                          proxy['client-fingerprint'] = params['fingerprint'][0]
+                      
+                      # Type (transport)
+                      if 'type' in params:
+                          net_type = params['type'][0]
+                          proxy['network'] = net_type
+                          
+                          if net_type == 'ws':
+                              proxy['ws-opts'] = {}
+                              if 'path' in params:
+                                  proxy['ws-opts']['path'] = params['path'][0]
+                              if 'host' in params:
+                                  proxy['ws-opts']['headers'] = {'Host': params['host'][0]}
+                              elif 'sni' in params:
+                                  proxy['ws-opts']['headers'] = {'Host': params['sni'][0]}
+                          
+                          elif net_type == 'grpc':
+                              proxy['grpc-opts'] = {}
+                              if 'serviceName' in params:
+                                  proxy['grpc-opts']['grpc-service-name'] = params['serviceName'][0]
+                              elif 'path' in params:
+                                  proxy['grpc-opts']['grpc-service-name'] = params['path'][0]
+                              else:
+                                  proxy['grpc-opts']['grpc-service-name'] = ''
+                      
+                      # Для gRPC без явного type, но с path
+                      if 'path' in params and params['path'][0].startswith('/'):
+                          if 'grpc' in uri.lower() or 'serviceName' in params:
+                              proxy['network'] = 'grpc'
+                              proxy['grpc-opts'] = {
+                                  'grpc-service-name': params.get('serviceName', [params['path'][0]])[0]
+                              }
+                  
+                  # Проверяем обязательные поля
+                  if not proxy.get('uuid'):
+                      print(f"⚠️ Нет UUID: {uri[:50]}...")
+                      return None
+                  
                   return proxy
+                  
               except Exception as e:
                   print(f"⚠️ VLESS parse error: {e}")
+                  print(f"  URI: {uri[:100]}...")
+                  import traceback
+                  traceback.print_exc()
                   return None
 
           def parse_proxies_from_text(text):
               proxies = []
-              parsers = {
-                  "vless://": parse_vless,
-                  "vmess://": lambda x: None,
-                  "trojan://": lambda x: None,
-                  "ss://": lambda x: None,
-              }
-              for line in text.strip().splitlines():
+              lines = text.strip().splitlines()
+              print(f"📄 Всего строк в подписке: {len(lines)}")
+              
+              for line in lines:
                   line = line.strip()
-                  if not line or line.startswith("#"):
+                  if not line or line.startswith('#'):
                       continue
-                  for prefix, parser in parsers.items():
-                      if line.lower().startswith(prefix):
-                          p = parser(line)
-                          if p:
-                              proxies.append(p)
-                          break
+                  
+                  if line.lower().startswith('vless://'):
+                      p = parse_vless(line)
+                      if p:
+                          proxies.append(p)
+                          print(f"✅ Добавлен: {p['name']} ({p['server']}:{p['port']})")
+                      else:
+                          print(f"❌ Не распарсен: {line[:80]}...")
+                  elif line.lower().startswith('vmess://'):
+                      print(f"⏭️ Пропущен VMess: {line[:50]}...")
+                  elif line.lower().startswith('trojan://'):
+                      print(f"⏭️ Пропущен Trojan: {line[:50]}...")
+                  elif line.lower().startswith('ss://'):
+                      print(f"⏭️ Пропущен Shadowsocks: {line[:50]}...")
+                  else:
+                      print(f"❓ Неизвестный протокол: {line[:50]}...")
+              
               return proxies
 
           def fix_duplicate_names(proxies):
@@ -139,128 +226,93 @@ jobs:
 
           def main():
               print("🚀 Загрузка подписки...")
-              r = requests.get(SOURCE_URL, timeout=60)
-              r.raise_for_status()
+              try:
+                  r = requests.get(SOURCE_URL, timeout=60)
+                  r.raise_for_status()
+                  print(f"📥 Загружено байт: {len(r.text)}")
+              except Exception as e:
+                  print(f"❌ Ошибка загрузки: {e}")
+                  return 1
               
               proxies = parse_proxies_from_text(r.text)
-              print(f"📊 Найдено прокси: {len(proxies)}")
+              print(f"\n📊 Найдено рабочих прокси: {len(proxies)}")
+              
+              if len(proxies) == 0:
+                  print("⚠️ ВНИМАНИЕ: Не найдено ни одного прокси!")
+                  print("Проверьте ссылку на подписку")
+                  return 1
               
               proxies = fix_duplicate_names(proxies)
 
+              # Конфигурация для Mihomo/Clash.Meta
               config = {
                   "mode": "rule",
-                  "tproxy-port": 7894,
-                  "tun": {
-                      "enable": True,
-                      "device": "clash-tun",
-                      "stack": "gvisor",
-                      "auto-route": False,
-                      "auto-redirect": False,
-                      "auto-detect-interface": False
-                  },
-                  "ipv6": False,
-                  "log-level": "warning",
+                  "mixed-port": 7890,
                   "allow-lan": True,
-                  "unified-delay": True,
-                  "tcp-concurrent": True,
-                  "external-controller": "0.0.0.0:9090",
-                  "external-ui": "./ui",
-                  "external-ui-url": "https://github.com/Zephyruso/zashboard/releases/latest/download/dist-cdn-fonts.zip",
-
+                  "log-level": "info",
+                  "ipv6": False,
+                  
+                  "tun": {
+                      "enable": False,
+                      "stack": "gvisor",
+                      "auto-route": False
+                  },
+                  
                   "dns": {
                       "enable": True,
-                      "listen": "0.0.0.0:7874",
+                      "listen": "0.0.0.0:53",
                       "ipv6": False,
-                      "default-nameserver": ["9.9.9.9", "149.112.112.112"],
-                      "nameserver": [
-                          "https://dns.quad9.net/dns-query",
-                          "https://dns10.quad9.net/dns-query"
-                      ],
-                      "nameserver-policy": {
-                          "+.lan": "system",
-                          "*.lan": "system",
-                          "msftconnecttest.com": "system",
-                          "msftncsi.com": "system",
-                          "kion.ru": "system"
-                      },
                       "enhanced-mode": "fake-ip",
-                      "fake-ip-range": "198.18.0.0/15",
-                      "fake-ip-filter-mode": "whitelist",
-                      "fake-ip-filter": [
-                          "*.4pda.to", "*.4pda.ws", "ip.wtf", "*.ip.wtf",
-                          "workspace.turns.goog", "*.workspace.turns.goog",
-                          "meet.turns.goog", "*.meet.turns.goog",
-                          "meet.google.com", "*.meet.google.com"
+                      "fake-ip-range": "198.18.0.1/16",
+                      "nameserver": [
+                          "8.8.8.8",
+                          "1.1.1.1",
+                          "9.9.9.9"
+                      ],
+                      "fallback": [
+                          "tls://8.8.8.8",
+                          "tls://1.1.1.1"
                       ]
                   },
-
-                  "keep-alive-idle": 15,
-                  "keep-alive-interval": 15,
-
-                  "profile": {
-                      "store-selected": True,
-                      "store-fake-ip": True
-                  },
-
-                  "routing-mark": 2,
-
-                  "sniffer": {
-                      "enable": True,
-                      "force-dns-mapping": True,
-                      "parse-pure-ip": True,
-                      "sniff": {
-                          "HTTP": {"ports": [80, 8080, 8880], "override-destination": True},
-                          "TLS": {"ports": [443, 8443]}
-                      },
-                      "skip-domain": [
-                          "Mijia Cloud", "+.lan", "+.msftncsi.com",
-                          "+.openwrt.org", "+.vsean.net", "cudy.net"
-                      ]
-                  },
-
+                  
                   "proxies": proxies,
-
+                  
                   "proxy-groups": [
-                      {"name": "AI", "type": "fallback", "interval": 300, "include-all": True, "exclude-filter": "🇷🇺|Russia|Россия|Беларусь|Казахстан"},
-                      {"name": "PROXY", "type": "url-test", "interval": 300, "include-all": True, "exclude-filter": "🇷🇺|Russia|Россия|Kazakhstan"},
-                      {"name": "PROXY-RU", "type": "url-test", "interval": 60, "include-all": True, "filter": "🇷🇺|Russia|Россия"},
-                      {"name": "YOUTUBE", "type": "url-test", "interval": 30, "proxies": ["PROXY-RU", "PROXY"]},
-                      {"name": "INSTAGRAM", "type": "fallback", "proxies": ["PROXY", "PROXY-RU"]}
+                      {
+                          "name": "🚀 Auto",
+                          "type": "url-test",
+                          "proxies": [p["name"] for p in proxies[:10]],  # Первые 10 для теста
+                          "url": "https://www.google.com/generate_204",
+                          "interval": 300,
+                          "tolerance": 50
+                      },
+                      {
+                          "name": "🌍 Proxy",
+                          "type": "select",
+                          "proxies": ["🚀 Auto"] + [p["name"] for p in proxies]
+                      },
+                      {
+                          "name": "🎯 Direct",
+                          "type": "select",
+                          "proxies": ["DIRECT", "🌍 Proxy"]
+                      }
                   ],
-
+                  
                   "rules": [
-                      "DOMAIN-KEYWORD,4pda,PROXY",
-                      "DOMAIN-SUFFIX,ip.wtf,PROXY",
-                      "RULE-SET,telegram,PROXY",
-                      "RULE-SET,trae,PROXY",
-                      "RULE-SET,tik-tok,PROXY",
-                      "RULE-SET,whatsapp,PROXY",
-                      "RULE-SET,google-ai,PROXY",
-                      "RULE-SET,adobe,PROXY",
-                      "RULE-SET,claude,AI",
-                      "RULE-SET,discord-domain,PROXY",
-                      "RULE-SET,facebook,INSTAGRAM",
-                      "RULE-SET,github,PROXY",
-                      "RULE-SET,youtube,YOUTUBE",
-                      "RULE-SET,instagram,INSTAGRAM",
-                      "RULE-SET,openai,AI",
-                      "RULE-SET,ru-blocked,PROXY",
-                      "RULE-SET,itdog-ru,PROXY",
-                      "MATCH,GLOBAL"
+                      "MATCH,🌍 Proxy"
                   ]
               }
 
-              header = f"# Mihomo Config (ssclash)\n# Generated: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}\n# Proxies: {len(proxies)}\n\n"
-
+              # Сохраняем
               with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
-                  f.write(header)
-                  yaml.dump(config, f, allow_unicode=True, sort_keys=False, default_flow_style=False)
+                  yaml.dump(config, f, allow_unicode=True, sort_keys=False, default_flow_style=False, indent=2)
 
-              print(f"✅ config.yaml успешно обновлён ({len(proxies)} прокси)")
+              print(f"\n✅ {OUTPUT_FILE} создан успешно!")
+              print(f"   Прокси: {len(proxies)}")
               return 0
 
           if __name__ == "__main__":
-              main()
+              exit(main())
           PYEOF
           python constructor.py
 
