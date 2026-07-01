@@ -21,23 +21,6 @@ dns:
   - tls://8.8.8.8
   - tls://1.1.1.1
 proxies:
-- name: 🇩🇪 DE [R][grpc] | 185.68.184.237
-  type: vless
-  server: 185.68.184.237
-  port: 443
-  uuid: b0f08ae1-7cf9-4612-ad61-72681e0b92da
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: kPBXTe2KCp55GrHS_qU_sF7ohUcT8Vu-e8i6Yd9MERI
-    short-id: d5c7f84e37e0c12d
-  servername: google.com
-  client-fingerprint: firefox
-  grpc-opts:
-    grpc-service-name: data-sync
 - name: 🇩🇪 DE [R][grpc] | de-1.coinbridge.nl
   type: vless
   server: de-1.coinbridge.nl
@@ -55,11 +38,11 @@ proxies:
   client-fingerprint: random
   grpc-opts:
     grpc-service-name: data-sync
-- name: 🇩🇪 DE [R][grpc] | de-3.coinbridge.nl
+- name: 🇩🇪 DE [R][grpc] | 88.216.70.131
   type: vless
-  server: de-3.coinbridge.nl
+  server: 88.216.70.131
   port: 443
-  uuid: b0f08ae1-7cf9-4612-ad61-72681e0b92da
+  uuid: 8658fe29-466b-41d9-b1f9-05c268054f87
   udp: true
   skip-cert-verify: true
   network: grpc
@@ -69,39 +52,9 @@ proxies:
     public-key: kPBXTe2KCp55GrHS_qU_sF7ohUcT8Vu-e8i6Yd9MERI
     short-id: d5c7f84e37e0c12d
   servername: google.com
-  client-fingerprint: chrome
+  client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: data-sync
-- name: 🇳🇱 NL [R] | 138.124.98.95
-  type: vless
-  server: 138.124.98.95
-  port: 443
-  uuid: 6429d1d5-de69-4758-9046-e72861a40cb9
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: 4Emwuj1RnwvOXpJQXpEr10X6eYoyFXmz0VElA6OY_UY
-  servername: apple.com
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇩🇪 DE [R] | 81.90.28.209
-  type: vless
-  server: 81.90.28.209
-  port: 443
-  uuid: 6429d1d5-de69-4758-9046-e72861a40cb9
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: zWtLc21Yzjq3FkXHyUtSp6wrqeI2v4Z6501D7E7ixys
-  servername: apple.com
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇰🇿 KZ [R] | raff-vpn-kz-server1.ru
   type: vless
   server: raff-vpn-kz-server1.ru
@@ -132,7 +85,7 @@ proxies:
     public-key: epKxGHvul2A8tNMFsEDFN2P71B-WbEEwbqbPLyNlYFg
     short-id: e549af0908
   servername: dzen.ru
-  client-fingerprint: qq
+  client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: web-grpc
 - name: 🇵🇱 PL [R][xhttp] | 85.158.109.113
@@ -149,6 +102,22 @@ proxies:
     public-key: ice5ApDYceTGVoxODC51F4RVW0HBoykvMpgL4_qLABw
     short-id: aabbccdd
   servername: www.kinopoisk.ru
+  client-fingerprint: firefox
+- name: 🇷🇴 RO [R] | 93.114.194.131
+  type: vless
+  server: 93.114.194.131
+  port: 443
+  uuid: 146eb6cf-a99c-4022-85ca-022cf81502dc
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 7ReQIe2kMtP4rCrptgH5glkOM-JGcSAPzHNxOED-Z0s
+    short-id: 247fd6dab1a34a48
+  servername: web.max.ru
+  flow: xtls-rprx-vision
   client-fingerprint: chrome
 - name: 🇸🇪 SE [R] | 62.60.228.89
   type: vless
@@ -164,10 +133,10 @@ proxies:
     public-key: ydoxmw5pH_JPRTbjeNKnsF-MfVybjnAYLnhwRj3n3yE
     short-id: cf2d
   servername: api.ok.ru
-  client-fingerprint: chrome
-- name: 🇰🇿 KZ [R] | vpnv1.aspidnet.xyz
+  client-fingerprint: firefox
+- name: 🇰🇿 KZ [R] | 38.180.39.171
   type: vless
-  server: vpnv1.aspidnet.xyz
+  server: 38.180.39.171
   port: 443
   uuid: 158d03db-e5d7-4540-a31c-b2daa7aa4964
   udp: true
@@ -197,9 +166,9 @@ proxies:
   servername: web.max.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇰🇿 KZ [R] | 38.180.39.171
+- name: 🇰🇿 KZ [R] | vpnv1.aspidnet.xyz
   type: vless
-  server: 38.180.39.171
+  server: vpnv1.aspidnet.xyz
   port: 443
   uuid: 158d03db-e5d7-4540-a31c-b2daa7aa4964
   udp: true
@@ -217,6 +186,53 @@ proxies:
   type: vless
   server: 195.74.93.254
   port: 443
+  uuid: 451ccfb4-4d9f-4d16-a748-48862ff46b86
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 7ReQIe2kMtP4rCrptgH5glkOM-JGcSAPzHNxOED-Z0s
+    short-id: 247fd6dab1a34a48
+  servername: web.max.ru
+  flow: xtls-rprx-vision
+- name: 🇷🇴 RO [R] | 195.74.93.254 (2)
+  type: vless
+  server: 195.74.93.254
+  port: 443
+  uuid: eedcee2e-7517-4162-852d-b21b864b8e3f
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 7ReQIe2kMtP4rCrptgH5glkOM-JGcSAPzHNxOED-Z0s
+    short-id: 247fd6dab1a34a48
+  servername: web.max.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇳🇱 NL [R] | 144.31.30.69
+  type: vless
+  server: 144.31.30.69
+  port: 443
+  uuid: a7ef891d-aacf-4ed9-809d-a44168a5fc1c
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: SbVKOEMjK0sIlbwg4akyBg5mL5KZwwB-ed4eEE7YnRc
+    short-id: 6ba85179e30d4fc2
+  servername: eh.vk.com
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇷🇴 RO [R] | 195.74.93.254 (3)
+  type: vless
+  server: 195.74.93.254
+  port: 443
   uuid: db2b7549-a616-4d83-a4bf-51eda70ff82c
   udp: true
   skip-cert-verify: true
@@ -229,19 +245,50 @@ proxies:
   servername: web.max.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
+- name: 🇳🇱 NL [ws] | 31.192.237.42
+  type: vless
+  server: 31.192.237.42
+  port: 443
+  uuid: 0970324b-8c61-4ae7-8c3f-385a6f1e17e4
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: vpn47.cc.cd
+  client-fingerprint: chrome
+  ws-opts:
+    path: /
+    headers:
+      Host: vpn47.cc.cd
+- name: 🇺🇸 US [ws] | 91.103.140.193
+  type: vless
+  server: 91.103.140.193
+  port: 443
+  uuid: 0970324b-8c61-4ae7-8c3f-385a6f1e17e4
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: vpn47.cc.cd
+  ws-opts:
+    path: /
+    headers:
+      Host: vpn47.cc.cd
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
-  - 🇩🇪 DE [R][grpc] | 185.68.184.237
   - 🇩🇪 DE [R][grpc] | de-1.coinbridge.nl
-  - 🇩🇪 DE [R][grpc] | de-3.coinbridge.nl
-  - 🇳🇱 NL [R] | 138.124.98.95
-  - 🇩🇪 DE [R] | 81.90.28.209
+  - 🇩🇪 DE [R][grpc] | 88.216.70.131
   - 🇰🇿 KZ [R] | raff-vpn-kz-server1.ru
   - 🇩🇪 DE [R][grpc] | 45.155.102.46
   - 🇵🇱 PL [R][xhttp] | 85.158.109.113
+  - 🇷🇴 RO [R] | 93.114.194.131
   - 🇸🇪 SE [R] | 62.60.228.89
+  - 🇰🇿 KZ [R] | 38.180.39.171
+  - 🇳🇱 NL [R] | 194.127.179.220
   - 🇰🇿 KZ [R] | vpnv1.aspidnet.xyz
   url: https://www.google.com/generate_204
   interval: 300
@@ -250,19 +297,22 @@ proxy-groups:
   type: select
   proxies:
   - 🚀 Auto
-  - 🇩🇪 DE [R][grpc] | 185.68.184.237
   - 🇩🇪 DE [R][grpc] | de-1.coinbridge.nl
-  - 🇩🇪 DE [R][grpc] | de-3.coinbridge.nl
-  - 🇳🇱 NL [R] | 138.124.98.95
-  - 🇩🇪 DE [R] | 81.90.28.209
+  - 🇩🇪 DE [R][grpc] | 88.216.70.131
   - 🇰🇿 KZ [R] | raff-vpn-kz-server1.ru
   - 🇩🇪 DE [R][grpc] | 45.155.102.46
   - 🇵🇱 PL [R][xhttp] | 85.158.109.113
+  - 🇷🇴 RO [R] | 93.114.194.131
   - 🇸🇪 SE [R] | 62.60.228.89
-  - 🇰🇿 KZ [R] | vpnv1.aspidnet.xyz
-  - 🇳🇱 NL [R] | 194.127.179.220
   - 🇰🇿 KZ [R] | 38.180.39.171
+  - 🇳🇱 NL [R] | 194.127.179.220
+  - 🇰🇿 KZ [R] | vpnv1.aspidnet.xyz
   - 🇷🇴 RO [R] | 195.74.93.254
+  - 🇷🇴 RO [R] | 195.74.93.254 (2)
+  - 🇳🇱 NL [R] | 144.31.30.69
+  - 🇷🇴 RO [R] | 195.74.93.254 (3)
+  - 🇳🇱 NL [ws] | 31.192.237.42
+  - 🇺🇸 US [ws] | 91.103.140.193
 - name: 🎯 Direct
   type: select
   proxies:
