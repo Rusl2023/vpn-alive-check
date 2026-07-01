@@ -55,23 +55,6 @@ proxies:
   client-fingerprint: random
   grpc-opts:
     grpc-service-name: data-sync
-- name: 🇩🇪 DE [R][grpc] | 185.68.184.237
-  type: vless
-  server: 185.68.184.237
-  port: 443
-  uuid: b0f08ae1-7cf9-4612-ad61-72681e0b92da
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: kPBXTe2KCp55GrHS_qU_sF7ohUcT8Vu-e8i6Yd9MERI
-    short-id: d5c7f84e37e0c12d
-  servername: google.com
-  client-fingerprint: firefox
-  grpc-opts:
-    grpc-service-name: data-sync
 - name: 🇩🇪 DE [R][grpc] | de-3.coinbridge.nl
   type: vless
   server: de-3.coinbridge.nl
@@ -86,25 +69,204 @@ proxies:
     public-key: kPBXTe2KCp55GrHS_qU_sF7ohUcT8Vu-e8i6Yd9MERI
     short-id: d5c7f84e37e0c12d
   servername: google.com
-  client-fingerprint: random
+  client-fingerprint: chrome
   grpc-opts:
     grpc-service-name: data-sync
-- name: 🇳🇱 NL [R] | 51.250.47.219
+- name: 🇹🇷 TR [R] | germany.cloudpath.live
   type: vless
-  server: 51.250.47.219
+  server: germany.cloudpath.live
   port: 443
-  uuid: 559ce652-ddeb-4958-890c-d8ceb193fac5
+  uuid: a1fbffe9-8e5a-5a0e-9333-045d32eccd59
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: WrPShaEtQUXeKeyWDuELzBsd_ygDsU-k2bL1Avi13xI
-  servername: yandex.ru
-  flow: xtls-rprx-vision
+    public-key: 9LTpivOtvUds71_Hxmqk7vfeMx7JeHB0aJuaQX6xXzI
+    short-id: 065ee439
+  servername: microsoft.com
   client-fingerprint: chrome
-- name: 🇮🇶 IQ [R] | 172.65.209.214
+- name: 🇫🇷 FR [R][xhttp] | 158.160.253.147
+  type: vless
+  server: 158.160.253.147
+  port: 443
+  uuid: f1c496bf-d2ab-45be-bc13-051d60d227b7
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: IOFyDX8n74KV_z3WS8mIN20P-NAWEN_mU9N4joYh2gQ
+  servername: yandex.ru
+  client-fingerprint: chrome
+- name: 🇨🇾 CY [R] | finland.cloudpath.live
+  type: vless
+  server: finland.cloudpath.live
+  port: 443
+  uuid: a1fbffe9-8e5a-5a0e-9333-045d32eccd59
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: f7IfVwkipbZFQN0MDsBrHiANTcpSebrdIyOwL_0pOGc
+    short-id: 2478b338
+  servername: microsoft.com
+  client-fingerprint: chrome
+- name: 🇮🇪 IE [R] | ireland.cloudpath.live
+  type: vless
+  server: ireland.cloudpath.live
+  port: 443
+  uuid: a1fbffe9-8e5a-5a0e-9333-045d32eccd59
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: tQhDG2dne36AOrx4oQBItqltCR-gXrIrKz1PgAFvZTU
+    short-id: 533c56d7
+  servername: microsoft.com
+  client-fingerprint: chrome
+- name: 🇩🇰 DK [R] | 172.65.188.155
+  type: vless
+  server: 172.65.188.155
+  port: 443
+  uuid: a1fbffe9-8e5a-5a0e-9333-045d32eccd59
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 8H8GZYml4FGVF9EcnZsUTOt0lFiIh20vS9TnX4Dn-z8
+    short-id: 2721a041
+  servername: microsoft.com
+  client-fingerprint: chrome
+- name: 🇷🇸 RS [R] | serbia.cloudpath.live
+  type: vless
+  server: serbia.cloudpath.live
+  port: 443
+  uuid: a1fbffe9-8e5a-5a0e-9333-045d32eccd59
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: UOp1SM7b6AgDZAwQ6aTLGzCyKv-K6Xxkiedp2619jwc
+    short-id: 857ec9a9
+  servername: microsoft.com
+  client-fingerprint: chrome
+- name: 🇭🇺 HU [R] | hungary.cloudpath.live
+  type: vless
+  server: hungary.cloudpath.live
+  port: 443
+  uuid: a1fbffe9-8e5a-5a0e-9333-045d32eccd59
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: qa6dtExYCAVoxRNSfoyuz9JRM9nq475NbuW-P6aJyS0
+    short-id: d0c2ffdf
+  servername: microsoft.com
+  client-fingerprint: chrome
+- name: 🇩🇰 DK [R] | denmark.cloudpath.live
+  type: vless
+  server: denmark.cloudpath.live
+  port: 443
+  uuid: a1fbffe9-8e5a-5a0e-9333-045d32eccd59
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 8H8GZYml4FGVF9EcnZsUTOt0lFiIh20vS9TnX4Dn-z8
+    short-id: 2721a041
+  servername: microsoft.com
+  client-fingerprint: chrome
+- name: 🇱🇹 LT [R] | lithuania.cloudpath.live
+  type: vless
+  server: lithuania.cloudpath.live
+  port: 443
+  uuid: a1fbffe9-8e5a-5a0e-9333-045d32eccd59
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 7mDY-jBdETPQCdhpdhkettajyiWNuP5k__yOE0EiRz4
+    short-id: e2af8ebe
+  servername: microsoft.com
+  client-fingerprint: chrome
+- name: 🇫🇷 FR [R] | france.cloudpath.live
+  type: vless
+  server: france.cloudpath.live
+  port: 443
+  uuid: a1fbffe9-8e5a-5a0e-9333-045d32eccd59
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: dp4zdTaX89_Ls34gM_x8BSBTx50p4X7asR3H1q_jIn4
+    short-id: b00e098b
+  servername: microsoft.com
+  client-fingerprint: chrome
+- name: 🇨🇭 CH [R] | switzerland.cloudpath.live
+  type: vless
+  server: switzerland.cloudpath.live
+  port: 443
+  uuid: a1fbffe9-8e5a-5a0e-9333-045d32eccd59
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: pgPg0nR_TipYr_exLqa3gLOBLm6u_LCZLv9w6RC6iQ0
+    short-id: eb4b5cf9
+  servername: microsoft.com
+  client-fingerprint: chrome
+- name: 🇧🇪 BE [R] | belgium.cloudpath.live
+  type: vless
+  server: belgium.cloudpath.live
+  port: 443
+  uuid: a1fbffe9-8e5a-5a0e-9333-045d32eccd59
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 9HzeVOO-_7-V3l4TCNqgO-cj32nlF3wsG8K4X3qFmFw
+    short-id: cc52201b
+  servername: microsoft.com
+  client-fingerprint: chrome
+- name: 🇬🇷 GR [R] | greece.cloudpath.live
+  type: vless
+  server: greece.cloudpath.live
+  port: 443
+  uuid: a1fbffe9-8e5a-5a0e-9333-045d32eccd59
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 46Ehh0qqHsj79Ogrkx_xoCl5VA_OmAGSGxHZ4KIKA1U
+    short-id: c4d97649
+  servername: microsoft.com
+  client-fingerprint: chrome
+- name: 🇹🇷 TR [R] | 172.65.209.214
   type: vless
   server: 172.65.209.214
   port: 443
@@ -118,7 +280,111 @@ proxies:
     public-key: 9LTpivOtvUds71_Hxmqk7vfeMx7JeHB0aJuaQX6xXzI
     short-id: 065ee439
   servername: microsoft.com
+- name: 🇫🇷 FR [R] | 172.65.183.98
+  type: vless
+  server: 172.65.183.98
+  port: 443
+  uuid: a1fbffe9-8e5a-5a0e-9333-045d32eccd59
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: dp4zdTaX89_Ls34gM_x8BSBTx50p4X7asR3H1q_jIn4
+    short-id: b00e098b
+  servername: microsoft.com
+  client-fingerprint: firefox
+- name: 🇪🇪 EE [R] | estonia.cloudpath.live
+  type: vless
+  server: estonia.cloudpath.live
+  port: 443
+  uuid: a1fbffe9-8e5a-5a0e-9333-045d32eccd59
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: yBrF1OAz3Rq2cyQkPytpsVNgbqAW5J7C5jE2ZWJkMBo
+    short-id: 5674d66f
+  servername: microsoft.com
   client-fingerprint: chrome
+- name: 🇱🇹 LT [R] | 172.65.197.34
+  type: vless
+  server: 172.65.197.34
+  port: 443
+  uuid: a1fbffe9-8e5a-5a0e-9333-045d32eccd59
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 7mDY-jBdETPQCdhpdhkettajyiWNuP5k__yOE0EiRz4
+    short-id: e2af8ebe
+  servername: microsoft.com
+  client-fingerprint: chrome
+- name: 🇫🇮 FI [R] | 172.65.220.225
+  type: vless
+  server: 172.65.220.225
+  port: 443
+  uuid: a1fbffe9-8e5a-5a0e-9333-045d32eccd59
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: f7IfVwkipbZFQN0MDsBrHiANTcpSebrdIyOwL_0pOGc
+    short-id: 2478b338
+  servername: microsoft.com
+  client-fingerprint: firefox
+- name: 🇭🇺 HU [R] | 172.65.166.180
+  type: vless
+  server: 172.65.166.180
+  port: 443
+  uuid: a1fbffe9-8e5a-5a0e-9333-045d32eccd59
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: qa6dtExYCAVoxRNSfoyuz9JRM9nq475NbuW-P6aJyS0
+    short-id: d0c2ffdf
+  servername: microsoft.com
+  client-fingerprint: firefox
+- name: 🇮🇪 IE [R] | 104.249.43.155
+  type: vless
+  server: 104.249.43.155
+  port: 443
+  uuid: a1fbffe9-8e5a-5a0e-9333-045d32eccd59
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: tQhDG2dne36AOrx4oQBItqltCR-gXrIrKz1PgAFvZTU
+    short-id: 533c56d7
+  servername: microsoft.com
+  client-fingerprint: firefox
+- name: 🇷🇸 RS [R] | 104.249.43.190
+  type: vless
+  server: 104.249.43.190
+  port: 443
+  uuid: a1fbffe9-8e5a-5a0e-9333-045d32eccd59
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: UOp1SM7b6AgDZAwQ6aTLGzCyKv-K6Xxkiedp2619jwc
+    short-id: 857ec9a9
+  servername: microsoft.com
+  client-fingerprint: firefox
 - name: 🇰🇿 KZ [R] | raff-vpn-kz-server1.ru
   type: vless
   server: raff-vpn-kz-server1.ru
@@ -135,38 +401,6 @@ proxies:
   servername: google.com
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇵🇱 PL [R][xhttp] | 85.158.109.113
-  type: vless
-  server: 85.158.109.113
-  port: 443
-  uuid: 8553ae90-2a81-493a-b050-8ee79c8dbe4c
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: ice5ApDYceTGVoxODC51F4RVW0HBoykvMpgL4_qLABw
-    short-id: aabbccdd
-  servername: www.kinopoisk.ru
-  client-fingerprint: qq
-- name: 🇳🇱 NL [R][grpc] | ru-node2.darknet-bot.co.uk
-  type: vless
-  server: ru-node2.darknet-bot.co.uk
-  port: 443
-  uuid: 114f03a8-4940-483e-87af-357426d1bd54
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: YiKCLWIewCaWtYdpwAUd7fre63xVrkSiQUTalhFdA3w
-    short-id: 846229eb47b3a5c9
-  servername: api.cs7777.vk.ru
-  client-fingerprint: qq
-  grpc-opts:
-    grpc-service-name: ''
 - name: 🇩🇪 DE [R][grpc] | 45.155.102.46
   type: vless
   server: 45.155.102.46
@@ -181,40 +415,9 @@ proxies:
     public-key: epKxGHvul2A8tNMFsEDFN2P71B-WbEEwbqbPLyNlYFg
     short-id: e549af0908
   servername: dzen.ru
-  client-fingerprint: qq
+  client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: web-grpc
-- name: 🇵🇱 PL [R][xhttp] | pol6.odavpn.online
-  type: vless
-  server: pol6.odavpn.online
-  port: 443
-  uuid: 8553ae90-2a81-493a-b050-8ee79c8dbe4c
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: ice5ApDYceTGVoxODC51F4RVW0HBoykvMpgL4_qLABw
-    short-id: aabbccdd
-  servername: www.kinopoisk.ru
-  client-fingerprint: chrome
-- name: 🇬🇧 GB [R] | upload.nothingchange.com
-  type: vless
-  server: upload.nothingchange.com
-  port: 443
-  uuid: e84c124e-b176-409c-a6b6-69844127bdfa
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: eKyUyIzbzn0TL5ip_00Buvum95qnWy8gTCwjZvv-olc
-    short-id: 3f7b1e5a9c2d8f46
-  servername: ozon.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇳🇱 NL [R] | 51.250.108.107
   type: vless
   server: 51.250.108.107
@@ -261,10 +464,10 @@ proxies:
     public-key: ydoxmw5pH_JPRTbjeNKnsF-MfVybjnAYLnhwRj3n3yE
     short-id: cf2d
   servername: api.ok.ru
-  client-fingerprint: qq
-- name: 🇰🇿 KZ [R] | 38.180.39.171
+  client-fingerprint: chrome
+- name: 🇰🇿 KZ [R] | vpnv1.aspidnet.xyz
   type: vless
-  server: 38.180.39.171
+  server: vpnv1.aspidnet.xyz
   port: 443
   uuid: 158d03db-e5d7-4540-a31c-b2daa7aa4964
   udp: true
@@ -294,22 +497,6 @@ proxies:
   servername: web.max.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇰🇿 KZ [R] | vpnv1.aspidnet.xyz
-  type: vless
-  server: vpnv1.aspidnet.xyz
-  port: 443
-  uuid: 158d03db-e5d7-4540-a31c-b2daa7aa4964
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: 7ReQIe2kMtP4rCrptgH5glkOM-JGcSAPzHNxOED-Z0s
-    short-id: 247fd6dab1a34a48
-  servername: web.max.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
 - name: 🇷🇴 RO [R] | 195.74.93.254
   type: vless
   server: 195.74.93.254
@@ -326,11 +513,11 @@ proxies:
   servername: web.max.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇷🇴 RO [R] | 195.74.93.254 (2)
+- name: 🇰🇿 KZ [R] | 38.180.39.171
   type: vless
-  server: 195.74.93.254
+  server: 38.180.39.171
   port: 443
-  uuid: 451ccfb4-4d9f-4d16-a748-48862ff46b86
+  uuid: 158d03db-e5d7-4540-a31c-b2daa7aa4964
   udp: true
   skip-cert-verify: true
   network: tcp
@@ -341,7 +528,8 @@ proxies:
     short-id: 247fd6dab1a34a48
   servername: web.max.ru
   flow: xtls-rprx-vision
-- name: 🇷🇴 RO [R] | 195.74.93.254 (3)
+  client-fingerprint: chrome
+- name: 🇷🇴 RO [R] | 195.74.93.254 (2)
   type: vless
   server: 195.74.93.254
   port: 443
@@ -357,262 +545,36 @@ proxies:
   servername: web.max.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇳🇱 NL [R] | 194.127.179.220 (2)
+- name: 🇳🇱 NL [R] | 144.31.30.69
   type: vless
-  server: 194.127.179.220
+  server: 144.31.30.69
   port: 443
-  uuid: 29f2e850-1551-48ba-9d68-1fb303d3ab6e
+  uuid: a7ef891d-aacf-4ed9-809d-a44168a5fc1c
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: 7ReQIe2kMtP4rCrptgH5glkOM-JGcSAPzHNxOED-Z0s
-    short-id: 247fd6dab1a34a48
-  servername: web.max.ru
+    public-key: SbVKOEMjK0sIlbwg4akyBg5mL5KZwwB-ed4eEE7YnRc
+    short-id: 6ba85179e30d4fc2
+  servername: eh.vk.com
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇫🇮 FI [grpc] | 62.152.60.76
-  type: vless
-  server: 62.152.60.76
-  port: 443
-  uuid: d7b0bd79-c253-41ca-8f6b-a77a969ce264
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  servername: home.kiwds.site
-  client-fingerprint: qq
-  grpc-opts:
-    grpc-service-name: trojan-grpc
-- name: 🇫🇮 FI [grpc] | 62.152.60.76 (2)
-  type: vless
-  server: 62.152.60.76
-  port: 443
-  uuid: ba138200-15ca-4c41-bc0c-b4062f941326
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  servername: home.kiwds.site
-  client-fingerprint: qq
-  grpc-opts:
-    grpc-service-name: trojan-grpc
-- name: 🇫🇮 FI [grpc] | 62.152.60.76 (3)
-  type: vless
-  server: 62.152.60.76
-  port: 443
-  uuid: dfbf0142-31d9-4661-b85f-518fb304c794
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  servername: home.kiwds.site
-  client-fingerprint: qq
-  grpc-opts:
-    grpc-service-name: trojan-grpc
-- name: 🇫🇮 FI [grpc] | 62.152.60.76 (4)
-  type: vless
-  server: 62.152.60.76
-  port: 443
-  uuid: 099667bf-8cbd-4698-b086-d61a003c1766
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  servername: home.kiwds.site
-  client-fingerprint: qq
-  grpc-opts:
-    grpc-service-name: trojan-grpc
-- name: 🇫🇮 FI [grpc] | 62.152.60.76 (5)
-  type: vless
-  server: 62.152.60.76
-  port: 443
-  uuid: 02f22f61-e150-4d8e-aea0-13bfb6de3df9
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  servername: home.kiwds.site
-  client-fingerprint: qq
-  grpc-opts:
-    grpc-service-name: trojan-grpc
-- name: 🇫🇮 FI [grpc] | 62.152.60.76 (6)
-  type: vless
-  server: 62.152.60.76
-  port: 443
-  uuid: 40a432e5-2ede-4493-b99a-4bbc7dbb9302
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  servername: home.kiwds.site
-  client-fingerprint: qq
-  grpc-opts:
-    grpc-service-name: trojan-grpc
-- name: 🇫🇮 FI [grpc] | 62.152.60.76 (7)
-  type: vless
-  server: 62.152.60.76
-  port: 443
-  uuid: 875878c1-1ef5-43de-bffd-8fb7a8b99b98
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  servername: home.kiwds.site
-  client-fingerprint: qq
-  grpc-opts:
-    grpc-service-name: trojan-grpc
-- name: 🇫🇮 FI [grpc] | 62.152.60.76 (8)
-  type: vless
-  server: 62.152.60.76
-  port: 443
-  uuid: 8c2008af-5c71-49b4-90d5-3ded01151a78
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  servername: home.kiwds.site
-  client-fingerprint: qq
-  grpc-opts:
-    grpc-service-name: trojan-grpc
-- name: 🇫🇮 FI [grpc] | 62.152.60.76 (9)
-  type: vless
-  server: 62.152.60.76
-  port: 443
-  uuid: ae2b88c9-103b-413c-8af2-04573df17a11
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  servername: home.kiwds.site
-  client-fingerprint: qq
-  grpc-opts:
-    grpc-service-name: trojan-grpc
-- name: 🇫🇮 FI [grpc] | 62.152.60.76 (10)
-  type: vless
-  server: 62.152.60.76
-  port: 443
-  uuid: 71760041-dbc0-4e42-8b4b-0bf83301933e
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  servername: home.kiwds.site
-  client-fingerprint: qq
-  grpc-opts:
-    grpc-service-name: trojan-grpc
-- name: 🇫🇮 FI [grpc] | 62.152.60.76 (11)
-  type: vless
-  server: 62.152.60.76
-  port: 443
-  uuid: 8b0d929f-e996-4a6b-9b5f-cc2970cd518d
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  servername: home.kiwds.site
-  client-fingerprint: qq
-  grpc-opts:
-    grpc-service-name: trojan-grpc
-- name: 🇫🇮 FI [grpc] | 62.152.60.76 (12)
-  type: vless
-  server: 62.152.60.76
-  port: 443
-  uuid: 757842dd-5927-464e-8ead-2b606838842d
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  servername: home.kiwds.site
-  client-fingerprint: qq
-  grpc-opts:
-    grpc-service-name: trojan-grpc
-- name: 🇫🇮 FI [grpc] | 62.152.60.76 (13)
-  type: vless
-  server: 62.152.60.76
-  port: 443
-  uuid: ec0cdacb-7e39-48fe-b2a4-00525c19fbbf
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  servername: home.kiwds.site
-  client-fingerprint: qq
-  grpc-opts:
-    grpc-service-name: trojan-grpc
-- name: 🇫🇮 FI [grpc] | 62.152.60.76 (14)
-  type: vless
-  server: 62.152.60.76
-  port: 443
-  uuid: f8fb09dc-6dfe-4dda-b2a9-7c6c2eec2951
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  servername: home.kiwds.site
-  client-fingerprint: qq
-  grpc-opts:
-    grpc-service-name: trojan-grpc
-- name: 🇫🇮 FI [grpc] | 62.152.60.76 (15)
-  type: vless
-  server: 62.152.60.76
-  port: 443
-  uuid: ba452dd7-5bad-4581-88da-779ccbff5386
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  servername: home.kiwds.site
-  client-fingerprint: qq
-  grpc-opts:
-    grpc-service-name: trojan-grpc
-- name: 🇩🇪 DE [ws] | 195.208.65.195
-  type: vless
-  server: 195.208.65.195
-  port: 443
-  uuid: b35cac1f-1abf-4784-9c40-86ae2439e78e
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: s58794.cdn.ngenix.net
-  client-fingerprint: chrome
-  ws-opts:
-    path: /v1/data/sync/
-    headers:
-      Host: s58794.cdn.ngenix.net
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
   - 🇩🇪 DE [R][grpc] | 88.216.70.131
   - 🇩🇪 DE [R][grpc] | de-1.coinbridge.nl
-  - 🇩🇪 DE [R][grpc] | 185.68.184.237
   - 🇩🇪 DE [R][grpc] | de-3.coinbridge.nl
-  - 🇳🇱 NL [R] | 51.250.47.219
-  - 🇮🇶 IQ [R] | 172.65.209.214
-  - 🇰🇿 KZ [R] | raff-vpn-kz-server1.ru
-  - 🇵🇱 PL [R][xhttp] | 85.158.109.113
-  - 🇳🇱 NL [R][grpc] | ru-node2.darknet-bot.co.uk
-  - 🇩🇪 DE [R][grpc] | 45.155.102.46
+  - 🇹🇷 TR [R] | germany.cloudpath.live
+  - 🇫🇷 FR [R][xhttp] | 158.160.253.147
+  - 🇨🇾 CY [R] | finland.cloudpath.live
+  - 🇮🇪 IE [R] | ireland.cloudpath.live
+  - 🇩🇰 DK [R] | 172.65.188.155
+  - 🇷🇸 RS [R] | serbia.cloudpath.live
+  - 🇭🇺 HU [R] | hungary.cloudpath.live
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -622,42 +584,39 @@ proxy-groups:
   - 🚀 Auto
   - 🇩🇪 DE [R][grpc] | 88.216.70.131
   - 🇩🇪 DE [R][grpc] | de-1.coinbridge.nl
-  - 🇩🇪 DE [R][grpc] | 185.68.184.237
   - 🇩🇪 DE [R][grpc] | de-3.coinbridge.nl
-  - 🇳🇱 NL [R] | 51.250.47.219
-  - 🇮🇶 IQ [R] | 172.65.209.214
+  - 🇹🇷 TR [R] | germany.cloudpath.live
+  - 🇫🇷 FR [R][xhttp] | 158.160.253.147
+  - 🇨🇾 CY [R] | finland.cloudpath.live
+  - 🇮🇪 IE [R] | ireland.cloudpath.live
+  - 🇩🇰 DK [R] | 172.65.188.155
+  - 🇷🇸 RS [R] | serbia.cloudpath.live
+  - 🇭🇺 HU [R] | hungary.cloudpath.live
+  - 🇩🇰 DK [R] | denmark.cloudpath.live
+  - 🇱🇹 LT [R] | lithuania.cloudpath.live
+  - 🇫🇷 FR [R] | france.cloudpath.live
+  - 🇨🇭 CH [R] | switzerland.cloudpath.live
+  - 🇧🇪 BE [R] | belgium.cloudpath.live
+  - 🇬🇷 GR [R] | greece.cloudpath.live
+  - 🇹🇷 TR [R] | 172.65.209.214
+  - 🇫🇷 FR [R] | 172.65.183.98
+  - 🇪🇪 EE [R] | estonia.cloudpath.live
+  - 🇱🇹 LT [R] | 172.65.197.34
+  - 🇫🇮 FI [R] | 172.65.220.225
+  - 🇭🇺 HU [R] | 172.65.166.180
+  - 🇮🇪 IE [R] | 104.249.43.155
+  - 🇷🇸 RS [R] | 104.249.43.190
   - 🇰🇿 KZ [R] | raff-vpn-kz-server1.ru
-  - 🇵🇱 PL [R][xhttp] | 85.158.109.113
-  - 🇳🇱 NL [R][grpc] | ru-node2.darknet-bot.co.uk
   - 🇩🇪 DE [R][grpc] | 45.155.102.46
-  - 🇵🇱 PL [R][xhttp] | pol6.odavpn.online
-  - 🇬🇧 GB [R] | upload.nothingchange.com
   - 🇳🇱 NL [R] | 51.250.108.107
   - 🇨🇿 CZ [R] | 84.201.144.254
   - 🇸🇪 SE [R] | 62.60.228.89
-  - 🇰🇿 KZ [R] | 38.180.39.171
-  - 🇳🇱 NL [R] | 194.127.179.220
   - 🇰🇿 KZ [R] | vpnv1.aspidnet.xyz
+  - 🇳🇱 NL [R] | 194.127.179.220
   - 🇷🇴 RO [R] | 195.74.93.254
+  - 🇰🇿 KZ [R] | 38.180.39.171
   - 🇷🇴 RO [R] | 195.74.93.254 (2)
-  - 🇷🇴 RO [R] | 195.74.93.254 (3)
-  - 🇳🇱 NL [R] | 194.127.179.220 (2)
-  - 🇫🇮 FI [grpc] | 62.152.60.76
-  - 🇫🇮 FI [grpc] | 62.152.60.76 (2)
-  - 🇫🇮 FI [grpc] | 62.152.60.76 (3)
-  - 🇫🇮 FI [grpc] | 62.152.60.76 (4)
-  - 🇫🇮 FI [grpc] | 62.152.60.76 (5)
-  - 🇫🇮 FI [grpc] | 62.152.60.76 (6)
-  - 🇫🇮 FI [grpc] | 62.152.60.76 (7)
-  - 🇫🇮 FI [grpc] | 62.152.60.76 (8)
-  - 🇫🇮 FI [grpc] | 62.152.60.76 (9)
-  - 🇫🇮 FI [grpc] | 62.152.60.76 (10)
-  - 🇫🇮 FI [grpc] | 62.152.60.76 (11)
-  - 🇫🇮 FI [grpc] | 62.152.60.76 (12)
-  - 🇫🇮 FI [grpc] | 62.152.60.76 (13)
-  - 🇫🇮 FI [grpc] | 62.152.60.76 (14)
-  - 🇫🇮 FI [grpc] | 62.152.60.76 (15)
-  - 🇩🇪 DE [ws] | 195.208.65.195
+  - 🇳🇱 NL [R] | 144.31.30.69
 - name: 🎯 Direct
   type: select
   proxies:
