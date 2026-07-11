@@ -52,7 +52,6 @@ proxies:
     public-key: kPBXTe2KCp55GrHS_qU_sF7ohUcT8Vu-e8i6Yd9MERI
     short-id: d5c7f84e37e0c12d
   servername: google.com
-  client-fingerprint: random
   grpc-opts:
     grpc-service-name: data-sync
 - name: 🇪🇪 EE [R] | 37.49.229.15
@@ -71,21 +70,6 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: qq
-- name: 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  type: vless
-  server: 91.84.117.29
-  port: 443
-  uuid: a4037b4c-6a9d-528c-9efb-7d801cce8adb
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: PyV8IrAs0LkE2d_DdjvdCtpWG7MZyUKsYkb52GUmuDM
-    short-id: '67'
-  servername: vk.com
-  client-fingerprint: chrome
 - name: 🇬🇧 GB [R] | 144.31.87.16
   type: vless
   server: 144.31.87.16
@@ -101,6 +85,21 @@ proxies:
     short-id: 3b802dad547b0847
   servername: yandex.ru
   client-fingerprint: firefox
+- name: 🇳🇱 NL [R][xhttp] | 91.84.117.29
+  type: vless
+  server: 91.84.117.29
+  port: 443
+  uuid: a4037b4c-6a9d-528c-9efb-7d801cce8adb
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: PyV8IrAs0LkE2d_DdjvdCtpWG7MZyUKsYkb52GUmuDM
+    short-id: '67'
+  servername: vk.com
+  client-fingerprint: chrome
 - name: 🇰🇿 KZ [R] | raff-vpn-kz-server1.ru
   type: vless
   server: raff-vpn-kz-server1.ru
@@ -117,57 +116,24 @@ proxies:
   servername: google.com
   flow: xtls-rprx-vision
   client-fingerprint: chrome
+- name: 🇩🇪 DE [R] | 144.31.164.108
+  type: vless
+  server: 144.31.164.108
+  port: 443
+  uuid: 8a4d32e8-ab02-4398-84a7-8d7672426ad6
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: p2kybyvJhP9F98fLS4TcL8nNcFE-MdhfGoVBlGkdHUs
+    short-id: d1
+  servername: api-maps.yandex.ru
+  flow: xtls-rprx-vision
 - name: 🇳🇱 NL [R] | 90.156.218.131
   type: vless
   server: 90.156.218.131
-  port: 443
-  uuid: 2797a040-443c-4249-ab49-546b37519642
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: CiWrWBKXgbKMGZPzTxsX05YsTc-_iDiiAIAHj3hReCU
-    short-id: 5c18a7d3263f1442
-  servername: eh.vk.com
-  flow: xtls-rprx-vision
-  client-fingerprint: qq
-- name: 🇪🇪 EE [R] | 90.156.218.234
-  type: vless
-  server: 90.156.218.234
-  port: 443
-  uuid: 2797a040-443c-4249-ab49-546b37519642
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: CiWrWBKXgbKMGZPzTxsX05YsTc-_iDiiAIAHj3hReCU
-    short-id: 5c18a7d3263f1442
-  servername: eh.vk.com
-  flow: xtls-rprx-vision
-  client-fingerprint: qq
-- name: 🇳🇱 NL [R] | 78.159.240.180
-  type: vless
-  server: 78.159.240.180
-  port: 443
-  uuid: 2797a040-443c-4249-ab49-546b37519642
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: CiWrWBKXgbKMGZPzTxsX05YsTc-_iDiiAIAHj3hReCU
-    short-id: 5c18a7d3263f1442
-  servername: eh.vk.com
-  flow: xtls-rprx-vision
-  client-fingerprint: qq
-- name: 🇫🇷 FR [R] | 62.152.60.97
-  type: vless
-  server: 62.152.60.97
   port: 443
   uuid: 2797a040-443c-4249-ab49-546b37519642
   udp: true
@@ -196,7 +162,23 @@ proxies:
     short-id: 5c18a7d3263f1442
   servername: eh.vk.com
   flow: xtls-rprx-vision
-  client-fingerprint: qq
+  client-fingerprint: firefox
+- name: 🇪🇪 EE [R] | 90.156.218.234
+  type: vless
+  server: 90.156.218.234
+  port: 443
+  uuid: 2797a040-443c-4249-ab49-546b37519642
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: CiWrWBKXgbKMGZPzTxsX05YsTc-_iDiiAIAHj3hReCU
+    short-id: 5c18a7d3263f1442
+  servername: eh.vk.com
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇩🇪 DE [R] | grm.janaj.space
   type: vless
   server: grm.janaj.space
@@ -212,6 +194,7 @@ proxies:
     short-id: d1
   servername: api-maps.yandex.ru
   flow: xtls-rprx-vision
+  client-fingerprint: chrome
 - name: 🇸🇪 SE [R] | 62.60.228.89
   type: vless
   server: 62.60.228.89
@@ -227,70 +210,6 @@ proxies:
     short-id: cf2d0000
   servername: api.ok.ru
   client-fingerprint: qq
-- name: 🇩🇪 DE [R] | 157.173.27.150
-  type: vless
-  server: 157.173.27.150
-  port: 443
-  uuid: 838de912-398a-4c0e-9228-0fd44b0d1f8b
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: KP-P4zenuMuYe3UxPCjDEVmgqI4GiRZ95UbsAfmL71g
-    short-id: 970098f31b96a3e8
-  servername: travel.yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇩🇪 DE [R] | 157.173.27.148
-  type: vless
-  server: 157.173.27.148
-  port: 443
-  uuid: 838de912-398a-4c0e-9228-0fd44b0d1f8b
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: KP-P4zenuMuYe3UxPCjDEVmgqI4GiRZ95UbsAfmL71g
-    short-id: 970098f31b96a3e8
-  servername: travel.yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇩🇪 DE [R] | 144.31.164.108
-  type: vless
-  server: 144.31.164.108
-  port: 443
-  uuid: 8a4d32e8-ab02-4398-84a7-8d7672426ad6
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: p2kybyvJhP9F98fLS4TcL8nNcFE-MdhfGoVBlGkdHUs
-    short-id: d1
-  servername: api-maps.yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇳🇱 NL [R] | 72.56.4.94
-  type: vless
-  server: 72.56.4.94
-  port: 443
-  uuid: 86e1cbab-329e-48ca-a213-71745655886f
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: ra-OyOGZwj9ZApabpTq2sZWIzub52UfzLvnfw1utsQg
-    short-id: '23637807'
-  servername: www.gosuslugi.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
 - name: 🇳🇱 NL [R] | gb.janaj.space
   type: vless
   server: gb.janaj.space
@@ -307,38 +226,6 @@ proxies:
   servername: api-maps.yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: qq
-- name: 🇩🇪 DE [R] | 157.173.27.152
-  type: vless
-  server: 157.173.27.152
-  port: 443
-  uuid: 838de912-398a-4c0e-9228-0fd44b0d1f8b
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: KP-P4zenuMuYe3UxPCjDEVmgqI4GiRZ95UbsAfmL71g
-    short-id: 970098f31b96a3e8
-  servername: travel.yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇩🇪 DE [R] | evolus.oblakoapp.com
-  type: vless
-  server: evolus.oblakoapp.com
-  port: 443
-  uuid: 838de912-398a-4c0e-9228-0fd44b0d1f8b
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: KP-P4zenuMuYe3UxPCjDEVmgqI4GiRZ95UbsAfmL71g
-    short-id: 970098f31b96a3e8
-  servername: travel.yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
 - name: 🇳🇱 NL [R] | 2.26.254.89
   type: vless
   server: 2.26.254.89
@@ -355,20 +242,52 @@ proxies:
   servername: yastatic.net
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇩🇪 DE [R] | 217.60.23.144
+- name: 🇩🇪 DE [R] | 157.173.27.148
   type: vless
-  server: 217.60.23.144
+  server: 157.173.27.148
   port: 443
-  uuid: 2107ef4d-870b-4cbe-9f84-fd64319bc45c
+  uuid: 838de912-398a-4c0e-9228-0fd44b0d1f8b
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: r77nilacD34SeLmghmchRKuNiUL0xzh-pK87Ux58dzI
-    short-id: d0a1665d1b96515e
-  servername: dev.max.ru
+    public-key: KP-P4zenuMuYe3UxPCjDEVmgqI4GiRZ95UbsAfmL71g
+    short-id: 970098f31b96a3e8
+  servername: travel.yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇩🇪 DE [R] | 157.173.27.152
+  type: vless
+  server: 157.173.27.152
+  port: 443
+  uuid: 838de912-398a-4c0e-9228-0fd44b0d1f8b
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: KP-P4zenuMuYe3UxPCjDEVmgqI4GiRZ95UbsAfmL71g
+    short-id: 970098f31b96a3e8
+  servername: travel.yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇩🇪 DE [R] | 157.173.27.150
+  type: vless
+  server: 157.173.27.150
+  port: 443
+  uuid: 838de912-398a-4c0e-9228-0fd44b0d1f8b
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: KP-P4zenuMuYe3UxPCjDEVmgqI4GiRZ95UbsAfmL71g
+    short-id: 970098f31b96a3e8
+  servername: travel.yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
 - name: 🇩🇪 DE [R] | 157.173.27.146
@@ -387,6 +306,38 @@ proxies:
   servername: travel.yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
+- name: 🇩🇪 DE [R] | evolus.oblakoapp.com
+  type: vless
+  server: evolus.oblakoapp.com
+  port: 443
+  uuid: 838de912-398a-4c0e-9228-0fd44b0d1f8b
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: KP-P4zenuMuYe3UxPCjDEVmgqI4GiRZ95UbsAfmL71g
+    short-id: 970098f31b96a3e8
+  servername: travel.yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇩🇪 DE [R] | 217.60.23.144
+  type: vless
+  server: 217.60.23.144
+  port: 443
+  uuid: 2107ef4d-870b-4cbe-9f84-fd64319bc45c
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: r77nilacD34SeLmghmchRKuNiUL0xzh-pK87Ux58dzI
+    short-id: d0a1665d1b96515e
+  servername: dev.max.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
 - name: 🇩🇪 DE [R] | 157.173.27.151
   type: vless
   server: 157.173.27.151
@@ -402,7 +353,7 @@ proxies:
     short-id: 970098f31b96a3e8
   servername: travel.yandex.ru
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
+  client-fingerprint: qq
 - name: 🇩🇪 DE [xhttp] | 185.71.67.223
   type: vless
   server: 185.71.67.223
@@ -414,20 +365,6 @@ proxies:
   encryption: none
   tls: true
   servername: cdn.stroimvmeste.icu
-  client-fingerprint: chrome
-- name: 🇩🇪 DE [ws] | s97944.cdn.ngenix.net
-  type: vless
-  server: s97944.cdn.ngenix.net
-  port: 443
-  uuid: ab6a5359-0edf-41c3-8dfd-e4b005e80820
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  client-fingerprint: chrome
-  ws-opts:
-    path: /v1/data/sync/
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
@@ -435,13 +372,13 @@ proxy-groups:
   - 🇩🇪 DE [R][grpc] | 185.68.184.237
   - 🇩🇪 DE [R][grpc] | de-3.coinbridge.nl
   - 🇪🇪 EE [R] | 37.49.229.15
-  - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇬🇧 GB [R] | 144.31.87.16
+  - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇰🇿 KZ [R] | raff-vpn-kz-server1.ru
+  - 🇩🇪 DE [R] | 144.31.164.108
   - 🇳🇱 NL [R] | 90.156.218.131
+  - 🇳🇱 NL [R] | 90.156.218.124
   - 🇪🇪 EE [R] | 90.156.218.234
-  - 🇳🇱 NL [R] | 78.159.240.180
-  - 🇫🇷 FR [R] | 62.152.60.97
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -452,29 +389,25 @@ proxy-groups:
   - 🇩🇪 DE [R][grpc] | 185.68.184.237
   - 🇩🇪 DE [R][grpc] | de-3.coinbridge.nl
   - 🇪🇪 EE [R] | 37.49.229.15
-  - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇬🇧 GB [R] | 144.31.87.16
+  - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇰🇿 KZ [R] | raff-vpn-kz-server1.ru
+  - 🇩🇪 DE [R] | 144.31.164.108
   - 🇳🇱 NL [R] | 90.156.218.131
-  - 🇪🇪 EE [R] | 90.156.218.234
-  - 🇳🇱 NL [R] | 78.159.240.180
-  - 🇫🇷 FR [R] | 62.152.60.97
   - 🇳🇱 NL [R] | 90.156.218.124
+  - 🇪🇪 EE [R] | 90.156.218.234
   - 🇩🇪 DE [R] | grm.janaj.space
   - 🇸🇪 SE [R] | 62.60.228.89
-  - 🇩🇪 DE [R] | 157.173.27.150
-  - 🇩🇪 DE [R] | 157.173.27.148
-  - 🇩🇪 DE [R] | 144.31.164.108
-  - 🇳🇱 NL [R] | 72.56.4.94
   - 🇳🇱 NL [R] | gb.janaj.space
-  - 🇩🇪 DE [R] | 157.173.27.152
-  - 🇩🇪 DE [R] | evolus.oblakoapp.com
   - 🇳🇱 NL [R] | 2.26.254.89
-  - 🇩🇪 DE [R] | 217.60.23.144
+  - 🇩🇪 DE [R] | 157.173.27.148
+  - 🇩🇪 DE [R] | 157.173.27.152
+  - 🇩🇪 DE [R] | 157.173.27.150
   - 🇩🇪 DE [R] | 157.173.27.146
+  - 🇩🇪 DE [R] | evolus.oblakoapp.com
+  - 🇩🇪 DE [R] | 217.60.23.144
   - 🇩🇪 DE [R] | 157.173.27.151
   - 🇩🇪 DE [xhttp] | 185.71.67.223
-  - 🇩🇪 DE [ws] | s97944.cdn.ngenix.net
 - name: 🎯 Direct
   type: select
   proxies:
