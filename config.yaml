@@ -67,6 +67,21 @@ proxies:
   servername: google.com
   flow: xtls-rprx-vision
   client-fingerprint: chrome
+- name: 🇸🇪 SE [R] | 62.60.228.89
+  type: vless
+  server: 62.60.228.89
+  port: 443
+  uuid: 2ea1a3c8-2581-4ead-8291-43fee2f8be3d
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: ydoxmw5pH_JPRTbjeNKnsF-MfVybjnAYLnhwRj3n3yE
+    short-id: cf2d
+  servername: api.ok.ru
+  client-fingerprint: chrome
 - name: 🇷🇴 RO [R] | 195.74.93.254
   type: vless
   server: 195.74.93.254
@@ -82,21 +97,6 @@ proxies:
     short-id: 247fd6dab1a34a48
   servername: web.max.ru
   flow: xtls-rprx-vision
-- name: 🇸🇪 SE [R] | 62.60.228.89
-  type: vless
-  server: 62.60.228.89
-  port: 443
-  uuid: 2ea1a3c8-2581-4ead-8291-43fee2f8be3d
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: ydoxmw5pH_JPRTbjeNKnsF-MfVybjnAYLnhwRj3n3yE
-    short-id: cf2d
-  servername: api.ok.ru
-  client-fingerprint: qq
 - name: 🇳🇱 NL [R] | 2.26.254.89
   type: vless
   server: 2.26.254.89
@@ -129,54 +129,6 @@ proxies:
   servername: dev.max.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇷🇴 RO [R] | 195.74.93.254 (2)
-  type: vless
-  server: 195.74.93.254
-  port: 443
-  uuid: db2b7549-a616-4d83-a4bf-51eda70ff82c
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: 7ReQIe2kMtP4rCrptgH5glkOM-JGcSAPzHNxOED-Z0s
-    short-id: 247fd6dab1a34a48
-  servername: web.max.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇷🇴 RO [R] | 195.74.93.254 (3)
-  type: vless
-  server: 195.74.93.254
-  port: 443
-  uuid: eedcee2e-7517-4162-852d-b21b864b8e3f
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: 7ReQIe2kMtP4rCrptgH5glkOM-JGcSAPzHNxOED-Z0s
-    short-id: 247fd6dab1a34a48
-  servername: web.max.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇷🇴 RO [R] | 195.74.93.254 (4)
-  type: vless
-  server: 195.74.93.254
-  port: 443
-  uuid: 451ccfb4-4d9f-4d16-a748-48862ff46b86
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: 7ReQIe2kMtP4rCrptgH5glkOM-JGcSAPzHNxOED-Z0s
-    short-id: 247fd6dab1a34a48
-  servername: web.max.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
 - name: 🇳🇱 NL [R] | 72.56.4.94
   type: vless
   server: 72.56.4.94
@@ -193,115 +145,112 @@ proxies:
   servername: www.gosuslugi.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇫🇮 FI  | mx.bexumconnect.ltd
+- name: 🇷🇴 RO [R] | 195.74.93.254 (2)
   type: vless
-  server: mx.bexumconnect.ltd
+  server: 195.74.93.254
   port: 443
-  uuid: 1e06c388-d31c-420e-916a-94a990648e34
+  uuid: eedcee2e-7517-4162-852d-b21b864b8e3f
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
-  servername: mx.bexumconnect.ltd
+  reality-opts:
+    public-key: 7ReQIe2kMtP4rCrptgH5glkOM-JGcSAPzHNxOED-Z0s
+    short-id: 247fd6dab1a34a48
+  servername: web.max.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇷🇴 RO [R] | 195.74.93.254 (3)
+  type: vless
+  server: 195.74.93.254
+  port: 443
+  uuid: db2b7549-a616-4d83-a4bf-51eda70ff82c
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 7ReQIe2kMtP4rCrptgH5glkOM-JGcSAPzHNxOED-Z0s
+    short-id: 247fd6dab1a34a48
+  servername: web.max.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇷🇴 RO [R] | 195.74.93.254 (4)
+  type: vless
+  server: 195.74.93.254
+  port: 443
+  uuid: 809bce92-45a0-4fe3-af1d-79d1c8422606
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 7ReQIe2kMtP4rCrptgH5glkOM-JGcSAPzHNxOED-Z0s
+    short-id: 247fd6dab1a34a48
+  servername: web.max.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇳🇱 NL [R] | 194.127.179.220
+  type: vless
+  server: 194.127.179.220
+  port: 443
+  uuid: 576aca8d-7ae1-413c-92df-7f1337ee8010
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 7ReQIe2kMtP4rCrptgH5glkOM-JGcSAPzHNxOED-Z0s
+    short-id: 247fd6dab1a34a48
+  servername: web.max.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇷🇴 RO [R] | 195.74.93.254 (5)
+  type: vless
+  server: 195.74.93.254
+  port: 443
+  uuid: 451ccfb4-4d9f-4d16-a748-48862ff46b86
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 7ReQIe2kMtP4rCrptgH5glkOM-JGcSAPzHNxOED-Z0s
+    short-id: 247fd6dab1a34a48
+  servername: web.max.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇩🇪 DE  | 109.120.152.19
+  type: vless
+  server: 109.120.152.19
+  port: 443
+  uuid: c0aa0cee-e855-4bcc-9afc-46241cb17990
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  servername: fast_s89.screw.page
+  flow: xtls-rprx-vision
+  client-fingerprint: qq
+- name: 🇩🇪 DE  | fast_s89.screw.page
+  type: vless
+  server: fast_s89.screw.page
+  port: 443
+  uuid: c0aa0cee-e855-4bcc-9afc-46241cb17990
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  servername: fast_s89.screw.page
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇨🇿 CZ [ws] | 195.209.82.151
-  type: vless
-  server: 195.209.82.151
-  port: 443
-  uuid: 45c8814c-c06f-4444-acda-1b745e74d33e
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: s76276.cdn.ngenix.net
-  client-fingerprint: chrome
-  ws-opts:
-    path: /v1/data/sync/
-    headers:
-      Host: s76276.cdn.ngenix.net
-- name: 🇨🇿 CZ [ws] | 195.209.86.193
-  type: vless
-  server: 195.209.86.193
-  port: 443
-  uuid: 45c8814c-c06f-4444-acda-1b745e74d33e
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: s76276.cdn.ngenix.net
-  client-fingerprint: chrome
-  ws-opts:
-    path: /v1/data/sync/
-    headers:
-      Host: s76276.cdn.ngenix.net
-- name: 🇨🇿 CZ [ws] | 195.209.87.181
-  type: vless
-  server: 195.209.87.181
-  port: 443
-  uuid: 45c8814c-c06f-4444-acda-1b745e74d33e
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: s76276.cdn.ngenix.net
-  client-fingerprint: firefox
-  ws-opts:
-    path: /v1/data/sync/
-    headers:
-      Host: s76276.cdn.ngenix.net
-- name: 🇨🇿 CZ [ws] | 93.93.88.78
-  type: vless
-  server: 93.93.88.78
-  port: 443
-  uuid: 45c8814c-c06f-4444-acda-1b745e74d33e
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: s76276.cdn.ngenix.net
-  client-fingerprint: chrome
-  ws-opts:
-    path: /v1/data/sync/
-    headers:
-      Host: s76276.cdn.ngenix.net
-- name: 🇨🇿 CZ [ws] | 78.41.110.128
-  type: vless
-  server: 78.41.110.128
-  port: 443
-  uuid: 45c8814c-c06f-4444-acda-1b745e74d33e
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: s76276.cdn.ngenix.net
-  client-fingerprint: chrome
-  ws-opts:
-    path: /v1/data/sync/
-    headers:
-      Host: s76276.cdn.ngenix.net
-- name: 🇨🇿 CZ [ws] | 195.209.196.184
-  type: vless
-  server: 195.209.196.184
-  port: 443
-  uuid: 45c8814c-c06f-4444-acda-1b745e74d33e
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: s76276.cdn.ngenix.net
-  client-fingerprint: qq
-  ws-opts:
-    path: /v1/data/sync/
-    headers:
-      Host: s76276.cdn.ngenix.net
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
@@ -309,13 +258,13 @@ proxy-groups:
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇬🇧 GB [R] | 144.31.87.16
   - 🇰🇿 KZ [R] | raff-vpn-kz-server1.ru
-  - 🇷🇴 RO [R] | 195.74.93.254
   - 🇸🇪 SE [R] | 62.60.228.89
+  - 🇷🇴 RO [R] | 195.74.93.254
   - 🇳🇱 NL [R] | 2.26.254.89
   - 🇩🇪 DE [R] | 217.60.23.144
+  - 🇳🇱 NL [R] | 72.56.4.94
   - 🇷🇴 RO [R] | 195.74.93.254 (2)
   - 🇷🇴 RO [R] | 195.74.93.254 (3)
-  - 🇷🇴 RO [R] | 195.74.93.254 (4)
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -326,21 +275,18 @@ proxy-groups:
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇬🇧 GB [R] | 144.31.87.16
   - 🇰🇿 KZ [R] | raff-vpn-kz-server1.ru
-  - 🇷🇴 RO [R] | 195.74.93.254
   - 🇸🇪 SE [R] | 62.60.228.89
+  - 🇷🇴 RO [R] | 195.74.93.254
   - 🇳🇱 NL [R] | 2.26.254.89
   - 🇩🇪 DE [R] | 217.60.23.144
+  - 🇳🇱 NL [R] | 72.56.4.94
   - 🇷🇴 RO [R] | 195.74.93.254 (2)
   - 🇷🇴 RO [R] | 195.74.93.254 (3)
   - 🇷🇴 RO [R] | 195.74.93.254 (4)
-  - 🇳🇱 NL [R] | 72.56.4.94
-  - 🇫🇮 FI  | mx.bexumconnect.ltd
-  - 🇨🇿 CZ [ws] | 195.209.82.151
-  - 🇨🇿 CZ [ws] | 195.209.86.193
-  - 🇨🇿 CZ [ws] | 195.209.87.181
-  - 🇨🇿 CZ [ws] | 93.93.88.78
-  - 🇨🇿 CZ [ws] | 78.41.110.128
-  - 🇨🇿 CZ [ws] | 195.209.196.184
+  - 🇳🇱 NL [R] | 194.127.179.220
+  - 🇷🇴 RO [R] | 195.74.93.254 (5)
+  - 🇩🇪 DE  | 109.120.152.19
+  - 🇩🇪 DE  | fast_s89.screw.page
 - name: 🎯 Direct
   type: select
   proxies:
