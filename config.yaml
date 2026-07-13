@@ -21,21 +21,6 @@ dns:
   - tls://8.8.8.8
   - tls://1.1.1.1
 proxies:
-- name: 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  type: vless
-  server: 91.84.117.29
-  port: 443
-  uuid: a4037b4c-6a9d-528c-9efb-7d801cce8adb
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: PyV8IrAs0LkE2d_DdjvdCtpWG7MZyUKsYkb52GUmuDM
-    short-id: '67'
-  servername: vk.com
-  client-fingerprint: chrome
 - name: 🇬🇧 GB [R] | 144.31.87.16
   type: vless
   server: 144.31.87.16
@@ -51,6 +36,21 @@ proxies:
     short-id: 3b802dad547b0847
   servername: yandex.ru
   client-fingerprint: firefox
+- name: 🇳🇱 NL [R][xhttp] | 91.84.117.29
+  type: vless
+  server: 91.84.117.29
+  port: 443
+  uuid: a4037b4c-6a9d-528c-9efb-7d801cce8adb
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: PyV8IrAs0LkE2d_DdjvdCtpWG7MZyUKsYkb52GUmuDM
+    short-id: '67'
+  servername: vk.com
+  client-fingerprint: chrome
 - name: 🇰🇿 KZ [R] | raff-vpn-kz-server1.ru
   type: vless
   server: raff-vpn-kz-server1.ru
@@ -82,6 +82,37 @@ proxies:
     short-id: 247fd6dab1a34a48
   servername: web.max.ru
   flow: xtls-rprx-vision
+- name: 🇳🇱 NL [R] | 194.127.179.220
+  type: vless
+  server: 194.127.179.220
+  port: 443
+  uuid: 146eb6cf-a99c-4022-85ca-022cf81502dc
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 7ReQIe2kMtP4rCrptgH5glkOM-JGcSAPzHNxOED-Z0s
+    short-id: 247fd6dab1a34a48
+  servername: web.max.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇸🇪 SE [R] | 62.60.228.89
+  type: vless
+  server: 62.60.228.89
+  port: 443
+  uuid: 2ea1a3c8-2581-4ead-8291-43fee2f8be3d
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: ydoxmw5pH_JPRTbjeNKnsF-MfVybjnAYLnhwRj3n3yE
+    short-id: cf2d
+  servername: api.ok.ru
+  client-fingerprint: firefox
 - name: 🇳🇱 NL [R] | 2.26.254.89
   type: vless
   server: 2.26.254.89
@@ -114,23 +145,22 @@ proxies:
   servername: dev.max.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇷🇴 RO [R] | 195.74.93.254 (2)
+- name: 🇵🇱 PL [R] | 45.11.26.63
   type: vless
-  server: 195.74.93.254
+  server: 45.11.26.63
   port: 443
-  uuid: db2b7549-a616-4d83-a4bf-51eda70ff82c
+  uuid: 967b2fad-bb2a-46d1-8efb-3bfda81f7f92
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: 7ReQIe2kMtP4rCrptgH5glkOM-JGcSAPzHNxOED-Z0s
-    short-id: 247fd6dab1a34a48
-  servername: web.max.ru
+    public-key: zggn0nHMsa9RHxqYEGwf4X24grSSAqVQ8uaRW3UKBTU
+  servername: id.vk.ru
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇷🇴 RO [R] | 195.74.93.254 (3)
+  client-fingerprint: firefox
+- name: 🇷🇴 RO [R] | 195.74.93.254 (2)
   type: vless
   server: 195.74.93.254
   port: 443
@@ -146,56 +176,49 @@ proxies:
   servername: web.max.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇫🇮 FI  | mx.bexumconnect.ltd
+- name: 🇷🇴 RO [R] | 195.74.93.254 (3)
   type: vless
-  server: mx.bexumconnect.ltd
+  server: 195.74.93.254
   port: 443
-  uuid: 1e06c388-d31c-420e-916a-94a990648e34
+  uuid: db2b7549-a616-4d83-a4bf-51eda70ff82c
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
-  servername: mx.bexumconnect.ltd
+  reality-opts:
+    public-key: 7ReQIe2kMtP4rCrptgH5glkOM-JGcSAPzHNxOED-Z0s
+    short-id: 247fd6dab1a34a48
+  servername: web.max.ru
   flow: xtls-rprx-vision
-  client-fingerprint: qq
-- name: 🇬🇧 GB  | 185.85.242.156
+  client-fingerprint: chrome
+- name: 🇷🇴 RO [R] | 195.74.93.254 (4)
   type: vless
-  server: 185.85.242.156
+  server: 195.74.93.254
   port: 443
-  uuid: 5d02517f-63d5-3e9f-b467-1bcf4d4e25d3
+  uuid: 809bce92-45a0-4fe3-af1d-79d1c8422606
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
-  servername: u695099u474eb3f0s642.csgfw.top
+  reality-opts:
+    public-key: 7ReQIe2kMtP4rCrptgH5glkOM-JGcSAPzHNxOED-Z0s
+    short-id: 247fd6dab1a34a48
+  servername: web.max.ru
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇬🇧 GB  | s221.wagahaha.xyz
+  client-fingerprint: chrome
+- name: 🇩🇪 DE  | 109.120.152.19
   type: vless
-  server: s221.wagahaha.xyz
+  server: 109.120.152.19
   port: 443
-  uuid: 5d02517f-63d5-3e9f-b467-1bcf4d4e25d3
+  uuid: c0aa0cee-e855-4bcc-9afc-46241cb17990
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
-  servername: u695099u474eb3f0s642.csgfw.top
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇬🇧 GB  | s235.ccgfw.online
-  type: vless
-  server: s235.ccgfw.online
-  port: 443
-  uuid: 5d02517f-63d5-3e9f-b467-1bcf4d4e25d3
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: u695099u474eb3f0s642.csgfw.top
+  servername: fast_s89.screw.page
   flow: xtls-rprx-vision
   client-fingerprint: firefox
 - name: 🇩🇪 DE  | fast_s89.screw.page
@@ -211,33 +234,20 @@ proxies:
   servername: fast_s89.screw.page
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇩🇪 DE  | 109.120.152.19
-  type: vless
-  server: 109.120.152.19
-  port: 443
-  uuid: c0aa0cee-e855-4bcc-9afc-46241cb17990
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: fast_s89.screw.page
-  flow: xtls-rprx-vision-udp443
-  client-fingerprint: firefox
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
-  - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇬🇧 GB [R] | 144.31.87.16
+  - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇰🇿 KZ [R] | raff-vpn-kz-server1.ru
   - 🇷🇴 RO [R] | 195.74.93.254
+  - 🇳🇱 NL [R] | 194.127.179.220
+  - 🇸🇪 SE [R] | 62.60.228.89
   - 🇳🇱 NL [R] | 2.26.254.89
   - 🇩🇪 DE [R] | 217.60.23.144
+  - 🇵🇱 PL [R] | 45.11.26.63
   - 🇷🇴 RO [R] | 195.74.93.254 (2)
-  - 🇷🇴 RO [R] | 195.74.93.254 (3)
-  - 🇫🇮 FI  | mx.bexumconnect.ltd
-  - 🇬🇧 GB  | 185.85.242.156
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -245,20 +255,20 @@ proxy-groups:
   type: select
   proxies:
   - 🚀 Auto
-  - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇬🇧 GB [R] | 144.31.87.16
+  - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇰🇿 KZ [R] | raff-vpn-kz-server1.ru
   - 🇷🇴 RO [R] | 195.74.93.254
+  - 🇳🇱 NL [R] | 194.127.179.220
+  - 🇸🇪 SE [R] | 62.60.228.89
   - 🇳🇱 NL [R] | 2.26.254.89
   - 🇩🇪 DE [R] | 217.60.23.144
+  - 🇵🇱 PL [R] | 45.11.26.63
   - 🇷🇴 RO [R] | 195.74.93.254 (2)
   - 🇷🇴 RO [R] | 195.74.93.254 (3)
-  - 🇫🇮 FI  | mx.bexumconnect.ltd
-  - 🇬🇧 GB  | 185.85.242.156
-  - 🇬🇧 GB  | s221.wagahaha.xyz
-  - 🇬🇧 GB  | s235.ccgfw.online
-  - 🇩🇪 DE  | fast_s89.screw.page
+  - 🇷🇴 RO [R] | 195.74.93.254 (4)
   - 🇩🇪 DE  | 109.120.152.19
+  - 🇩🇪 DE  | fast_s89.screw.page
 - name: 🎯 Direct
   type: select
   proxies:
