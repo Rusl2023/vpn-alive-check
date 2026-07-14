@@ -21,21 +21,6 @@ dns:
   - tls://8.8.8.8
   - tls://1.1.1.1
 proxies:
-- name: 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  type: vless
-  server: 91.84.117.29
-  port: 443
-  uuid: a4037b4c-6a9d-528c-9efb-7d801cce8adb
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: PyV8IrAs0LkE2d_DdjvdCtpWG7MZyUKsYkb52GUmuDM
-    short-id: '67'
-  servername: vk.com
-  client-fingerprint: chrome
 - name: 🇩🇪 DE [R][grpc] | 185.68.184.237
   type: vless
   server: 185.68.184.237
@@ -53,6 +38,21 @@ proxies:
   client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: data-sync
+- name: 🇳🇱 NL [R][xhttp] | 91.84.117.29
+  type: vless
+  server: 91.84.117.29
+  port: 443
+  uuid: a4037b4c-6a9d-528c-9efb-7d801cce8adb
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: PyV8IrAs0LkE2d_DdjvdCtpWG7MZyUKsYkb52GUmuDM
+    short-id: '67'
+  servername: vk.com
+  client-fingerprint: chrome
 - name: 🇬🇧 GB [R] | 144.31.87.16
   type: vless
   server: 144.31.87.16
@@ -84,36 +84,6 @@ proxies:
   servername: google.com
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇸🇪 SE [R] | 62.60.228.89
-  type: vless
-  server: 62.60.228.89
-  port: 443
-  uuid: 2ea1a3c8-2581-4ead-8291-43fee2f8be3d
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: ydoxmw5pH_JPRTbjeNKnsF-MfVybjnAYLnhwRj3n3yE
-    short-id: cf2d0000
-  servername: api.ok.ru
-  client-fingerprint: qq
-- name: 🇵🇱 PL [R] | 45.11.26.63
-  type: vless
-  server: 45.11.26.63
-  port: 443
-  uuid: 967b2fad-bb2a-46d1-8efb-3bfda81f7f92
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: zggn0nHMsa9RHxqYEGwf4X24grSSAqVQ8uaRW3UKBTU
-  servername: id.vk.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇦🇺 AU [R] | ru41.theabvp.org
   type: vless
   server: ru41.theabvp.org
@@ -129,6 +99,52 @@ proxies:
     short-id: 920d0959
   servername: sun6-20.userapi.com
   client-fingerprint: qq
+- name: 🇸🇪 SE [R] | 62.60.228.89
+  type: vless
+  server: 62.60.228.89
+  port: 443
+  uuid: 2ea1a3c8-2581-4ead-8291-43fee2f8be3d
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: ydoxmw5pH_JPRTbjeNKnsF-MfVybjnAYLnhwRj3n3yE
+    short-id: cf2d0000
+  servername: api.ok.ru
+  client-fingerprint: qq
+- name: 🇷🇴 RO [R] | 195.74.93.254
+  type: vless
+  server: 195.74.93.254
+  port: 443
+  uuid: 146eb6cf-a99c-4022-85ca-022cf81502dc
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 7ReQIe2kMtP4rCrptgH5glkOM-JGcSAPzHNxOED-Z0s
+    short-id: 247fd6dab1a34a48
+  servername: web.max.ru
+  flow: xtls-rprx-vision
+- name: 🇳🇱 NL [R] | 194.127.179.220
+  type: vless
+  server: 194.127.179.220
+  port: 443
+  uuid: eedcee2e-7517-4162-852d-b21b864b8e3f
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 7ReQIe2kMtP4rCrptgH5glkOM-JGcSAPzHNxOED-Z0s
+    short-id: 247fd6dab1a34a48
+  servername: web.max.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇳🇱 NL [R] | 2.26.254.89
   type: vless
   server: 2.26.254.89
@@ -145,21 +161,6 @@ proxies:
   servername: yastatic.net
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇷🇴 RO [R] | 195.74.93.254
-  type: vless
-  server: 195.74.93.254
-  port: 443
-  uuid: 146eb6cf-a99c-4022-85ca-022cf81502dc
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: 7ReQIe2kMtP4rCrptgH5glkOM-JGcSAPzHNxOED-Z0s
-    short-id: 247fd6dab1a34a48
-  servername: web.max.ru
-  flow: xtls-rprx-vision
 - name: 🇩🇪 DE [R] | 217.60.23.144
   type: vless
   server: 217.60.23.144
@@ -224,69 +225,41 @@ proxies:
   servername: web.max.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇫🇷 FR [xhttp] | 31.129.42.37
+- name: 🇳🇱 NL [R] | 194.127.179.220 (2)
   type: vless
-  server: 31.129.42.37
+  server: 194.127.179.220
   port: 443
-  uuid: 388451f3-5ce2-415d-bb06-2fab697fc648
+  uuid: 29f2e850-1551-48ba-9d68-1fb303d3ab6e
   udp: true
   skip-cert-verify: true
-  network: xhttp
+  network: tcp
   encryption: none
   tls: true
-  servername: api.datapull.cc
-  client-fingerprint: firefox
-- name: 🇩🇪 DE [xhttp] | 37.9.4.128
+  reality-opts:
+    public-key: 7ReQIe2kMtP4rCrptgH5glkOM-JGcSAPzHNxOED-Z0s
+    short-id: 247fd6dab1a34a48
+  servername: web.max.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇳🇱 NL [R] | 194.127.179.220 (3)
   type: vless
-  server: 37.9.4.128
+  server: 194.127.179.220
   port: 443
-  uuid: 388451f3-5ce2-415d-bb06-2fab697fc648
+  uuid: 576aca8d-7ae1-413c-92df-7f1337ee8010
   udp: true
   skip-cert-verify: true
-  network: xhttp
+  network: tcp
   encryption: none
   tls: true
-  servername: api1.madapp.cc
-  client-fingerprint: firefox
-- name: 🇫🇷 FR [xhttp] | 31.129.42.37 (2)
+  reality-opts:
+    public-key: 7ReQIe2kMtP4rCrptgH5glkOM-JGcSAPzHNxOED-Z0s
+    short-id: 247fd6dab1a34a48
+  servername: web.max.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇩🇪 DE  | fast_s89.screw.page
   type: vless
-  server: 31.129.42.37
-  port: 443
-  uuid: 0489c663-a298-4736-8075-0148a10131c1
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  servername: api.datapull.cc
-  client-fingerprint: firefox
-- name: 🇫🇷 FR [xhttp] | 188.68.218.110
-  type: vless
-  server: 188.68.218.110
-  port: 443
-  uuid: 388451f3-5ce2-415d-bb06-2fab697fc648
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  servername: api.madapp.cc
-  client-fingerprint: firefox
-- name: 🇫🇷 FR [xhttp] | 188.68.218.160
-  type: vless
-  server: 188.68.218.160
-  port: 443
-  uuid: 388451f3-5ce2-415d-bb06-2fab697fc648
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  servername: api.pushbyte.cc
-  client-fingerprint: firefox
-- name: 🇩🇪 DE  | 109.120.152.19
-  type: vless
-  server: 109.120.152.19
+  server: fast_s89.screw.page
   port: 443
   uuid: c0aa0cee-e855-4bcc-9afc-46241cb17990
   udp: true
@@ -296,7 +269,7 @@ proxies:
   tls: true
   servername: fast_s89.screw.page
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
+  client-fingerprint: firefox
 - name: 🇩🇪 DE [ws] | 194.156.26.44
   type: vless
   server: 194.156.26.44
@@ -313,22 +286,19 @@ proxies:
     path: /eyJqdW5rIjoiQ2tZYWQ1azMzWSIsInByb3RvY29sIjoidmwiLCJtb2RlIjoicHJveHlpcCIsInBhbmVsSVBzIjpbXX0=
     headers:
       Host: PAtiENT-trUTH-C479.fORDGAme200.wORKErs.dEV
-- name: 🇩🇪 DE [ws] | 194.156.26.15
+- name: 🇩🇪 DE  | 109.120.152.19
   type: vless
-  server: 194.156.26.15
+  server: 109.120.152.19
   port: 443
-  uuid: f2e6441c-da67-4594-b71e-7155749f3575
+  uuid: c0aa0cee-e855-4bcc-9afc-46241cb17990
   udp: true
   skip-cert-verify: true
-  network: ws
+  network: tcp
   encryption: none
   tls: true
-  servername: TWiLIGhT-disK-7457.FORDtAKiw.WorKERs.deV
+  servername: fast_s89.screw.page
+  flow: xtls-rprx-vision-udp443
   client-fingerprint: firefox
-  ws-opts:
-    path: /eyJqdW5rIjoiVHZuQnZNYkFTVXd6cElpIiwicHJvdG9jb2wiOiJ2bCIsIm1vZGUiOiJwcm94eWlwIiwicGFuZWxJUHMiOlsiNjQuMTg4LjY4LjExIl19
-    headers:
-      Host: TWiLIGhT-disK-7457.FORDtAKiw.WorKERs.deV
 - name: 🇩🇪 DE [ws] | 194.156.26.1
   type: vless
   server: 194.156.26.1
@@ -345,32 +315,35 @@ proxies:
     path: /eyJqdW5rIjoiVHZuQnZNYkFTVXd6cElpIiwicHJvdG9jb2wiOiJ2bCIsIm1vZGUiOiJwcm94eWlwIiwicGFuZWxJUHMiOlsiNjQuMTg4LjY4LjExIl19
     headers:
       Host: TWiLIGhT-disK-7457.FORDtAKiw.WorKERs.deV
-- name: 🇩🇪 DE  | fast_s89.screw.page
+- name: 🇩🇪 DE [ws] | 194.156.26.15
   type: vless
-  server: fast_s89.screw.page
+  server: 194.156.26.15
   port: 443
-  uuid: c0aa0cee-e855-4bcc-9afc-46241cb17990
+  uuid: f2e6441c-da67-4594-b71e-7155749f3575
   udp: true
   skip-cert-verify: true
-  network: tcp
+  network: ws
   encryption: none
   tls: true
-  servername: fast_s89.screw.page
-  flow: xtls-rprx-vision
+  servername: TWiLIGhT-disK-7457.FORDtAKiw.WorKERs.deV
   client-fingerprint: firefox
+  ws-opts:
+    path: /eyJqdW5rIjoiVHZuQnZNYkFTVXd6cElpIiwicHJvdG9jb2wiOiJ2bCIsIm1vZGUiOiJwcm94eWlwIiwicGFuZWxJUHMiOlsiNjQuMTg4LjY4LjExIl19
+    headers:
+      Host: TWiLIGhT-disK-7457.FORDtAKiw.WorKERs.deV
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
-  - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇩🇪 DE [R][grpc] | 185.68.184.237
+  - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇬🇧 GB [R] | 144.31.87.16
   - 🇰🇿 KZ [R] | raff-vpn-kz-server1.ru
-  - 🇸🇪 SE [R] | 62.60.228.89
-  - 🇵🇱 PL [R] | 45.11.26.63
   - 🇦🇺 AU [R] | ru41.theabvp.org
-  - 🇳🇱 NL [R] | 2.26.254.89
+  - 🇸🇪 SE [R] | 62.60.228.89
   - 🇷🇴 RO [R] | 195.74.93.254
+  - 🇳🇱 NL [R] | 194.127.179.220
+  - 🇳🇱 NL [R] | 2.26.254.89
   - 🇩🇪 DE [R] | 217.60.23.144
   url: https://www.google.com/generate_204
   interval: 300
@@ -379,29 +352,26 @@ proxy-groups:
   type: select
   proxies:
   - 🚀 Auto
-  - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇩🇪 DE [R][grpc] | 185.68.184.237
+  - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇬🇧 GB [R] | 144.31.87.16
   - 🇰🇿 KZ [R] | raff-vpn-kz-server1.ru
-  - 🇸🇪 SE [R] | 62.60.228.89
-  - 🇵🇱 PL [R] | 45.11.26.63
   - 🇦🇺 AU [R] | ru41.theabvp.org
-  - 🇳🇱 NL [R] | 2.26.254.89
+  - 🇸🇪 SE [R] | 62.60.228.89
   - 🇷🇴 RO [R] | 195.74.93.254
+  - 🇳🇱 NL [R] | 194.127.179.220
+  - 🇳🇱 NL [R] | 2.26.254.89
   - 🇩🇪 DE [R] | 217.60.23.144
   - 🇷🇴 RO [R] | 195.74.93.254 (2)
   - 🇷🇴 RO [R] | 195.74.93.254 (3)
   - 🇷🇴 RO [R] | 195.74.93.254 (4)
-  - 🇫🇷 FR [xhttp] | 31.129.42.37
-  - 🇩🇪 DE [xhttp] | 37.9.4.128
-  - 🇫🇷 FR [xhttp] | 31.129.42.37 (2)
-  - 🇫🇷 FR [xhttp] | 188.68.218.110
-  - 🇫🇷 FR [xhttp] | 188.68.218.160
-  - 🇩🇪 DE  | 109.120.152.19
-  - 🇩🇪 DE [ws] | 194.156.26.44
-  - 🇩🇪 DE [ws] | 194.156.26.15
-  - 🇩🇪 DE [ws] | 194.156.26.1
+  - 🇳🇱 NL [R] | 194.127.179.220 (2)
+  - 🇳🇱 NL [R] | 194.127.179.220 (3)
   - 🇩🇪 DE  | fast_s89.screw.page
+  - 🇩🇪 DE [ws] | 194.156.26.44
+  - 🇩🇪 DE  | 109.120.152.19
+  - 🇩🇪 DE [ws] | 194.156.26.1
+  - 🇩🇪 DE [ws] | 194.156.26.15
 - name: 🎯 Direct
   type: select
   proxies:
