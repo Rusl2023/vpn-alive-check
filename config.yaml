@@ -36,23 +36,21 @@ proxies:
     short-id: '67'
   servername: vk.com
   client-fingerprint: chrome
-- name: 🇳🇱 NL [R][grpc] | 77.221.151.158
+- name: 🇬🇧 GB [R] | 144.31.87.16
   type: vless
-  server: 77.221.151.158
+  server: 144.31.87.16
   port: 443
-  uuid: 6f40547a-1046-4194-8ca5-6f355897c3c6
+  uuid: c40f773e-3b96-417e-b22c-e48cb63ca7d9
   udp: true
   skip-cert-verify: true
-  network: grpc
+  network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: hEyhCVfwVjIWoXIkG_VfqJ0DsgXbhjap5Waqwq-NqGE
-    short-id: 276a58a58edaa4
+    public-key: l5eAOSPQMEyzEPvWGAKvCkcPpsJvR3DJfYo6elw1UTE
+    short-id: 3b802dad547b0847
   servername: yandex.ru
-  client-fingerprint: random
-  grpc-opts:
-    grpc-service-name: google.android.location.SyncService
+  client-fingerprint: firefox
 - name: 🇰🇿 KZ [R] | raff-vpn-kz-server1.ru
   type: vless
   server: raff-vpn-kz-server1.ru
@@ -69,6 +67,52 @@ proxies:
   servername: google.com
   flow: xtls-rprx-vision
   client-fingerprint: chrome
+- name: 🇫🇷 FR [R] | 45.192.2.115
+  type: vless
+  server: 45.192.2.115
+  port: 443
+  uuid: 0b8dfc50-9e2d-4b3c-85cd-870b478312a0
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 1oUeBtHH4DskTM_jCh-6enWRkFMDX9l1OU5kWYl4kxA
+    short-id: f34818a561dfd1fe
+  servername: yandex.net
+  flow: xtls-rprx-vision
+- name: 🇫🇷 FR [R] | 45.192.2.173
+  type: vless
+  server: 45.192.2.173
+  port: 443
+  uuid: 1478d83f-3e0b-4d96-99cc-b514495e53c6
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 1oUeBtHH4DskTM_jCh-6enWRkFMDX9l1OU5kWYl4kxA
+    short-id: 364994a6f61fc955
+  servername: yandex.net
+  flow: xtls-rprx-vision
+- name: 🇫🇷 FR [R] | 45.192.2.157
+  type: vless
+  server: 45.192.2.157
+  port: 443
+  uuid: 5098e189-3462-4ff7-8ddd-4aaecfd060ea
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 1oUeBtHH4DskTM_jCh-6enWRkFMDX9l1OU5kWYl4kxA
+    short-id: f34818a561dfd1fe
+  servername: yandex.net
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇩🇪 DE [R] | 82.202.141.2
   type: vless
   server: 82.202.141.2
@@ -101,86 +145,6 @@ proxies:
   servername: m.ok.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇫🇷 FR [R] | 45.192.2.157
-  type: vless
-  server: 45.192.2.157
-  port: 443
-  uuid: 5098e189-3462-4ff7-8ddd-4aaecfd060ea
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: 1oUeBtHH4DskTM_jCh-6enWRkFMDX9l1OU5kWYl4kxA
-    short-id: f34818a561dfd1fe
-  servername: yandex.net
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇫🇷 FR [R] | 45.192.2.115
-  type: vless
-  server: 45.192.2.115
-  port: 443
-  uuid: 0b8dfc50-9e2d-4b3c-85cd-870b478312a0
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: 1oUeBtHH4DskTM_jCh-6enWRkFMDX9l1OU5kWYl4kxA
-    short-id: f34818a561dfd1fe
-  servername: yandex.net
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇫🇷 FR [R] | 45.192.2.173
-  type: vless
-  server: 45.192.2.173
-  port: 443
-  uuid: 1478d83f-3e0b-4d96-99cc-b514495e53c6
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: 1oUeBtHH4DskTM_jCh-6enWRkFMDX9l1OU5kWYl4kxA
-    short-id: 364994a6f61fc955
-  servername: yandex.net
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇩🇪 DE [R] | 138.124.126.158
-  type: vless
-  server: 138.124.126.158
-  port: 443
-  uuid: b12eebc2-369c-4f3c-96a0-a8bd150ca8d5
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: Lxs8Ruv2zHH0XW5EiQmuCaScfkGPCxWjW02YDWH8pyU
-    short-id: eb0cca7312345678
-  servername: eh.vk.com
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇵🇱 PL [R] | 81.90.17.164
-  type: vless
-  server: 81.90.17.164
-  port: 443
-  uuid: cb784d00-d34a-4389-b938-8717f7b28353
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: v0XQn6uvyC8q5CThcRYLer1F1OOYpZDn5NLOvDicaWg
-    short-id: b31c2b75add2e5fa
-  servername: yastatic.net
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
 - name: 🇧🇬 BG [R] | 93.152.223.98
   type: vless
   server: 93.152.223.98
@@ -197,6 +161,22 @@ proxies:
   servername: web.max.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
+- name: 🇩🇪 DE [R] | 138.124.126.158
+  type: vless
+  server: 138.124.126.158
+  port: 443
+  uuid: b12eebc2-369c-4f3c-96a0-a8bd150ca8d5
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: Lxs8Ruv2zHH0XW5EiQmuCaScfkGPCxWjW02YDWH8pyU
+    short-id: eb0cca7312345678
+  servername: eh.vk.com
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇧🇬 BG [R] | de.vrsvpn.com
   type: vless
   server: de.vrsvpn.com
@@ -211,6 +191,22 @@ proxies:
     public-key: QocXHwad0mV7WA5jSAcqDac3uuVBEp1WF775-CilniE
     short-id: 45ba18f429ad1f28
   servername: web.max.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇵🇱 PL [R] | 81.90.17.164
+  type: vless
+  server: 81.90.17.164
+  port: 443
+  uuid: cb784d00-d34a-4389-b938-8717f7b28353
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: v0XQn6uvyC8q5CThcRYLer1F1OOYpZDn5NLOvDicaWg
+    short-id: b31c2b75add2e5fa
+  servername: yastatic.net
   flow: xtls-rprx-vision
   client-fingerprint: chrome
 - name: 🇪🇪 EE [R] | 185.155.97.241
@@ -229,6 +225,22 @@ proxies:
   servername: web.max.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
+- name: 🇷🇴 RO [R] | 195.74.93.254
+  type: vless
+  server: 195.74.93.254
+  port: 443
+  uuid: 451ccfb4-4d9f-4d16-a748-48862ff46b86
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 7ReQIe2kMtP4rCrptgH5glkOM-JGcSAPzHNxOED-Z0s
+    short-id: 247fd6dab1a34a48
+  servername: web.max.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
 - name: 🇪🇪 EE [R] | est.vrsvpn.com
   type: vless
   server: est.vrsvpn.com
@@ -244,44 +256,12 @@ proxies:
     short-id: 15aa18f971da1f81
   servername: web.max.ru
   flow: xtls-rprx-vision
-  client-fingerprint: qq
-- name: 🇷🇴 RO [R] | 195.74.93.254
-  type: vless
-  server: 195.74.93.254
-  port: 443
-  uuid: 146eb6cf-a99c-4022-85ca-022cf81502dc
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: 7ReQIe2kMtP4rCrptgH5glkOM-JGcSAPzHNxOED-Z0s
-    short-id: 247fd6dab1a34a48
-  servername: web.max.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇳🇱 NL [R] | 194.127.179.220
-  type: vless
-  server: 194.127.179.220
-  port: 443
-  uuid: 146eb6cf-a99c-4022-85ca-022cf81502dc
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: 7ReQIe2kMtP4rCrptgH5glkOM-JGcSAPzHNxOED-Z0s
-    short-id: 247fd6dab1a34a48
-  servername: web.max.ru
-  flow: xtls-rprx-vision
   client-fingerprint: chrome
 - name: 🇷🇴 RO [R] | 195.74.93.254 (2)
   type: vless
   server: 195.74.93.254
   port: 443
-  uuid: 809bce92-45a0-4fe3-af1d-79d1c8422606
+  uuid: db2b7549-a616-4d83-a4bf-51eda70ff82c
   udp: true
   skip-cert-verify: true
   network: tcp
@@ -297,7 +277,7 @@ proxies:
   type: vless
   server: 195.74.93.254
   port: 443
-  uuid: db2b7549-a616-4d83-a4bf-51eda70ff82c
+  uuid: 809bce92-45a0-4fe3-af1d-79d1c8422606
   udp: true
   skip-cert-verify: true
   network: tcp
@@ -325,22 +305,6 @@ proxies:
   servername: web.max.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇷🇴 RO [R] | 195.74.93.254 (5)
-  type: vless
-  server: 195.74.93.254
-  port: 443
-  uuid: 451ccfb4-4d9f-4d16-a748-48862ff46b86
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: 7ReQIe2kMtP4rCrptgH5glkOM-JGcSAPzHNxOED-Z0s
-    short-id: 247fd6dab1a34a48
-  servername: web.max.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
 - name: 🇩🇪 DE [ws] | 194.156.26.1
   type: vless
   server: 194.156.26.1
@@ -357,41 +321,11 @@ proxies:
     path: /eyJqdW5rIjoiWnM2b1ZnRlpNRyIsInByb3RvY29sIjoidmwiLCJtb2RlIjoicHJveHlpcCIsInBhbmVsSVBzIjpbIjExNi4yMDIuMTMyLjIwNSJdfQ==
     headers:
       Host: SumMeR-skY-0522.SFPOijsofw207geFS.WOrkeRS.deV
-- name: 🇺🇸 US [ws] | 103.88.242.134
-  type: vless
-  server: 103.88.242.134
-  port: 443
-  uuid: 47fcef29-ab4e-4aa6-932b-d95a18f28a4e
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: u61op.o3ue.5g1.hh.vavava.kdns.fr
-  ws-opts:
-    path: /?ed=2560
-    headers:
-      Host: u61op.o3ue.5g1.hh.vavava.kdns.fr
-- name: 🇸🇪 SE [ws] | 185.125.219.164
-  type: vless
-  server: 185.125.219.164
-  port: 443
-  uuid: 47fcef29-ab4e-4aa6-932b-d95a18f28a4e
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: u61op.o3ue.5g1.hh.vavava.kdns.fr
-  ws-opts:
-    path: /?ed=2560
-    headers:
-      Host: u61op.o3ue.5g1.hh.vavava.kdns.fr
 - name: 🇩🇪 DE [ws] | 5.188.115.69
   type: vless
   server: 5.188.115.69
   port: 443
-  uuid: 58e2050c-ff41-45eb-830c-0ac42f4ecd7d
+  uuid: 739fc5c1-d9f6-4cde-9c28-b197a9373738
   udp: true
   skip-cert-verify: true
   network: ws
@@ -403,22 +337,22 @@ proxies:
     path: /ws
     headers:
       Host: amogus.razkur.dev
-- name: 🇩🇪 DE [ws] | 5.188.115.69 (2)
+- name: 🇺🇸 US [ws] | 158.160.57.2
   type: vless
-  server: 5.188.115.69
+  server: 158.160.57.2
   port: 443
-  uuid: 6f019c71-959f-4daa-8dee-b673b3baa06b
+  uuid: 9b08bee0-2615-46c6-8939-54b575517a26
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: amogus.razkur.dev
+  servername: cloudflare.vhub.pro
   client-fingerprint: chrome
   ws-opts:
-    path: /ws
+    path: /websocket?ed
     headers:
-      Host: amogus.razkur.dev
+      Host: cloudflare.vhub.pro
 - name: 🇱🇻 LV  | lv-ddc.astralweb.tech
   type: vless
   server: lv-ddc.astralweb.tech
@@ -431,36 +365,20 @@ proxies:
   tls: true
   servername: lv-ddc.astralweb.tech
   client-fingerprint: firefox
-- name: 🇩🇪 DE [ws] | 5.188.115.69 (3)
-  type: vless
-  server: 5.188.115.69
-  port: 443
-  uuid: 1fecf299-efa6-45f1-b7f8-f1cc8814ef4a
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: amogus.razkur.dev
-  client-fingerprint: chrome
-  ws-opts:
-    path: /ws
-    headers:
-      Host: amogus.razkur.dev
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  - 🇳🇱 NL [R][grpc] | 77.221.151.158
+  - 🇬🇧 GB [R] | 144.31.87.16
   - 🇰🇿 KZ [R] | raff-vpn-kz-server1.ru
-  - 🇩🇪 DE [R] | 82.202.141.2
-  - 🇳🇱 NL [R] | 5.253.59.220
-  - 🇫🇷 FR [R] | 45.192.2.157
   - 🇫🇷 FR [R] | 45.192.2.115
   - 🇫🇷 FR [R] | 45.192.2.173
+  - 🇫🇷 FR [R] | 45.192.2.157
+  - 🇩🇪 DE [R] | 82.202.141.2
+  - 🇳🇱 NL [R] | 5.253.59.220
+  - 🇧🇬 BG [R] | 93.152.223.98
   - 🇩🇪 DE [R] | 138.124.126.158
-  - 🇵🇱 PL [R] | 81.90.17.164
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -469,32 +387,27 @@ proxy-groups:
   proxies:
   - 🚀 Auto
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  - 🇳🇱 NL [R][grpc] | 77.221.151.158
+  - 🇬🇧 GB [R] | 144.31.87.16
   - 🇰🇿 KZ [R] | raff-vpn-kz-server1.ru
-  - 🇩🇪 DE [R] | 82.202.141.2
-  - 🇳🇱 NL [R] | 5.253.59.220
-  - 🇫🇷 FR [R] | 45.192.2.157
   - 🇫🇷 FR [R] | 45.192.2.115
   - 🇫🇷 FR [R] | 45.192.2.173
-  - 🇩🇪 DE [R] | 138.124.126.158
-  - 🇵🇱 PL [R] | 81.90.17.164
+  - 🇫🇷 FR [R] | 45.192.2.157
+  - 🇩🇪 DE [R] | 82.202.141.2
+  - 🇳🇱 NL [R] | 5.253.59.220
   - 🇧🇬 BG [R] | 93.152.223.98
+  - 🇩🇪 DE [R] | 138.124.126.158
   - 🇧🇬 BG [R] | de.vrsvpn.com
+  - 🇵🇱 PL [R] | 81.90.17.164
   - 🇪🇪 EE [R] | 185.155.97.241
-  - 🇪🇪 EE [R] | est.vrsvpn.com
   - 🇷🇴 RO [R] | 195.74.93.254
-  - 🇳🇱 NL [R] | 194.127.179.220
+  - 🇪🇪 EE [R] | est.vrsvpn.com
   - 🇷🇴 RO [R] | 195.74.93.254 (2)
   - 🇷🇴 RO [R] | 195.74.93.254 (3)
   - 🇷🇴 RO [R] | 195.74.93.254 (4)
-  - 🇷🇴 RO [R] | 195.74.93.254 (5)
   - 🇩🇪 DE [ws] | 194.156.26.1
-  - 🇺🇸 US [ws] | 103.88.242.134
-  - 🇸🇪 SE [ws] | 185.125.219.164
   - 🇩🇪 DE [ws] | 5.188.115.69
-  - 🇩🇪 DE [ws] | 5.188.115.69 (2)
+  - 🇺🇸 US [ws] | 158.160.57.2
   - 🇱🇻 LV  | lv-ddc.astralweb.tech
-  - 🇩🇪 DE [ws] | 5.188.115.69 (3)
 - name: 🎯 Direct
   type: select
   proxies:
