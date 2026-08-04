@@ -114,7 +114,6 @@ proxies:
     short-id: 45ba18f429ad1f28
   servername: web.max.ru
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
 - name: 🇪🇪 EE [R] | 185.155.97.241
   type: vless
   server: 185.155.97.241
@@ -131,53 +130,22 @@ proxies:
   servername: web.max.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇪🇪 EE [R] | est.vrsvpn.com
+- name: 🇬🇧 GB [R] | 147.45.68.7
   type: vless
-  server: est.vrsvpn.com
+  server: 147.45.68.7
   port: 443
-  uuid: 0b9bcbc1-b289-4a64-86fa-a5b731b65384
+  uuid: d1e816db-0dc6-4b44-8037-c59700028214
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: SJkDT_L0eziQR2afDGrkN7-uRxjYu6bZxIGXlKeCvX4
-    short-id: 15aa18f971da1f81
-  servername: web.max.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: qq
-- name: 🇩🇪 DE [R] | 138.124.126.158
-  type: vless
-  server: 138.124.126.158
-  port: 443
-  uuid: b12eebc2-369c-4f3c-96a0-a8bd150ca8d5
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: Lxs8Ruv2zHH0XW5EiQmuCaScfkGPCxWjW02YDWH8pyU
-    short-id: eb0cca7312345678
-  servername: eh.vk.com
+    public-key: p75u2ya5aYdDimDoKybVDDAOA8vBThGDNGNv8yZuMmU
+    short-id: 29d96e0b2e782b7b
+  servername: api-maps.yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇦🇹 AT [R] | 130.49.219.126
-  type: vless
-  server: 130.49.219.126
-  port: 443
-  uuid: 1bfd045c-3c64-4f27-874f-8e0b9da23fc8
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: fp_r7Tz3YdOZUY1wmo21U5xAoqyhHhb8l0q-py3JARo
-    short-id: f5e89824
-  servername: sun6-22.userapi.com
-  flow: xtls-rprx-vision
 - name: 🇧🇬 BG [R] | de.vrsvpn.com
   type: vless
   server: de.vrsvpn.com
@@ -193,23 +161,76 @@ proxies:
     short-id: 45ba18f429ad1f28
   servername: web.max.ru
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇩🇪 DE [ws] | 194.156.26.1
+  client-fingerprint: qq
+- name: 🇪🇪 EE [R] | est.vrsvpn.com
   type: vless
-  server: 194.156.26.1
+  server: est.vrsvpn.com
   port: 443
-  uuid: 4b5de9a4-3543-4f04-af6e-5c20141520ce
+  uuid: 0b9bcbc1-b289-4a64-86fa-a5b731b65384
   udp: true
   skip-cert-verify: true
-  network: ws
+  network: tcp
   encryption: none
   tls: true
-  servername: SumMeR-skY-0522.SFPOijsofw207geFS.WOrkeRS.deV
+  reality-opts:
+    public-key: SJkDT_L0eziQR2afDGrkN7-uRxjYu6bZxIGXlKeCvX4
+    short-id: 15aa18f971da1f81
+  servername: web.max.ru
+  flow: xtls-rprx-vision
   client-fingerprint: chrome
-  ws-opts:
-    path: /eyJqdW5rIjoiWnM2b1ZnRlpNRyIsInByb3RvY29sIjoidmwiLCJtb2RlIjoicHJveHlpcCIsInBhbmVsSVBzIjpbIjExNi4yMDIuMTMyLjIwNSJdfQ==
-    headers:
-      Host: SumMeR-skY-0522.SFPOijsofw207geFS.WOrkeRS.deV
+- name: 🇦🇹 AT [R] | 130.49.219.126
+  type: vless
+  server: 130.49.219.126
+  port: 443
+  uuid: 1bfd045c-3c64-4f27-874f-8e0b9da23fc8
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: fp_r7Tz3YdOZUY1wmo21U5xAoqyhHhb8l0q-py3JARo
+    short-id: f5e89824
+  servername: sun6-22.userapi.com
+  flow: xtls-rprx-vision
+- name: 🇩🇪 DE [R] | 138.124.126.158
+  type: vless
+  server: 138.124.126.158
+  port: 443
+  uuid: b12eebc2-369c-4f3c-96a0-a8bd150ca8d5
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: Lxs8Ruv2zHH0XW5EiQmuCaScfkGPCxWjW02YDWH8pyU
+    short-id: eb0cca7312345678
+  servername: eh.vk.com
+  flow: xtls-rprx-vision
+- name: 🇦🇹 AT [xhttp] | 87.228.101.30
+  type: vless
+  server: 87.228.101.30
+  port: 443
+  uuid: 04b3ed78-61b5-42bb-9143-eeb70e64b5aa
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  servername: media-ru3.lbdnetwork.com
+  client-fingerprint: firefox
+- name: 🇦🇹 AT [xhttp] | media-ru7.lbdnetwork.com
+  type: vless
+  server: media-ru7.lbdnetwork.com
+  port: 443
+  uuid: 04b3ed78-61b5-42bb-9143-eeb70e64b5aa
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  servername: media-ru3.lbdnetwork.com
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
@@ -221,9 +242,9 @@ proxy-groups:
   - 🇳🇱 NL [R] | 193.233.126.104
   - 🇧🇬 BG [R] | 93.152.223.98
   - 🇪🇪 EE [R] | 185.155.97.241
+  - 🇬🇧 GB [R] | 147.45.68.7
+  - 🇧🇬 BG [R] | de.vrsvpn.com
   - 🇪🇪 EE [R] | est.vrsvpn.com
-  - 🇩🇪 DE [R] | 138.124.126.158
-  - 🇦🇹 AT [R] | 130.49.219.126
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -238,11 +259,13 @@ proxy-groups:
   - 🇳🇱 NL [R] | 193.233.126.104
   - 🇧🇬 BG [R] | 93.152.223.98
   - 🇪🇪 EE [R] | 185.155.97.241
-  - 🇪🇪 EE [R] | est.vrsvpn.com
-  - 🇩🇪 DE [R] | 138.124.126.158
-  - 🇦🇹 AT [R] | 130.49.219.126
+  - 🇬🇧 GB [R] | 147.45.68.7
   - 🇧🇬 BG [R] | de.vrsvpn.com
-  - 🇩🇪 DE [ws] | 194.156.26.1
+  - 🇪🇪 EE [R] | est.vrsvpn.com
+  - 🇦🇹 AT [R] | 130.49.219.126
+  - 🇩🇪 DE [R] | 138.124.126.158
+  - 🇦🇹 AT [xhttp] | 87.228.101.30
+  - 🇦🇹 AT [xhttp] | media-ru7.lbdnetwork.com
 - name: 🎯 Direct
   type: select
   proxies:
