@@ -36,6 +36,21 @@ proxies:
     short-id: '67'
   servername: vk.com
   client-fingerprint: chrome
+- name: 🇬🇧 GB [R] | 144.31.87.16
+  type: vless
+  server: 144.31.87.16
+  port: 443
+  uuid: c40f773e-3b96-417e-b22c-e48cb63ca7d9
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: l5eAOSPQMEyzEPvWGAKvCkcPpsJvR3DJfYo6elw1UTE
+    short-id: 3b802dad547b0847
+  servername: yandex.ru
+  client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 95.85.224.51
   type: vless
   server: 95.85.224.51
@@ -68,23 +83,25 @@ proxies:
   servername: google.com
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇬🇧 GB [R] | 144.31.87.16
+- name: 🇩🇪 DE [R] | 138.124.126.158
   type: vless
-  server: 144.31.87.16
+  server: 138.124.126.158
   port: 443
-  uuid: c40f773e-3b96-417e-b22c-e48cb63ca7d9
+  uuid: b12eebc2-369c-4f3c-96a0-a8bd150ca8d5
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: l5eAOSPQMEyzEPvWGAKvCkcPpsJvR3DJfYo6elw1UTE
-    short-id: 3b802dad547b0847
-  servername: yandex.ru
-- name: 🇧🇬 BG [R] | 93.152.223.98
+    public-key: Lxs8Ruv2zHH0XW5EiQmuCaScfkGPCxWjW02YDWH8pyU
+    short-id: eb0cca7312345678
+  servername: eh.vk.com
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇪🇪 EE [R] | 185.155.97.241
   type: vless
-  server: 93.152.223.98
+  server: 185.155.97.241
   port: 443
   uuid: 0b9bcbc1-b289-4a64-86fa-a5b731b65384
   udp: true
@@ -93,8 +110,8 @@ proxies:
   encryption: none
   tls: true
   reality-opts:
-    public-key: QocXHwad0mV7WA5jSAcqDac3uuVBEp1WF775-CilniE
-    short-id: 45ba18f429ad1f28
+    public-key: SJkDT_L0eziQR2afDGrkN7-uRxjYu6bZxIGXlKeCvX4
+    short-id: 15aa18f971da1f81
   servername: web.max.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
@@ -113,10 +130,10 @@ proxies:
     short-id: 15aa18f971da1f81
   servername: web.max.ru
   flow: xtls-rprx-vision
-  client-fingerprint: qq
-- name: 🇪🇪 EE [R] | 185.155.97.241
+  client-fingerprint: chrome
+- name: 🇧🇬 BG [R] | 93.152.223.98
   type: vless
-  server: 185.155.97.241
+  server: 93.152.223.98
   port: 443
   uuid: 0b9bcbc1-b289-4a64-86fa-a5b731b65384
   udp: true
@@ -125,56 +142,52 @@ proxies:
   encryption: none
   tls: true
   reality-opts:
-    public-key: SJkDT_L0eziQR2afDGrkN7-uRxjYu6bZxIGXlKeCvX4
-    short-id: 15aa18f971da1f81
+    public-key: QocXHwad0mV7WA5jSAcqDac3uuVBEp1WF775-CilniE
+    short-id: 45ba18f429ad1f28
   servername: web.max.ru
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇩🇪 DE [R] | 138.124.126.158
+- name: 🇧🇬 BG [R] | de.vrsvpn.com
   type: vless
-  server: 138.124.126.158
+  server: de.vrsvpn.com
   port: 443
-  uuid: b12eebc2-369c-4f3c-96a0-a8bd150ca8d5
+  uuid: 0b9bcbc1-b289-4a64-86fa-a5b731b65384
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: Lxs8Ruv2zHH0XW5EiQmuCaScfkGPCxWjW02YDWH8pyU
-    short-id: eb0cca7312345678
-  servername: eh.vk.com
+    public-key: QocXHwad0mV7WA5jSAcqDac3uuVBEp1WF775-CilniE
+    short-id: 45ba18f429ad1f28
+  servername: web.max.ru
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇺🇸 US [ws] | 51.250.47.71
+  client-fingerprint: qq
+- name: 🇦🇹 AT [xhttp] | 87.228.101.30
   type: vless
-  server: 51.250.47.71
+  server: 87.228.101.30
   port: 443
-  uuid: 9b4c96f9-60e8-4694-b069-c46992390555
+  uuid: 04b3ed78-61b5-42bb-9143-eeb70e64b5aa
   udp: true
   skip-cert-verify: true
-  network: ws
+  network: xhttp
   encryption: none
   tls: true
-  servername: cloudflare.vhub.pro
-  client-fingerprint: chrome
-  ws-opts:
-    path: /websocket
-    headers:
-      Host: cloudflare.vhub.pro
+  servername: media-ru3.lbdnetwork.com
+  client-fingerprint: firefox
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
+  - 🇬🇧 GB [R] | 144.31.87.16
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇰🇿 KZ [R] | raff-vpn-kz-server1.ru
-  - 🇬🇧 GB [R] | 144.31.87.16
-  - 🇧🇬 BG [R] | 93.152.223.98
-  - 🇪🇪 EE [R] | est.vrsvpn.com
-  - 🇪🇪 EE [R] | 185.155.97.241
   - 🇩🇪 DE [R] | 138.124.126.158
-  - 🇺🇸 US [ws] | 51.250.47.71
+  - 🇪🇪 EE [R] | 185.155.97.241
+  - 🇪🇪 EE [R] | est.vrsvpn.com
+  - 🇧🇬 BG [R] | 93.152.223.98
+  - 🇧🇬 BG [R] | de.vrsvpn.com
+  - 🇦🇹 AT [xhttp] | 87.228.101.30
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -183,14 +196,15 @@ proxy-groups:
   proxies:
   - 🚀 Auto
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
+  - 🇬🇧 GB [R] | 144.31.87.16
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇰🇿 KZ [R] | raff-vpn-kz-server1.ru
-  - 🇬🇧 GB [R] | 144.31.87.16
-  - 🇧🇬 BG [R] | 93.152.223.98
-  - 🇪🇪 EE [R] | est.vrsvpn.com
-  - 🇪🇪 EE [R] | 185.155.97.241
   - 🇩🇪 DE [R] | 138.124.126.158
-  - 🇺🇸 US [ws] | 51.250.47.71
+  - 🇪🇪 EE [R] | 185.155.97.241
+  - 🇪🇪 EE [R] | est.vrsvpn.com
+  - 🇧🇬 BG [R] | 93.152.223.98
+  - 🇧🇬 BG [R] | de.vrsvpn.com
+  - 🇦🇹 AT [xhttp] | 87.228.101.30
 - name: 🎯 Direct
   type: select
   proxies:
