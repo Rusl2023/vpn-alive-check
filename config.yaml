@@ -81,22 +81,6 @@ proxies:
     short-id: 9bc87ac6e147
   servername: api-maps.yandex.ru
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇩🇪 DE [R] | 138.124.126.158
-  type: vless
-  server: 138.124.126.158
-  port: 443
-  uuid: b12eebc2-369c-4f3c-96a0-a8bd150ca8d5
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: Lxs8Ruv2zHH0XW5EiQmuCaScfkGPCxWjW02YDWH8pyU
-    short-id: eb0cca7312345678
-  servername: eh.vk.com
-  flow: xtls-rprx-vision
   client-fingerprint: firefox
 - name: 🇪🇪 EE [R] | 94.198.218.42 (2)
   type: vless
@@ -112,6 +96,22 @@ proxies:
     public-key: lJhgPoDssG7uE2eKijjz3I4Hsb7CZpNXmVoQOBNJaFY
     short-id: 9bc87ac6e147
   servername: api-maps.yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇩🇪 DE [R] | 138.124.126.158
+  type: vless
+  server: 138.124.126.158
+  port: 443
+  uuid: b12eebc2-369c-4f3c-96a0-a8bd150ca8d5
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: Lxs8Ruv2zHH0XW5EiQmuCaScfkGPCxWjW02YDWH8pyU
+    short-id: eb0cca7312345678
+  servername: eh.vk.com
   flow: xtls-rprx-vision
   client-fingerprint: firefox
 - name: 🇧🇬 BG [R] | 93.152.223.98
@@ -177,21 +177,6 @@ proxies:
   servername: web.max.ru
   flow: xtls-rprx-vision
   client-fingerprint: qq
-- name: 🇬🇧 GB [R] | 194.150.166.12
-  type: vless
-  server: 194.150.166.12
-  port: 443
-  uuid: f1c496bf-d2ab-45be-bc13-051d60d227b7
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: b75SrHI--As9QxOVfRIPkGmGfXjs53CGAjbws2K99Rs
-  servername: www.avito.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇫🇷 FR  | 89.208.113.16
   type: vless
   server: 89.208.113.16
@@ -209,8 +194,8 @@ proxy-groups:
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇬🇧 GB [R] | 144.31.87.16
   - 🇪🇪 EE [R] | 94.198.218.42
-  - 🇩🇪 DE [R] | 138.124.126.158
   - 🇪🇪 EE [R] | 94.198.218.42 (2)
+  - 🇩🇪 DE [R] | 138.124.126.158
   - 🇧🇬 BG [R] | 93.152.223.98
   - 🇪🇪 EE [R] | 185.155.97.241
   - 🇪🇪 EE [R] | est.vrsvpn.com
@@ -226,13 +211,12 @@ proxy-groups:
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇬🇧 GB [R] | 144.31.87.16
   - 🇪🇪 EE [R] | 94.198.218.42
-  - 🇩🇪 DE [R] | 138.124.126.158
   - 🇪🇪 EE [R] | 94.198.218.42 (2)
+  - 🇩🇪 DE [R] | 138.124.126.158
   - 🇧🇬 BG [R] | 93.152.223.98
   - 🇪🇪 EE [R] | 185.155.97.241
   - 🇪🇪 EE [R] | est.vrsvpn.com
   - 🇧🇬 BG [R] | de.vrsvpn.com
-  - 🇬🇧 GB [R] | 194.150.166.12
   - 🇫🇷 FR  | 89.208.113.16
 - name: 🎯 Direct
   type: select
