@@ -99,21 +99,6 @@ proxies:
   servername: eh.vk.com
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇬🇧 GB [R] | 194.150.166.12
-  type: vless
-  server: 194.150.166.12
-  port: 443
-  uuid: 1e973bda-3a02-4431-9df8-83595f6f65d8
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: b75SrHI--As9QxOVfRIPkGmGfXjs53CGAjbws2K99Rs
-  servername: www.avito.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
 - name: 🇵🇱 PL [R] | 81.90.17.164
   type: vless
   server: 81.90.17.164
@@ -130,7 +115,7 @@ proxies:
   servername: yastatic.net
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇬🇧 GB [R] | 194.150.166.12 (2)
+- name: 🇬🇧 GB [R] | 194.150.166.12
   type: vless
   server: 194.150.166.12
   port: 443
@@ -144,7 +129,7 @@ proxies:
     public-key: b75SrHI--As9QxOVfRIPkGmGfXjs53CGAjbws2K99Rs
   servername: www.avito.ru
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
+  client-fingerprint: qq
 - name: 🇩🇪 DE [R] | freetg.strettenvpn.com
   type: vless
   server: freetg.strettenvpn.com
@@ -177,25 +162,24 @@ proxies:
   servername: api-maps.yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇧🇬 BG [R] | 93.152.223.98
+- name: 🇬🇧 GB [R] | 194.150.166.12 (2)
   type: vless
-  server: 93.152.223.98
+  server: 194.150.166.12
   port: 443
-  uuid: 0b9bcbc1-b289-4a64-86fa-a5b731b65384
+  uuid: 1e973bda-3a02-4431-9df8-83595f6f65d8
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: QocXHwad0mV7WA5jSAcqDac3uuVBEp1WF775-CilniE
-    short-id: 45ba18f429ad1f28
-  servername: web.max.ru
+    public-key: b75SrHI--As9QxOVfRIPkGmGfXjs53CGAjbws2K99Rs
+  servername: www.avito.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇧🇬 BG [R] | de.vrsvpn.com
+- name: 🇧🇬 BG [R] | 93.152.223.98
   type: vless
-  server: de.vrsvpn.com
+  server: 93.152.223.98
   port: 443
   uuid: 0b9bcbc1-b289-4a64-86fa-a5b731b65384
   udp: true
@@ -240,6 +224,22 @@ proxies:
     short-id: 15aa18f971da1f81
   servername: web.max.ru
   flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇧🇬 BG [R] | de.vrsvpn.com
+  type: vless
+  server: de.vrsvpn.com
+  port: 443
+  uuid: 0b9bcbc1-b289-4a64-86fa-a5b731b65384
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: QocXHwad0mV7WA5jSAcqDac3uuVBEp1WF775-CilniE
+    short-id: 45ba18f429ad1f28
+  servername: web.max.ru
+  flow: xtls-rprx-vision
   client-fingerprint: qq
 - name: 🇩🇪 DE [ws] | 194.156.26.1
   type: vless
@@ -257,6 +257,15 @@ proxies:
     path: /eyJqdW5rIjoiWnM2b1ZnRlpNRyIsInByb3RvY29sIjoidmwiLCJtb2RlIjoicHJveHlpcCIsInBhbmVsSVBzIjpbIjExNi4yMDIuMTMyLjIwNSJdfQ==
     headers:
       Host: SumMeR-skY-0522.SFPOijsofw207geFS.WOrkeRS.deV
+- name: 🇫🇷 FR  | 89.208.113.16
+  type: vless
+  server: 89.208.113.16
+  port: 443
+  uuid: adce7c2a-3191-49ae-b61c-9b8258ea1b0e
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
@@ -266,11 +275,11 @@ proxy-groups:
   - 🇩🇪 DE [R] | 37.77.106.249 (2)
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇩🇪 DE [R] | 138.124.126.158
-  - 🇬🇧 GB [R] | 194.150.166.12
   - 🇵🇱 PL [R] | 81.90.17.164
-  - 🇬🇧 GB [R] | 194.150.166.12 (2)
+  - 🇬🇧 GB [R] | 194.150.166.12
   - 🇩🇪 DE [R] | freetg.strettenvpn.com
   - 🇦🇲 AM [R] | 178.160.229.238
+  - 🇬🇧 GB [R] | 194.150.166.12 (2)
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -283,16 +292,17 @@ proxy-groups:
   - 🇩🇪 DE [R] | 37.77.106.249 (2)
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇩🇪 DE [R] | 138.124.126.158
-  - 🇬🇧 GB [R] | 194.150.166.12
   - 🇵🇱 PL [R] | 81.90.17.164
-  - 🇬🇧 GB [R] | 194.150.166.12 (2)
+  - 🇬🇧 GB [R] | 194.150.166.12
   - 🇩🇪 DE [R] | freetg.strettenvpn.com
   - 🇦🇲 AM [R] | 178.160.229.238
+  - 🇬🇧 GB [R] | 194.150.166.12 (2)
   - 🇧🇬 BG [R] | 93.152.223.98
-  - 🇧🇬 BG [R] | de.vrsvpn.com
   - 🇪🇪 EE [R] | est.vrsvpn.com
   - 🇪🇪 EE [R] | 185.155.97.241
+  - 🇧🇬 BG [R] | de.vrsvpn.com
   - 🇩🇪 DE [ws] | 194.156.26.1
+  - 🇫🇷 FR  | 89.208.113.16
 - name: 🎯 Direct
   type: select
   proxies:
