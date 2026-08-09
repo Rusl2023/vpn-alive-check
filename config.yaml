@@ -35,7 +35,6 @@ proxies:
     public-key: PyV8IrAs0LkE2d_DdjvdCtpWG7MZyUKsYkb52GUmuDM
     short-id: '67'
   servername: vk.com
-  client-fingerprint: chrome
 - name: 🇬🇧 GB [R] | 95.85.224.51
   type: vless
   server: 95.85.224.51
@@ -67,6 +66,22 @@ proxies:
     short-id: 3b802dad547b0847
   servername: yandex.ru
   client-fingerprint: firefox
+- name: 🇸🇪 SE [R][grpc] | 81.163.22.164
+  type: vless
+  server: 81.163.22.164
+  port: 443
+  uuid: 700a378d-f434-4d28-8604-2b36a121680f
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: nc5dunLF2knU5PkMbQlklbp_tZPfOx6xuHu4mkdYPBc
+  servername: max.ru
+  client-fingerprint: firefox
+  grpc-opts:
+    grpc-service-name: ''
 - name: 🇩🇪 DE [R] | freetg.strettenvpn.com
   type: vless
   server: freetg.strettenvpn.com
@@ -83,19 +98,19 @@ proxies:
   servername: eh.vk.com
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇩🇪 DE [R] | 138.124.126.158
+- name: 🇩🇪 DE [R] | 217.60.99.49
   type: vless
-  server: 138.124.126.158
+  server: 217.60.99.49
   port: 443
-  uuid: b12eebc2-369c-4f3c-96a0-a8bd150ca8d5
+  uuid: 31fb98b7-e7a1-4b56-8c6a-3f060f06393c
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: Lxs8Ruv2zHH0XW5EiQmuCaScfkGPCxWjW02YDWH8pyU
-    short-id: eb0cca7312345678
+    public-key: yhUfTGgu5PYRlFqMnRZkxffH_aU05AFUToGI8_EKF28
+    short-id: '8248954896'
   servername: eh.vk.com
   flow: xtls-rprx-vision
   client-fingerprint: firefox
@@ -115,38 +130,6 @@ proxies:
   servername: yastatic.net
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇩🇪 DE [R] | 217.60.99.49
-  type: vless
-  server: 217.60.99.49
-  port: 443
-  uuid: 31fb98b7-e7a1-4b56-8c6a-3f060f06393c
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: yhUfTGgu5PYRlFqMnRZkxffH_aU05AFUToGI8_EKF28
-    short-id: '8248954896'
-  servername: eh.vk.com
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇪🇪 EE [R] | 185.155.97.241
-  type: vless
-  server: 185.155.97.241
-  port: 443
-  uuid: 0b9bcbc1-b289-4a64-86fa-a5b731b65384
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: SJkDT_L0eziQR2afDGrkN7-uRxjYu6bZxIGXlKeCvX4
-    short-id: 15aa18f971da1f81
-  servername: web.max.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
 - name: 🇧🇬 BG [R] | 93.152.223.98
   type: vless
   server: 93.152.223.98
@@ -160,6 +143,22 @@ proxies:
   reality-opts:
     public-key: QocXHwad0mV7WA5jSAcqDac3uuVBEp1WF775-CilniE
     short-id: 45ba18f429ad1f28
+  servername: web.max.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇪🇪 EE [R] | 185.155.97.241
+  type: vless
+  server: 185.155.97.241
+  port: 443
+  uuid: 0b9bcbc1-b289-4a64-86fa-a5b731b65384
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: SJkDT_L0eziQR2afDGrkN7-uRxjYu6bZxIGXlKeCvX4
+    short-id: 15aa18f971da1f81
   servername: web.max.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
@@ -210,45 +209,22 @@ proxies:
   servername: www.avito.ru
   flow: xtls-rprx-vision
   client-fingerprint: qq
-- name: 🇬🇧 GB [R] | 194.150.166.12 (2)
+- name: 🇩🇪 DE [R] | 138.124.126.158
   type: vless
-  server: 194.150.166.12
+  server: 138.124.126.158
   port: 443
-  uuid: 1e973bda-3a02-4431-9df8-83595f6f65d8
+  uuid: b12eebc2-369c-4f3c-96a0-a8bd150ca8d5
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: b75SrHI--As9QxOVfRIPkGmGfXjs53CGAjbws2K99Rs
-  servername: www.avito.ru
+    public-key: Lxs8Ruv2zHH0XW5EiQmuCaScfkGPCxWjW02YDWH8pyU
+    short-id: eb0cca7312345678
+  servername: eh.vk.com
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇵🇱 PL [xhttp] | 178.72.162.73
-  type: vless
-  server: 178.72.162.73
-  port: 443
-  uuid: 60ba3369-9a78-40fe-98c3-233a6f107043
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  servername: ru6.ethicsdinnerpave.online
-  client-fingerprint: firefox
-- name: 🇺🇸 US [xhttp] | 178.72.162.73
-  type: vless
-  server: 178.72.162.73
-  port: 443
-  uuid: 60ba3369-9a78-40fe-98c3-233a6f107043
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  servername: wqeds.denverpresents.top
-  client-fingerprint: chrome
 - name: 🇸🇪 SE  | sw1-chr.astralweb.tech
   type: vless
   server: sw1-chr.astralweb.tech
@@ -277,12 +253,12 @@ proxy-groups:
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇬🇧 GB [R] | 144.31.87.16
+  - 🇸🇪 SE [R][grpc] | 81.163.22.164
   - 🇩🇪 DE [R] | freetg.strettenvpn.com
-  - 🇩🇪 DE [R] | 138.124.126.158
-  - 🇵🇱 PL [R] | 81.90.17.164
   - 🇩🇪 DE [R] | 217.60.99.49
-  - 🇪🇪 EE [R] | 185.155.97.241
+  - 🇵🇱 PL [R] | 81.90.17.164
   - 🇧🇬 BG [R] | 93.152.223.98
+  - 🇪🇪 EE [R] | 185.155.97.241
   - 🇧🇬 BG [R] | de.vrsvpn.com
   url: https://www.google.com/generate_204
   interval: 300
@@ -294,18 +270,16 @@ proxy-groups:
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇬🇧 GB [R] | 144.31.87.16
+  - 🇸🇪 SE [R][grpc] | 81.163.22.164
   - 🇩🇪 DE [R] | freetg.strettenvpn.com
-  - 🇩🇪 DE [R] | 138.124.126.158
-  - 🇵🇱 PL [R] | 81.90.17.164
   - 🇩🇪 DE [R] | 217.60.99.49
-  - 🇪🇪 EE [R] | 185.155.97.241
+  - 🇵🇱 PL [R] | 81.90.17.164
   - 🇧🇬 BG [R] | 93.152.223.98
+  - 🇪🇪 EE [R] | 185.155.97.241
   - 🇧🇬 BG [R] | de.vrsvpn.com
   - 🇪🇪 EE [R] | est.vrsvpn.com
   - 🇬🇧 GB [R] | 194.150.166.12
-  - 🇬🇧 GB [R] | 194.150.166.12 (2)
-  - 🇵🇱 PL [xhttp] | 178.72.162.73
-  - 🇺🇸 US [xhttp] | 178.72.162.73
+  - 🇩🇪 DE [R] | 138.124.126.158
   - 🇸🇪 SE  | sw1-chr.astralweb.tech
   - 🇫🇷 FR  | 89.208.113.16
 - name: 🎯 Direct
