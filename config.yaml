@@ -21,6 +21,22 @@ dns:
   - tls://8.8.8.8
   - tls://1.1.1.1
 proxies:
+- name: 🇸🇪 SE [R][grpc] | 81.163.22.164
+  type: vless
+  server: 81.163.22.164
+  port: 443
+  uuid: 9d81ff99-8b18-44bc-8f30-af9fb327044e
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: nc5dunLF2knU5PkMbQlklbp_tZPfOx6xuHu4mkdYPBc
+  servername: max.ru
+  client-fingerprint: firefox
+  grpc-opts:
+    grpc-service-name: ''
 - name: 🇳🇱 NL [R][xhttp] | 91.84.117.29
   type: vless
   server: 91.84.117.29
@@ -36,6 +52,22 @@ proxies:
     short-id: '67'
   servername: vk.com
   client-fingerprint: chrome
+- name: 🇸🇪 SE [R][grpc] | 95.163.232.48
+  type: vless
+  server: 95.163.232.48
+  port: 443
+  uuid: 9d81ff99-8b18-44bc-8f30-af9fb327044e
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: ckjbqY3q3lxyJNYIRHm41n4QR7wlDrW1__GeFPNEzFE
+  servername: max.ru
+  client-fingerprint: firefox
+  grpc-opts:
+    grpc-service-name: ''
 - name: 🇬🇧 GB [R] | 95.85.224.51
   type: vless
   server: 95.85.224.51
@@ -129,22 +161,6 @@ proxies:
   servername: api-maps.yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇩🇪 DE [R] | 138.124.126.158
-  type: vless
-  server: 138.124.126.158
-  port: 443
-  uuid: b12eebc2-369c-4f3c-96a0-a8bd150ca8d5
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: Lxs8Ruv2zHH0XW5EiQmuCaScfkGPCxWjW02YDWH8pyU
-    short-id: eb0cca7312345678
-  servername: eh.vk.com
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇵🇱 PL [R] | 81.90.17.164
   type: vless
   server: 81.90.17.164
@@ -177,6 +193,22 @@ proxies:
   servername: web.max.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
+- name: 🇩🇪 DE [R] | 138.124.126.158
+  type: vless
+  server: 138.124.126.158
+  port: 443
+  uuid: b12eebc2-369c-4f3c-96a0-a8bd150ca8d5
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: Lxs8Ruv2zHH0XW5EiQmuCaScfkGPCxWjW02YDWH8pyU
+    short-id: eb0cca7312345678
+  servername: eh.vk.com
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇪🇪 EE [R] | est.vrsvpn.com
   type: vless
   server: est.vrsvpn.com
@@ -193,6 +225,21 @@ proxies:
   servername: web.max.ru
   flow: xtls-rprx-vision
   client-fingerprint: qq
+- name: 🇩🇪 DE [R] | freetg.strettenvpn.com
+  type: vless
+  server: freetg.strettenvpn.com
+  port: 443
+  uuid: 31fb98b7-e7a1-4b56-8c6a-3f060f06393c
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: yhUfTGgu5PYRlFqMnRZkxffH_aU05AFUToGI8_EKF28
+    short-id: '8248954896'
+  servername: eh.vk.com
+  flow: xtls-rprx-vision
 - name: 🇧🇬 BG [R] | de.vrsvpn.com
   type: vless
   server: de.vrsvpn.com
@@ -209,6 +256,22 @@ proxies:
   servername: web.max.ru
   flow: xtls-rprx-vision
   client-fingerprint: qq
+- name: 🇩🇪 DE [R] | 217.60.99.49
+  type: vless
+  server: 217.60.99.49
+  port: 443
+  uuid: 31fb98b7-e7a1-4b56-8c6a-3f060f06393c
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: yhUfTGgu5PYRlFqMnRZkxffH_aU05AFUToGI8_EKF28
+    short-id: '8248954896'
+  servername: eh.vk.com
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇧🇬 BG [R] | 93.152.223.98
   type: vless
   server: 93.152.223.98
@@ -238,16 +301,16 @@ proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
+  - 🇸🇪 SE [R][grpc] | 81.163.22.164
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
+  - 🇸🇪 SE [R][grpc] | 95.163.232.48
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇬🇧 GB [R] | 144.31.87.16
   - 🇩🇪 DE [R] | nl.n.belka.network
   - 🇬🇧 GB [R] | 194.150.166.12
   - 🇬🇧 GB [R] | 194.150.166.12 (2)
   - 🇺🇸 US [R] | 79.174.92.254
-  - 🇩🇪 DE [R] | 138.124.126.158
   - 🇵🇱 PL [R] | 81.90.17.164
-  - 🇪🇪 EE [R] | 185.155.97.241
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -255,18 +318,22 @@ proxy-groups:
   type: select
   proxies:
   - 🚀 Auto
+  - 🇸🇪 SE [R][grpc] | 81.163.22.164
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
+  - 🇸🇪 SE [R][grpc] | 95.163.232.48
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇬🇧 GB [R] | 144.31.87.16
   - 🇩🇪 DE [R] | nl.n.belka.network
   - 🇬🇧 GB [R] | 194.150.166.12
   - 🇬🇧 GB [R] | 194.150.166.12 (2)
   - 🇺🇸 US [R] | 79.174.92.254
-  - 🇩🇪 DE [R] | 138.124.126.158
   - 🇵🇱 PL [R] | 81.90.17.164
   - 🇪🇪 EE [R] | 185.155.97.241
+  - 🇩🇪 DE [R] | 138.124.126.158
   - 🇪🇪 EE [R] | est.vrsvpn.com
+  - 🇩🇪 DE [R] | freetg.strettenvpn.com
   - 🇧🇬 BG [R] | de.vrsvpn.com
+  - 🇩🇪 DE [R] | 217.60.99.49
   - 🇧🇬 BG [R] | 93.152.223.98
   - 🇫🇷 FR  | 89.208.113.16
 - name: 🎯 Direct
