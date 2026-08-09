@@ -82,21 +82,6 @@ proxies:
   servername: eh.vk.com
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇬🇧 GB [R] | 194.150.166.12
-  type: vless
-  server: 194.150.166.12
-  port: 443
-  uuid: 1e973bda-3a02-4431-9df8-83595f6f65d8
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: b75SrHI--As9QxOVfRIPkGmGfXjs53CGAjbws2K99Rs
-  servername: www.avito.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇩🇪 DE [R] | 217.60.99.49
   type: vless
   server: 217.60.99.49
@@ -129,20 +114,19 @@ proxies:
   servername: yastatic.net
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇩🇪 DE [R] | 138.124.126.158
+- name: 🇬🇧 GB [R] | 194.150.166.12
   type: vless
-  server: 138.124.126.158
+  server: 194.150.166.12
   port: 443
-  uuid: b12eebc2-369c-4f3c-96a0-a8bd150ca8d5
+  uuid: 1e973bda-3a02-4431-9df8-83595f6f65d8
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: Lxs8Ruv2zHH0XW5EiQmuCaScfkGPCxWjW02YDWH8pyU
-    short-id: eb0cca7312345678
-  servername: eh.vk.com
+    public-key: b75SrHI--As9QxOVfRIPkGmGfXjs53CGAjbws2K99Rs
+  servername: www.avito.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
 - name: 🇧🇬 BG [R] | 93.152.223.98
@@ -176,6 +160,22 @@ proxies:
   servername: web.max.ru
   flow: xtls-rprx-vision
   client-fingerprint: qq
+- name: 🇪🇪 EE [R] | 185.155.97.241
+  type: vless
+  server: 185.155.97.241
+  port: 443
+  uuid: 0b9bcbc1-b289-4a64-86fa-a5b731b65384
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: SJkDT_L0eziQR2afDGrkN7-uRxjYu6bZxIGXlKeCvX4
+    short-id: 15aa18f971da1f81
+  servername: web.max.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
 - name: 🇧🇬 BG [R] | de.vrsvpn.com
   type: vless
   server: de.vrsvpn.com
@@ -192,22 +192,37 @@ proxies:
   servername: web.max.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇪🇪 EE [R] | 185.155.97.241
+- name: 🇩🇪 DE [R] | 138.124.126.158
   type: vless
-  server: 185.155.97.241
+  server: 138.124.126.158
   port: 443
-  uuid: 0b9bcbc1-b289-4a64-86fa-a5b731b65384
+  uuid: b12eebc2-369c-4f3c-96a0-a8bd150ca8d5
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: SJkDT_L0eziQR2afDGrkN7-uRxjYu6bZxIGXlKeCvX4
-    short-id: 15aa18f971da1f81
-  servername: web.max.ru
+    public-key: Lxs8Ruv2zHH0XW5EiQmuCaScfkGPCxWjW02YDWH8pyU
+    short-id: eb0cca7312345678
+  servername: eh.vk.com
   flow: xtls-rprx-vision
-  client-fingerprint: qq
+  client-fingerprint: firefox
+- name: 🇬🇧 GB [R] | 194.150.166.12 (2)
+  type: vless
+  server: 194.150.166.12
+  port: 443
+  uuid: f1c496bf-d2ab-45be-bc13-051d60d227b7
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: b75SrHI--As9QxOVfRIPkGmGfXjs53CGAjbws2K99Rs
+  servername: www.avito.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
 - name: 🇸🇪 SE  | sw1-chr.astralweb.tech
   type: vless
   server: sw1-chr.astralweb.tech
@@ -253,12 +268,12 @@ proxy-groups:
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇬🇧 GB [R] | 144.31.87.16
   - 🇩🇪 DE [R] | freetg.strettenvpn.com
-  - 🇬🇧 GB [R] | 194.150.166.12
   - 🇩🇪 DE [R] | 217.60.99.49
   - 🇵🇱 PL [R] | 81.90.17.164
-  - 🇩🇪 DE [R] | 138.124.126.158
+  - 🇬🇧 GB [R] | 194.150.166.12
   - 🇧🇬 BG [R] | 93.152.223.98
   - 🇪🇪 EE [R] | est.vrsvpn.com
+  - 🇪🇪 EE [R] | 185.155.97.241
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -270,14 +285,15 @@ proxy-groups:
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇬🇧 GB [R] | 144.31.87.16
   - 🇩🇪 DE [R] | freetg.strettenvpn.com
-  - 🇬🇧 GB [R] | 194.150.166.12
   - 🇩🇪 DE [R] | 217.60.99.49
   - 🇵🇱 PL [R] | 81.90.17.164
-  - 🇩🇪 DE [R] | 138.124.126.158
+  - 🇬🇧 GB [R] | 194.150.166.12
   - 🇧🇬 BG [R] | 93.152.223.98
   - 🇪🇪 EE [R] | est.vrsvpn.com
-  - 🇧🇬 BG [R] | de.vrsvpn.com
   - 🇪🇪 EE [R] | 185.155.97.241
+  - 🇧🇬 BG [R] | de.vrsvpn.com
+  - 🇩🇪 DE [R] | 138.124.126.158
+  - 🇬🇧 GB [R] | 194.150.166.12 (2)
   - 🇸🇪 SE  | sw1-chr.astralweb.tech
   - 🇸🇪 SE [ws] | 185.178.208.176
   - 🇫🇷 FR  | 89.208.113.16
