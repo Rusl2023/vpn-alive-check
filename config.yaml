@@ -36,22 +36,6 @@ proxies:
     short-id: '67'
   servername: vk.com
   client-fingerprint: chrome
-- name: 🇸🇪 SE [R][grpc] | 81.163.22.164
-  type: vless
-  server: 81.163.22.164
-  port: 443
-  uuid: 3cb0b2b0-17b4-4424-a339-d25610d35cc7
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: nc5dunLF2knU5PkMbQlklbp_tZPfOx6xuHu4mkdYPBc
-  servername: max.ru
-  client-fingerprint: firefox
-  grpc-opts:
-    grpc-service-name: ''
 - name: 🇬🇧 GB [R] | 95.85.224.51
   type: vless
   server: 95.85.224.51
@@ -131,9 +115,9 @@ proxies:
   servername: eh.vk.com
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇧🇬 BG [R] | de.vrsvpn.com
+- name: 🇧🇬 BG [R] | 93.152.223.98
   type: vless
-  server: de.vrsvpn.com
+  server: 93.152.223.98
   port: 443
   uuid: 0b9bcbc1-b289-4a64-86fa-a5b731b65384
   udp: true
@@ -146,23 +130,6 @@ proxies:
     short-id: 45ba18f429ad1f28
   servername: web.max.ru
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇵🇱 PL [R] | 81.90.17.164
-  type: vless
-  server: 81.90.17.164
-  port: 443
-  uuid: cb784d00-d34a-4389-b938-8717f7b28353
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: v0XQn6uvyC8q5CThcRYLer1F1OOYpZDn5NLOvDicaWg
-    short-id: b31c2b75add2e5fa
-  servername: yastatic.net
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
 - name: 🇪🇪 EE [R] | est.vrsvpn.com
   type: vless
   server: est.vrsvpn.com
@@ -194,10 +161,26 @@ proxies:
     short-id: 15aa18f971da1f81
   servername: web.max.ru
   flow: xtls-rprx-vision
-  client-fingerprint: qq
-- name: 🇧🇬 BG [R] | 93.152.223.98
+  client-fingerprint: chrome
+- name: 🇵🇱 PL [R] | 81.90.17.164
   type: vless
-  server: 93.152.223.98
+  server: 81.90.17.164
+  port: 443
+  uuid: cb784d00-d34a-4389-b938-8717f7b28353
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: v0XQn6uvyC8q5CThcRYLer1F1OOYpZDn5NLOvDicaWg
+    short-id: b31c2b75add2e5fa
+  servername: yastatic.net
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇧🇬 BG [R] | de.vrsvpn.com
+  type: vless
+  server: de.vrsvpn.com
   port: 443
   uuid: 0b9bcbc1-b289-4a64-86fa-a5b731b65384
   udp: true
@@ -237,15 +220,15 @@ proxy-groups:
   type: url-test
   proxies:
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  - 🇸🇪 SE [R][grpc] | 81.163.22.164
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇬🇧 GB [R] | 144.31.87.16
   - 🇩🇪 DE [R] | freetg.strettenvpn.com
   - 🇩🇪 DE [R] | 217.60.99.49
   - 🇩🇪 DE [R] | 138.124.126.158
-  - 🇧🇬 BG [R] | de.vrsvpn.com
-  - 🇵🇱 PL [R] | 81.90.17.164
+  - 🇧🇬 BG [R] | 93.152.223.98
   - 🇪🇪 EE [R] | est.vrsvpn.com
+  - 🇪🇪 EE [R] | 185.155.97.241
+  - 🇵🇱 PL [R] | 81.90.17.164
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -254,17 +237,16 @@ proxy-groups:
   proxies:
   - 🚀 Auto
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  - 🇸🇪 SE [R][grpc] | 81.163.22.164
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇬🇧 GB [R] | 144.31.87.16
   - 🇩🇪 DE [R] | freetg.strettenvpn.com
   - 🇩🇪 DE [R] | 217.60.99.49
   - 🇩🇪 DE [R] | 138.124.126.158
-  - 🇧🇬 BG [R] | de.vrsvpn.com
-  - 🇵🇱 PL [R] | 81.90.17.164
+  - 🇧🇬 BG [R] | 93.152.223.98
   - 🇪🇪 EE [R] | est.vrsvpn.com
   - 🇪🇪 EE [R] | 185.155.97.241
-  - 🇧🇬 BG [R] | 93.152.223.98
+  - 🇵🇱 PL [R] | 81.90.17.164
+  - 🇧🇬 BG [R] | de.vrsvpn.com
   - 🇸🇪 SE  | sw1-chr.astralweb.tech
   - 🇫🇷 FR  | 89.208.113.16
 - name: 🎯 Direct
