@@ -65,7 +65,6 @@ proxies:
     public-key: l5eAOSPQMEyzEPvWGAKvCkcPpsJvR3DJfYo6elw1UTE
     short-id: 3b802dad547b0847
   servername: yandex.ru
-  client-fingerprint: chrome
 - name: 🇳🇱 NL [R] | 194.55.239.164
   type: vless
   server: 194.55.239.164
@@ -130,22 +129,6 @@ proxies:
   servername: web.max.ru
   flow: xtls-rprx-vision
   client-fingerprint: qq
-- name: 🇳🇱 NL [R] | wl-1.myfreedom.rest
-  type: vless
-  server: wl-1.myfreedom.rest
-  port: 443
-  uuid: fd12bf77-bca4-4ccc-8bd0-76a2cfc5985a
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: sdnD0vxmj8kHBOoVM8TE9IyBCGwnKNB8hZVaHp_Zfjk
-    short-id: c427
-  servername: ads.vk.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇩🇪 DE [R] | freetg.strettenvpn.com
   type: vless
   server: freetg.strettenvpn.com
@@ -177,22 +160,6 @@ proxies:
   servername: eh.vk.com
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇳🇱 NL [R] | wl-1.myfreedom.rest (2)
-  type: vless
-  server: wl-1.myfreedom.rest
-  port: 443
-  uuid: 828fc455-7db2-4169-ade7-c07b2b286c24
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: sdnD0vxmj8kHBOoVM8TE9IyBCGwnKNB8hZVaHp_Zfjk
-    short-id: 75fc
-  servername: ads.vk.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇩🇪 DE [R] | 138.124.126.158
   type: vless
   server: 138.124.126.158
@@ -209,22 +176,22 @@ proxies:
   servername: eh.vk.com
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇩🇪 DE [ws] | 185.178.208.176
+- name: 🇳🇱 NL [R] | wl-1.myfreedom.rest
   type: vless
-  server: 185.178.208.176
+  server: wl-1.myfreedom.rest
   port: 443
-  uuid: 36da9d41-80de-4e14-8d68-a5ecb032af71
+  uuid: 828fc455-7db2-4169-ade7-c07b2b286c24
   udp: true
   skip-cert-verify: true
-  network: ws
+  network: tcp
   encryption: none
   tls: true
-  servername: ncd.crsmaps.com
+  reality-opts:
+    public-key: sdnD0vxmj8kHBOoVM8TE9IyBCGwnKNB8hZVaHp_Zfjk
+    short-id: 75fc
+  servername: ads.vk.ru
+  flow: xtls-rprx-vision
   client-fingerprint: firefox
-  ws-opts:
-    path: /ws/notify/817522359
-    headers:
-      Host: ncd.crsmaps.com
 - name: 🇩🇪 DE [ws] | ncd.crsmaps.com
   type: vless
   server: ncd.crsmaps.com
@@ -241,22 +208,22 @@ proxies:
     path: /ws/notify/817522359
     headers:
       Host: ncd.crsmaps.com
-- name: 🇫🇷 FR [ws] | 95.129.236.252
+- name: 🇩🇪 DE [ws] | 185.178.208.176
   type: vless
-  server: 95.129.236.252
+  server: 185.178.208.176
   port: 443
-  uuid: 067df8f8-70f7-498f-9752-b8a9eafe5be4
+  uuid: 36da9d41-80de-4e14-8d68-a5ecb032af71
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: benzin.benz.ink
-  client-fingerprint: firefox
+  servername: ncd.crsmaps.com
+  client-fingerprint: qq
   ws-opts:
-    path: /api/v2/vms/stream/genka
+    path: /ws/notify/817522359
     headers:
-      Host: benzin.benz.ink
+      Host: ncd.crsmaps.com
 - name: 🇫🇷 FR  | 89.208.113.16
   type: vless
   server: 89.208.113.16
@@ -277,9 +244,9 @@ proxy-groups:
   - 🇳🇱 NL [R] | 194.55.239.164 (2)
   - 🇪🇪 EE [R] | 185.155.97.241
   - 🇪🇪 EE [R] | est.vrsvpn.com
-  - 🇳🇱 NL [R] | wl-1.myfreedom.rest
   - 🇩🇪 DE [R] | freetg.strettenvpn.com
   - 🇩🇪 DE [R] | 217.60.99.49
+  - 🇩🇪 DE [R] | 138.124.126.158
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -294,14 +261,12 @@ proxy-groups:
   - 🇳🇱 NL [R] | 194.55.239.164 (2)
   - 🇪🇪 EE [R] | 185.155.97.241
   - 🇪🇪 EE [R] | est.vrsvpn.com
-  - 🇳🇱 NL [R] | wl-1.myfreedom.rest
   - 🇩🇪 DE [R] | freetg.strettenvpn.com
   - 🇩🇪 DE [R] | 217.60.99.49
-  - 🇳🇱 NL [R] | wl-1.myfreedom.rest (2)
   - 🇩🇪 DE [R] | 138.124.126.158
-  - 🇩🇪 DE [ws] | 185.178.208.176
+  - 🇳🇱 NL [R] | wl-1.myfreedom.rest
   - 🇩🇪 DE [ws] | ncd.crsmaps.com
-  - 🇫🇷 FR [ws] | 95.129.236.252
+  - 🇩🇪 DE [ws] | 185.178.208.176
   - 🇫🇷 FR  | 89.208.113.16
 - name: 🎯 Direct
   type: select
