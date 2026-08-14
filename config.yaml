@@ -35,6 +35,7 @@ proxies:
     public-key: PyV8IrAs0LkE2d_DdjvdCtpWG7MZyUKsYkb52GUmuDM
     short-id: '67'
   servername: vk.com
+  client-fingerprint: chrome
 - name: 🇬🇧 GB [R] | 144.31.87.16
   type: vless
   server: 144.31.87.16
@@ -70,7 +71,7 @@ proxies:
   type: vless
   server: 194.55.239.164
   port: 443
-  uuid: 828fc455-7db2-4169-ade7-c07b2b286c24
+  uuid: fd12bf77-bca4-4ccc-8bd0-76a2cfc5985a
   udp: true
   skip-cert-verify: true
   network: tcp
@@ -78,13 +79,13 @@ proxies:
   tls: true
   reality-opts:
     public-key: sdnD0vxmj8kHBOoVM8TE9IyBCGwnKNB8hZVaHp_Zfjk
-    short-id: 75fc
+    short-id: c427
   servername: ads.vk.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇳🇱 NL [R] | 194.55.239.164 (2)
+- name: 🇳🇱 NL [R] | wl-1.myfreedom.rest
   type: vless
-  server: 194.55.239.164
+  server: wl-1.myfreedom.rest
   port: 443
   uuid: fd12bf77-bca4-4ccc-8bd0-76a2cfc5985a
   udp: true
@@ -114,9 +115,9 @@ proxies:
   servername: web.max.ru
   flow: xtls-rprx-vision
   client-fingerprint: qq
-- name: 🇩🇪 DE [R] | 217.60.99.49
+- name: 🇩🇪 DE [R] | freetg.strettenvpn.com
   type: vless
-  server: 217.60.99.49
+  server: freetg.strettenvpn.com
   port: 443
   uuid: 31fb98b7-e7a1-4b56-8c6a-3f060f06393c
   udp: true
@@ -129,7 +130,6 @@ proxies:
     short-id: '8248954896'
   servername: eh.vk.com
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇪🇪 EE [R] | 185.155.97.241
   type: vless
   server: 185.155.97.241
@@ -145,23 +145,7 @@ proxies:
     short-id: 15aa18f971da1f81
   servername: web.max.ru
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇳🇱 NL [R] | wl-1.myfreedom.rest
-  type: vless
-  server: wl-1.myfreedom.rest
-  port: 443
-  uuid: 828fc455-7db2-4169-ade7-c07b2b286c24
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: sdnD0vxmj8kHBOoVM8TE9IyBCGwnKNB8hZVaHp_Zfjk
-    short-id: 75fc
-  servername: ads.vk.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
+  client-fingerprint: qq
 - name: 🇩🇪 DE [R] | 138.124.126.158
   type: vless
   server: 138.124.126.158
@@ -175,21 +159,6 @@ proxies:
   reality-opts:
     public-key: Lxs8Ruv2zHH0XW5EiQmuCaScfkGPCxWjW02YDWH8pyU
     short-id: eb0cca7312345678
-  servername: eh.vk.com
-  flow: xtls-rprx-vision
-- name: 🇩🇪 DE [R] | freetg.strettenvpn.com
-  type: vless
-  server: freetg.strettenvpn.com
-  port: 443
-  uuid: 31fb98b7-e7a1-4b56-8c6a-3f060f06393c
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: yhUfTGgu5PYRlFqMnRZkxffH_aU05AFUToGI8_EKF28
-    short-id: '8248954896'
   servername: eh.vk.com
   flow: xtls-rprx-vision
 - name: 🇦🇹 AT [ws] | 45.143.200.245
@@ -224,6 +193,22 @@ proxies:
     path: /api/v1/irc
     headers:
       Host: vod.ensf.top
+- name: 🇩🇪 DE [ws] | 194.156.26.1
+  type: vless
+  server: 194.156.26.1
+  port: 443
+  uuid: 4b5de9a4-3543-4f04-af6e-5c20141520ce
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: SumMeR-skY-0522.SFPOijsofw207geFS.WOrkeRS.deV
+  client-fingerprint: chrome
+  ws-opts:
+    path: /eyJqdW5rIjoiWnM2b1ZnRlpNRyIsInByb3RvY29sIjoidmwiLCJtb2RlIjoicHJveHlpcCIsInBhbmVsSVBzIjpbIjExNi4yMDIuMTMyLjIwNSJdfQ==
+    headers:
+      Host: SumMeR-skY-0522.SFPOijsofw207geFS.WOrkeRS.deV
 - name: 🇫🇷 FR  | 89.208.113.16
   type: vless
   server: 89.208.113.16
@@ -241,12 +226,12 @@ proxy-groups:
   - 🇬🇧 GB [R] | 144.31.87.16
   - 🇬🇧 GB [R] | 176.109.88.216
   - 🇳🇱 NL [R] | 194.55.239.164
-  - 🇳🇱 NL [R] | 194.55.239.164 (2)
-  - 🇪🇪 EE [R] | est.vrsvpn.com
-  - 🇩🇪 DE [R] | 217.60.99.49
-  - 🇪🇪 EE [R] | 185.155.97.241
   - 🇳🇱 NL [R] | wl-1.myfreedom.rest
+  - 🇪🇪 EE [R] | est.vrsvpn.com
+  - 🇩🇪 DE [R] | freetg.strettenvpn.com
+  - 🇪🇪 EE [R] | 185.155.97.241
   - 🇩🇪 DE [R] | 138.124.126.158
+  - 🇦🇹 AT [ws] | 45.143.200.245
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -258,15 +243,14 @@ proxy-groups:
   - 🇬🇧 GB [R] | 144.31.87.16
   - 🇬🇧 GB [R] | 176.109.88.216
   - 🇳🇱 NL [R] | 194.55.239.164
-  - 🇳🇱 NL [R] | 194.55.239.164 (2)
-  - 🇪🇪 EE [R] | est.vrsvpn.com
-  - 🇩🇪 DE [R] | 217.60.99.49
-  - 🇪🇪 EE [R] | 185.155.97.241
   - 🇳🇱 NL [R] | wl-1.myfreedom.rest
-  - 🇩🇪 DE [R] | 138.124.126.158
+  - 🇪🇪 EE [R] | est.vrsvpn.com
   - 🇩🇪 DE [R] | freetg.strettenvpn.com
+  - 🇪🇪 EE [R] | 185.155.97.241
+  - 🇩🇪 DE [R] | 138.124.126.158
   - 🇦🇹 AT [ws] | 45.143.200.245
   - 🇦🇹 AT [ws] | 94.159.110.41
+  - 🇩🇪 DE [ws] | 194.156.26.1
   - 🇫🇷 FR  | 89.208.113.16
 - name: 🎯 Direct
   type: select
