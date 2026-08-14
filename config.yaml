@@ -35,7 +35,6 @@ proxies:
     public-key: PyV8IrAs0LkE2d_DdjvdCtpWG7MZyUKsYkb52GUmuDM
     short-id: '67'
   servername: vk.com
-  client-fingerprint: chrome
 - name: 🇬🇧 GB [R] | 144.31.87.16
   type: vless
   server: 144.31.87.16
@@ -66,10 +65,26 @@ proxies:
     short-id: a9c4f17e3b62d8
   servername: api-maps.yandex.ru
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇳🇱 NL [R] | 194.55.239.164
+  client-fingerprint: chrome
+- name: 🇩🇪 DE [R] | 138.124.126.158
   type: vless
-  server: 194.55.239.164
+  server: 138.124.126.158
+  port: 443
+  uuid: b12eebc2-369c-4f3c-96a0-a8bd150ca8d5
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: Lxs8Ruv2zHH0XW5EiQmuCaScfkGPCxWjW02YDWH8pyU
+    short-id: eb0cca7312345678
+  servername: eh.vk.com
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇳🇱 NL [R] | wl-1.myfreedom.rest
+  type: vless
+  server: wl-1.myfreedom.rest
   port: 443
   uuid: fd12bf77-bca4-4ccc-8bd0-76a2cfc5985a
   udp: true
@@ -83,9 +98,9 @@ proxies:
   servername: ads.vk.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇳🇱 NL [R] | wl-1.myfreedom.rest
+- name: 🇳🇱 NL [R] | 194.55.239.164
   type: vless
-  server: wl-1.myfreedom.rest
+  server: 194.55.239.164
   port: 443
   uuid: fd12bf77-bca4-4ccc-8bd0-76a2cfc5985a
   udp: true
@@ -130,6 +145,21 @@ proxies:
     short-id: '8248954896'
   servername: eh.vk.com
   flow: xtls-rprx-vision
+- name: 🇬🇧 GB [R] | 194.150.166.12
+  type: vless
+  server: 194.150.166.12
+  port: 443
+  uuid: f1c496bf-d2ab-45be-bc13-051d60d227b7
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: b75SrHI--As9QxOVfRIPkGmGfXjs53CGAjbws2K99Rs
+  servername: www.avito.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: qq
 - name: 🇪🇪 EE [R] | 185.155.97.241
   type: vless
   server: 185.155.97.241
@@ -145,38 +175,7 @@ proxies:
     short-id: 15aa18f971da1f81
   servername: web.max.ru
   flow: xtls-rprx-vision
-  client-fingerprint: qq
-- name: 🇩🇪 DE [R] | 138.124.126.158
-  type: vless
-  server: 138.124.126.158
-  port: 443
-  uuid: b12eebc2-369c-4f3c-96a0-a8bd150ca8d5
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: Lxs8Ruv2zHH0XW5EiQmuCaScfkGPCxWjW02YDWH8pyU
-    short-id: eb0cca7312345678
-  servername: eh.vk.com
-  flow: xtls-rprx-vision
-- name: 🇦🇹 AT [ws] | 45.143.200.245
-  type: vless
-  server: 45.143.200.245
-  port: 443
-  uuid: e911c552-3a98-41e0-b5fb-0dd3879887b7
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: vod.ensf.top
   client-fingerprint: chrome
-  ws-opts:
-    path: /api/v1/irc
-    headers:
-      Host: vod.ensf.top
 - name: 🇦🇹 AT [ws] | 94.159.110.41
   type: vless
   server: 94.159.110.41
@@ -193,22 +192,70 @@ proxies:
     path: /api/v1/irc
     headers:
       Host: vod.ensf.top
-- name: 🇩🇪 DE [ws] | 194.156.26.1
+- name: 🇩🇪 DE [ws] | 158.160.57.2
   type: vless
-  server: 194.156.26.1
+  server: 158.160.57.2
   port: 443
-  uuid: 4b5de9a4-3543-4f04-af6e-5c20141520ce
+  uuid: 52b202f9-493d-4b52-a656-64637f36afa7
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: SumMeR-skY-0522.SFPOijsofw207geFS.WOrkeRS.deV
+  servername: cloudflare.vhub.pro
+  client-fingerprint: firefox
+  ws-opts:
+    path: /websocket?ed=2560
+    headers:
+      Host: cloudflare.vhub.pro
+- name: 🇦🇹 AT [ws] | 45.143.200.245
+  type: vless
+  server: 45.143.200.245
+  port: 443
+  uuid: e911c552-3a98-41e0-b5fb-0dd3879887b7
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: vod.ensf.top
   client-fingerprint: chrome
   ws-opts:
-    path: /eyJqdW5rIjoiWnM2b1ZnRlpNRyIsInByb3RvY29sIjoidmwiLCJtb2RlIjoicHJveHlpcCIsInBhbmVsSVBzIjpbIjExNi4yMDIuMTMyLjIwNSJdfQ==
+    path: /api/v1/irc
     headers:
-      Host: SumMeR-skY-0522.SFPOijsofw207geFS.WOrkeRS.deV
+      Host: vod.ensf.top
+- name: 🇩🇪 DE [ws] | 158.160.171.90
+  type: vless
+  server: 158.160.171.90
+  port: 443
+  uuid: 52b202f9-493d-4b52-a656-64637f36afa7
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: cloudflare.vhub.pro
+  client-fingerprint: firefox
+  ws-opts:
+    path: /websocket?ed=2560
+    headers:
+      Host: cloudflare.vhub.pro
+- name: 🇫🇷 FR [ws] | 95.129.236.252
+  type: vless
+  server: 95.129.236.252
+  port: 443
+  uuid: 849e76df-fe3c-4bcd-b788-40f1ac208546
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: benzin.benz.ink
+  client-fingerprint: firefox
+  ws-opts:
+    path: /api/v2/vms/stream/genka
+    headers:
+      Host: benzin.benz.ink
 - name: 🇫🇷 FR  | 89.208.113.16
   type: vless
   server: 89.208.113.16
@@ -225,13 +272,13 @@ proxy-groups:
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇬🇧 GB [R] | 144.31.87.16
   - 🇬🇧 GB [R] | 176.109.88.216
-  - 🇳🇱 NL [R] | 194.55.239.164
+  - 🇩🇪 DE [R] | 138.124.126.158
   - 🇳🇱 NL [R] | wl-1.myfreedom.rest
+  - 🇳🇱 NL [R] | 194.55.239.164
   - 🇪🇪 EE [R] | est.vrsvpn.com
   - 🇩🇪 DE [R] | freetg.strettenvpn.com
+  - 🇬🇧 GB [R] | 194.150.166.12
   - 🇪🇪 EE [R] | 185.155.97.241
-  - 🇩🇪 DE [R] | 138.124.126.158
-  - 🇦🇹 AT [ws] | 45.143.200.245
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -242,15 +289,18 @@ proxy-groups:
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇬🇧 GB [R] | 144.31.87.16
   - 🇬🇧 GB [R] | 176.109.88.216
-  - 🇳🇱 NL [R] | 194.55.239.164
+  - 🇩🇪 DE [R] | 138.124.126.158
   - 🇳🇱 NL [R] | wl-1.myfreedom.rest
+  - 🇳🇱 NL [R] | 194.55.239.164
   - 🇪🇪 EE [R] | est.vrsvpn.com
   - 🇩🇪 DE [R] | freetg.strettenvpn.com
+  - 🇬🇧 GB [R] | 194.150.166.12
   - 🇪🇪 EE [R] | 185.155.97.241
-  - 🇩🇪 DE [R] | 138.124.126.158
-  - 🇦🇹 AT [ws] | 45.143.200.245
   - 🇦🇹 AT [ws] | 94.159.110.41
-  - 🇩🇪 DE [ws] | 194.156.26.1
+  - 🇩🇪 DE [ws] | 158.160.57.2
+  - 🇦🇹 AT [ws] | 45.143.200.245
+  - 🇩🇪 DE [ws] | 158.160.171.90
+  - 🇫🇷 FR [ws] | 95.129.236.252
   - 🇫🇷 FR  | 89.208.113.16
 - name: 🎯 Direct
   type: select
