@@ -35,22 +35,23 @@ proxies:
     public-key: PyV8IrAs0LkE2d_DdjvdCtpWG7MZyUKsYkb52GUmuDM
     short-id: '67'
   servername: vk.com
-- name: 🇩🇪 DE [R] | 82.202.247.181
+- name: 🇩🇪 DE [R] | nl.n.belka.network
   type: vless
-  server: 82.202.247.181
+  server: nl.n.belka.network
   port: 443
-  uuid: cd60668d-28d0-4070-8179-47ad0d151dd5
+  uuid: 68dc7ee8-179e-4dff-8275-2c4ebc5c03ea
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: vZ22ThhkpXUd5-tY-v5TTrouLHjgYYmeQgqeLt7HRz0
-  servername: yandex.ru
+    public-key: U8yhhQTieIzorSj_S2ZGKlac4zfbP1d_ywFAn-7NGDs
+    short-id: 8f3e9c4b1a8d6e53
+  servername: max.ru
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇩🇪 DE [R] | nl.n.belka.network
+  client-fingerprint: chrome
+- name: 🇩🇪 DE [R] | nl.n.belka.network (2)
   type: vless
   server: nl.n.belka.network
   port: 443
@@ -81,6 +82,22 @@ proxies:
   servername: www.avito.ru
   flow: xtls-rprx-vision
   client-fingerprint: qq
+- name: 🇳🇱 NL [R] | wl-1.myfreedom.rest
+  type: vless
+  server: wl-1.myfreedom.rest
+  port: 443
+  uuid: fd12bf77-bca4-4ccc-8bd0-76a2cfc5985a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: sdnD0vxmj8kHBOoVM8TE9IyBCGwnKNB8hZVaHp_Zfjk
+    short-id: c427
+  servername: ads.vk.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇳🇱 NL [R] | 194.55.239.164
   type: vless
   server: 194.55.239.164
@@ -144,7 +161,7 @@ proxies:
     short-id: 15aa18f971da1f81
   servername: web.max.ru
   flow: xtls-rprx-vision
-  client-fingerprint: qq
+  client-fingerprint: chrome
 - name: 🇩🇪 DE [R] | freetg.strettenvpn.com
   type: vless
   server: freetg.strettenvpn.com
@@ -237,15 +254,15 @@ proxy-groups:
   type: url-test
   proxies:
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  - 🇩🇪 DE [R] | 82.202.247.181
   - 🇩🇪 DE [R] | nl.n.belka.network
+  - 🇩🇪 DE [R] | nl.n.belka.network (2)
   - 🇬🇧 GB [R] | 194.150.166.12
+  - 🇳🇱 NL [R] | wl-1.myfreedom.rest
   - 🇳🇱 NL [R] | 194.55.239.164
   - 🇪🇪 EE [R] | 185.155.97.241
   - 🇩🇪 DE [R] | 217.60.99.49
   - 🇪🇪 EE [R] | est.vrsvpn.com
   - 🇩🇪 DE [R] | freetg.strettenvpn.com
-  - 🇬🇧 GB [R] | 194.150.166.12 (2)
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -254,9 +271,10 @@ proxy-groups:
   proxies:
   - 🚀 Auto
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  - 🇩🇪 DE [R] | 82.202.247.181
   - 🇩🇪 DE [R] | nl.n.belka.network
+  - 🇩🇪 DE [R] | nl.n.belka.network (2)
   - 🇬🇧 GB [R] | 194.150.166.12
+  - 🇳🇱 NL [R] | wl-1.myfreedom.rest
   - 🇳🇱 NL [R] | 194.55.239.164
   - 🇪🇪 EE [R] | 185.155.97.241
   - 🇩🇪 DE [R] | 217.60.99.49
