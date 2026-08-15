@@ -35,40 +35,6 @@ proxies:
     public-key: PyV8IrAs0LkE2d_DdjvdCtpWG7MZyUKsYkb52GUmuDM
     short-id: '67'
   servername: vk.com
-  client-fingerprint: chrome
-- name: 🇺🇸 US [R][grpc] | 31.129.42.239
-  type: vless
-  server: 31.129.42.239
-  port: 443
-  uuid: 2f581cf2-a54e-4e34-bd59-2d6299b7635c
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: KwPeoAnP208rOsWWHSjhPKdpVzvIHpfBUltBHaBCSDs
-    short-id: d9114354
-  servername: vk.com
-  client-fingerprint: firefox
-  grpc-opts:
-    grpc-service-name: grpc8c948083b439
-- name: 🇬🇧 GB [R] | 95.85.224.51
-  type: vless
-  server: 95.85.224.51
-  port: 443
-  uuid: 342ab7e4-5a89-0001-8809-304120d4aa83
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: WWeAHWUVD-phmnjNJ823cer0c4CMIbEs08AhsuEZmDc
-    short-id: a696de84963656de
-  servername: max.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: qq
 - name: 🇩🇪 DE [R] | 82.202.247.181
   type: vless
   server: 82.202.247.181
@@ -98,22 +64,6 @@ proxies:
     public-key: l5eAOSPQMEyzEPvWGAKvCkcPpsJvR3DJfYo6elw1UTE
     short-id: 3b802dad547b0847
   servername: yandex.ru
-  client-fingerprint: firefox
-- name: 🇳🇱 NL [R] | 194.55.239.164
-  type: vless
-  server: 194.55.239.164
-  port: 443
-  uuid: fd12bf77-bca4-4ccc-8bd0-76a2cfc5985a
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: sdnD0vxmj8kHBOoVM8TE9IyBCGwnKNB8hZVaHp_Zfjk
-    short-id: c427
-  servername: ads.vk.ru
-  flow: xtls-rprx-vision
   client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 194.150.166.12
   type: vless
@@ -146,20 +96,21 @@ proxies:
   servername: eh.vk.com
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇯🇵 JP [R] | 31.76.91.159
+- name: 🇳🇱 NL [R] | 194.55.239.164
   type: vless
-  server: 31.76.91.159
+  server: 194.55.239.164
   port: 443
-  uuid: c2ea952f-44e2-4af6-9690-19fb4c98a5b1
+  uuid: fd12bf77-bca4-4ccc-8bd0-76a2cfc5985a
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: acCL8V-6UTGRuUs7CVk33xV26ZUY6wRjStNy273DmUY
-    short-id: aefe467c7b22f190
-  servername: api.ok.ru
+    public-key: sdnD0vxmj8kHBOoVM8TE9IyBCGwnKNB8hZVaHp_Zfjk
+    short-id: c427
+  servername: ads.vk.ru
+  flow: xtls-rprx-vision
   client-fingerprint: firefox
 - name: 🇪🇪 EE [R] | est.vrsvpn.com
   type: vless
@@ -240,15 +191,6 @@ proxies:
     path: /websocket?ed=2560
     headers:
       Host: cloudflare.vhub.pro
-- name: 🇩🇪 DE  | serv25.strettenvpn.com
-  type: vless
-  server: serv25.strettenvpn.com
-  port: 443
-  uuid: 707db87b-9cbf-438f-b4c7-9d984c8e944a
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
 - name: 🇫🇷 FR  | 89.208.113.16
   type: vless
   server: 89.208.113.16
@@ -263,15 +205,15 @@ proxy-groups:
   type: url-test
   proxies:
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  - 🇺🇸 US [R][grpc] | 31.129.42.239
-  - 🇬🇧 GB [R] | 95.85.224.51
   - 🇩🇪 DE [R] | 82.202.247.181
   - 🇬🇧 GB [R] | 144.31.87.16
-  - 🇳🇱 NL [R] | 194.55.239.164
   - 🇬🇧 GB [R] | 194.150.166.12
   - 🇩🇪 DE [R] | 138.124.126.158
-  - 🇯🇵 JP [R] | 31.76.91.159
+  - 🇳🇱 NL [R] | 194.55.239.164
   - 🇪🇪 EE [R] | est.vrsvpn.com
+  - 🇪🇪 EE [R] | 185.155.97.241
+  - 🇳🇱 NL [R] | wl-1.myfreedom.rest
+  - 🇬🇧 GB [R] | 194.150.166.12 (2)
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -280,20 +222,16 @@ proxy-groups:
   proxies:
   - 🚀 Auto
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  - 🇺🇸 US [R][grpc] | 31.129.42.239
-  - 🇬🇧 GB [R] | 95.85.224.51
   - 🇩🇪 DE [R] | 82.202.247.181
   - 🇬🇧 GB [R] | 144.31.87.16
-  - 🇳🇱 NL [R] | 194.55.239.164
   - 🇬🇧 GB [R] | 194.150.166.12
   - 🇩🇪 DE [R] | 138.124.126.158
-  - 🇯🇵 JP [R] | 31.76.91.159
+  - 🇳🇱 NL [R] | 194.55.239.164
   - 🇪🇪 EE [R] | est.vrsvpn.com
   - 🇪🇪 EE [R] | 185.155.97.241
   - 🇳🇱 NL [R] | wl-1.myfreedom.rest
   - 🇬🇧 GB [R] | 194.150.166.12 (2)
   - 🇩🇪 DE [ws] | 158.160.57.2
-  - 🇩🇪 DE  | serv25.strettenvpn.com
   - 🇫🇷 FR  | 89.208.113.16
 - name: 🎯 Direct
   type: select
