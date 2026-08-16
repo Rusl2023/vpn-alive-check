@@ -35,7 +35,6 @@ proxies:
     public-key: PyV8IrAs0LkE2d_DdjvdCtpWG7MZyUKsYkb52GUmuDM
     short-id: '67'
   servername: vk.com
-  client-fingerprint: chrome
 - name: 🇺🇸 US [R][grpc] | 31.129.42.239
   type: vless
   server: 31.129.42.239
@@ -99,21 +98,6 @@ proxies:
     short-id: 3b802dad547b0847
   servername: yandex.ru
   client-fingerprint: firefox
-- name: 🇯🇵 JP [R] | 31.76.91.159
-  type: vless
-  server: 31.76.91.159
-  port: 443
-  uuid: c2ea952f-44e2-4af6-9690-19fb4c98a5b1
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: acCL8V-6UTGRuUs7CVk33xV26ZUY6wRjStNy273DmUY
-    short-id: aefe467c7b22f190
-  servername: api.ok.ru
-  client-fingerprint: firefox
 - name: 🇳🇱 NL [R] | wl-1.myfreedom.rest
   type: vless
   server: wl-1.myfreedom.rest
@@ -130,22 +114,37 @@ proxies:
   servername: ads.vk.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇪🇪 EE [R] | 185.155.97.241
+- name: 🇳🇱 NL [R] | 194.55.239.164
   type: vless
-  server: 185.155.97.241
+  server: 194.55.239.164
   port: 443
-  uuid: 0b9bcbc1-b289-4a64-86fa-a5b731b65384
+  uuid: fd12bf77-bca4-4ccc-8bd0-76a2cfc5985a
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: SJkDT_L0eziQR2afDGrkN7-uRxjYu6bZxIGXlKeCvX4
-    short-id: 15aa18f971da1f81
-  servername: web.max.ru
+    public-key: sdnD0vxmj8kHBOoVM8TE9IyBCGwnKNB8hZVaHp_Zfjk
+    short-id: c427
+  servername: ads.vk.ru
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
+  client-fingerprint: firefox
+- name: 🇯🇵 JP [R] | 31.76.91.159
+  type: vless
+  server: 31.76.91.159
+  port: 443
+  uuid: c2ea952f-44e2-4af6-9690-19fb4c98a5b1
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: acCL8V-6UTGRuUs7CVk33xV26ZUY6wRjStNy273DmUY
+    short-id: aefe467c7b22f190
+  servername: api.ok.ru
+  client-fingerprint: firefox
 - name: 🇩🇪 DE [R] | 138.124.126.158
   type: vless
   server: 138.124.126.158
@@ -177,6 +176,22 @@ proxies:
   servername: web.max.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
+- name: 🇪🇪 EE [R] | 185.155.97.241
+  type: vless
+  server: 185.155.97.241
+  port: 443
+  uuid: 0b9bcbc1-b289-4a64-86fa-a5b731b65384
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: SJkDT_L0eziQR2afDGrkN7-uRxjYu6bZxIGXlKeCvX4
+    short-id: 15aa18f971da1f81
+  servername: web.max.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
 - name: 🇬🇧 GB [R] | 194.150.166.12
   type: vless
   server: 194.150.166.12
@@ -192,9 +207,9 @@ proxies:
   servername: www.avito.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇩🇪 DE [ws] | web3.breathtaking.uk
+- name: 🇩🇪 DE [ws] | 185.178.208.176
   type: vless
-  server: web3.breathtaking.uk
+  server: 185.178.208.176
   port: 443
   uuid: 54bd89a2-e6a3-4d68-9d17-043ab37118d1
   udp: true
@@ -219,14 +234,14 @@ proxies:
   encryption: none
   tls: true
   servername: files-x.bosx.net
-  client-fingerprint: chrome
+  client-fingerprint: firefox
   ws-opts:
     path: /api/v1/connect
     headers:
       Host: files-x.bosx.net
-- name: 🇩🇪 DE [ws] | 185.178.208.176
+- name: 🇩🇪 DE [ws] | web3.breathtaking.uk
   type: vless
-  server: 185.178.208.176
+  server: web3.breathtaking.uk
   port: 443
   uuid: 54bd89a2-e6a3-4d68-9d17-043ab37118d1
   udp: true
@@ -240,22 +255,35 @@ proxies:
     path: /api/v2/client/session/connect
     headers:
       Host: web3.breathtaking.uk
-- name: 🇵🇱 PL [ws] | 85.193.84.49 (2)
+- name: 🇫🇷 FR  | 88.214.24.186
   type: vless
-  server: 85.193.84.49
+  server: 88.214.24.186
   port: 443
-  uuid: 258b663a-3c3b-486e-b139-be70912bc912
+  uuid: 53c76647-14d1-4df5-99cb-be99ad2e6bd9
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  servername: fr186.mechvpn.online
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇫🇷 FR [ws] | 95.129.236.252
+  type: vless
+  server: 95.129.236.252
+  port: 443
+  uuid: dd0071a6-0fd8-4030-8584-d4a29a332528
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: files-x.bosx.net
+  servername: benzin.benz.ink
   client-fingerprint: firefox
   ws-opts:
-    path: /api/v1/connect
+    path: /api/v2/vms/stream/genka
     headers:
-      Host: files-x.bosx.net
+      Host: benzin.benz.ink
 - name: 🇫🇷 FR  | 89.208.113.16
   type: vless
   server: 89.208.113.16
@@ -274,9 +302,9 @@ proxy-groups:
   - 🇳🇱 NL [R][grpc] | 94.183.221.193
   - 🇩🇪 DE [R] | 82.202.247.181
   - 🇬🇧 GB [R] | 144.31.87.16
-  - 🇯🇵 JP [R] | 31.76.91.159
   - 🇳🇱 NL [R] | wl-1.myfreedom.rest
-  - 🇪🇪 EE [R] | 185.155.97.241
+  - 🇳🇱 NL [R] | 194.55.239.164
+  - 🇯🇵 JP [R] | 31.76.91.159
   - 🇩🇪 DE [R] | 138.124.126.158
   - 🇪🇪 EE [R] | est.vrsvpn.com
   url: https://www.google.com/generate_204
@@ -291,16 +319,18 @@ proxy-groups:
   - 🇳🇱 NL [R][grpc] | 94.183.221.193
   - 🇩🇪 DE [R] | 82.202.247.181
   - 🇬🇧 GB [R] | 144.31.87.16
-  - 🇯🇵 JP [R] | 31.76.91.159
   - 🇳🇱 NL [R] | wl-1.myfreedom.rest
-  - 🇪🇪 EE [R] | 185.155.97.241
+  - 🇳🇱 NL [R] | 194.55.239.164
+  - 🇯🇵 JP [R] | 31.76.91.159
   - 🇩🇪 DE [R] | 138.124.126.158
   - 🇪🇪 EE [R] | est.vrsvpn.com
+  - 🇪🇪 EE [R] | 185.155.97.241
   - 🇬🇧 GB [R] | 194.150.166.12
-  - 🇩🇪 DE [ws] | web3.breathtaking.uk
-  - 🇵🇱 PL [ws] | 85.193.84.49
   - 🇩🇪 DE [ws] | 185.178.208.176
-  - 🇵🇱 PL [ws] | 85.193.84.49 (2)
+  - 🇵🇱 PL [ws] | 85.193.84.49
+  - 🇩🇪 DE [ws] | web3.breathtaking.uk
+  - 🇫🇷 FR  | 88.214.24.186
+  - 🇫🇷 FR [ws] | 95.129.236.252
   - 🇫🇷 FR  | 89.208.113.16
 - name: 🎯 Direct
   type: select
