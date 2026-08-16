@@ -21,21 +21,6 @@ dns:
   - tls://8.8.8.8
   - tls://1.1.1.1
 proxies:
-- name: 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  type: vless
-  server: 91.84.117.29
-  port: 443
-  uuid: a4037b4c-6a9d-528c-9efb-7d801cce8adb
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: PyV8IrAs0LkE2d_DdjvdCtpWG7MZyUKsYkb52GUmuDM
-    short-id: '67'
-  servername: vk.com
-  client-fingerprint: chrome
 - name: 🇺🇸 US [R][grpc] | 31.129.42.239
   type: vless
   server: 31.129.42.239
@@ -53,6 +38,55 @@ proxies:
   client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: grpc8c948083b439
+- name: 🇳🇱 NL [R][xhttp] | 91.84.117.29
+  type: vless
+  server: 91.84.117.29
+  port: 443
+  uuid: a4037b4c-6a9d-528c-9efb-7d801cce8adb
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: PyV8IrAs0LkE2d_DdjvdCtpWG7MZyUKsYkb52GUmuDM
+    short-id: '67'
+  servername: vk.com
+  client-fingerprint: chrome
+- name: 🇬🇧 GB [R][grpc] | 213.178.155.48
+  type: vless
+  server: 213.178.155.48
+  port: 443
+  uuid: 427c1d7e-d485-44eb-a971-e3c35007b71e
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: t-6OZhib3rFgI_V5Z0l-OU9mrSNuVnJBRLHlEc6Mtgg
+    short-id: b532f5c657426ee6
+  servername: max.ru
+  client-fingerprint: firefox
+  grpc-opts:
+    grpc-service-name: bridge-uk-grpc-max
+- name: 🇬🇧 GB [R][grpc] | 213.178.155.48 (2)
+  type: vless
+  server: 213.178.155.48
+  port: 443
+  uuid: 3c5e0bc8-da3f-4682-8e17-b866aa915f81
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: t-6OZhib3rFgI_V5Z0l-OU9mrSNuVnJBRLHlEc6Mtgg
+    short-id: 5e6f7a8b
+  servername: max.ru
+  client-fingerprint: firefox
+  grpc-opts:
+    grpc-service-name: bridge-uk-grpc-max
 - name: 🇩🇪 DE [R] | 82.202.247.181
   type: vless
   server: 82.202.247.181
@@ -67,55 +101,7 @@ proxies:
     public-key: vZ22ThhkpXUd5-tY-v5TTrouLHjgYYmeQgqeLt7HRz0
   servername: yandex.ru
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇫🇷 FR [R] | 146.185.211.2
-  type: vless
-  server: 146.185.211.2
-  port: 443
-  uuid: 34a38f21-310e-4da5-b549-35076e16993c
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: SHIYN7zN9aFVxwKK-bIvDbhUgtHvlBhDi1qSl2sWwRw
-    short-id: e7
-  servername: max.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇫🇷 FR [R] | frabridge1.frost-api.com
-  type: vless
-  server: frabridge1.frost-api.com
-  port: 443
-  uuid: 34a38f21-310e-4da5-b549-35076e16993c
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: SHIYN7zN9aFVxwKK-bIvDbhUgtHvlBhDi1qSl2sWwRw
-    short-id: e7
-  servername: max.ru
-  flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇩🇪 DE [R] | nl.n.belka.network
-  type: vless
-  server: nl.n.belka.network
-  port: 443
-  uuid: 1b7ee703-fa08-4305-8469-ae3e30e61e44
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: U8yhhQTieIzorSj_S2ZGKlac4zfbP1d_ywFAn-7NGDs
-    short-id: 8f3e9c4b1a8d6e53
-  servername: max.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 144.31.87.16
   type: vless
   server: 144.31.87.16
@@ -131,11 +117,11 @@ proxies:
     short-id: 3b802dad547b0847
   servername: yandex.ru
   client-fingerprint: firefox
-- name: 🇩🇪 DE [R] | nl.n.belka.network (2)
+- name: 🇩🇪 DE [R] | nl.n.belka.network
   type: vless
   server: nl.n.belka.network
   port: 443
-  uuid: 68dc7ee8-179e-4dff-8275-2c4ebc5c03ea
+  uuid: 1b7ee703-fa08-4305-8469-ae3e30e61e44
   udp: true
   skip-cert-verify: true
   network: tcp
@@ -147,22 +133,6 @@ proxies:
   servername: max.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇵🇱 PL [R] | 201.34.129.44
-  type: vless
-  server: 201.34.129.44
-  port: 443
-  uuid: 34a38f21-310e-4da5-b549-35076e16993c
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: SHIYN7zN9aFVxwKK-bIvDbhUgtHvlBhDi1qSl2sWwRw
-    short-id: e7
-  servername: eh.vk.com
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇵🇱 PL [R] | polbridge1.frost-api.com
   type: vless
   server: polbridge1.frost-api.com
@@ -179,6 +149,21 @@ proxies:
   servername: eh.vk.com
   flow: xtls-rprx-vision
   client-fingerprint: chrome
+- name: 🇬🇧 GB [R] | 194.150.166.12
+  type: vless
+  server: 194.150.166.12
+  port: 443
+  uuid: f1c496bf-d2ab-45be-bc13-051d60d227b7
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: b75SrHI--As9QxOVfRIPkGmGfXjs53CGAjbws2K99Rs
+  servername: www.avito.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇯🇵 JP [R] | 31.76.91.159
   type: vless
   server: 31.76.91.159
@@ -209,22 +194,7 @@ proxies:
     short-id: e7
   servername: eh.vk.com
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇬🇧 GB [R] | 194.150.166.12
-  type: vless
-  server: 194.150.166.12
-  port: 443
-  uuid: f1c496bf-d2ab-45be-bc13-051d60d227b7
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: b75SrHI--As9QxOVfRIPkGmGfXjs53CGAjbws2K99Rs
-  servername: www.avito.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
+  client-fingerprint: chrome
 - name: 🇩🇪 DE [R] | 138.124.126.158
   type: vless
   server: 138.124.126.158
@@ -241,22 +211,6 @@ proxies:
   servername: eh.vk.com
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇪🇪 EE [R] | est.vrsvpn.com
-  type: vless
-  server: est.vrsvpn.com
-  port: 443
-  uuid: 0b9bcbc1-b289-4a64-86fa-a5b731b65384
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: SJkDT_L0eziQR2afDGrkN7-uRxjYu6bZxIGXlKeCvX4
-    short-id: 15aa18f971da1f81
-  servername: web.max.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: qq
 - name: 🇪🇪 EE [R] | 185.155.97.241
   type: vless
   server: 185.155.97.241
@@ -273,6 +227,22 @@ proxies:
   servername: web.max.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
+- name: 🇪🇪 EE [R] | est.vrsvpn.com
+  type: vless
+  server: est.vrsvpn.com
+  port: 443
+  uuid: 0b9bcbc1-b289-4a64-86fa-a5b731b65384
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: SJkDT_L0eziQR2afDGrkN7-uRxjYu6bZxIGXlKeCvX4
+    short-id: 15aa18f971da1f81
+  servername: web.max.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: qq
 - name: 🇬🇧 GB [R] | 194.150.166.12 (2)
   type: vless
   server: 194.150.166.12
@@ -288,54 +258,22 @@ proxies:
   servername: www.avito.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇩🇪 DE [ws] | 194.156.26.1
+- name: 🇵🇱 PL [ws] | 85.193.84.49
   type: vless
-  server: 194.156.26.1
+  server: 85.193.84.49
   port: 443
-  uuid: 4b5de9a4-3543-4f04-af6e-5c20141520ce
+  uuid: ca599ed4-f7a0-4ddf-a45d-3cb6276d6cd7
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: SumMeR-skY-0522.SFPOijsofw207geFS.WOrkeRS.deV
-  client-fingerprint: chrome
-  ws-opts:
-    path: /eyJqdW5rIjoiWnM2b1ZnRlpNRyIsInByb3RvY29sIjoidmwiLCJtb2RlIjoicHJveHlpcCIsInBhbmVsSVBzIjpbIjExNi4yMDIuMTMyLjIwNSJdfQ==
-    headers:
-      Host: SumMeR-skY-0522.SFPOijsofw207geFS.WOrkeRS.deV
-- name: 🇦🇹 AT [ws] | 45.143.200.245
-  type: vless
-  server: 45.143.200.245
-  port: 443
-  uuid: e911c552-3a98-41e0-b5fb-0dd3879887b7
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: vod.ensf.top
-  client-fingerprint: chrome
-  ws-opts:
-    path: /api/v1/irc
-    headers:
-      Host: vod.ensf.top
-- name: 🇸🇪 SE [ws] | 95.129.236.252
-  type: vless
-  server: 95.129.236.252
-  port: 443
-  uuid: e23c84e0-957f-4757-b1d3-855d65cdb487
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: benzin.benz.ink
+  servername: files-x.bosx.net
   client-fingerprint: firefox
   ws-opts:
-    path: /api/v2/partner/xafiz
+    path: /api/v1/connect
     headers:
-      Host: benzin.benz.ink
+      Host: files-x.bosx.net
 - name: 🇫🇷 FR  | 89.208.113.16
   type: vless
   server: 89.208.113.16
@@ -349,16 +287,16 @@ proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
-  - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇺🇸 US [R][grpc] | 31.129.42.239
+  - 🇳🇱 NL [R][xhttp] | 91.84.117.29
+  - 🇬🇧 GB [R][grpc] | 213.178.155.48
+  - 🇬🇧 GB [R][grpc] | 213.178.155.48 (2)
   - 🇩🇪 DE [R] | 82.202.247.181
-  - 🇫🇷 FR [R] | 146.185.211.2
-  - 🇫🇷 FR [R] | frabridge1.frost-api.com
-  - 🇩🇪 DE [R] | nl.n.belka.network
   - 🇬🇧 GB [R] | 144.31.87.16
-  - 🇩🇪 DE [R] | nl.n.belka.network (2)
-  - 🇵🇱 PL [R] | 201.34.129.44
+  - 🇩🇪 DE [R] | nl.n.belka.network
   - 🇵🇱 PL [R] | polbridge1.frost-api.com
+  - 🇬🇧 GB [R] | 194.150.166.12
+  - 🇯🇵 JP [R] | 31.76.91.159
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -366,26 +304,22 @@ proxy-groups:
   type: select
   proxies:
   - 🚀 Auto
-  - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇺🇸 US [R][grpc] | 31.129.42.239
+  - 🇳🇱 NL [R][xhttp] | 91.84.117.29
+  - 🇬🇧 GB [R][grpc] | 213.178.155.48
+  - 🇬🇧 GB [R][grpc] | 213.178.155.48 (2)
   - 🇩🇪 DE [R] | 82.202.247.181
-  - 🇫🇷 FR [R] | 146.185.211.2
-  - 🇫🇷 FR [R] | frabridge1.frost-api.com
-  - 🇩🇪 DE [R] | nl.n.belka.network
   - 🇬🇧 GB [R] | 144.31.87.16
-  - 🇩🇪 DE [R] | nl.n.belka.network (2)
-  - 🇵🇱 PL [R] | 201.34.129.44
+  - 🇩🇪 DE [R] | nl.n.belka.network
   - 🇵🇱 PL [R] | polbridge1.frost-api.com
+  - 🇬🇧 GB [R] | 194.150.166.12
   - 🇯🇵 JP [R] | 31.76.91.159
   - 🇰🇿 KZ [R] | 82.202.142.189
-  - 🇬🇧 GB [R] | 194.150.166.12
   - 🇩🇪 DE [R] | 138.124.126.158
-  - 🇪🇪 EE [R] | est.vrsvpn.com
   - 🇪🇪 EE [R] | 185.155.97.241
+  - 🇪🇪 EE [R] | est.vrsvpn.com
   - 🇬🇧 GB [R] | 194.150.166.12 (2)
-  - 🇩🇪 DE [ws] | 194.156.26.1
-  - 🇦🇹 AT [ws] | 45.143.200.245
-  - 🇸🇪 SE [ws] | 95.129.236.252
+  - 🇵🇱 PL [ws] | 85.193.84.49
   - 🇫🇷 FR  | 89.208.113.16
 - name: 🎯 Direct
   type: select
