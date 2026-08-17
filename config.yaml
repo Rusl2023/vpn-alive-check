@@ -35,7 +35,6 @@ proxies:
     public-key: PyV8IrAs0LkE2d_DdjvdCtpWG7MZyUKsYkb52GUmuDM
     short-id: '67'
   servername: vk.com
-  client-fingerprint: chrome
 - name: 🇬🇧 GB [R] | 95.85.224.51
   type: vless
   server: 95.85.224.51
@@ -98,9 +97,73 @@ proxies:
     short-id: aefe467c7b22f190
   servername: api.ok.ru
   client-fingerprint: firefox
+- name: 🇳🇱 NL [R] | 194.55.239.164
+  type: vless
+  server: 194.55.239.164
+  port: 443
+  uuid: f7c19962-ae9e-4431-8ddc-276bcd45280a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: sdnD0vxmj8kHBOoVM8TE9IyBCGwnKNB8hZVaHp_Zfjk
+    short-id: '9042'
+  servername: ads.vk.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇳🇱 NL [R] | wl-1.myfreedom.rest
+  type: vless
+  server: wl-1.myfreedom.rest
+  port: 443
+  uuid: fd12bf77-bca4-4ccc-8bd0-76a2cfc5985a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: sdnD0vxmj8kHBOoVM8TE9IyBCGwnKNB8hZVaHp_Zfjk
+    short-id: c427
+  servername: ads.vk.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇳🇱 NL [R] | wl-1.myfreedom.rest (2)
+  type: vless
+  server: wl-1.myfreedom.rest
+  port: 443
+  uuid: f7c19962-ae9e-4431-8ddc-276bcd45280a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: sdnD0vxmj8kHBOoVM8TE9IyBCGwnKNB8hZVaHp_Zfjk
+    short-id: '9042'
+  servername: ads.vk.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇪🇪 EE [R] | est.vrsvpn.com
   type: vless
   server: est.vrsvpn.com
+  port: 443
+  uuid: 0b9bcbc1-b289-4a64-86fa-a5b731b65384
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: SJkDT_L0eziQR2afDGrkN7-uRxjYu6bZxIGXlKeCvX4
+    short-id: 15aa18f971da1f81
+  servername: web.max.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: qq
+- name: 🇪🇪 EE [R] | 185.155.97.241
+  type: vless
+  server: 185.155.97.241
   port: 443
   uuid: 0b9bcbc1-b289-4a64-86fa-a5b731b65384
   udp: true
@@ -129,22 +192,6 @@ proxies:
   servername: www.avito.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇪🇪 EE [R] | 185.155.97.241
-  type: vless
-  server: 185.155.97.241
-  port: 443
-  uuid: 0b9bcbc1-b289-4a64-86fa-a5b731b65384
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: SJkDT_L0eziQR2afDGrkN7-uRxjYu6bZxIGXlKeCvX4
-    short-id: 15aa18f971da1f81
-  servername: web.max.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: qq
 - name: 🇩🇪 DE [R] | 138.124.126.158
   type: vless
   server: 138.124.126.158
@@ -192,6 +239,38 @@ proxies:
     path: /api/v1/irc
     headers:
       Host: vod.ensf.top
+- name: 🇫🇮 FI [ws] | 85.193.84.49
+  type: vless
+  server: 85.193.84.49
+  port: 443
+  uuid: ccad147b-06f9-43f6-81cf-a0007094b373
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: files-x.bosx.net
+  client-fingerprint: chrome
+  ws-opts:
+    path: /api/v2/connect
+    headers:
+      Host: files-x.bosx.net
+- name: 🇸🇪 SE [ws] | 185.178.208.176
+  type: vless
+  server: 185.178.208.176
+  port: 443
+  uuid: 7b839099-35fa-403b-b1d6-f28c9892decb
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: founders-blog.online
+  client-fingerprint: chrome
+  ws-opts:
+    path: /stream/615428/socket
+    headers:
+      Host: founders-blog.online
 - name: 🇫🇷 FR  | 89.208.113.16
   type: vless
   server: 89.208.113.16
@@ -210,11 +289,11 @@ proxy-groups:
   - 🇩🇪 DE [R] | nl.n.belka.network
   - 🇬🇧 GB [R] | 144.31.87.16
   - 🇯🇵 JP [R] | 31.76.91.159
+  - 🇳🇱 NL [R] | 194.55.239.164
+  - 🇳🇱 NL [R] | wl-1.myfreedom.rest
+  - 🇳🇱 NL [R] | wl-1.myfreedom.rest (2)
   - 🇪🇪 EE [R] | est.vrsvpn.com
-  - 🇬🇧 GB [R] | 194.150.166.12
   - 🇪🇪 EE [R] | 185.155.97.241
-  - 🇩🇪 DE [R] | 138.124.126.158
-  - 🇬🇧 GB [R] | 194.150.166.12 (2)
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -227,12 +306,17 @@ proxy-groups:
   - 🇩🇪 DE [R] | nl.n.belka.network
   - 🇬🇧 GB [R] | 144.31.87.16
   - 🇯🇵 JP [R] | 31.76.91.159
+  - 🇳🇱 NL [R] | 194.55.239.164
+  - 🇳🇱 NL [R] | wl-1.myfreedom.rest
+  - 🇳🇱 NL [R] | wl-1.myfreedom.rest (2)
   - 🇪🇪 EE [R] | est.vrsvpn.com
-  - 🇬🇧 GB [R] | 194.150.166.12
   - 🇪🇪 EE [R] | 185.155.97.241
+  - 🇬🇧 GB [R] | 194.150.166.12
   - 🇩🇪 DE [R] | 138.124.126.158
   - 🇬🇧 GB [R] | 194.150.166.12 (2)
   - 🇦🇹 AT [ws] | 45.143.200.245
+  - 🇫🇮 FI [ws] | 85.193.84.49
+  - 🇸🇪 SE [ws] | 185.178.208.176
   - 🇫🇷 FR  | 89.208.113.16
 - name: 🎯 Direct
   type: select
