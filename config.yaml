@@ -36,21 +36,23 @@ proxies:
     short-id: '67'
   servername: vk.com
   client-fingerprint: chrome
-- name: 🇬🇧 GB [R] | 144.31.87.16
+- name: 🇳🇱 NL [R][grpc] | 95.163.232.98
   type: vless
-  server: 144.31.87.16
+  server: 95.163.232.98
   port: 443
-  uuid: c40f773e-3b96-417e-b22c-e48cb63ca7d9
+  uuid: a98f627f-99ff-44fc-89fc-b5aed8db49f9
   udp: true
   skip-cert-verify: true
-  network: tcp
+  network: grpc
   encryption: none
   tls: true
   reality-opts:
-    public-key: l5eAOSPQMEyzEPvWGAKvCkcPpsJvR3DJfYo6elw1UTE
-    short-id: 3b802dad547b0847
-  servername: yandex.ru
+    public-key: ZgSVwP_wlM4-oG8E03W3cMqK_VrS8oHXF4wzyBkISWo
+    short-id: a1b2c3d4
+  servername: max.ru
   client-fingerprint: firefox
+  grpc-opts:
+    grpc-service-name: ''
 - name: 🇳🇱 NL [R][grpc] | 79.174.92.185
   type: vless
   server: 79.174.92.185
@@ -84,6 +86,36 @@ proxies:
   servername: max.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
+- name: 🇬🇧 GB [R] | 144.31.87.16
+  type: vless
+  server: 144.31.87.16
+  port: 443
+  uuid: c40f773e-3b96-417e-b22c-e48cb63ca7d9
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: l5eAOSPQMEyzEPvWGAKvCkcPpsJvR3DJfYo6elw1UTE
+    short-id: 3b802dad547b0847
+  servername: yandex.ru
+  client-fingerprint: firefox
+- name: 🇯🇵 JP [R] | 31.76.91.159
+  type: vless
+  server: 31.76.91.159
+  port: 443
+  uuid: c2ea952f-44e2-4af6-9690-19fb4c98a5b1
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: acCL8V-6UTGRuUs7CVk33xV26ZUY6wRjStNy273DmUY
+    short-id: aefe467c7b22f190
+  servername: api.ok.ru
+  client-fingerprint: firefox
 - name: 🇳🇱 NL [R] | wl-1.myfreedom.rest
   type: vless
   server: wl-1.myfreedom.rest
@@ -100,20 +132,21 @@ proxies:
   servername: ads.vk.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇯🇵 JP [R] | 31.76.91.159
+- name: 🇳🇱 NL [R] | 194.55.239.164
   type: vless
-  server: 31.76.91.159
+  server: 194.55.239.164
   port: 443
-  uuid: c2ea952f-44e2-4af6-9690-19fb4c98a5b1
+  uuid: f7c19962-ae9e-4431-8ddc-276bcd45280a
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: acCL8V-6UTGRuUs7CVk33xV26ZUY6wRjStNy273DmUY
-    short-id: aefe467c7b22f190
-  servername: api.ok.ru
+    public-key: sdnD0vxmj8kHBOoVM8TE9IyBCGwnKNB8hZVaHp_Zfjk
+    short-id: '9042'
+  servername: ads.vk.ru
+  flow: xtls-rprx-vision
   client-fingerprint: firefox
 - name: 🇩🇪 DE [R] | 138.124.126.158
   type: vless
@@ -131,21 +164,22 @@ proxies:
   servername: eh.vk.com
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇬🇧 GB [R] | 194.150.166.12
+- name: 🇳🇱 NL [R] | 194.55.239.164 (2)
   type: vless
-  server: 194.150.166.12
+  server: 194.55.239.164
   port: 443
-  uuid: f1c496bf-d2ab-45be-bc13-051d60d227b7
+  uuid: fd12bf77-bca4-4ccc-8bd0-76a2cfc5985a
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: b75SrHI--As9QxOVfRIPkGmGfXjs53CGAjbws2K99Rs
-  servername: www.avito.ru
+    public-key: sdnD0vxmj8kHBOoVM8TE9IyBCGwnKNB8hZVaHp_Zfjk
+    short-id: c427
+  servername: ads.vk.ru
   flow: xtls-rprx-vision
-  client-fingerprint: qq
+  client-fingerprint: firefox
 - name: 🇪🇪 EE [R] | est.vrsvpn.com
   type: vless
   server: est.vrsvpn.com
@@ -177,24 +211,8 @@ proxies:
     short-id: 15aa18f971da1f81
   servername: web.max.ru
   flow: xtls-rprx-vision
-  client-fingerprint: qq
-- name: 🇳🇱 NL [R] | wl-1.myfreedom.rest (2)
-  type: vless
-  server: wl-1.myfreedom.rest
-  port: 443
-  uuid: f7c19962-ae9e-4431-8ddc-276bcd45280a
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: sdnD0vxmj8kHBOoVM8TE9IyBCGwnKNB8hZVaHp_Zfjk
-    short-id: '9042'
-  servername: ads.vk.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇬🇧 GB [R] | 194.150.166.12 (2)
+  client-fingerprint: chrome
+- name: 🇬🇧 GB [R] | 194.150.166.12
   type: vless
   server: 194.150.166.12
   port: 443
@@ -208,36 +226,38 @@ proxies:
     public-key: b75SrHI--As9QxOVfRIPkGmGfXjs53CGAjbws2K99Rs
   servername: www.avito.ru
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇫🇮 FI [ws] | w.upgrade101.club
+  client-fingerprint: chrome
+- name: 🇬🇧 GB [R] | 194.150.166.12 (2)
   type: vless
-  server: w.upgrade101.club
+  server: 194.150.166.12
   port: 443
-  uuid: 62a08ea5-0564-47b4-a92c-25be07ad6358
+  uuid: f1c496bf-d2ab-45be-bc13-051d60d227b7
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: b75SrHI--As9QxOVfRIPkGmGfXjs53CGAjbws2K99Rs
+  servername: www.avito.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇳🇱 NL [ws] | sport.sowt2.app
+  type: vless
+  server: sport.sowt2.app
+  port: 443
+  uuid: a98f627f-99ff-44fc-89fc-b5aed8db49f9
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
+  servername: sport.sowt2.app
   client-fingerprint: firefox
   ws-opts:
-    path: /ws-abe57e7e3790d717a1ca0464
-- name: 🇫🇮 FI [ws] | w.upgrade101.club (2)
-  type: vless
-  server: w.upgrade101.club
-  port: 443
-  uuid: 62a08ea5-0564-47b4-a92c-25be07ad6358
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: w.upgrade101.club
-  client-fingerprint: firefox
-  ws-opts:
-    path: /ws-abe57e7e3790d717a1ca0464
+    path: /gateway/v1/ws/fd6b5f8ebef9d896772121a7712743ce
     headers:
-      Host: w.upgrade101.club
+      Host: sport.sowt2.app
 - name: 🇳🇱 NL [ws] | 194.147.115.148
   type: vless
   server: 194.147.115.148
@@ -254,76 +274,22 @@ proxies:
     path: /proxyip=bpb.yousef.isegaro.com
     headers:
       Host: web-socket.tgdaosheng.ggff.net
-- name: 🇫🇮 FI [ws] | 95.163.232.242
+- name: 🇦🇹 AT [ws] | 45.143.200.245
   type: vless
-  server: 95.163.232.242
+  server: 45.143.200.245
   port: 443
-  uuid: 62a08ea5-0564-47b4-a92c-25be07ad6358
+  uuid: e911c552-3a98-41e0-b5fb-0dd3879887b7
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: w.upgrade101.club
-  client-fingerprint: firefox
+  servername: vod.ensf.top
+  client-fingerprint: chrome
   ws-opts:
-    path: /ws-abe57e7e3790d717a1ca0464
+    path: /api/v1/irc
     headers:
-      Host: w.upgrade101.club
-- name: 🇩🇪 DE  | nbb--ru28fab01b.vpn.partners
-  type: vless
-  server: nbb--ru28fab01b.vpn.partners
-  port: 443
-  uuid: 28af86fc-34fa-4b4e-b96f-041a1b687823
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: nbb--ru28fab01b.vpn.partners
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇩🇪 DE [ws] | benzin.benz.ink
-  type: vless
-  server: benzin.benz.ink
-  port: 443
-  uuid: 62a08ea5-0564-47b4-a92c-25be07ad6358
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: benzin.benz.ink
-  client-fingerprint: firefox
-  ws-opts:
-    path: /api/v2/vms/partner/alexey
-    headers:
-      Host: benzin.benz.ink
-- name: 🇫🇷 FR  | 89.208.113.16
-  type: vless
-  server: 89.208.113.16
-  port: 443
-  uuid: adce7c2a-3191-49ae-b61c-9b8258ea1b0e
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-- name: 🇩🇪 DE [ws] | 95.129.236.252
-  type: vless
-  server: 95.129.236.252
-  port: 443
-  uuid: 62a08ea5-0564-47b4-a92c-25be07ad6358
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: benzin.benz.ink
-  client-fingerprint: firefox
-  ws-opts:
-    path: /api/v2/vms/partner/alexey
-    headers:
-      Host: benzin.benz.ink
+      Host: vod.ensf.top
 - name: 🇳🇱 NL [ws] | 95.129.236.77
   type: vless
   server: 95.129.236.77
@@ -340,20 +306,29 @@ proxies:
     path: /gateway/v1/ws/fd6b5f8ebef9d896772121a7712743ce
     headers:
       Host: sport.sowt2.app
+- name: 🇫🇷 FR  | 89.208.113.16
+  type: vless
+  server: 89.208.113.16
+  port: 443
+  uuid: adce7c2a-3191-49ae-b61c-9b8258ea1b0e
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  - 🇬🇧 GB [R] | 144.31.87.16
+  - 🇳🇱 NL [R][grpc] | 95.163.232.98
   - 🇳🇱 NL [R][grpc] | 79.174.92.185
   - 🇩🇪 DE [R] | nl.n.belka.network
-  - 🇳🇱 NL [R] | wl-1.myfreedom.rest
+  - 🇬🇧 GB [R] | 144.31.87.16
   - 🇯🇵 JP [R] | 31.76.91.159
+  - 🇳🇱 NL [R] | wl-1.myfreedom.rest
+  - 🇳🇱 NL [R] | 194.55.239.164
   - 🇩🇪 DE [R] | 138.124.126.158
-  - 🇬🇧 GB [R] | 194.150.166.12
-  - 🇪🇪 EE [R] | est.vrsvpn.com
-  - 🇪🇪 EE [R] | 185.155.97.241
+  - 🇳🇱 NL [R] | 194.55.239.164 (2)
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -362,26 +337,24 @@ proxy-groups:
   proxies:
   - 🚀 Auto
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  - 🇬🇧 GB [R] | 144.31.87.16
+  - 🇳🇱 NL [R][grpc] | 95.163.232.98
   - 🇳🇱 NL [R][grpc] | 79.174.92.185
   - 🇩🇪 DE [R] | nl.n.belka.network
-  - 🇳🇱 NL [R] | wl-1.myfreedom.rest
+  - 🇬🇧 GB [R] | 144.31.87.16
   - 🇯🇵 JP [R] | 31.76.91.159
+  - 🇳🇱 NL [R] | wl-1.myfreedom.rest
+  - 🇳🇱 NL [R] | 194.55.239.164
   - 🇩🇪 DE [R] | 138.124.126.158
-  - 🇬🇧 GB [R] | 194.150.166.12
+  - 🇳🇱 NL [R] | 194.55.239.164 (2)
   - 🇪🇪 EE [R] | est.vrsvpn.com
   - 🇪🇪 EE [R] | 185.155.97.241
-  - 🇳🇱 NL [R] | wl-1.myfreedom.rest (2)
+  - 🇬🇧 GB [R] | 194.150.166.12
   - 🇬🇧 GB [R] | 194.150.166.12 (2)
-  - 🇫🇮 FI [ws] | w.upgrade101.club
-  - 🇫🇮 FI [ws] | w.upgrade101.club (2)
+  - 🇳🇱 NL [ws] | sport.sowt2.app
   - 🇳🇱 NL [ws] | 194.147.115.148
-  - 🇫🇮 FI [ws] | 95.163.232.242
-  - 🇩🇪 DE  | nbb--ru28fab01b.vpn.partners
-  - 🇩🇪 DE [ws] | benzin.benz.ink
-  - 🇫🇷 FR  | 89.208.113.16
-  - 🇩🇪 DE [ws] | 95.129.236.252
+  - 🇦🇹 AT [ws] | 45.143.200.245
   - 🇳🇱 NL [ws] | 95.129.236.77
+  - 🇫🇷 FR  | 89.208.113.16
 - name: 🎯 Direct
   type: select
   proxies:
