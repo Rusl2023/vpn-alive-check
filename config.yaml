@@ -21,23 +21,23 @@ dns:
   - tls://8.8.8.8
   - tls://1.1.1.1
 proxies:
-- name: 🇺🇸 US [R][grpc] | 31.129.42.239
+- name: 🇳🇱 NL [R][grpc] | 95.163.232.98
   type: vless
-  server: 31.129.42.239
+  server: 95.163.232.98
   port: 443
-  uuid: 84704830-7881-440c-84db-6a335bc24e97
+  uuid: a98f627f-99ff-44fc-89fc-b5aed8db49f9
   udp: true
   skip-cert-verify: true
   network: grpc
   encryption: none
   tls: true
   reality-opts:
-    public-key: KwPeoAnP208rOsWWHSjhPKdpVzvIHpfBUltBHaBCSDs
-    short-id: d9114354
-  servername: vk.com
+    public-key: ZgSVwP_wlM4-oG8E03W3cMqK_VrS8oHXF4wzyBkISWo
+    short-id: a1b2c3d4
+  servername: max.ru
   client-fingerprint: firefox
   grpc-opts:
-    grpc-service-name: grpc8c948083b439
+    grpc-service-name: ''
 - name: 🇳🇱 NL [R][grpc] | 94.183.221.193
   type: vless
   server: 94.183.221.193
@@ -54,6 +54,23 @@ proxies:
   client-fingerprint: chrome
   grpc-opts:
     grpc-service-name: ''
+- name: 🇳🇱 NL [R][grpc] | 79.174.92.185
+  type: vless
+  server: 79.174.92.185
+  port: 443
+  uuid: a98f627f-99ff-44fc-89fc-b5aed8db49f9
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: PAP10NLpy_4J_vf1CEtDuLJtce3pLSNhHLbuuAUXqBU
+    short-id: a1b2c3d4
+  servername: max.ru
+  client-fingerprint: firefox
+  grpc-opts:
+    grpc-service-name: ''
 - name: 🇳🇱 NL [R][xhttp] | 91.84.117.29
   type: vless
   server: 91.84.117.29
@@ -68,6 +85,7 @@ proxies:
     public-key: PyV8IrAs0LkE2d_DdjvdCtpWG7MZyUKsYkb52GUmuDM
     short-id: '67'
   servername: vk.com
+  client-fingerprint: chrome
 - name: 🇩🇪 DE [R] | 82.202.247.181
   type: vless
   server: 82.202.247.181
@@ -83,20 +101,36 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇰🇿 KZ [R] | 213.226.112.113
+- name: 🇬🇧 GB [R] | 95.85.224.51
   type: vless
-  server: 213.226.112.113
+  server: 95.85.224.51
   port: 443
-  uuid: a2738d8d-ed26-4b13-a4a2-b89c7238cd10
+  uuid: 342ab7e4-5a89-0001-8809-304120d4aa83
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: l0R5_L16z0BMq5HhYvA538EJd3ztzHgIOtysCl6Q60U
-    short-id: e78c4073
-  servername: rutube.ru
+    public-key: WWeAHWUVD-phmnjNJ823cer0c4CMIbEs08AhsuEZmDc
+    short-id: a696de84963656de
+  servername: max.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: qq
+- name: 🇩🇪 DE [R] | nl.n.belka.network
+  type: vless
+  server: nl.n.belka.network
+  port: 443
+  uuid: 1b7ee703-fa08-4305-8469-ae3e30e61e44
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: U8yhhQTieIzorSj_S2ZGKlac4zfbP1d_ywFAn-7NGDs
+    short-id: 8f3e9c4b1a8d6e53
+  servername: max.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 144.31.87.16
@@ -114,9 +148,25 @@ proxies:
     short-id: 3b802dad547b0847
   servername: yandex.ru
   client-fingerprint: firefox
-- name: 🇺🇸 US [R] | us3.techdatacloud.org
+- name: 🇩🇪 DE [R] | nl.n.belka.network (2)
   type: vless
-  server: us3.techdatacloud.org
+  server: nl.n.belka.network
+  port: 443
+  uuid: 68dc7ee8-179e-4dff-8275-2c4ebc5c03ea
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: U8yhhQTieIzorSj_S2ZGKlac4zfbP1d_ywFAn-7NGDs
+    short-id: 8f3e9c4b1a8d6e53
+  servername: max.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇩🇪 DE [R] | de2.techdatacloud.org
+  type: vless
+  server: de2.techdatacloud.org
   port: 443
   uuid: 5e19b3c8-c1dc-4163-95e2-895319c15d6c
   udp: true
@@ -125,14 +175,14 @@ proxies:
   encryption: none
   tls: true
   reality-opts:
-    public-key: 06GvG7PU5F3Hgq-vUH24tU0tpsbGMCCt26BSvlaBNUE
-    short-id: dfbfa87e9f37f1f0
+    public-key: O3UO3JVFI6zhBjXmGLXadyaOfIhbgz6ESDwIwDnVfGk
+    short-id: b5598de0526876e2
   servername: cloud.mail.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇳🇱 NL [R] | nl.techdatacloud.org
+- name: 🇨🇭 CH [R] | de3.techdatacloud.org
   type: vless
-  server: nl.techdatacloud.org
+  server: de3.techdatacloud.org
   port: 443
   uuid: 5e19b3c8-c1dc-4163-95e2-895319c15d6c
   udp: true
@@ -141,77 +191,14 @@ proxies:
   encryption: none
   tls: true
   reality-opts:
-    public-key: 06GvG7PU5F3Hgq-vUH24tU0tpsbGMCCt26BSvlaBNUE
-    short-id: dfbfa87e9f37f1f0
+    public-key: p3sQ8oByv8AXIm2jaOdFvAmxTeMGjr9uwCqyFvHpJz0
+    short-id: d2cf75c5e1482b4e
   servername: cloud.mail.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇳🇱 NL [R] | 194.55.239.164
+- name: 🇫🇮 FI [R] | fi2.techdatacloud.org
   type: vless
-  server: 194.55.239.164
-  port: 443
-  uuid: fd12bf77-bca4-4ccc-8bd0-76a2cfc5985a
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: sdnD0vxmj8kHBOoVM8TE9IyBCGwnKNB8hZVaHp_Zfjk
-    short-id: c427
-  servername: ads.vk.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇫🇷 FR [R] | fr.techdatacloud.org
-  type: vless
-  server: fr.techdatacloud.org
-  port: 443
-  uuid: 5e19b3c8-c1dc-4163-95e2-895319c15d6c
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: 06GvG7PU5F3Hgq-vUH24tU0tpsbGMCCt26BSvlaBNUE
-    short-id: dfbfa87e9f37f1f0
-  servername: cloud.mail.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇯🇵 JP [R] | 31.76.91.159
-  type: vless
-  server: 31.76.91.159
-  port: 443
-  uuid: c2ea952f-44e2-4af6-9690-19fb4c98a5b1
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: acCL8V-6UTGRuUs7CVk33xV26ZUY6wRjStNy273DmUY
-    short-id: aefe467c7b22f190
-  servername: api.ok.ru
-  client-fingerprint: firefox
-- name: 🇵🇱 PL [R] | 45.144.50.221
-  type: vless
-  server: 45.144.50.221
-  port: 443
-  uuid: ff58c891-0b00-4d61-9ffe-e788303b2e58
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: bkoG2uW0EbbhOIwF4O9Yhqg69zFKa8W7MBI0WAfitE0
-    short-id: 16ee3a5f0387c553
-  servername: sun6-21.userapi.com
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇰🇿 KZ [R] | kz2.techdatacloud.org
-  type: vless
-  server: kz2.techdatacloud.org
+  server: fi2.techdatacloud.org
   port: 443
   uuid: 5e19b3c8-c1dc-4163-95e2-895319c15d6c
   udp: true
@@ -241,116 +228,20 @@ proxies:
   servername: ads.vk.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇨🇭 CH [R] | 138.124.39.147
+- name: 🇳🇱 NL [R] | 194.55.239.164
   type: vless
-  server: 138.124.39.147
+  server: 194.55.239.164
   port: 443
-  uuid: 5e19b3c8-c1dc-4163-95e2-895319c15d6c
+  uuid: fd12bf77-bca4-4ccc-8bd0-76a2cfc5985a
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: p3sQ8oByv8AXIm2jaOdFvAmxTeMGjr9uwCqyFvHpJz0
-    short-id: d2cf75c5e1482b4e
-  servername: cloud.mail.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇺🇸 US [R] | 45.10.164.85
-  type: vless
-  server: 45.10.164.85
-  port: 443
-  uuid: 5e19b3c8-c1dc-4163-95e2-895319c15d6c
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: 06GvG7PU5F3Hgq-vUH24tU0tpsbGMCCt26BSvlaBNUE
-    short-id: dfbfa87e9f37f1f0
-  servername: cloud.mail.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇫🇮 FI [R] | fi2.techdatacloud.org
-  type: vless
-  server: fi2.techdatacloud.org
-  port: 443
-  uuid: 5e19b3c8-c1dc-4163-95e2-895319c15d6c
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: 06GvG7PU5F3Hgq-vUH24tU0tpsbGMCCt26BSvlaBNUE
-    short-id: dfbfa87e9f37f1f0
-  servername: cloud.mail.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇩🇪 DE [R] | 159.195.216.59
-  type: vless
-  server: 159.195.216.59
-  port: 443
-  uuid: 5e19b3c8-c1dc-4163-95e2-895319c15d6c
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: O3UO3JVFI6zhBjXmGLXadyaOfIhbgz6ESDwIwDnVfGk
-    short-id: b5598de0526876e2
-  servername: cloud.mail.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇳🇱 NL [R] | 195.93.244.239
-  type: vless
-  server: 195.93.244.239
-  port: 443
-  uuid: 5e19b3c8-c1dc-4163-95e2-895319c15d6c
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: 06GvG7PU5F3Hgq-vUH24tU0tpsbGMCCt26BSvlaBNUE
-    short-id: dfbfa87e9f37f1f0
-  servername: cloud.mail.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇫🇷 FR [R] | 216.106.189.162
-  type: vless
-  server: 216.106.189.162
-  port: 443
-  uuid: 5e19b3c8-c1dc-4163-95e2-895319c15d6c
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: 06GvG7PU5F3Hgq-vUH24tU0tpsbGMCCt26BSvlaBNUE
-    short-id: dfbfa87e9f37f1f0
-  servername: cloud.mail.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇩🇪 DE [R] | de2.techdatacloud.org
-  type: vless
-  server: de2.techdatacloud.org
-  port: 443
-  uuid: 5e19b3c8-c1dc-4163-95e2-895319c15d6c
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: O3UO3JVFI6zhBjXmGLXadyaOfIhbgz6ESDwIwDnVfGk
-    short-id: b5598de0526876e2
-  servername: cloud.mail.ru
+    public-key: sdnD0vxmj8kHBOoVM8TE9IyBCGwnKNB8hZVaHp_Zfjk
+    short-id: c427
+  servername: ads.vk.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 194.150.166.12
@@ -367,10 +258,41 @@ proxies:
     public-key: b75SrHI--As9QxOVfRIPkGmGfXjs53CGAjbws2K99Rs
   servername: www.avito.ru
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇫🇮 FI [R] | 45.14.246.245
+  client-fingerprint: qq
+- name: 🇩🇪 DE [R] | 138.124.126.158
   type: vless
-  server: 45.14.246.245
+  server: 138.124.126.158
+  port: 443
+  uuid: b12eebc2-369c-4f3c-96a0-a8bd150ca8d5
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: Lxs8Ruv2zHH0XW5EiQmuCaScfkGPCxWjW02YDWH8pyU
+    short-id: eb0cca7312345678
+  servername: eh.vk.com
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇯🇵 JP [R] | 31.76.91.159
+  type: vless
+  server: 31.76.91.159
+  port: 443
+  uuid: c2ea952f-44e2-4af6-9690-19fb4c98a5b1
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: acCL8V-6UTGRuUs7CVk33xV26ZUY6wRjStNy273DmUY
+    short-id: aefe467c7b22f190
+  servername: api.ok.ru
+  client-fingerprint: firefox
+- name: 🇫🇷 FR [R] | fr.techdatacloud.org
+  type: vless
+  server: fr.techdatacloud.org
   port: 443
   uuid: 5e19b3c8-c1dc-4163-95e2-895319c15d6c
   udp: true
@@ -384,25 +306,9 @@ proxies:
   servername: cloud.mail.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇨🇭 CH [R] | de3.techdatacloud.org
+- name: 🇺🇸 US [R] | us3.techdatacloud.org
   type: vless
-  server: de3.techdatacloud.org
-  port: 443
-  uuid: 5e19b3c8-c1dc-4163-95e2-895319c15d6c
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: p3sQ8oByv8AXIm2jaOdFvAmxTeMGjr9uwCqyFvHpJz0
-    short-id: d2cf75c5e1482b4e
-  servername: cloud.mail.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇰🇿 KZ [R] | 5.180.40.9
-  type: vless
-  server: 5.180.40.9
+  server: us3.techdatacloud.org
   port: 443
   uuid: 5e19b3c8-c1dc-4163-95e2-895319c15d6c
   udp: true
@@ -416,6 +322,22 @@ proxies:
   servername: cloud.mail.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
+- name: 🇪🇪 EE [R] | est.vrsvpn.com
+  type: vless
+  server: est.vrsvpn.com
+  port: 443
+  uuid: 0b9bcbc1-b289-4a64-86fa-a5b731b65384
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: SJkDT_L0eziQR2afDGrkN7-uRxjYu6bZxIGXlKeCvX4
+    short-id: 15aa18f971da1f81
+  servername: web.max.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: qq
 - name: 🇪🇪 EE [R] | 185.155.97.241
   type: vless
   server: 185.155.97.241
@@ -432,22 +354,38 @@ proxies:
   servername: web.max.ru
   flow: xtls-rprx-vision
   client-fingerprint: qq
-- name: 🇪🇪 EE [R] | est.vrsvpn.com
+- name: 🇩🇪 DE [R] | 159.195.216.59
   type: vless
-  server: est.vrsvpn.com
+  server: 159.195.216.59
   port: 443
-  uuid: 0b9bcbc1-b289-4a64-86fa-a5b731b65384
+  uuid: 5e19b3c8-c1dc-4163-95e2-895319c15d6c
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: SJkDT_L0eziQR2afDGrkN7-uRxjYu6bZxIGXlKeCvX4
-    short-id: 15aa18f971da1f81
-  servername: web.max.ru
+    public-key: O3UO3JVFI6zhBjXmGLXadyaOfIhbgz6ESDwIwDnVfGk
+    short-id: b5598de0526876e2
+  servername: cloud.mail.ru
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
+  client-fingerprint: firefox
+- name: 🇳🇱 NL [R] | nl.techdatacloud.org
+  type: vless
+  server: nl.techdatacloud.org
+  port: 443
+  uuid: 5e19b3c8-c1dc-4163-95e2-895319c15d6c
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 06GvG7PU5F3Hgq-vUH24tU0tpsbGMCCt26BSvlaBNUE
+    short-id: dfbfa87e9f37f1f0
+  servername: cloud.mail.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 194.150.166.12 (2)
   type: vless
   server: 194.150.166.12
@@ -463,82 +401,6 @@ proxies:
   servername: www.avito.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇩🇪 DE [R] | 138.124.126.158
-  type: vless
-  server: 138.124.126.158
-  port: 443
-  uuid: b12eebc2-369c-4f3c-96a0-a8bd150ca8d5
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: Lxs8Ruv2zHH0XW5EiQmuCaScfkGPCxWjW02YDWH8pyU
-    short-id: eb0cca7312345678
-  servername: eh.vk.com
-  flow: xtls-rprx-vision
-- name: 🇵🇱 PL [ws] | 85.193.84.49
-  type: vless
-  server: 85.193.84.49
-  port: 443
-  uuid: 258b663a-3c3b-486e-b139-be70912bc912
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: files-x.bosx.net
-  client-fingerprint: qq
-  ws-opts:
-    path: /api/v1/connect
-    headers:
-      Host: files-x.bosx.net
-- name: 🇵🇱 PL [ws] | 85.193.84.49 (2)
-  type: vless
-  server: 85.193.84.49
-  port: 443
-  uuid: ca599ed4-f7a0-4ddf-a45d-3cb6276d6cd7
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: files-x.bosx.net
-  client-fingerprint: firefox
-  ws-opts:
-    path: /api/v1/connect
-    headers:
-      Host: files-x.bosx.net
-- name: 🇩🇪 DE  | 178.250.240.52
-  type: vless
-  server: 178.250.240.52
-  port: 443
-  uuid: 28af86fc-34fa-4b4e-b96f-041a1b687823
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: nbb--ru28fab01b.vpn.partners
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇦🇹 AT [ws] | 45.143.200.245
-  type: vless
-  server: 45.143.200.245
-  port: 443
-  uuid: e911c552-3a98-41e0-b5fb-0dd3879887b7
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: vod.ensf.top
-  client-fingerprint: chrome
-  ws-opts:
-    path: /api/v1/irc
-    headers:
-      Host: vod.ensf.top
 - name: 🇩🇪 DE [ws] | 185.178.208.176
   type: vless
   server: 185.178.208.176
@@ -555,22 +417,35 @@ proxies:
     path: /api/v2/client/session/connect
     headers:
       Host: web3.breathtaking.uk
-- name: 🇩🇪 DE [ws] | web3.breathtaking.uk
+- name: 🇫🇮 FI [ws] | 95.163.232.242
   type: vless
-  server: web3.breathtaking.uk
+  server: 95.163.232.242
   port: 443
-  uuid: 54bd89a2-e6a3-4d68-9d17-043ab37118d1
+  uuid: 62a08ea5-0564-47b4-a92c-25be07ad6358
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: web3.breathtaking.uk
+  servername: w.upgrade101.club
   client-fingerprint: firefox
   ws-opts:
-    path: /api/v2/client/session/connect
+    path: /ws-abe57e7e3790d717a1ca0464
     headers:
-      Host: web3.breathtaking.uk
+      Host: w.upgrade101.club
+- name: 🇩🇪 DE  | 178.250.240.52
+  type: vless
+  server: 178.250.240.52
+  port: 443
+  uuid: 28af86fc-34fa-4b4e-b96f-041a1b687823
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  servername: nbb--ru28fab01b.vpn.partners
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇫🇮 FI [ws] | w.upgrade101.club
   type: vless
   server: w.upgrade101.club
@@ -587,6 +462,38 @@ proxies:
     path: /ws-abe57e7e3790d717a1ca0464
     headers:
       Host: w.upgrade101.club
+- name: 🇩🇪 DE [ws] | web3.breathtaking.uk
+  type: vless
+  server: web3.breathtaking.uk
+  port: 443
+  uuid: 54bd89a2-e6a3-4d68-9d17-043ab37118d1
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: web3.breathtaking.uk
+  client-fingerprint: firefox
+  ws-opts:
+    path: /api/v2/client/session/connect
+    headers:
+      Host: web3.breathtaking.uk
+- name: 🇹🇷 TR [ws] | 88.216.69.144
+  type: vless
+  server: 88.216.69.144
+  port: 443
+  uuid: 50414e45-4c5f-5a45-5553-4d64f1370eeb
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: r5zenrelur2s.pqzdileiu8es.workers.dev
+  client-fingerprint: chrome
+  ws-opts:
+    path: /stream/PANEL_ZEUS/4d64f1370eeb/loc-0
+    headers:
+      Host: r5zenrelur2s.pqzdileiu8es.workers.dev
 - name: 🇫🇷 FR  | 89.208.113.16
   type: vless
   server: 89.208.113.16
@@ -616,16 +523,16 @@ proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
-  - 🇺🇸 US [R][grpc] | 31.129.42.239
+  - 🇳🇱 NL [R][grpc] | 95.163.232.98
   - 🇳🇱 NL [R][grpc] | 94.183.221.193
+  - 🇳🇱 NL [R][grpc] | 79.174.92.185
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇩🇪 DE [R] | 82.202.247.181
-  - 🇰🇿 KZ [R] | 213.226.112.113
+  - 🇬🇧 GB [R] | 95.85.224.51
+  - 🇩🇪 DE [R] | nl.n.belka.network
   - 🇬🇧 GB [R] | 144.31.87.16
-  - 🇺🇸 US [R] | us3.techdatacloud.org
-  - 🇳🇱 NL [R] | nl.techdatacloud.org
-  - 🇳🇱 NL [R] | 194.55.239.164
-  - 🇫🇷 FR [R] | fr.techdatacloud.org
+  - 🇩🇪 DE [R] | nl.n.belka.network (2)
+  - 🇩🇪 DE [R] | de2.techdatacloud.org
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -633,42 +540,36 @@ proxy-groups:
   type: select
   proxies:
   - 🚀 Auto
-  - 🇺🇸 US [R][grpc] | 31.129.42.239
+  - 🇳🇱 NL [R][grpc] | 95.163.232.98
   - 🇳🇱 NL [R][grpc] | 94.183.221.193
+  - 🇳🇱 NL [R][grpc] | 79.174.92.185
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇩🇪 DE [R] | 82.202.247.181
-  - 🇰🇿 KZ [R] | 213.226.112.113
+  - 🇬🇧 GB [R] | 95.85.224.51
+  - 🇩🇪 DE [R] | nl.n.belka.network
   - 🇬🇧 GB [R] | 144.31.87.16
-  - 🇺🇸 US [R] | us3.techdatacloud.org
-  - 🇳🇱 NL [R] | nl.techdatacloud.org
-  - 🇳🇱 NL [R] | 194.55.239.164
-  - 🇫🇷 FR [R] | fr.techdatacloud.org
-  - 🇯🇵 JP [R] | 31.76.91.159
-  - 🇵🇱 PL [R] | 45.144.50.221
-  - 🇰🇿 KZ [R] | kz2.techdatacloud.org
-  - 🇳🇱 NL [R] | wl-1.myfreedom.rest
-  - 🇨🇭 CH [R] | 138.124.39.147
-  - 🇺🇸 US [R] | 45.10.164.85
-  - 🇫🇮 FI [R] | fi2.techdatacloud.org
-  - 🇩🇪 DE [R] | 159.195.216.59
-  - 🇳🇱 NL [R] | 195.93.244.239
-  - 🇫🇷 FR [R] | 216.106.189.162
+  - 🇩🇪 DE [R] | nl.n.belka.network (2)
   - 🇩🇪 DE [R] | de2.techdatacloud.org
-  - 🇬🇧 GB [R] | 194.150.166.12
-  - 🇫🇮 FI [R] | 45.14.246.245
   - 🇨🇭 CH [R] | de3.techdatacloud.org
-  - 🇰🇿 KZ [R] | 5.180.40.9
-  - 🇪🇪 EE [R] | 185.155.97.241
-  - 🇪🇪 EE [R] | est.vrsvpn.com
-  - 🇬🇧 GB [R] | 194.150.166.12 (2)
+  - 🇫🇮 FI [R] | fi2.techdatacloud.org
+  - 🇳🇱 NL [R] | wl-1.myfreedom.rest
+  - 🇳🇱 NL [R] | 194.55.239.164
+  - 🇬🇧 GB [R] | 194.150.166.12
   - 🇩🇪 DE [R] | 138.124.126.158
-  - 🇵🇱 PL [ws] | 85.193.84.49
-  - 🇵🇱 PL [ws] | 85.193.84.49 (2)
-  - 🇩🇪 DE  | 178.250.240.52
-  - 🇦🇹 AT [ws] | 45.143.200.245
+  - 🇯🇵 JP [R] | 31.76.91.159
+  - 🇫🇷 FR [R] | fr.techdatacloud.org
+  - 🇺🇸 US [R] | us3.techdatacloud.org
+  - 🇪🇪 EE [R] | est.vrsvpn.com
+  - 🇪🇪 EE [R] | 185.155.97.241
+  - 🇩🇪 DE [R] | 159.195.216.59
+  - 🇳🇱 NL [R] | nl.techdatacloud.org
+  - 🇬🇧 GB [R] | 194.150.166.12 (2)
   - 🇩🇪 DE [ws] | 185.178.208.176
-  - 🇩🇪 DE [ws] | web3.breathtaking.uk
+  - 🇫🇮 FI [ws] | 95.163.232.242
+  - 🇩🇪 DE  | 178.250.240.52
   - 🇫🇮 FI [ws] | w.upgrade101.club
+  - 🇩🇪 DE [ws] | web3.breathtaking.uk
+  - 🇹🇷 TR [ws] | 88.216.69.144
   - 🇫🇷 FR  | 89.208.113.16
   - 🇫🇷 FR [ws] | 95.129.236.252
 - name: 🎯 Direct
