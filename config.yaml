@@ -35,22 +35,6 @@ proxies:
     public-key: PyV8IrAs0LkE2d_DdjvdCtpWG7MZyUKsYkb52GUmuDM
     short-id: '67'
   servername: vk.com
-- name: 🇬🇧 GB [R] | 95.85.224.51
-  type: vless
-  server: 95.85.224.51
-  port: 443
-  uuid: 342ab7e4-5a89-0001-8809-304120d4aa83
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: WWeAHWUVD-phmnjNJ823cer0c4CMIbEs08AhsuEZmDc
-    short-id: a696de84963656de
-  servername: max.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: qq
 - name: 🇬🇧 GB [R] | 144.31.87.16
   type: vless
   server: 144.31.87.16
@@ -66,6 +50,22 @@ proxies:
     short-id: 3b802dad547b0847
   servername: yandex.ru
   client-fingerprint: firefox
+- name: 🇬🇧 GB [R] | 95.85.224.51
+  type: vless
+  server: 95.85.224.51
+  port: 443
+  uuid: 342ab7e4-5a89-0001-8809-304120d4aa83
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: WWeAHWUVD-phmnjNJ823cer0c4CMIbEs08AhsuEZmDc
+    short-id: a696de84963656de
+  servername: max.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
 - name: 🇸🇪 SE [R] | 200.165.234.83
   type: vless
   server: 200.165.234.83
@@ -80,6 +80,22 @@ proxies:
     public-key: MEf-wwgnhZG97nPrgwU2gry9o9lKn8PmaNNi6OaMEy8
     short-id: 3c7ad26694142132
   servername: ya.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: qq
+- name: 🇪🇪 EE [R] | 185.155.97.241
+  type: vless
+  server: 185.155.97.241
+  port: 443
+  uuid: 0b9bcbc1-b289-4a64-86fa-a5b731b65384
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: SJkDT_L0eziQR2afDGrkN7-uRxjYu6bZxIGXlKeCvX4
+    short-id: 15aa18f971da1f81
+  servername: web.max.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
 - name: 🇪🇪 EE [R] | est.vrsvpn.com
@@ -98,38 +114,51 @@ proxies:
   servername: web.max.ru
   flow: xtls-rprx-vision
   client-fingerprint: qq
-- name: 🇩🇪 DE [ws] | 84.201.128.112
+- name: 🇩🇪 DE [grpc] | 185.91.52.83
   type: vless
-  server: 84.201.128.112
+  server: 185.91.52.83
   port: 443
-  uuid: 391f093f-85fc-473d-abe2-ea607b9ff567
+  uuid: 6a798544-d17a-4039-abde-a25dc939441a
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  servername: slnd.tdvin.com
+  client-fingerprint: chrome
+  grpc-opts:
+    grpc-service-name: mygrpc
+- name: 🇫🇮 FI [ws] | 194.154.30.154
+  type: vless
+  server: 194.154.30.154
+  port: 443
+  uuid: c7e9c591-2764-423a-afca-efbd010fd396
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: cloudflare.vhub.pro
+  servername: forfreeuse.rtqa.ru
   client-fingerprint: firefox
   ws-opts:
-    path: /websocket?ed=2560
     headers:
-      Host: cloudflare.vhub.pro
-- name: 🇩🇪 DE [ws] | 158.160.171.90
+      Host: forfreeuse.rtqa.ru
+- name: 🇦🇹 AT [ws] | 45.143.200.245
   type: vless
-  server: 158.160.171.90
+  server: 45.143.200.245
   port: 443
-  uuid: 391f093f-85fc-473d-abe2-ea607b9ff567
+  uuid: e911c552-3a98-41e0-b5fb-0dd3879887b7
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: cloudflare.vhub.pro
-  client-fingerprint: firefox
+  servername: vod.ensf.top
+  client-fingerprint: chrome
   ws-opts:
-    path: /websocket?ed=2560
+    path: /api/v1/irc
     headers:
-      Host: cloudflare.vhub.pro
+      Host: vod.ensf.top
 - name: 🇫🇷 FR  | 89.208.113.16
   type: vless
   server: 89.208.113.16
@@ -144,12 +173,14 @@ proxy-groups:
   type: url-test
   proxies:
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  - 🇬🇧 GB [R] | 95.85.224.51
   - 🇬🇧 GB [R] | 144.31.87.16
+  - 🇬🇧 GB [R] | 95.85.224.51
   - 🇸🇪 SE [R] | 200.165.234.83
+  - 🇪🇪 EE [R] | 185.155.97.241
   - 🇪🇪 EE [R] | est.vrsvpn.com
-  - 🇩🇪 DE [ws] | 84.201.128.112
-  - 🇩🇪 DE [ws] | 158.160.171.90
+  - 🇩🇪 DE [grpc] | 185.91.52.83
+  - 🇫🇮 FI [ws] | 194.154.30.154
+  - 🇦🇹 AT [ws] | 45.143.200.245
   - 🇫🇷 FR  | 89.208.113.16
   url: https://www.google.com/generate_204
   interval: 300
@@ -159,12 +190,14 @@ proxy-groups:
   proxies:
   - 🚀 Auto
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  - 🇬🇧 GB [R] | 95.85.224.51
   - 🇬🇧 GB [R] | 144.31.87.16
+  - 🇬🇧 GB [R] | 95.85.224.51
   - 🇸🇪 SE [R] | 200.165.234.83
+  - 🇪🇪 EE [R] | 185.155.97.241
   - 🇪🇪 EE [R] | est.vrsvpn.com
-  - 🇩🇪 DE [ws] | 84.201.128.112
-  - 🇩🇪 DE [ws] | 158.160.171.90
+  - 🇩🇪 DE [grpc] | 185.91.52.83
+  - 🇫🇮 FI [ws] | 194.154.30.154
+  - 🇦🇹 AT [ws] | 45.143.200.245
   - 🇫🇷 FR  | 89.208.113.16
 - name: 🎯 Direct
   type: select
