@@ -52,53 +52,6 @@ proxies:
   client-fingerprint: chrome
   grpc-opts:
     grpc-service-name: ''
-- name: 🇩🇪 DE [R][xhttp] | nodeghxue5jx2xm2ehzdssl9dsaj.spored.online
-  type: vless
-  server: nodeghxue5jx2xm2ehzdssl9dsaj.spored.online
-  port: 443
-  uuid: 5a266979-4249-4448-a93a-f27bb8aed542
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: q6HuefYRTFeDLHr4iMWt_wbGY47V4etiXNPlWJfE7Fw
-    short-id: 3e7b9c1d5f8a2e64
-  servername: cdn.yandex.ru
-  client-fingerprint: qq
-- name: 🇳🇱 NL [R] | 194.55.239.164
-  type: vless
-  server: 194.55.239.164
-  port: 443
-  uuid: 6ab08b9a-abaf-470f-93b5-50c7d5eddd3e
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: sdnD0vxmj8kHBOoVM8TE9IyBCGwnKNB8hZVaHp_Zfjk
-    short-id: e791
-  servername: ads.vk.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇳🇱 NL [R] | wl-1.myfreedom.rest
-  type: vless
-  server: wl-1.myfreedom.rest
-  port: 443
-  uuid: f7c19962-ae9e-4431-8ddc-276bcd45280a
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: sdnD0vxmj8kHBOoVM8TE9IyBCGwnKNB8hZVaHp_Zfjk
-    short-id: '9042'
-  servername: ads.vk.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇪🇪 EE [R] | est.vrsvpn.com
   type: vless
   server: est.vrsvpn.com
@@ -115,22 +68,22 @@ proxies:
   servername: web.max.ru
   flow: xtls-rprx-vision
   client-fingerprint: qq
-- name: 🇳🇱 NL [R] | 144.31.134.196
+- name: 🇫🇮 FI [R] | s.lobbytech.ru
   type: vless
-  server: 144.31.134.196
+  server: s.lobbytech.ru
   port: 443
-  uuid: 7b8a65b9-e074-4dcf-ab4f-5ffb5197d974
+  uuid: d01d5a74-09fb-4e9e-b0d9-38b5fd77ad70
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: twXgIi2sFEo2xqWtEwVi1gmD4XRBBjuJHWh4AzOs-TA
-    short-id: abcd1234
-  servername: dzen.ru
+    public-key: iWxxH0TWB1Ciz6sEwtfjUVY61OcTDihou5IJfkt0O0Q
+    short-id: a3f8d21c4b907e56
+  servername: www.kinopoisk.ru
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
+  client-fingerprint: firefox
 - name: 🇪🇪 EE [R] | 185.155.97.241
   type: vless
   server: 185.155.97.241
@@ -147,9 +100,101 @@ proxies:
   servername: web.max.ru
   flow: xtls-rprx-vision
   client-fingerprint: qq
+- name: 🇳🇱 NL [R] | wl-1.myfreedom.rest
+  type: vless
+  server: wl-1.myfreedom.rest
+  port: 443
+  uuid: 6ab08b9a-abaf-470f-93b5-50c7d5eddd3e
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: sdnD0vxmj8kHBOoVM8TE9IyBCGwnKNB8hZVaHp_Zfjk
+    short-id: e791
+  servername: ads.vk.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇩🇪 DE [grpc] | 185.91.52.83
+  type: vless
+  server: 185.91.52.83
+  port: 443
+  uuid: 6a798544-d17a-4039-abde-a25dc939441a
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  servername: slnd.tdvin.com
+  client-fingerprint: qq
+  grpc-opts:
+    grpc-service-name: mygrpc
+- name: 🇩🇪 DE [grpc] | 212.41.26.84
+  type: vless
+  server: 212.41.26.84
+  port: 443
+  uuid: 163dc809-7970-4ff8-a7e5-8080ad53e7bb
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  servername: v1.api2.ttpservers.ru
+  client-fingerprint: qq
+  grpc-opts:
+    grpc-service-name: mygrpc
+- name: 🇸🇨 SC [ws] | 185.71.67.185
+  type: vless
+  server: 185.71.67.185
+  port: 443
+  uuid: fecd4358-c037-4ae2-bae0-c72792fd8e40
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: mlt.spbculture.org
+  client-fingerprint: qq
+  ws-opts:
+    path: /api/v2/upload/2aec3a50a58a
+    headers:
+      Host: mlt.spbculture.org
 - name: 🇩🇪 DE [ws] | 158.160.171.90
   type: vless
   server: 158.160.171.90
+  port: 443
+  uuid: 391f093f-85fc-473d-abe2-ea607b9ff567
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: cloudflare.vhub.pro
+  client-fingerprint: firefox
+  ws-opts:
+    path: /websocket?ed=2560
+    headers:
+      Host: cloudflare.vhub.pro
+- name: 🇸🇨 SC [ws] | mlt.spbculture.org
+  type: vless
+  server: mlt.spbculture.org
+  port: 443
+  uuid: fecd4358-c037-4ae2-bae0-c72792fd8e40
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: mlt.spbculture.org
+  client-fingerprint: chrome
+  ws-opts:
+    path: /api/v2/upload/2aec3a50a58a
+    headers:
+      Host: mlt.spbculture.org
+- name: 🇩🇪 DE [ws] | 84.201.128.112
+  type: vless
+  server: 84.201.128.112
   port: 443
   uuid: 391f093f-85fc-473d-abe2-ea607b9ff567
   udp: true
@@ -194,14 +239,14 @@ proxy-groups:
   proxies:
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
-  - 🇩🇪 DE [R][xhttp] | nodeghxue5jx2xm2ehzdssl9dsaj.spored.online
-  - 🇳🇱 NL [R] | 194.55.239.164
-  - 🇳🇱 NL [R] | wl-1.myfreedom.rest
   - 🇪🇪 EE [R] | est.vrsvpn.com
-  - 🇳🇱 NL [R] | 144.31.134.196
+  - 🇫🇮 FI [R] | s.lobbytech.ru
   - 🇪🇪 EE [R] | 185.155.97.241
+  - 🇳🇱 NL [R] | wl-1.myfreedom.rest
+  - 🇩🇪 DE [grpc] | 185.91.52.83
+  - 🇩🇪 DE [grpc] | 212.41.26.84
+  - 🇸🇨 SC [ws] | 185.71.67.185
   - 🇩🇪 DE [ws] | 158.160.171.90
-  - 🇹🇷 TR [ws] | 88.216.69.144
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -211,13 +256,16 @@ proxy-groups:
   - 🚀 Auto
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
-  - 🇩🇪 DE [R][xhttp] | nodeghxue5jx2xm2ehzdssl9dsaj.spored.online
-  - 🇳🇱 NL [R] | 194.55.239.164
-  - 🇳🇱 NL [R] | wl-1.myfreedom.rest
   - 🇪🇪 EE [R] | est.vrsvpn.com
-  - 🇳🇱 NL [R] | 144.31.134.196
+  - 🇫🇮 FI [R] | s.lobbytech.ru
   - 🇪🇪 EE [R] | 185.155.97.241
+  - 🇳🇱 NL [R] | wl-1.myfreedom.rest
+  - 🇩🇪 DE [grpc] | 185.91.52.83
+  - 🇩🇪 DE [grpc] | 212.41.26.84
+  - 🇸🇨 SC [ws] | 185.71.67.185
   - 🇩🇪 DE [ws] | 158.160.171.90
+  - 🇸🇨 SC [ws] | mlt.spbculture.org
+  - 🇩🇪 DE [ws] | 84.201.128.112
   - 🇹🇷 TR [ws] | 88.216.69.144
   - 🇫🇷 FR  | 89.208.113.16
 - name: 🎯 Direct
