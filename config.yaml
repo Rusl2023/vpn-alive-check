@@ -36,22 +36,6 @@ proxies:
     short-id: '67'
   servername: vk.com
   client-fingerprint: chrome
-- name: 🇳🇱 NL [R] | nodeddarch.okzk.com
-  type: vless
-  server: nodeddarch.okzk.com
-  port: 443
-  uuid: 901e6dca-1b73-4266-978b-f7dc1266a7f6
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: 1_a2G1x-DIEjDogZAiV4WFuOczGWcj-3zPiPxenUZhs
-    short-id: 23ae46816e87c7b8
-  servername: google.com
-  flow: xtls-rprx-vision
-  client-fingerprint: qq
 - name: 🇬🇧 GB [R] | 95.85.224.51
   type: vless
   server: 95.85.224.51
@@ -82,7 +66,7 @@ proxies:
     public-key: huH_8n0Dfk4iolIkzrc-qET8ySHWgZAr-i6K6lr6xSs
     short-id: 375838bc17c0
   servername: sun6-21.userapi.com
-  client-fingerprint: firefox
+  client-fingerprint: qq
   grpc-opts:
     grpc-service-name: ''
 - name: 🇳🇱 NL [R] | 144.31.134.196
@@ -105,22 +89,6 @@ proxies:
   type: vless
   server: 194.55.239.164
   port: 443
-  uuid: 6ab08b9a-abaf-470f-93b5-50c7d5eddd3e
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: sdnD0vxmj8kHBOoVM8TE9IyBCGwnKNB8hZVaHp_Zfjk
-    short-id: e791
-  servername: ads.vk.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇳🇱 NL [R] | 194.55.239.164 (2)
-  type: vless
-  server: 194.55.239.164
-  port: 443
   uuid: f7c19962-ae9e-4431-8ddc-276bcd45280a
   udp: true
   skip-cert-verify: true
@@ -130,6 +98,22 @@ proxies:
   reality-opts:
     public-key: sdnD0vxmj8kHBOoVM8TE9IyBCGwnKNB8hZVaHp_Zfjk
     short-id: '9042'
+  servername: ads.vk.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇳🇱 NL [R] | 194.55.239.164 (2)
+  type: vless
+  server: 194.55.239.164
+  port: 443
+  uuid: 6ab08b9a-abaf-470f-93b5-50c7d5eddd3e
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: sdnD0vxmj8kHBOoVM8TE9IyBCGwnKNB8hZVaHp_Zfjk
+    short-id: e791
   servername: ads.vk.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
@@ -149,22 +133,6 @@ proxies:
   servername: ads.vk.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇪🇪 EE [R] | est.vrsvpn.com
-  type: vless
-  server: est.vrsvpn.com
-  port: 443
-  uuid: 0b9bcbc1-b289-4a64-86fa-a5b731b65384
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: SJkDT_L0eziQR2afDGrkN7-uRxjYu6bZxIGXlKeCvX4
-    short-id: 15aa18f971da1f81
-  servername: web.max.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
 - name: 🇪🇪 EE [R] | 185.155.97.241
   type: vless
   server: 185.155.97.241
@@ -181,23 +149,57 @@ proxies:
   servername: web.max.ru
   flow: xtls-rprx-vision
   client-fingerprint: qq
-- name: 🇩🇪 DE [grpc] | 185.91.52.83
+- name: 🇪🇪 EE [R] | est.vrsvpn.com
   type: vless
-  server: 185.91.52.83
+  server: est.vrsvpn.com
   port: 443
-  uuid: 6a798544-d17a-4039-abde-a25dc939441a
+  uuid: 0b9bcbc1-b289-4a64-86fa-a5b731b65384
   udp: true
   skip-cert-verify: true
-  network: grpc
+  network: tcp
   encryption: none
   tls: true
-  servername: slnd.tdvin.com
-  client-fingerprint: chrome
-  grpc-opts:
-    grpc-service-name: mygrpc
+  reality-opts:
+    public-key: SJkDT_L0eziQR2afDGrkN7-uRxjYu6bZxIGXlKeCvX4
+    short-id: 15aa18f971da1f81
+  servername: web.max.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: qq
 - name: 🇩🇪 DE [ws] | 158.160.171.90
   type: vless
   server: 158.160.171.90
+  port: 443
+  uuid: 391f093f-85fc-473d-abe2-ea607b9ff567
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: cloudflare.vhub.pro
+  client-fingerprint: firefox
+  ws-opts:
+    path: /websocket?ed=2560
+    headers:
+      Host: cloudflare.vhub.pro
+- name: 🇹🇷 TR [ws] | 88.216.69.144
+  type: vless
+  server: 88.216.69.144
+  port: 443
+  uuid: 50414e45-4c5f-5a45-5553-4d64f1370eeb
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: r5zenrelur2s.pqzdileiu8es.workers.dev
+  client-fingerprint: chrome
+  ws-opts:
+    path: /stream/PANEL_ZEUS/4d64f1370eeb/loc-0
+    headers:
+      Host: r5zenrelur2s.pqzdileiu8es.workers.dev
+- name: 🇩🇪 DE [ws] | 84.201.128.112
+  type: vless
+  server: 84.201.128.112
   port: 443
   uuid: 391f093f-85fc-473d-abe2-ea607b9ff567
   udp: true
@@ -225,15 +227,15 @@ proxy-groups:
   type: url-test
   proxies:
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  - 🇳🇱 NL [R] | nodeddarch.okzk.com
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
   - 🇳🇱 NL [R] | 144.31.134.196
   - 🇳🇱 NL [R] | 194.55.239.164
   - 🇳🇱 NL [R] | 194.55.239.164 (2)
   - 🇳🇱 NL [R] | wl-1.myfreedom.rest
-  - 🇪🇪 EE [R] | est.vrsvpn.com
   - 🇪🇪 EE [R] | 185.155.97.241
+  - 🇪🇪 EE [R] | est.vrsvpn.com
+  - 🇩🇪 DE [ws] | 158.160.171.90
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -242,17 +244,17 @@ proxy-groups:
   proxies:
   - 🚀 Auto
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  - 🇳🇱 NL [R] | nodeddarch.okzk.com
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
   - 🇳🇱 NL [R] | 144.31.134.196
   - 🇳🇱 NL [R] | 194.55.239.164
   - 🇳🇱 NL [R] | 194.55.239.164 (2)
   - 🇳🇱 NL [R] | wl-1.myfreedom.rest
-  - 🇪🇪 EE [R] | est.vrsvpn.com
   - 🇪🇪 EE [R] | 185.155.97.241
-  - 🇩🇪 DE [grpc] | 185.91.52.83
+  - 🇪🇪 EE [R] | est.vrsvpn.com
   - 🇩🇪 DE [ws] | 158.160.171.90
+  - 🇹🇷 TR [ws] | 88.216.69.144
+  - 🇩🇪 DE [ws] | 84.201.128.112
   - 🇫🇷 FR  | 89.208.113.16
 - name: 🎯 Direct
   type: select
