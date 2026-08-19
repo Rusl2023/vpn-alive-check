@@ -70,6 +70,22 @@ proxies:
   type: vless
   server: 200.165.234.83
   port: 443
+  uuid: 8aca40d2-0f55-4ca2-97cb-b22ec432b82d
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: MEf-wwgnhZG97nPrgwU2gry9o9lKn8PmaNNi6OaMEy8
+    short-id: 3c7ad26694142132
+  servername: ya.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇸🇪 SE [R] | 200.165.234.83 (2)
+  type: vless
+  server: 200.165.234.83
+  port: 443
   uuid: bded43d3-fdad-44eb-a1fb-f3fe86d3550d
   udp: true
   skip-cert-verify: true
@@ -80,6 +96,22 @@ proxies:
     public-key: MEf-wwgnhZG97nPrgwU2gry9o9lKn8PmaNNi6OaMEy8
     short-id: 3c7ad26694142132
   servername: ya.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇪🇪 EE [R] | 185.155.97.241
+  type: vless
+  server: 185.155.97.241
+  port: 443
+  uuid: 0b9bcbc1-b289-4a64-86fa-a5b731b65384
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: SJkDT_L0eziQR2afDGrkN7-uRxjYu6bZxIGXlKeCvX4
+    short-id: 15aa18f971da1f81
+  servername: web.max.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
 - name: 🇪🇪 EE [R] | est.vrsvpn.com
@@ -98,38 +130,38 @@ proxies:
   servername: web.max.ru
   flow: xtls-rprx-vision
   client-fingerprint: qq
-- name: 🇩🇪 DE [ws] | 84.201.128.112
+- name: 🇦🇹 AT [ws] | 45.143.200.245
   type: vless
-  server: 84.201.128.112
+  server: 45.143.200.245
   port: 443
-  uuid: 391f093f-85fc-473d-abe2-ea607b9ff567
+  uuid: e911c552-3a98-41e0-b5fb-0dd3879887b7
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: cloudflare.vhub.pro
-  client-fingerprint: firefox
+  servername: vod.ensf.top
+  client-fingerprint: chrome
   ws-opts:
-    path: /websocket?ed=2560
+    path: /api/v1/irc
     headers:
-      Host: cloudflare.vhub.pro
-- name: 🇩🇪 DE [ws] | 158.160.171.90
+      Host: vod.ensf.top
+- name: 🇱🇹 LT [ws] | 95.129.236.216
   type: vless
-  server: 158.160.171.90
+  server: 95.129.236.216
   port: 443
-  uuid: 391f093f-85fc-473d-abe2-ea607b9ff567
+  uuid: 60f97046-7d63-448e-a1af-98a3445a8fc1
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: cloudflare.vhub.pro
+  servername: cdnguard.org
   client-fingerprint: firefox
   ws-opts:
-    path: /websocket?ed=2560
+    path: /origin/190546791/fetch
     headers:
-      Host: cloudflare.vhub.pro
+      Host: cdnguard.org
 - name: 🇫🇷 FR  | 89.208.113.16
   type: vless
   server: 89.208.113.16
@@ -147,9 +179,11 @@ proxy-groups:
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇬🇧 GB [R] | 144.31.87.16
   - 🇸🇪 SE [R] | 200.165.234.83
+  - 🇸🇪 SE [R] | 200.165.234.83 (2)
+  - 🇪🇪 EE [R] | 185.155.97.241
   - 🇪🇪 EE [R] | est.vrsvpn.com
-  - 🇩🇪 DE [ws] | 84.201.128.112
-  - 🇩🇪 DE [ws] | 158.160.171.90
+  - 🇦🇹 AT [ws] | 45.143.200.245
+  - 🇱🇹 LT [ws] | 95.129.236.216
   - 🇫🇷 FR  | 89.208.113.16
   url: https://www.google.com/generate_204
   interval: 300
@@ -162,9 +196,11 @@ proxy-groups:
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇬🇧 GB [R] | 144.31.87.16
   - 🇸🇪 SE [R] | 200.165.234.83
+  - 🇸🇪 SE [R] | 200.165.234.83 (2)
+  - 🇪🇪 EE [R] | 185.155.97.241
   - 🇪🇪 EE [R] | est.vrsvpn.com
-  - 🇩🇪 DE [ws] | 84.201.128.112
-  - 🇩🇪 DE [ws] | 158.160.171.90
+  - 🇦🇹 AT [ws] | 45.143.200.245
+  - 🇱🇹 LT [ws] | 95.129.236.216
   - 🇫🇷 FR  | 89.208.113.16
 - name: 🎯 Direct
   type: select
