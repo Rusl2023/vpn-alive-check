@@ -36,21 +36,6 @@ proxies:
     short-id: '67'
   servername: vk.com
   client-fingerprint: chrome
-- name: 🇬🇧 GB [R] | 144.31.87.16
-  type: vless
-  server: 144.31.87.16
-  port: 443
-  uuid: c40f773e-3b96-417e-b22c-e48cb63ca7d9
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: l5eAOSPQMEyzEPvWGAKvCkcPpsJvR3DJfYo6elw1UTE
-    short-id: 3b802dad547b0847
-  servername: yandex.ru
-  client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 95.85.224.51
   type: vless
   server: 95.85.224.51
@@ -66,23 +51,7 @@ proxies:
     short-id: a696de84963656de
   servername: max.ru
   flow: xtls-rprx-vision
-  client-fingerprint: qq
-- name: 🇰🇿 KZ [R] | 5.180.42.85
-  type: vless
-  server: 5.180.42.85
-  port: 443
-  uuid: 5e19b3c8-c1dc-4163-95e2-895319c15d6c
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: 06GvG7PU5F3Hgq-vUH24tU0tpsbGMCCt26BSvlaBNUE
-    short-id: dfbfa87e9f37f1f0
-  servername: cloud.mail.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
+  client-fingerprint: chrome
 - name: 🇰🇿 KZ [R] | 5.180.40.9
   type: vless
   server: 5.180.40.9
@@ -99,6 +68,22 @@ proxies:
   servername: cloud.mail.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
+- name: 🇰🇿 KZ [R] | 5.180.42.85
+  type: vless
+  server: 5.180.42.85
+  port: 443
+  uuid: 5e19b3c8-c1dc-4163-95e2-895319c15d6c
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 06GvG7PU5F3Hgq-vUH24tU0tpsbGMCCt26BSvlaBNUE
+    short-id: dfbfa87e9f37f1f0
+  servername: cloud.mail.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇰🇿 KZ [R] | kz2.techdatacloud.org
   type: vless
   server: kz2.techdatacloud.org
@@ -115,50 +100,83 @@ proxies:
   servername: cloud.mail.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇳🇱 NL [R] | wl-1.myfreedom.rest
+- name: 🇩🇪 DE [ws] | 84.201.128.112
   type: vless
-  server: wl-1.myfreedom.rest
+  server: 84.201.128.112
   port: 443
-  uuid: 6192b7d1-fc9d-4be1-900e-dbd69de95ddf
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: sdnD0vxmj8kHBOoVM8TE9IyBCGwnKNB8hZVaHp_Zfjk
-    short-id: fe8d
-  servername: ads.vk.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇦🇹 AT [ws] | 45.143.200.245
-  type: vless
-  server: 45.143.200.245
-  port: 443
-  uuid: e911c552-3a98-41e0-b5fb-0dd3879887b7
+  uuid: 5ca83936-136d-4314-8453-4ba10a86cf60
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: vod.ensf.top
-  client-fingerprint: chrome
+  servername: cloudflare.vhub.pro
+  client-fingerprint: firefox
   ws-opts:
-    path: /api/v1/irc
+    path: /websocket?ed=2560
     headers:
-      Host: vod.ensf.top
+      Host: cloudflare.vhub.pro
+- name: 🇩🇪 DE [ws] | 95.129.236.252
+  type: vless
+  server: 95.129.236.252
+  port: 443
+  uuid: 00b04a3e-2b05-4488-92f1-cdb3f7283b3c
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: benz.ink
+  client-fingerprint: firefox
+  ws-opts:
+    path: /api/v2/vms/stream/murci
+    headers:
+      Host: benz.ink
+- name: 🇩🇪 DE [ws] | 185.178.208.176
+  type: vless
+  server: 185.178.208.176
+  port: 443
+  uuid: 653aea5e-2157-4a1f-89bf-8b46fb677921
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: stream.telemetryapi.uk
+  client-fingerprint: firefox
+  ws-opts:
+    path: /api/v2/client/session/connect
+    headers:
+      Host: stream.telemetryapi.uk
+- name: 🇩🇪 DE [ws] | 158.160.196.224
+  type: vless
+  server: 158.160.196.224
+  port: 443
+  uuid: 5ca83936-136d-4314-8453-4ba10a86cf60
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: cloudflare.vhub.pro
+  client-fingerprint: firefox
+  ws-opts:
+    path: /websocket?ed=2560
+    headers:
+      Host: cloudflare.vhub.pro
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  - 🇬🇧 GB [R] | 144.31.87.16
   - 🇬🇧 GB [R] | 95.85.224.51
-  - 🇰🇿 KZ [R] | 5.180.42.85
   - 🇰🇿 KZ [R] | 5.180.40.9
+  - 🇰🇿 KZ [R] | 5.180.42.85
   - 🇰🇿 KZ [R] | kz2.techdatacloud.org
-  - 🇳🇱 NL [R] | wl-1.myfreedom.rest
-  - 🇦🇹 AT [ws] | 45.143.200.245
+  - 🇩🇪 DE [ws] | 84.201.128.112
+  - 🇩🇪 DE [ws] | 95.129.236.252
+  - 🇩🇪 DE [ws] | 185.178.208.176
+  - 🇩🇪 DE [ws] | 158.160.196.224
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -167,13 +185,14 @@ proxy-groups:
   proxies:
   - 🚀 Auto
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  - 🇬🇧 GB [R] | 144.31.87.16
   - 🇬🇧 GB [R] | 95.85.224.51
-  - 🇰🇿 KZ [R] | 5.180.42.85
   - 🇰🇿 KZ [R] | 5.180.40.9
+  - 🇰🇿 KZ [R] | 5.180.42.85
   - 🇰🇿 KZ [R] | kz2.techdatacloud.org
-  - 🇳🇱 NL [R] | wl-1.myfreedom.rest
-  - 🇦🇹 AT [ws] | 45.143.200.245
+  - 🇩🇪 DE [ws] | 84.201.128.112
+  - 🇩🇪 DE [ws] | 95.129.236.252
+  - 🇩🇪 DE [ws] | 185.178.208.176
+  - 🇩🇪 DE [ws] | 158.160.196.224
 - name: 🎯 Direct
   type: select
   proxies:
