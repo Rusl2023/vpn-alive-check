@@ -36,53 +36,23 @@ proxies:
     short-id: '67'
   servername: vk.com
   client-fingerprint: chrome
-- name: 🇫🇷 FR [R] | 146.185.211.2
+- name: 🇫🇮 FI [R][grpc] | 31.129.42.239
   type: vless
-  server: 146.185.211.2
+  server: 31.129.42.239
   port: 443
-  uuid: cbe5611f-392b-4ec3-9d8b-5bbe59c0fa68
+  uuid: 97e967da-1d2b-439e-836b-a9d5a90496dc
   udp: true
   skip-cert-verify: true
-  network: tcp
+  network: grpc
   encryption: none
   tls: true
   reality-opts:
-    public-key: SHIYN7zN9aFVxwKK-bIvDbhUgtHvlBhDi1qSl2sWwRw
-    short-id: e7
-  servername: max.ru
-  flow: xtls-rprx-vision
+    public-key: KwPeoAnP208rOsWWHSjhPKdpVzvIHpfBUltBHaBCSDs
+    short-id: d9114354
+  servername: vk.com
   client-fingerprint: firefox
-- name: 🇬🇧 GB [R] | 144.31.87.16
-  type: vless
-  server: 144.31.87.16
-  port: 443
-  uuid: c40f773e-3b96-417e-b22c-e48cb63ca7d9
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: l5eAOSPQMEyzEPvWGAKvCkcPpsJvR3DJfYo6elw1UTE
-    short-id: 3b802dad547b0847
-  servername: yandex.ru
-  client-fingerprint: firefox
-- name: 🇫🇷 FR [R] | frabridge1.frost-api.com
-  type: vless
-  server: frabridge1.frost-api.com
-  port: 443
-  uuid: cbe5611f-392b-4ec3-9d8b-5bbe59c0fa68
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: SHIYN7zN9aFVxwKK-bIvDbhUgtHvlBhDi1qSl2sWwRw
-    short-id: e7
-  servername: max.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
+  grpc-opts:
+    grpc-service-name: grpc8c948083b439
 - name: 🇬🇧 GB [R] | 95.85.224.51
   type: vless
   server: 95.85.224.51
@@ -99,6 +69,21 @@ proxies:
   servername: max.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
+- name: 🇬🇧 GB [R] | 144.31.87.16
+  type: vless
+  server: 144.31.87.16
+  port: 443
+  uuid: c40f773e-3b96-417e-b22c-e48cb63ca7d9
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: l5eAOSPQMEyzEPvWGAKvCkcPpsJvR3DJfYo6elw1UTE
+    short-id: 3b802dad547b0847
+  servername: yandex.ru
+  client-fingerprint: firefox
 - name: 🇳🇱 NL [R][grpc] | 72.56.78.50
   type: vless
   server: 72.56.78.50
@@ -116,37 +101,38 @@ proxies:
   client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: ''
-- name: 🇫🇮 FI [R][xhttp] | 2.27.42.180
+- name: 🇳🇱 NL [R] | 194.55.239.164
   type: vless
-  server: 2.27.42.180
+  server: 194.55.239.164
   port: 443
-  uuid: 5a266979-4249-4448-a93a-f27bb8aed542
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: -KEUMaLxpG99ZMuQLYI9sBYfM--Z50phY2CPYsj9Uz0
-    short-id: 3da17f441e2aa777
-  servername: cdn.yandex.ru
-  client-fingerprint: firefox
-- name: 🇫🇮 FI [R] | finnode3.frost-api.com
-  type: vless
-  server: finnode3.frost-api.com
-  port: 443
-  uuid: cbe5611f-392b-4ec3-9d8b-5bbe59c0fa68
+  uuid: 6ab08b9a-abaf-470f-93b5-50c7d5eddd3e
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: SHIYN7zN9aFVxwKK-bIvDbhUgtHvlBhDi1qSl2sWwRw
-    short-id: e7
-  servername: eh.vk.com
+    public-key: sdnD0vxmj8kHBOoVM8TE9IyBCGwnKNB8hZVaHp_Zfjk
+    short-id: a66f
+  servername: ads.vk.ru
   flow: xtls-rprx-vision
-  client-fingerprint: qq
+  client-fingerprint: firefox
+- name: 🇸🇪 SE [R] | 200.165.234.83
+  type: vless
+  server: 200.165.234.83
+  port: 443
+  uuid: 8aca40d2-0f55-4ca2-97cb-b22ec432b82d
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: MEf-wwgnhZG97nPrgwU2gry9o9lKn8PmaNNi6OaMEy8
+    short-id: 3c7ad26694142132
+  servername: ya.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇰🇿 KZ [R] | kz2.techdatacloud.org
   type: vless
   server: kz2.techdatacloud.org
@@ -161,38 +147,6 @@ proxies:
     public-key: 06GvG7PU5F3Hgq-vUH24tU0tpsbGMCCt26BSvlaBNUE
     short-id: dfbfa87e9f37f1f0
   servername: cloud.mail.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇳🇱 NL [R] | 194.55.239.164
-  type: vless
-  server: 194.55.239.164
-  port: 443
-  uuid: 6192b7d1-fc9d-4be1-900e-dbd69de95ddf
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: sdnD0vxmj8kHBOoVM8TE9IyBCGwnKNB8hZVaHp_Zfjk
-    short-id: fe8d
-  servername: ads.vk.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇳🇱 NL [R] | 194.55.239.164 (2)
-  type: vless
-  server: 194.55.239.164
-  port: 443
-  uuid: 6ab08b9a-abaf-470f-93b5-50c7d5eddd3e
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: sdnD0vxmj8kHBOoVM8TE9IyBCGwnKNB8hZVaHp_Zfjk
-    short-id: e791
-  servername: ads.vk.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
 - name: 🇰🇿 KZ [R] | 5.180.40.9
@@ -211,46 +165,38 @@ proxies:
   servername: cloud.mail.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇫🇮 FI [R] | 213.171.24.132
+- name: 🇳🇱 NL [R] | wl-1.myfreedom.rest
   type: vless
-  server: 213.171.24.132
+  server: wl-1.myfreedom.rest
   port: 443
-  uuid: cbe5611f-392b-4ec3-9d8b-5bbe59c0fa68
+  uuid: 6ab08b9a-abaf-470f-93b5-50c7d5eddd3e
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: SHIYN7zN9aFVxwKK-bIvDbhUgtHvlBhDi1qSl2sWwRw
-    short-id: e7
-  servername: eh.vk.com
+    public-key: sdnD0vxmj8kHBOoVM8TE9IyBCGwnKNB8hZVaHp_Zfjk
+    short-id: e791
+  servername: ads.vk.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇫🇷 FR [xhttp] | 82.202.143.221
+- name: 🇳🇱 NL [ws] | 94.159.101.254
   type: vless
-  server: 82.202.143.221
+  server: 94.159.101.254
   port: 443
-  uuid: cbe5611f-392b-4ec3-9d8b-5bbe59c0fa68
+  uuid: ae2e0637-5c9d-422b-93ac-70bd3fceeb81
   udp: true
   skip-cert-verify: true
-  network: xhttp
+  network: ws
   encryption: none
   tls: true
-  servername: pol8.frost-api.com
-  client-fingerprint: qq
-- name: 🇫🇷 FR [xhttp] | 188.68.218.160
-  type: vless
-  server: 188.68.218.160
-  port: 443
-  uuid: ab88b964-0832-4d78-a40e-527d286bf547
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  servername: host.pushbyte.cc
-  client-fingerprint: firefox
+  servername: hys40.wba-pn.ru
+  client-fingerprint: chrome
+  ws-opts:
+    path: /
+    headers:
+      Host: hys40.wba-pn.ru
 - name: 🇦🇹 AT [ws] | 45.143.200.245
   type: vless
   server: 45.143.200.245
@@ -267,38 +213,54 @@ proxies:
     path: /api/v1/irc
     headers:
       Host: vod.ensf.top
-- name: 🇩🇪 DE [ws] | 185.178.208.176
+- name: 🇫🇮 FI [ws] | 5.101.116.108
   type: vless
-  server: 185.178.208.176
+  server: 5.101.116.108
   port: 443
-  uuid: 653aea5e-2157-4a1f-89bf-8b46fb677921
+  uuid: 20595050-84c7-40e6-b9e3-cf90c99f8a4c
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: stream.telemetryapi.uk
+  servername: fin4.wba-pn.ru
   client-fingerprint: chrome
   ws-opts:
-    path: /api/v2/client/session/connect
+    path: /
     headers:
-      Host: stream.telemetryapi.uk
-- name: 🇫🇷 FR [ws] | 95.129.236.252
+      Host: fin4.wba-pn.ru
+- name: 🇫🇮 FI [ws] | 85.193.84.49
   type: vless
-  server: 95.129.236.252
+  server: 85.193.84.49
   port: 443
-  uuid: 6259dae8-74cd-4b1f-9e0b-c7198f844e03
+  uuid: 03617697-bdf9-4e60-be63-65e0df332da2
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: benzin.benz.ink
-  client-fingerprint: firefox
+  servername: files-x.bosx.net
+  client-fingerprint: chrome
   ws-opts:
-    path: /api/v2/vms/stream/genka
+    path: /api/v2/connect
     headers:
-      Host: benzin.benz.ink
+      Host: files-x.bosx.net
+- name: 🇫🇮 FI [ws] | 94.159.101.254
+  type: vless
+  server: 94.159.101.254
+  port: 443
+  uuid: 20595050-84c7-40e6-b9e3-cf90c99f8a4c
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: fin4.wba-pn.ru
+  client-fingerprint: chrome
+  ws-opts:
+    path: /
+    headers:
+      Host: fin4.wba-pn.ru
 - name: 🇫🇷 FR  | 89.208.113.16
   type: vless
   server: 89.208.113.16
@@ -313,15 +275,15 @@ proxy-groups:
   type: url-test
   proxies:
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  - 🇫🇷 FR [R] | 146.185.211.2
-  - 🇬🇧 GB [R] | 144.31.87.16
-  - 🇫🇷 FR [R] | frabridge1.frost-api.com
+  - 🇫🇮 FI [R][grpc] | 31.129.42.239
   - 🇬🇧 GB [R] | 95.85.224.51
+  - 🇬🇧 GB [R] | 144.31.87.16
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
-  - 🇫🇮 FI [R][xhttp] | 2.27.42.180
-  - 🇫🇮 FI [R] | finnode3.frost-api.com
-  - 🇰🇿 KZ [R] | kz2.techdatacloud.org
   - 🇳🇱 NL [R] | 194.55.239.164
+  - 🇸🇪 SE [R] | 200.165.234.83
+  - 🇰🇿 KZ [R] | kz2.techdatacloud.org
+  - 🇰🇿 KZ [R] | 5.180.40.9
+  - 🇳🇱 NL [R] | wl-1.myfreedom.rest
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -330,23 +292,20 @@ proxy-groups:
   proxies:
   - 🚀 Auto
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  - 🇫🇷 FR [R] | 146.185.211.2
-  - 🇬🇧 GB [R] | 144.31.87.16
-  - 🇫🇷 FR [R] | frabridge1.frost-api.com
+  - 🇫🇮 FI [R][grpc] | 31.129.42.239
   - 🇬🇧 GB [R] | 95.85.224.51
+  - 🇬🇧 GB [R] | 144.31.87.16
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
-  - 🇫🇮 FI [R][xhttp] | 2.27.42.180
-  - 🇫🇮 FI [R] | finnode3.frost-api.com
-  - 🇰🇿 KZ [R] | kz2.techdatacloud.org
   - 🇳🇱 NL [R] | 194.55.239.164
-  - 🇳🇱 NL [R] | 194.55.239.164 (2)
+  - 🇸🇪 SE [R] | 200.165.234.83
+  - 🇰🇿 KZ [R] | kz2.techdatacloud.org
   - 🇰🇿 KZ [R] | 5.180.40.9
-  - 🇫🇮 FI [R] | 213.171.24.132
-  - 🇫🇷 FR [xhttp] | 82.202.143.221
-  - 🇫🇷 FR [xhttp] | 188.68.218.160
+  - 🇳🇱 NL [R] | wl-1.myfreedom.rest
+  - 🇳🇱 NL [ws] | 94.159.101.254
   - 🇦🇹 AT [ws] | 45.143.200.245
-  - 🇩🇪 DE [ws] | 185.178.208.176
-  - 🇫🇷 FR [ws] | 95.129.236.252
+  - 🇫🇮 FI [ws] | 5.101.116.108
+  - 🇫🇮 FI [ws] | 85.193.84.49
+  - 🇫🇮 FI [ws] | 94.159.101.254
   - 🇫🇷 FR  | 89.208.113.16
 - name: 🎯 Direct
   type: select
