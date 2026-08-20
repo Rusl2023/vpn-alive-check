@@ -36,6 +36,21 @@ proxies:
     short-id: '67'
   servername: vk.com
   client-fingerprint: chrome
+- name: 🇬🇧 GB [R] | 144.31.87.16
+  type: vless
+  server: 144.31.87.16
+  port: 443
+  uuid: c40f773e-3b96-417e-b22c-e48cb63ca7d9
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: l5eAOSPQMEyzEPvWGAKvCkcPpsJvR3DJfYo6elw1UTE
+    short-id: 3b802dad547b0847
+  servername: yandex.ru
+  client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 95.85.224.51
   type: vless
   server: 95.85.224.51
@@ -69,21 +84,6 @@ proxies:
   client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: grpc8c948083b439
-- name: 🇬🇧 GB [R] | 144.31.87.16
-  type: vless
-  server: 144.31.87.16
-  port: 443
-  uuid: c40f773e-3b96-417e-b22c-e48cb63ca7d9
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: l5eAOSPQMEyzEPvWGAKvCkcPpsJvR3DJfYo6elw1UTE
-    short-id: 3b802dad547b0847
-  servername: yandex.ru
-  client-fingerprint: firefox
 - name: 🇰🇿 KZ [R] | kz2.techdatacloud.org
   type: vless
   server: kz2.techdatacloud.org
@@ -115,7 +115,7 @@ proxies:
     short-id: dfbfa87e9f37f1f0
   servername: cloud.mail.ru
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
+  client-fingerprint: firefox
 - name: 🇰🇿 KZ [R] | 5.180.42.85
   type: vless
   server: 5.180.42.85
@@ -131,7 +131,7 @@ proxies:
     short-id: dfbfa87e9f37f1f0
   servername: cloud.mail.ru
   flow: xtls-rprx-vision
-  client-fingerprint: qq
+  client-fingerprint: firefox
 - name: 🇳🇱 NL [R] | 194.55.239.164
   type: vless
   server: 194.55.239.164
@@ -145,22 +145,6 @@ proxies:
   reality-opts:
     public-key: sdnD0vxmj8kHBOoVM8TE9IyBCGwnKNB8hZVaHp_Zfjk
     short-id: '9042'
-  servername: ads.vk.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇳🇱 NL [R] | 194.55.239.164 (2)
-  type: vless
-  server: 194.55.239.164
-  port: 443
-  uuid: 6ab08b9a-abaf-470f-93b5-50c7d5eddd3e
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: sdnD0vxmj8kHBOoVM8TE9IyBCGwnKNB8hZVaHp_Zfjk
-    short-id: a66f
   servername: ads.vk.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
@@ -184,7 +168,7 @@ proxies:
   type: vless
   server: wl-1.myfreedom.rest
   port: 443
-  uuid: f7c19962-ae9e-4431-8ddc-276bcd45280a
+  uuid: 6ab08b9a-abaf-470f-93b5-50c7d5eddd3e
   udp: true
   skip-cert-verify: true
   network: tcp
@@ -192,7 +176,7 @@ proxies:
   tls: true
   reality-opts:
     public-key: sdnD0vxmj8kHBOoVM8TE9IyBCGwnKNB8hZVaHp_Zfjk
-    short-id: '9042'
+    short-id: a66f
   servername: ads.vk.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
@@ -208,6 +192,22 @@ proxies:
   tls: true
   servername: s3-185.marketmust.ru
   client-fingerprint: firefox
+- name: 🇩🇪 DE [ws] | 185.178.208.176
+  type: vless
+  server: 185.178.208.176
+  port: 443
+  uuid: 653aea5e-2157-4a1f-89bf-8b46fb677921
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: stream.telemetryapi.uk
+  client-fingerprint: chrome
+  ws-opts:
+    path: /api/v2/client/session/connect
+    headers:
+      Host: stream.telemetryapi.uk
 - name: 🇦🇹 AT [ws] | 45.143.200.245
   type: vless
   server: 45.143.200.245
@@ -224,36 +224,20 @@ proxies:
     path: /api/v1/irc
     headers:
       Host: vod.ensf.top
-- name: 🇩🇪 DE [ws] | 185.178.208.176
-  type: vless
-  server: 185.178.208.176
-  port: 443
-  uuid: 653aea5e-2157-4a1f-89bf-8b46fb677921
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: stream.telemetryapi.uk
-  client-fingerprint: firefox
-  ws-opts:
-    path: /api/v2/client/session/connect
-    headers:
-      Host: stream.telemetryapi.uk
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
+  - 🇬🇧 GB [R] | 144.31.87.16
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇫🇮 FI [R][grpc] | 31.129.42.239
-  - 🇬🇧 GB [R] | 144.31.87.16
   - 🇰🇿 KZ [R] | kz2.techdatacloud.org
   - 🇰🇿 KZ [R] | 5.180.40.9
   - 🇰🇿 KZ [R] | 5.180.42.85
   - 🇳🇱 NL [R] | 194.55.239.164
-  - 🇳🇱 NL [R] | 194.55.239.164 (2)
   - 🇳🇱 NL [R] | wl-1.myfreedom.rest
+  - 🇳🇱 NL [R] | wl-1.myfreedom.rest (2)
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -262,19 +246,18 @@ proxy-groups:
   proxies:
   - 🚀 Auto
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
+  - 🇬🇧 GB [R] | 144.31.87.16
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇫🇮 FI [R][grpc] | 31.129.42.239
-  - 🇬🇧 GB [R] | 144.31.87.16
   - 🇰🇿 KZ [R] | kz2.techdatacloud.org
   - 🇰🇿 KZ [R] | 5.180.40.9
   - 🇰🇿 KZ [R] | 5.180.42.85
   - 🇳🇱 NL [R] | 194.55.239.164
-  - 🇳🇱 NL [R] | 194.55.239.164 (2)
   - 🇳🇱 NL [R] | wl-1.myfreedom.rest
   - 🇳🇱 NL [R] | wl-1.myfreedom.rest (2)
   - 🇩🇪 DE [xhttp] | 185.253.23.121
-  - 🇦🇹 AT [ws] | 45.143.200.245
   - 🇩🇪 DE [ws] | 185.178.208.176
+  - 🇦🇹 AT [ws] | 45.143.200.245
 - name: 🎯 Direct
   type: select
   proxies:
