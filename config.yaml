@@ -36,23 +36,6 @@ proxies:
     short-id: '67'
   servername: vk.com
   client-fingerprint: chrome
-- name: 🇫🇮 FI [R][grpc] | 31.129.42.239
-  type: vless
-  server: 31.129.42.239
-  port: 443
-  uuid: 97e967da-1d2b-439e-836b-a9d5a90496dc
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: KwPeoAnP208rOsWWHSjhPKdpVzvIHpfBUltBHaBCSDs
-    short-id: d9114354
-  servername: vk.com
-  client-fingerprint: firefox
-  grpc-opts:
-    grpc-service-name: grpc8c948083b439
 - name: 🇬🇧 GB [R] | 144.31.87.16
   type: vless
   server: 144.31.87.16
@@ -83,6 +66,7 @@ proxies:
     short-id: a696de84963656de
   servername: max.ru
   flow: xtls-rprx-vision
+  client-fingerprint: qq
 - name: 🇳🇱 NL [R][grpc] | 72.56.78.50
   type: vless
   server: 72.56.78.50
@@ -100,9 +84,40 @@ proxies:
   client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: ''
-- name: 🇫🇮 FI [R] | 200.165.230.19
+- name: 🇦🇪 AE [R][xhttp] | mnl.savesafe.space
   type: vless
-  server: 200.165.230.19
+  server: mnl.savesafe.space
+  port: 443
+  uuid: b5ca5ab3-8cbc-4ac3-89da-9cd360589ecb
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 2P7D_IkxXWre3YziEe2tkF9L_gUbdZE_WCu9_SQq4hE
+    short-id: 2b5b1ffa8a6a1a68
+  servername: ya.ru
+  client-fingerprint: firefox
+- name: 🇫🇮 FI [R] | 85.193.80.164
+  type: vless
+  server: 85.193.80.164
+  port: 443
+  uuid: d01d5a74-09fb-4e9e-b0d9-38b5fd77ad70
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: iWxxH0TWB1Ciz6sEwtfjUVY61OcTDihou5IJfkt0O0Q
+    short-id: a3f8d21c4b907e56
+  servername: www.kinopoisk.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇫🇮 FI [R] | ru.lobbytech.ru
+  type: vless
+  server: ru.lobbytech.ru
   port: 443
   uuid: d01d5a74-09fb-4e9e-b0d9-38b5fd77ad70
   udp: true
@@ -132,22 +147,6 @@ proxies:
   servername: www.kinopoisk.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇩🇪 DE [R] | ru.lobbytech.ru
-  type: vless
-  server: ru.lobbytech.ru
-  port: 443
-  uuid: d01d5a74-09fb-4e9e-b0d9-38b5fd77ad70
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: iWxxH0TWB1Ciz6sEwtfjUVY61OcTDihou5IJfkt0O0Q
-    short-id: a3f8d21c4b907e56
-  servername: www.kinopoisk.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇰🇿 KZ [R] | 5.180.40.9
   type: vless
   server: 5.180.40.9
@@ -164,22 +163,6 @@ proxies:
   servername: cloud.mail.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇳🇱 NL [R] | 194.55.239.164
-  type: vless
-  server: 194.55.239.164
-  port: 443
-  uuid: 6192b7d1-fc9d-4be1-900e-dbd69de95ddf
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: sdnD0vxmj8kHBOoVM8TE9IyBCGwnKNB8hZVaHp_Zfjk
-    short-id: fe8d
-  servername: ads.vk.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇰🇿 KZ [R] | kz2.techdatacloud.org
   type: vless
   server: kz2.techdatacloud.org
@@ -212,38 +195,6 @@ proxies:
   servername: cloud.mail.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇺🇸 US [R] | 85.193.80.164
-  type: vless
-  server: 85.193.80.164
-  port: 443
-  uuid: d01d5a74-09fb-4e9e-b0d9-38b5fd77ad70
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: iWxxH0TWB1Ciz6sEwtfjUVY61OcTDihou5IJfkt0O0Q
-    short-id: a3f8d21c4b907e56
-  servername: www.kinopoisk.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇦🇹 AT [ws] | 45.143.200.245
-  type: vless
-  server: 45.143.200.245
-  port: 443
-  uuid: e911c552-3a98-41e0-b5fb-0dd3879887b7
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: vod.ensf.top
-  client-fingerprint: chrome
-  ws-opts:
-    path: /api/v1/irc
-    headers:
-      Host: vod.ensf.top
 - name: 🇩🇪 DE [ws] | 95.129.236.252
   type: vless
   server: 95.129.236.252
@@ -260,20 +211,36 @@ proxies:
     path: /api/v2/vms/stream/murci
     headers:
       Host: benz.ink
+- name: 🇦🇹 AT [ws] | 45.143.200.245
+  type: vless
+  server: 45.143.200.245
+  port: 443
+  uuid: e911c552-3a98-41e0-b5fb-0dd3879887b7
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: vod.ensf.top
+  client-fingerprint: chrome
+  ws-opts:
+    path: /api/v1/irc
+    headers:
+      Host: vod.ensf.top
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  - 🇫🇮 FI [R][grpc] | 31.129.42.239
   - 🇬🇧 GB [R] | 144.31.87.16
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
-  - 🇫🇮 FI [R] | 200.165.230.19
+  - 🇦🇪 AE [R][xhttp] | mnl.savesafe.space
+  - 🇫🇮 FI [R] | 85.193.80.164
+  - 🇫🇮 FI [R] | ru.lobbytech.ru
   - 🇩🇪 DE [R] | 83.217.201.244
-  - 🇩🇪 DE [R] | ru.lobbytech.ru
   - 🇰🇿 KZ [R] | 5.180.40.9
-  - 🇳🇱 NL [R] | 194.55.239.164
+  - 🇰🇿 KZ [R] | kz2.techdatacloud.org
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -282,20 +249,18 @@ proxy-groups:
   proxies:
   - 🚀 Auto
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  - 🇫🇮 FI [R][grpc] | 31.129.42.239
   - 🇬🇧 GB [R] | 144.31.87.16
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
-  - 🇫🇮 FI [R] | 200.165.230.19
+  - 🇦🇪 AE [R][xhttp] | mnl.savesafe.space
+  - 🇫🇮 FI [R] | 85.193.80.164
+  - 🇫🇮 FI [R] | ru.lobbytech.ru
   - 🇩🇪 DE [R] | 83.217.201.244
-  - 🇩🇪 DE [R] | ru.lobbytech.ru
   - 🇰🇿 KZ [R] | 5.180.40.9
-  - 🇳🇱 NL [R] | 194.55.239.164
   - 🇰🇿 KZ [R] | kz2.techdatacloud.org
   - 🇰🇿 KZ [R] | 5.180.42.85
-  - 🇺🇸 US [R] | 85.193.80.164
-  - 🇦🇹 AT [ws] | 45.143.200.245
   - 🇩🇪 DE [ws] | 95.129.236.252
+  - 🇦🇹 AT [ws] | 45.143.200.245
 - name: 🎯 Direct
   type: select
   proxies:
