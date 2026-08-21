@@ -67,21 +67,6 @@ proxies:
     short-id: 3b802dad547b0847
   servername: yandex.ru
   client-fingerprint: firefox
-- name: 🇦🇪 AE [R][xhttp] | mnl.savesafe.space
-  type: vless
-  server: mnl.savesafe.space
-  port: 443
-  uuid: b5ca5ab3-8cbc-4ac3-89da-9cd360589ecb
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: 2P7D_IkxXWre3YziEe2tkF9L_gUbdZE_WCu9_SQq4hE
-    short-id: 2b5b1ffa8a6a1a68
-  servername: ya.ru
-  client-fingerprint: firefox
 - name: 🇳🇱 NL [R][grpc] | 72.56.78.50
   type: vless
   server: 72.56.78.50
@@ -99,23 +84,7 @@ proxies:
   client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: ''
-- name: 🇺🇸 US [R] | 83.217.201.244
-  type: vless
-  server: 83.217.201.244
-  port: 443
-  uuid: d01d5a74-09fb-4e9e-b0d9-38b5fd77ad70
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: iWxxH0TWB1Ciz6sEwtfjUVY61OcTDihou5IJfkt0O0Q
-    short-id: a3f8d21c4b907e56
-  servername: www.kinopoisk.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇺🇸 US [R] | 200.165.230.19
+- name: 🇩🇪 DE [R] | 200.165.230.19
   type: vless
   server: 200.165.230.19
   port: 443
@@ -130,8 +99,8 @@ proxies:
     short-id: a3f8d21c4b907e56
   servername: www.kinopoisk.ru
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇩🇪 DE [R] | ru.lobbytech.ru
+  client-fingerprint: qq
+- name: 🇫🇮 FI [R] | ru.lobbytech.ru
   type: vless
   server: ru.lobbytech.ru
   port: 443
@@ -211,6 +180,22 @@ proxies:
     path: /api/v1/irc
     headers:
       Host: vod.ensf.top
+- name: 🇫🇮 FI [ws] | 194.154.30.154
+  type: vless
+  server: 194.154.30.154
+  port: 443
+  uuid: c7e9c591-2764-423a-afca-efbd010fd396
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: forfreeuse.rtqa.ru
+  client-fingerprint: chrome
+  ws-opts:
+    path: /
+    headers:
+      Host: forfreeuse.rtqa.ru
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
@@ -218,13 +203,13 @@ proxy-groups:
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇬🇧 GB [R] | 144.31.87.16
-  - 🇦🇪 AE [R][xhttp] | mnl.savesafe.space
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
-  - 🇺🇸 US [R] | 83.217.201.244
-  - 🇺🇸 US [R] | 200.165.230.19
-  - 🇩🇪 DE [R] | ru.lobbytech.ru
+  - 🇩🇪 DE [R] | 200.165.230.19
+  - 🇫🇮 FI [R] | ru.lobbytech.ru
   - 🇰🇿 KZ [R] | 5.180.40.9
   - 🇰🇿 KZ [R] | 5.180.42.85
+  - 🇰🇿 KZ [R] | kz2.techdatacloud.org
+  - 🇦🇹 AT [ws] | 45.143.200.245
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -235,15 +220,14 @@ proxy-groups:
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇬🇧 GB [R] | 144.31.87.16
-  - 🇦🇪 AE [R][xhttp] | mnl.savesafe.space
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
-  - 🇺🇸 US [R] | 83.217.201.244
-  - 🇺🇸 US [R] | 200.165.230.19
-  - 🇩🇪 DE [R] | ru.lobbytech.ru
+  - 🇩🇪 DE [R] | 200.165.230.19
+  - 🇫🇮 FI [R] | ru.lobbytech.ru
   - 🇰🇿 KZ [R] | 5.180.40.9
   - 🇰🇿 KZ [R] | 5.180.42.85
   - 🇰🇿 KZ [R] | kz2.techdatacloud.org
   - 🇦🇹 AT [ws] | 45.143.200.245
+  - 🇫🇮 FI [ws] | 194.154.30.154
 - name: 🎯 Direct
   type: select
   proxies:
