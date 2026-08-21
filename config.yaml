@@ -51,6 +51,7 @@ proxies:
     short-id: a696de84963656de
   servername: max.ru
   flow: xtls-rprx-vision
+  client-fingerprint: qq
 - name: 🇬🇧 GB [R] | 144.31.87.16
   type: vless
   server: 144.31.87.16
@@ -66,42 +67,9 @@ proxies:
     short-id: 3b802dad547b0847
   servername: yandex.ru
   client-fingerprint: firefox
-- name: 🇳🇱 NL [R][grpc] | 72.56.78.50
-  type: vless
-  server: 72.56.78.50
-  port: 443
-  uuid: fee2cdd8-55d1-4c5b-a67a-cfde8d45eed0
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: huH_8n0Dfk4iolIkzrc-qET8ySHWgZAr-i6K6lr6xSs
-    short-id: 375838bc17c0
-  servername: sun6-21.userapi.com
-  client-fingerprint: firefox
-  grpc-opts:
-    grpc-service-name: ''
-- name: 🇺🇸 US [R] | 83.217.201.244
+- name: 🇫🇮 FI [R] | 83.217.201.244
   type: vless
   server: 83.217.201.244
-  port: 443
-  uuid: d01d5a74-09fb-4e9e-b0d9-38b5fd77ad70
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: iWxxH0TWB1Ciz6sEwtfjUVY61OcTDihou5IJfkt0O0Q
-    short-id: a3f8d21c4b907e56
-  servername: www.kinopoisk.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇫🇮 FI [R] | ru.lobbytech.ru
-  type: vless
-  server: ru.lobbytech.ru
   port: 443
   uuid: d01d5a74-09fb-4e9e-b0d9-38b5fd77ad70
   udp: true
@@ -131,22 +99,6 @@ proxies:
   servername: ads.vk.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇰🇿 KZ [R] | kz2.techdatacloud.org
-  type: vless
-  server: kz2.techdatacloud.org
-  port: 443
-  uuid: 5e19b3c8-c1dc-4163-95e2-895319c15d6c
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: 06GvG7PU5F3Hgq-vUH24tU0tpsbGMCCt26BSvlaBNUE
-    short-id: dfbfa87e9f37f1f0
-  servername: cloud.mail.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇰🇿 KZ [R] | 5.180.40.9
   type: vless
   server: 5.180.40.9
@@ -163,9 +115,9 @@ proxies:
   servername: cloud.mail.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇰🇿 KZ [R] | 5.180.42.85
+- name: 🇰🇿 KZ [R] | kz2.techdatacloud.org
   type: vless
-  server: 5.180.42.85
+  server: kz2.techdatacloud.org
   port: 443
   uuid: 5e19b3c8-c1dc-4163-95e2-895319c15d6c
   udp: true
@@ -195,6 +147,38 @@ proxies:
     path: /websocket?ed=2560
     headers:
       Host: cloudflare.vhub.pro
+- name: 🇩🇪 DE [ws] | 158.160.196.224
+  type: vless
+  server: 158.160.196.224
+  port: 443
+  uuid: 5ca83936-136d-4314-8453-4ba10a86cf60
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: cloudflare.vhub.pro
+  client-fingerprint: firefox
+  ws-opts:
+    path: /websocket?ed=2560
+    headers:
+      Host: cloudflare.vhub.pro
+- name: 🇦🇹 AT [ws] | 94.159.110.41
+  type: vless
+  server: 94.159.110.41
+  port: 443
+  uuid: e911c552-3a98-41e0-b5fb-0dd3879887b7
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: vod.ensf.top
+  client-fingerprint: firefox
+  ws-opts:
+    path: /api/v1/irc
+    headers:
+      Host: vod.ensf.top
 - name: 🇦🇹 AT [ws] | 45.143.200.245
   type: vless
   server: 45.143.200.245
@@ -211,27 +195,27 @@ proxies:
     path: /api/v1/irc
     headers:
       Host: vod.ensf.top
-- name: 🇩🇪 DE [ws] | 185.178.208.176
+- name: 🇱🇹 LT [ws] | 95.129.236.216
   type: vless
-  server: 185.178.208.176
+  server: 95.129.236.216
   port: 443
-  uuid: 653aea5e-2157-4a1f-89bf-8b46fb677921
+  uuid: a6a2ba4a-bee2-42e8-953a-ed14f744a3df
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: api.stream.telemetryapi.uk
-  client-fingerprint: chrome
+  servername: cdnguard.org
+  client-fingerprint: firefox
   ws-opts:
-    path: /api/v2/client/session/connect
+    path: /origin/190546791/fetch
     headers:
-      Host: api.stream.telemetryapi.uk
+      Host: cdnguard.org
 - name: 🇩🇪 DE [ws] | 95.129.236.252
   type: vless
   server: 95.129.236.252
   port: 443
-  uuid: b0347684-615d-4c47-bc50-19b7add2ebde
+  uuid: 2f552250-9631-4acc-9e18-980701da33c9
   udp: true
   skip-cert-verify: true
   network: ws
@@ -250,13 +234,13 @@ proxy-groups:
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇬🇧 GB [R] | 144.31.87.16
-  - 🇳🇱 NL [R][grpc] | 72.56.78.50
-  - 🇺🇸 US [R] | 83.217.201.244
-  - 🇫🇮 FI [R] | ru.lobbytech.ru
+  - 🇫🇮 FI [R] | 83.217.201.244
   - 🇳🇱 NL [R] | 194.55.239.164
-  - 🇰🇿 KZ [R] | kz2.techdatacloud.org
   - 🇰🇿 KZ [R] | 5.180.40.9
-  - 🇰🇿 KZ [R] | 5.180.42.85
+  - 🇰🇿 KZ [R] | kz2.techdatacloud.org
+  - 🇩🇪 DE [ws] | 84.201.128.112
+  - 🇩🇪 DE [ws] | 158.160.196.224
+  - 🇦🇹 AT [ws] | 94.159.110.41
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -267,16 +251,15 @@ proxy-groups:
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇬🇧 GB [R] | 144.31.87.16
-  - 🇳🇱 NL [R][grpc] | 72.56.78.50
-  - 🇺🇸 US [R] | 83.217.201.244
-  - 🇫🇮 FI [R] | ru.lobbytech.ru
+  - 🇫🇮 FI [R] | 83.217.201.244
   - 🇳🇱 NL [R] | 194.55.239.164
-  - 🇰🇿 KZ [R] | kz2.techdatacloud.org
   - 🇰🇿 KZ [R] | 5.180.40.9
-  - 🇰🇿 KZ [R] | 5.180.42.85
+  - 🇰🇿 KZ [R] | kz2.techdatacloud.org
   - 🇩🇪 DE [ws] | 84.201.128.112
+  - 🇩🇪 DE [ws] | 158.160.196.224
+  - 🇦🇹 AT [ws] | 94.159.110.41
   - 🇦🇹 AT [ws] | 45.143.200.245
-  - 🇩🇪 DE [ws] | 185.178.208.176
+  - 🇱🇹 LT [ws] | 95.129.236.216
   - 🇩🇪 DE [ws] | 95.129.236.252
 - name: 🎯 Direct
   type: select
