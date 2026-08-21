@@ -21,23 +21,6 @@ dns:
   - tls://8.8.8.8
   - tls://1.1.1.1
 proxies:
-- name: 🇪🇪 EE [R][grpc] | 31.129.42.239
-  type: vless
-  server: 31.129.42.239
-  port: 443
-  uuid: 97e967da-1d2b-439e-836b-a9d5a90496dc
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: KwPeoAnP208rOsWWHSjhPKdpVzvIHpfBUltBHaBCSDs
-    short-id: d9114354
-  servername: vk.com
-  client-fingerprint: firefox
-  grpc-opts:
-    grpc-service-name: grpc8c948083b439
 - name: 🇳🇱 NL [R][xhttp] | 91.84.117.29
   type: vless
   server: 91.84.117.29
@@ -69,6 +52,23 @@ proxies:
   servername: max.ru
   flow: xtls-rprx-vision
   client-fingerprint: qq
+- name: 🇫🇮 FI [R][grpc] | 31.129.42.239
+  type: vless
+  server: 31.129.42.239
+  port: 443
+  uuid: 97e967da-1d2b-439e-836b-a9d5a90496dc
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: KwPeoAnP208rOsWWHSjhPKdpVzvIHpfBUltBHaBCSDs
+    short-id: d9114354
+  servername: vk.com
+  client-fingerprint: firefox
+  grpc-opts:
+    grpc-service-name: grpc8c948083b439
 - name: 🇬🇧 GB [R] | 144.31.87.16
   type: vless
   server: 144.31.87.16
@@ -84,21 +84,6 @@ proxies:
     short-id: 3b802dad547b0847
   servername: yandex.ru
   client-fingerprint: firefox
-- name: 🇦🇪 AE [R][xhttp] | 200.165.232.177
-  type: vless
-  server: 200.165.232.177
-  port: 443
-  uuid: b5ca5ab3-8cbc-4ac3-89da-9cd360589ecb
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: 2P7D_IkxXWre3YziEe2tkF9L_gUbdZE_WCu9_SQq4hE
-    short-id: 2b5b1ffa8a6a1a68
-  servername: ya.ru
-  client-fingerprint: chrome
 - name: 🇦🇪 AE [R][xhttp] | mnl.savesafe.space
   type: vless
   server: mnl.savesafe.space
@@ -113,8 +98,8 @@ proxies:
     public-key: 2P7D_IkxXWre3YziEe2tkF9L_gUbdZE_WCu9_SQq4hE
     short-id: 2b5b1ffa8a6a1a68
   servername: ya.ru
-  client-fingerprint: qq
-- name: 🇩🇪 DE [R] | 200.165.230.19
+  client-fingerprint: chrome
+- name: 🇺🇸 US [R] | 200.165.230.19
   type: vless
   server: 200.165.230.19
   port: 443
@@ -129,10 +114,10 @@ proxies:
     short-id: a3f8d21c4b907e56
   servername: www.kinopoisk.ru
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇺🇸 US [R] | 85.193.80.164
+  client-fingerprint: qq
+- name: 🇺🇸 US [R] | ru.lobbytech.ru
   type: vless
-  server: 85.193.80.164
+  server: ru.lobbytech.ru
   port: 443
   uuid: d01d5a74-09fb-4e9e-b0d9-38b5fd77ad70
   udp: true
@@ -162,22 +147,22 @@ proxies:
   servername: cloud.mail.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇰🇿 KZ [R] | 5.180.42.85
+- name: 🇩🇪 DE [R] | 83.217.201.244
   type: vless
-  server: 5.180.42.85
+  server: 83.217.201.244
   port: 443
-  uuid: 5e19b3c8-c1dc-4163-95e2-895319c15d6c
+  uuid: d01d5a74-09fb-4e9e-b0d9-38b5fd77ad70
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: 06GvG7PU5F3Hgq-vUH24tU0tpsbGMCCt26BSvlaBNUE
-    short-id: dfbfa87e9f37f1f0
-  servername: cloud.mail.ru
+    public-key: iWxxH0TWB1Ciz6sEwtfjUVY61OcTDihou5IJfkt0O0Q
+    short-id: a3f8d21c4b907e56
+  servername: www.kinopoisk.ru
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
+  client-fingerprint: chrome
 - name: 🇰🇿 KZ [R] | kz2.techdatacloud.org
   type: vless
   server: kz2.techdatacloud.org
@@ -194,36 +179,36 @@ proxies:
   servername: cloud.mail.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇫🇮 FI [R] | ru.lobbytech.ru
+- name: 🇰🇿 KZ [R] | 5.180.42.85
   type: vless
-  server: ru.lobbytech.ru
+  server: 5.180.42.85
   port: 443
-  uuid: d01d5a74-09fb-4e9e-b0d9-38b5fd77ad70
+  uuid: 5e19b3c8-c1dc-4163-95e2-895319c15d6c
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: iWxxH0TWB1Ciz6sEwtfjUVY61OcTDihou5IJfkt0O0Q
-    short-id: a3f8d21c4b907e56
-  servername: www.kinopoisk.ru
+    public-key: 06GvG7PU5F3Hgq-vUH24tU0tpsbGMCCt26BSvlaBNUE
+    short-id: dfbfa87e9f37f1f0
+  servername: cloud.mail.ru
   flow: xtls-rprx-vision
-  client-fingerprint: qq
+  client-fingerprint: firefox
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
-  - 🇪🇪 EE [R][grpc] | 31.129.42.239
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇬🇧 GB [R] | 95.85.224.51
+  - 🇫🇮 FI [R][grpc] | 31.129.42.239
   - 🇬🇧 GB [R] | 144.31.87.16
-  - 🇦🇪 AE [R][xhttp] | 200.165.232.177
   - 🇦🇪 AE [R][xhttp] | mnl.savesafe.space
-  - 🇩🇪 DE [R] | 200.165.230.19
-  - 🇺🇸 US [R] | 85.193.80.164
+  - 🇺🇸 US [R] | 200.165.230.19
+  - 🇺🇸 US [R] | ru.lobbytech.ru
   - 🇰🇿 KZ [R] | 5.180.40.9
-  - 🇰🇿 KZ [R] | 5.180.42.85
+  - 🇩🇪 DE [R] | 83.217.201.244
+  - 🇰🇿 KZ [R] | kz2.techdatacloud.org
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -231,18 +216,17 @@ proxy-groups:
   type: select
   proxies:
   - 🚀 Auto
-  - 🇪🇪 EE [R][grpc] | 31.129.42.239
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇬🇧 GB [R] | 95.85.224.51
+  - 🇫🇮 FI [R][grpc] | 31.129.42.239
   - 🇬🇧 GB [R] | 144.31.87.16
-  - 🇦🇪 AE [R][xhttp] | 200.165.232.177
   - 🇦🇪 AE [R][xhttp] | mnl.savesafe.space
-  - 🇩🇪 DE [R] | 200.165.230.19
-  - 🇺🇸 US [R] | 85.193.80.164
+  - 🇺🇸 US [R] | 200.165.230.19
+  - 🇺🇸 US [R] | ru.lobbytech.ru
   - 🇰🇿 KZ [R] | 5.180.40.9
-  - 🇰🇿 KZ [R] | 5.180.42.85
+  - 🇩🇪 DE [R] | 83.217.201.244
   - 🇰🇿 KZ [R] | kz2.techdatacloud.org
-  - 🇫🇮 FI [R] | ru.lobbytech.ru
+  - 🇰🇿 KZ [R] | 5.180.42.85
 - name: 🎯 Direct
   type: select
   proxies:
