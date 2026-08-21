@@ -36,6 +36,22 @@ proxies:
     short-id: '67'
   servername: vk.com
   client-fingerprint: chrome
+- name: 🇬🇧 GB [R] | 95.85.224.51
+  type: vless
+  server: 95.85.224.51
+  port: 443
+  uuid: 342ab7e4-5a89-0001-8809-304120d4aa83
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: WWeAHWUVD-phmnjNJ823cer0c4CMIbEs08AhsuEZmDc
+    short-id: a696de84963656de
+  servername: max.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: qq
 - name: 🇫🇮 FI [R][grpc] | 31.129.42.239
   type: vless
   server: 31.129.42.239
@@ -53,22 +69,6 @@ proxies:
   client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: grpc8c948083b439
-- name: 🇬🇧 GB [R] | 95.85.224.51
-  type: vless
-  server: 95.85.224.51
-  port: 443
-  uuid: 342ab7e4-5a89-0001-8809-304120d4aa83
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: WWeAHWUVD-phmnjNJ823cer0c4CMIbEs08AhsuEZmDc
-    short-id: a696de84963656de
-  servername: max.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: qq
 - name: 🇬🇧 GB [R] | 144.31.87.16
   type: vless
   server: 144.31.87.16
@@ -101,23 +101,7 @@ proxies:
   client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: ''
-- name: 🇺🇸 US [R] | 200.165.230.19
-  type: vless
-  server: 200.165.230.19
-  port: 443
-  uuid: d01d5a74-09fb-4e9e-b0d9-38b5fd77ad70
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: iWxxH0TWB1Ciz6sEwtfjUVY61OcTDihou5IJfkt0O0Q
-    short-id: a3f8d21c4b907e56
-  servername: www.kinopoisk.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇩🇪 DE [R] | 83.217.201.244
+- name: 🇺🇸 US [R] | 83.217.201.244
   type: vless
   server: 83.217.201.244
   port: 443
@@ -133,9 +117,57 @@ proxies:
   servername: www.kinopoisk.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇰🇿 KZ [R] | kz2.techdatacloud.org
+- name: 🇩🇪 DE [R] | 85.193.80.164
   type: vless
-  server: kz2.techdatacloud.org
+  server: 85.193.80.164
+  port: 443
+  uuid: d01d5a74-09fb-4e9e-b0d9-38b5fd77ad70
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: iWxxH0TWB1Ciz6sEwtfjUVY61OcTDihou5IJfkt0O0Q
+    short-id: a3f8d21c4b907e56
+  servername: www.kinopoisk.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇩🇪 DE [R] | 200.165.230.19
+  type: vless
+  server: 200.165.230.19
+  port: 443
+  uuid: d01d5a74-09fb-4e9e-b0d9-38b5fd77ad70
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: iWxxH0TWB1Ciz6sEwtfjUVY61OcTDihou5IJfkt0O0Q
+    short-id: a3f8d21c4b907e56
+  servername: www.kinopoisk.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇩🇪 DE [R] | ru.lobbytech.ru
+  type: vless
+  server: ru.lobbytech.ru
+  port: 443
+  uuid: d01d5a74-09fb-4e9e-b0d9-38b5fd77ad70
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: iWxxH0TWB1Ciz6sEwtfjUVY61OcTDihou5IJfkt0O0Q
+    short-id: a3f8d21c4b907e56
+  servername: www.kinopoisk.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇰🇿 KZ [R] | 5.180.40.9
+  type: vless
+  server: 5.180.40.9
   port: 443
   uuid: 5e19b3c8-c1dc-4163-95e2-895319c15d6c
   udp: true
@@ -148,10 +180,10 @@ proxies:
     short-id: dfbfa87e9f37f1f0
   servername: cloud.mail.ru
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇰🇿 KZ [R] | 5.180.42.85
+  client-fingerprint: chrome
+- name: 🇰🇿 KZ [R] | kz2.techdatacloud.org
   type: vless
-  server: 5.180.42.85
+  server: kz2.techdatacloud.org
   port: 443
   uuid: 5e19b3c8-c1dc-4163-95e2-895319c15d6c
   udp: true
@@ -176,7 +208,7 @@ proxies:
   encryption: none
   tls: true
   servername: benz.ink
-  client-fingerprint: firefox
+  client-fingerprint: qq
   ws-opts:
     path: /api/v2/vms/stream/murci
     headers:
@@ -197,52 +229,20 @@ proxies:
     path: /api/v1/irc
     headers:
       Host: vod.ensf.top
-- name: 🇫🇮 FI [ws] | 194.154.30.154
-  type: vless
-  server: 194.154.30.154
-  port: 443
-  uuid: c7e9c591-2764-423a-afca-efbd010fd396
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: forfreeuse.rtqa.ru
-  client-fingerprint: chrome
-  ws-opts:
-    path: /
-    headers:
-      Host: forfreeuse.rtqa.ru
-- name: 🇩🇪 DE [ws] | 185.178.208.176
-  type: vless
-  server: 185.178.208.176
-  port: 443
-  uuid: 653aea5e-2157-4a1f-89bf-8b46fb677921
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: stream.telemetryapi.uk
-  client-fingerprint: firefox
-  ws-opts:
-    path: /api/v2/client/session/connect
-    headers:
-      Host: stream.telemetryapi.uk
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  - 🇫🇮 FI [R][grpc] | 31.129.42.239
   - 🇬🇧 GB [R] | 95.85.224.51
+  - 🇫🇮 FI [R][grpc] | 31.129.42.239
   - 🇬🇧 GB [R] | 144.31.87.16
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
-  - 🇺🇸 US [R] | 200.165.230.19
-  - 🇩🇪 DE [R] | 83.217.201.244
-  - 🇰🇿 KZ [R] | kz2.techdatacloud.org
-  - 🇰🇿 KZ [R] | 5.180.42.85
-  - 🇩🇪 DE [ws] | 95.129.236.252
+  - 🇺🇸 US [R] | 83.217.201.244
+  - 🇩🇪 DE [R] | 85.193.80.164
+  - 🇩🇪 DE [R] | 200.165.230.19
+  - 🇩🇪 DE [R] | ru.lobbytech.ru
+  - 🇰🇿 KZ [R] | 5.180.40.9
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -251,18 +251,18 @@ proxy-groups:
   proxies:
   - 🚀 Auto
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  - 🇫🇮 FI [R][grpc] | 31.129.42.239
   - 🇬🇧 GB [R] | 95.85.224.51
+  - 🇫🇮 FI [R][grpc] | 31.129.42.239
   - 🇬🇧 GB [R] | 144.31.87.16
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
-  - 🇺🇸 US [R] | 200.165.230.19
-  - 🇩🇪 DE [R] | 83.217.201.244
+  - 🇺🇸 US [R] | 83.217.201.244
+  - 🇩🇪 DE [R] | 85.193.80.164
+  - 🇩🇪 DE [R] | 200.165.230.19
+  - 🇩🇪 DE [R] | ru.lobbytech.ru
+  - 🇰🇿 KZ [R] | 5.180.40.9
   - 🇰🇿 KZ [R] | kz2.techdatacloud.org
-  - 🇰🇿 KZ [R] | 5.180.42.85
   - 🇩🇪 DE [ws] | 95.129.236.252
   - 🇦🇹 AT [ws] | 45.143.200.245
-  - 🇫🇮 FI [ws] | 194.154.30.154
-  - 🇩🇪 DE [ws] | 185.178.208.176
 - name: 🎯 Direct
   type: select
   proxies:
