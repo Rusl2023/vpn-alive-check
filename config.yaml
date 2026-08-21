@@ -51,7 +51,6 @@ proxies:
     short-id: a696de84963656de
   servername: max.ru
   flow: xtls-rprx-vision
-  client-fingerprint: qq
 - name: 🇬🇧 GB [R] | 144.31.87.16
   type: vless
   server: 144.31.87.16
@@ -84,9 +83,25 @@ proxies:
   client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: ''
-- name: 🇩🇪 DE [R] | 83.217.201.244
+- name: 🇺🇸 US [R] | 83.217.201.244
   type: vless
   server: 83.217.201.244
+  port: 443
+  uuid: d01d5a74-09fb-4e9e-b0d9-38b5fd77ad70
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: iWxxH0TWB1Ciz6sEwtfjUVY61OcTDihou5IJfkt0O0Q
+    short-id: a3f8d21c4b907e56
+  servername: www.kinopoisk.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇫🇮 FI [R] | ru.lobbytech.ru
+  type: vless
+  server: ru.lobbytech.ru
   port: 443
   uuid: d01d5a74-09fb-4e9e-b0d9-38b5fd77ad70
   udp: true
@@ -164,18 +179,6 @@ proxies:
   servername: cloud.mail.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇫🇷 FR [xhttp] | 188.68.218.160
-  type: vless
-  server: 188.68.218.160
-  port: 443
-  uuid: c22a72fa-b2c4-426f-b308-ffba57228bfb
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  servername: host.pushbyte.cc
-  client-fingerprint: firefox
 - name: 🇩🇪 DE [ws] | 84.201.128.112
   type: vless
   server: 84.201.128.112
@@ -192,22 +195,6 @@ proxies:
     path: /websocket?ed=2560
     headers:
       Host: cloudflare.vhub.pro
-- name: 🇫🇮 FI [ws] | 194.154.30.154
-  type: vless
-  server: 194.154.30.154
-  port: 443
-  uuid: c7e9c591-2764-423a-afca-efbd010fd396
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: forfreeuse.rtqa.ru
-  client-fingerprint: chrome
-  ws-opts:
-    path: /
-    headers:
-      Host: forfreeuse.rtqa.ru
 - name: 🇦🇹 AT [ws] | 45.143.200.245
   type: vless
   server: 45.143.200.245
@@ -224,43 +211,27 @@ proxies:
     path: /api/v1/irc
     headers:
       Host: vod.ensf.top
-- name: 🇦🇹 AT [ws] | 94.159.110.41
+- name: 🇩🇪 DE [ws] | 185.178.208.176
   type: vless
-  server: 94.159.110.41
+  server: 185.178.208.176
   port: 443
-  uuid: e911c552-3a98-41e0-b5fb-0dd3879887b7
+  uuid: 653aea5e-2157-4a1f-89bf-8b46fb677921
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: vod.ensf.top
-  client-fingerprint: firefox
+  servername: api.stream.telemetryapi.uk
+  client-fingerprint: chrome
   ws-opts:
-    path: /api/v1/irc
+    path: /api/v2/client/session/connect
     headers:
-      Host: vod.ensf.top
-- name: 🇱🇹 LT [ws] | 95.129.236.216
-  type: vless
-  server: 95.129.236.216
-  port: 443
-  uuid: 22753b34-5824-4e23-a589-3048fc583a7d
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: cdnguard.org
-  client-fingerprint: firefox
-  ws-opts:
-    path: /origin/190546791/fetch
-    headers:
-      Host: cdnguard.org
+      Host: api.stream.telemetryapi.uk
 - name: 🇩🇪 DE [ws] | 95.129.236.252
   type: vless
   server: 95.129.236.252
   port: 443
-  uuid: a908bc95-855f-4bf2-8e10-2d16628ea964
+  uuid: b0347684-615d-4c47-bc50-19b7add2ebde
   udp: true
   skip-cert-verify: true
   network: ws
@@ -280,12 +251,12 @@ proxy-groups:
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇬🇧 GB [R] | 144.31.87.16
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
-  - 🇩🇪 DE [R] | 83.217.201.244
+  - 🇺🇸 US [R] | 83.217.201.244
+  - 🇫🇮 FI [R] | ru.lobbytech.ru
   - 🇳🇱 NL [R] | 194.55.239.164
   - 🇰🇿 KZ [R] | kz2.techdatacloud.org
   - 🇰🇿 KZ [R] | 5.180.40.9
   - 🇰🇿 KZ [R] | 5.180.42.85
-  - 🇫🇷 FR [xhttp] | 188.68.218.160
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -297,17 +268,15 @@ proxy-groups:
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇬🇧 GB [R] | 144.31.87.16
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
-  - 🇩🇪 DE [R] | 83.217.201.244
+  - 🇺🇸 US [R] | 83.217.201.244
+  - 🇫🇮 FI [R] | ru.lobbytech.ru
   - 🇳🇱 NL [R] | 194.55.239.164
   - 🇰🇿 KZ [R] | kz2.techdatacloud.org
   - 🇰🇿 KZ [R] | 5.180.40.9
   - 🇰🇿 KZ [R] | 5.180.42.85
-  - 🇫🇷 FR [xhttp] | 188.68.218.160
   - 🇩🇪 DE [ws] | 84.201.128.112
-  - 🇫🇮 FI [ws] | 194.154.30.154
   - 🇦🇹 AT [ws] | 45.143.200.245
-  - 🇦🇹 AT [ws] | 94.159.110.41
-  - 🇱🇹 LT [ws] | 95.129.236.216
+  - 🇩🇪 DE [ws] | 185.178.208.176
   - 🇩🇪 DE [ws] | 95.129.236.252
 - name: 🎯 Direct
   type: select
