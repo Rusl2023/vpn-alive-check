@@ -21,7 +21,38 @@ dns:
   - tls://8.8.8.8
   - tls://1.1.1.1
 proxies:
-- name: 🇪🇪 EE [R][grpc] | 31.129.42.239
+- name: 🇳🇱 NL [R][xhttp] | 91.84.117.29
+  type: vless
+  server: 91.84.117.29
+  port: 443
+  uuid: a4037b4c-6a9d-528c-9efb-7d801cce8adb
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: PyV8IrAs0LkE2d_DdjvdCtpWG7MZyUKsYkb52GUmuDM
+    short-id: '67'
+  servername: vk.com
+  client-fingerprint: chrome
+- name: 🇬🇧 GB [R] | 95.85.224.51
+  type: vless
+  server: 95.85.224.51
+  port: 443
+  uuid: 342ab7e4-5a89-0001-8809-304120d4aa83
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: WWeAHWUVD-phmnjNJ823cer0c4CMIbEs08AhsuEZmDc
+    short-id: a696de84963656de
+  servername: max.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: qq
+- name: 🇫🇮 FI [R][grpc] | 31.129.42.239
   type: vless
   server: 31.129.42.239
   port: 443
@@ -38,20 +69,6 @@ proxies:
   client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: grpc8c948083b439
-- name: 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  type: vless
-  server: 91.84.117.29
-  port: 443
-  uuid: a4037b4c-6a9d-528c-9efb-7d801cce8adb
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: PyV8IrAs0LkE2d_DdjvdCtpWG7MZyUKsYkb52GUmuDM
-    short-id: '67'
-  servername: vk.com
 - name: 🇬🇧 GB [R] | 144.31.87.16
   type: vless
   server: 144.31.87.16
@@ -67,25 +84,9 @@ proxies:
     short-id: 3b802dad547b0847
   servername: yandex.ru
   client-fingerprint: firefox
-- name: 🇬🇧 GB [R] | 95.85.224.51
+- name: 🇦🇪 AE [R][xhttp] | mnl.savesafe.space
   type: vless
-  server: 95.85.224.51
-  port: 443
-  uuid: 342ab7e4-5a89-0001-8809-304120d4aa83
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: WWeAHWUVD-phmnjNJ823cer0c4CMIbEs08AhsuEZmDc
-    short-id: a696de84963656de
-  servername: max.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇦🇪 AE [R][xhttp] | 200.165.232.177
-  type: vless
-  server: 200.165.232.177
+  server: mnl.savesafe.space
   port: 443
   uuid: b5ca5ab3-8cbc-4ac3-89da-9cd360589ecb
   udp: true
@@ -98,23 +99,6 @@ proxies:
     short-id: 2b5b1ffa8a6a1a68
   servername: ya.ru
   client-fingerprint: chrome
-- name: 🇳🇱 NL [R][grpc] | 72.56.78.50
-  type: vless
-  server: 72.56.78.50
-  port: 443
-  uuid: fee2cdd8-55d1-4c5b-a67a-cfde8d45eed0
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: huH_8n0Dfk4iolIkzrc-qET8ySHWgZAr-i6K6lr6xSs
-    short-id: 375838bc17c0
-  servername: sun6-21.userapi.com
-  client-fingerprint: firefox
-  grpc-opts:
-    grpc-service-name: ''
 - name: 🇺🇸 US [R] | 200.165.230.19
   type: vless
   server: 200.165.230.19
@@ -130,23 +114,7 @@ proxies:
     short-id: a3f8d21c4b907e56
   servername: www.kinopoisk.ru
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇺🇸 US [R] | 85.193.80.164
-  type: vless
-  server: 85.193.80.164
-  port: 443
-  uuid: d01d5a74-09fb-4e9e-b0d9-38b5fd77ad70
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: iWxxH0TWB1Ciz6sEwtfjUVY61OcTDihou5IJfkt0O0Q
-    short-id: a3f8d21c4b907e56
-  servername: www.kinopoisk.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
+  client-fingerprint: qq
 - name: 🇺🇸 US [R] | ru.lobbytech.ru
   type: vless
   server: ru.lobbytech.ru
@@ -179,6 +147,22 @@ proxies:
   servername: cloud.mail.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
+- name: 🇩🇪 DE [R] | 83.217.201.244
+  type: vless
+  server: 83.217.201.244
+  port: 443
+  uuid: d01d5a74-09fb-4e9e-b0d9-38b5fd77ad70
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: iWxxH0TWB1Ciz6sEwtfjUVY61OcTDihou5IJfkt0O0Q
+    short-id: a3f8d21c4b907e56
+  servername: www.kinopoisk.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
 - name: 🇰🇿 KZ [R] | kz2.techdatacloud.org
   type: vless
   server: kz2.techdatacloud.org
@@ -211,83 +195,20 @@ proxies:
   servername: cloud.mail.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇫🇮 FI [ws] | 194.154.30.154
-  type: vless
-  server: 194.154.30.154
-  port: 443
-  uuid: c7e9c591-2764-423a-afca-efbd010fd396
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: forfreeuse.rtqa.ru
-  ws-opts:
-    path: /
-    headers:
-      Host: forfreeuse.rtqa.ru
-- name: 🇸🇪 SE [ws] | 185.178.208.176
-  type: vless
-  server: 185.178.208.176
-  port: 443
-  uuid: d8d1a348-6f60-44ea-a9e0-50ae7e41a056
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: founders-blog.online
-  client-fingerprint: chrome
-  ws-opts:
-    path: /stream/615428/socket
-    headers:
-      Host: founders-blog.online
-- name: 🇩🇪 DE [ws] | 95.129.236.252
-  type: vless
-  server: 95.129.236.252
-  port: 443
-  uuid: 62ea7b1d-5090-446e-91db-29fc029a4649
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: mapzapravki.space
-  client-fingerprint: firefox
-  ws-opts:
-    path: /api/v2/vms/stream/murci
-    headers:
-      Host: mapzapravki.space
-- name: 🇱🇹 LT [ws] | 95.129.236.216
-  type: vless
-  server: 95.129.236.216
-  port: 443
-  uuid: 3399735c-caff-4720-9b07-fc2660b76912
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: cdnguard.org
-  client-fingerprint: firefox
-  ws-opts:
-    path: /origin/190546791/fetch
-    headers:
-      Host: cdnguard.org
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
-  - 🇪🇪 EE [R][grpc] | 31.129.42.239
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  - 🇬🇧 GB [R] | 144.31.87.16
   - 🇬🇧 GB [R] | 95.85.224.51
-  - 🇦🇪 AE [R][xhttp] | 200.165.232.177
-  - 🇳🇱 NL [R][grpc] | 72.56.78.50
+  - 🇫🇮 FI [R][grpc] | 31.129.42.239
+  - 🇬🇧 GB [R] | 144.31.87.16
+  - 🇦🇪 AE [R][xhttp] | mnl.savesafe.space
   - 🇺🇸 US [R] | 200.165.230.19
-  - 🇺🇸 US [R] | 85.193.80.164
   - 🇺🇸 US [R] | ru.lobbytech.ru
   - 🇰🇿 KZ [R] | 5.180.40.9
+  - 🇩🇪 DE [R] | 83.217.201.244
+  - 🇰🇿 KZ [R] | kz2.techdatacloud.org
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -295,22 +216,17 @@ proxy-groups:
   type: select
   proxies:
   - 🚀 Auto
-  - 🇪🇪 EE [R][grpc] | 31.129.42.239
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  - 🇬🇧 GB [R] | 144.31.87.16
   - 🇬🇧 GB [R] | 95.85.224.51
-  - 🇦🇪 AE [R][xhttp] | 200.165.232.177
-  - 🇳🇱 NL [R][grpc] | 72.56.78.50
+  - 🇫🇮 FI [R][grpc] | 31.129.42.239
+  - 🇬🇧 GB [R] | 144.31.87.16
+  - 🇦🇪 AE [R][xhttp] | mnl.savesafe.space
   - 🇺🇸 US [R] | 200.165.230.19
-  - 🇺🇸 US [R] | 85.193.80.164
   - 🇺🇸 US [R] | ru.lobbytech.ru
   - 🇰🇿 KZ [R] | 5.180.40.9
+  - 🇩🇪 DE [R] | 83.217.201.244
   - 🇰🇿 KZ [R] | kz2.techdatacloud.org
   - 🇰🇿 KZ [R] | 5.180.42.85
-  - 🇫🇮 FI [ws] | 194.154.30.154
-  - 🇸🇪 SE [ws] | 185.178.208.176
-  - 🇩🇪 DE [ws] | 95.129.236.252
-  - 🇱🇹 LT [ws] | 95.129.236.216
 - name: 🎯 Direct
   type: select
   proxies:
