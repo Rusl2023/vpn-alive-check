@@ -52,6 +52,23 @@ proxies:
   servername: max.ru
   flow: xtls-rprx-vision
   client-fingerprint: qq
+- name: 🇫🇮 FI [R][grpc] | 31.129.42.239
+  type: vless
+  server: 31.129.42.239
+  port: 443
+  uuid: 97e967da-1d2b-439e-836b-a9d5a90496dc
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: KwPeoAnP208rOsWWHSjhPKdpVzvIHpfBUltBHaBCSDs
+    short-id: d9114354
+  servername: vk.com
+  client-fingerprint: firefox
+  grpc-opts:
+    grpc-service-name: grpc8c948083b439
 - name: 🇬🇧 GB [R] | 144.31.87.16
   type: vless
   server: 144.31.87.16
@@ -84,7 +101,7 @@ proxies:
   client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: ''
-- name: 🇩🇪 DE [R] | 83.217.201.244
+- name: 🇺🇸 US [R] | 83.217.201.244
   type: vless
   server: 83.217.201.244
   port: 443
@@ -116,20 +133,36 @@ proxies:
   servername: www.kinopoisk.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇳🇱 NL [R] | 194.55.239.164
+- name: 🇩🇪 DE [R] | 200.165.230.19
   type: vless
-  server: 194.55.239.164
+  server: 200.165.230.19
   port: 443
-  uuid: 6192b7d1-fc9d-4be1-900e-dbd69de95ddf
+  uuid: d01d5a74-09fb-4e9e-b0d9-38b5fd77ad70
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: sdnD0vxmj8kHBOoVM8TE9IyBCGwnKNB8hZVaHp_Zfjk
-    short-id: fe8d
-  servername: ads.vk.ru
+    public-key: iWxxH0TWB1Ciz6sEwtfjUVY61OcTDihou5IJfkt0O0Q
+    short-id: a3f8d21c4b907e56
+  servername: www.kinopoisk.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇩🇪 DE [R] | ru.lobbytech.ru
+  type: vless
+  server: ru.lobbytech.ru
+  port: 443
+  uuid: d01d5a74-09fb-4e9e-b0d9-38b5fd77ad70
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: iWxxH0TWB1Ciz6sEwtfjUVY61OcTDihou5IJfkt0O0Q
+    short-id: a3f8d21c4b907e56
+  servername: www.kinopoisk.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
 - name: 🇰🇿 KZ [R] | 5.180.40.9
@@ -164,6 +197,22 @@ proxies:
   servername: cloud.mail.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
+- name: 🇩🇪 DE [ws] | 95.129.236.252
+  type: vless
+  server: 95.129.236.252
+  port: 443
+  uuid: 65761043-f5c1-4e7b-8c16-b72c7a3fa4b7
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: benz.ink
+  client-fingerprint: qq
+  ws-opts:
+    path: /api/v2/vms/stream/murci
+    headers:
+      Host: benz.ink
 - name: 🇦🇹 AT [ws] | 45.143.200.245
   type: vless
   server: 45.143.200.245
@@ -180,51 +229,20 @@ proxies:
     path: /api/v1/irc
     headers:
       Host: vod.ensf.top
-- name: 🇫🇮 FI [ws] | 194.154.30.154
-  type: vless
-  server: 194.154.30.154
-  port: 443
-  uuid: c7e9c591-2764-423a-afca-efbd010fd396
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: forfreeuse.rtqa.ru
-  ws-opts:
-    path: /
-    headers:
-      Host: forfreeuse.rtqa.ru
-- name: 🇩🇪 DE [ws] | 95.129.236.252
-  type: vless
-  server: 95.129.236.252
-  port: 443
-  uuid: 65761043-f5c1-4e7b-8c16-b72c7a3fa4b7
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: benz.ink
-  client-fingerprint: firefox
-  ws-opts:
-    path: /api/v2/vms/stream/murci
-    headers:
-      Host: benz.ink
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇬🇧 GB [R] | 95.85.224.51
+  - 🇫🇮 FI [R][grpc] | 31.129.42.239
   - 🇬🇧 GB [R] | 144.31.87.16
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
-  - 🇩🇪 DE [R] | 83.217.201.244
+  - 🇺🇸 US [R] | 83.217.201.244
   - 🇩🇪 DE [R] | 85.193.80.164
-  - 🇳🇱 NL [R] | 194.55.239.164
+  - 🇩🇪 DE [R] | 200.165.230.19
+  - 🇩🇪 DE [R] | ru.lobbytech.ru
   - 🇰🇿 KZ [R] | 5.180.40.9
-  - 🇰🇿 KZ [R] | kz2.techdatacloud.org
-  - 🇦🇹 AT [ws] | 45.143.200.245
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -234,16 +252,17 @@ proxy-groups:
   - 🚀 Auto
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇬🇧 GB [R] | 95.85.224.51
+  - 🇫🇮 FI [R][grpc] | 31.129.42.239
   - 🇬🇧 GB [R] | 144.31.87.16
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
-  - 🇩🇪 DE [R] | 83.217.201.244
+  - 🇺🇸 US [R] | 83.217.201.244
   - 🇩🇪 DE [R] | 85.193.80.164
-  - 🇳🇱 NL [R] | 194.55.239.164
+  - 🇩🇪 DE [R] | 200.165.230.19
+  - 🇩🇪 DE [R] | ru.lobbytech.ru
   - 🇰🇿 KZ [R] | 5.180.40.9
   - 🇰🇿 KZ [R] | kz2.techdatacloud.org
-  - 🇦🇹 AT [ws] | 45.143.200.245
-  - 🇫🇮 FI [ws] | 194.154.30.154
   - 🇩🇪 DE [ws] | 95.129.236.252
+  - 🇦🇹 AT [ws] | 45.143.200.245
 - name: 🎯 Direct
   type: select
   proxies:
