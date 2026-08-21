@@ -83,9 +83,9 @@ proxies:
   client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: ''
-- name: 🇫🇮 FI [R] | ru.lobbytech.ru
+- name: 🇺🇸 US [R] | 83.217.201.244
   type: vless
-  server: ru.lobbytech.ru
+  server: 83.217.201.244
   port: 443
   uuid: d01d5a74-09fb-4e9e-b0d9-38b5fd77ad70
   udp: true
@@ -99,9 +99,9 @@ proxies:
   servername: www.kinopoisk.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇩🇪 DE [R] | 83.217.201.244
+- name: 🇫🇮 FI [R] | ru.lobbytech.ru
   type: vless
-  server: 83.217.201.244
+  server: ru.lobbytech.ru
   port: 443
   uuid: d01d5a74-09fb-4e9e-b0d9-38b5fd77ad70
   udp: true
@@ -162,6 +162,22 @@ proxies:
     short-id: dfbfa87e9f37f1f0
   servername: cloud.mail.ru
   flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇰🇿 KZ [R] | 5.180.42.85
+  type: vless
+  server: 5.180.42.85
+  port: 443
+  uuid: 5e19b3c8-c1dc-4163-95e2-895319c15d6c
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 06GvG7PU5F3Hgq-vUH24tU0tpsbGMCCt26BSvlaBNUE
+    short-id: dfbfa87e9f37f1f0
+  servername: cloud.mail.ru
+  flow: xtls-rprx-vision
   client-fingerprint: firefox
 - name: 🇩🇪 DE [ws] | 84.201.128.112
   type: vless
@@ -179,22 +195,6 @@ proxies:
     path: /websocket?ed=2560
     headers:
       Host: cloudflare.vhub.pro
-- name: 🇫🇮 FI [ws] | 194.154.30.154
-  type: vless
-  server: 194.154.30.154
-  port: 443
-  uuid: c7e9c591-2764-423a-afca-efbd010fd396
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: forfreeuse.rtqa.ru
-  client-fingerprint: chrome
-  ws-opts:
-    path: /
-    headers:
-      Host: forfreeuse.rtqa.ru
 - name: 🇦🇹 AT [ws] | 45.143.200.245
   type: vless
   server: 45.143.200.245
@@ -211,35 +211,38 @@ proxies:
     path: /api/v1/irc
     headers:
       Host: vod.ensf.top
-- name: 🇩🇪 DE [ws] | 158.160.196.224
+- name: 🇩🇪 DE [ws] | 185.178.208.176
   type: vless
-  server: 158.160.196.224
+  server: 185.178.208.176
   port: 443
-  uuid: 5ca83936-136d-4314-8453-4ba10a86cf60
+  uuid: 653aea5e-2157-4a1f-89bf-8b46fb677921
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: cloudflare.vhub.pro
-  client-fingerprint: firefox
+  servername: api.stream.telemetryapi.uk
+  client-fingerprint: chrome
   ws-opts:
-    path: /websocket?ed=2560
+    path: /api/v2/client/session/connect
     headers:
-      Host: cloudflare.vhub.pro
-- name: 🇳🇱 NL  | 90.156.218.229
+      Host: api.stream.telemetryapi.uk
+- name: 🇩🇪 DE [ws] | 95.129.236.252
   type: vless
-  server: 90.156.218.229
+  server: 95.129.236.252
   port: 443
-  uuid: 8e85752d-c04f-427d-9d70-b10d144c8492
+  uuid: b0347684-615d-4c47-bc50-19b7add2ebde
   udp: true
   skip-cert-verify: true
-  network: tcp
+  network: ws
   encryption: none
   tls: true
-  servername: skys3.greatecloud.com
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
+  servername: benz.ink
+  client-fingerprint: firefox
+  ws-opts:
+    path: /api/v2/vms/stream/murci
+    headers:
+      Host: benz.ink
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
@@ -248,12 +251,12 @@ proxy-groups:
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇬🇧 GB [R] | 144.31.87.16
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
+  - 🇺🇸 US [R] | 83.217.201.244
   - 🇫🇮 FI [R] | ru.lobbytech.ru
-  - 🇩🇪 DE [R] | 83.217.201.244
   - 🇳🇱 NL [R] | 194.55.239.164
   - 🇰🇿 KZ [R] | kz2.techdatacloud.org
   - 🇰🇿 KZ [R] | 5.180.40.9
-  - 🇩🇪 DE [ws] | 84.201.128.112
+  - 🇰🇿 KZ [R] | 5.180.42.85
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -265,16 +268,16 @@ proxy-groups:
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇬🇧 GB [R] | 144.31.87.16
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
+  - 🇺🇸 US [R] | 83.217.201.244
   - 🇫🇮 FI [R] | ru.lobbytech.ru
-  - 🇩🇪 DE [R] | 83.217.201.244
   - 🇳🇱 NL [R] | 194.55.239.164
   - 🇰🇿 KZ [R] | kz2.techdatacloud.org
   - 🇰🇿 KZ [R] | 5.180.40.9
+  - 🇰🇿 KZ [R] | 5.180.42.85
   - 🇩🇪 DE [ws] | 84.201.128.112
-  - 🇫🇮 FI [ws] | 194.154.30.154
   - 🇦🇹 AT [ws] | 45.143.200.245
-  - 🇩🇪 DE [ws] | 158.160.196.224
-  - 🇳🇱 NL  | 90.156.218.229
+  - 🇩🇪 DE [ws] | 185.178.208.176
+  - 🇩🇪 DE [ws] | 95.129.236.252
 - name: 🎯 Direct
   type: select
   proxies:
