@@ -52,7 +52,21 @@ proxies:
     public-key: PyV8IrAs0LkE2d_DdjvdCtpWG7MZyUKsYkb52GUmuDM
     short-id: '67'
   servername: vk.com
-  client-fingerprint: chrome
+- name: 🇬🇧 GB [R] | 144.31.87.16
+  type: vless
+  server: 144.31.87.16
+  port: 443
+  uuid: c40f773e-3b96-417e-b22c-e48cb63ca7d9
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: l5eAOSPQMEyzEPvWGAKvCkcPpsJvR3DJfYo6elw1UTE
+    short-id: 3b802dad547b0847
+  servername: yandex.ru
+  client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 95.85.224.51
   type: vless
   server: 95.85.224.51
@@ -69,21 +83,6 @@ proxies:
   servername: max.ru
   flow: xtls-rprx-vision
   client-fingerprint: qq
-- name: 🇬🇧 GB [R] | 144.31.87.16
-  type: vless
-  server: 144.31.87.16
-  port: 443
-  uuid: c40f773e-3b96-417e-b22c-e48cb63ca7d9
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: l5eAOSPQMEyzEPvWGAKvCkcPpsJvR3DJfYo6elw1UTE
-    short-id: 3b802dad547b0847
-  servername: yandex.ru
-  client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 95.163.232.49
   type: vless
   server: 95.163.232.49
@@ -132,21 +131,6 @@ proxies:
     short-id: 2b5b1ffa8a6a1a68
   servername: ya.ru
   client-fingerprint: chrome
-- name: 🇦🇪 AE [R][xhttp] | mnl.savesafe.space
-  type: vless
-  server: mnl.savesafe.space
-  port: 443
-  uuid: b5ca5ab3-8cbc-4ac3-89da-9cd360589ecb
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: 2P7D_IkxXWre3YziEe2tkF9L_gUbdZE_WCu9_SQq4hE
-    short-id: 2b5b1ffa8a6a1a68
-  servername: ya.ru
-  client-fingerprint: chrome
 - name: 🇰🇿 KZ [R] | 5.180.40.9
   type: vless
   server: 5.180.40.9
@@ -163,7 +147,7 @@ proxies:
   servername: cloud.mail.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇩🇪 DE [R] | 200.165.230.19
+- name: 🇺🇸 US [R] | 200.165.230.19
   type: vless
   server: 200.165.230.19
   port: 443
@@ -177,22 +161,6 @@ proxies:
     public-key: iWxxH0TWB1Ciz6sEwtfjUVY61OcTDihou5IJfkt0O0Q
     short-id: a3f8d21c4b907e56
   servername: www.kinopoisk.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇰🇿 KZ [R] | 5.180.42.85
-  type: vless
-  server: 5.180.42.85
-  port: 443
-  uuid: 5e19b3c8-c1dc-4163-95e2-895319c15d6c
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: 06GvG7PU5F3Hgq-vUH24tU0tpsbGMCCt26BSvlaBNUE
-    short-id: dfbfa87e9f37f1f0
-  servername: cloud.mail.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
 - name: 🇰🇿 KZ [R] | kz2.techdatacloud.org
@@ -211,20 +179,36 @@ proxies:
   servername: cloud.mail.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
+- name: 🇩🇪 DE [ws] | 95.129.236.252
+  type: vless
+  server: 95.129.236.252
+  port: 443
+  uuid: 56a0abd3-def2-4f64-b648-1d9531caa3e7
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: mapzapravki.space
+  client-fingerprint: firefox
+  ws-opts:
+    path: /api/v2/vms/stream/murci
+    headers:
+      Host: mapzapravki.space
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
   - 🇪🇪 EE [R][grpc] | 31.129.42.239
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  - 🇬🇧 GB [R] | 95.85.224.51
   - 🇬🇧 GB [R] | 144.31.87.16
+  - 🇬🇧 GB [R] | 95.85.224.51
   - 🇬🇧 GB [R] | 95.163.232.49
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
   - 🇦🇪 AE [R][xhttp] | 200.165.232.177
-  - 🇦🇪 AE [R][xhttp] | mnl.savesafe.space
   - 🇰🇿 KZ [R] | 5.180.40.9
-  - 🇩🇪 DE [R] | 200.165.230.19
+  - 🇺🇸 US [R] | 200.165.230.19
+  - 🇰🇿 KZ [R] | kz2.techdatacloud.org
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -234,16 +218,15 @@ proxy-groups:
   - 🚀 Auto
   - 🇪🇪 EE [R][grpc] | 31.129.42.239
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  - 🇬🇧 GB [R] | 95.85.224.51
   - 🇬🇧 GB [R] | 144.31.87.16
+  - 🇬🇧 GB [R] | 95.85.224.51
   - 🇬🇧 GB [R] | 95.163.232.49
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
   - 🇦🇪 AE [R][xhttp] | 200.165.232.177
-  - 🇦🇪 AE [R][xhttp] | mnl.savesafe.space
   - 🇰🇿 KZ [R] | 5.180.40.9
-  - 🇩🇪 DE [R] | 200.165.230.19
-  - 🇰🇿 KZ [R] | 5.180.42.85
+  - 🇺🇸 US [R] | 200.165.230.19
   - 🇰🇿 KZ [R] | kz2.techdatacloud.org
+  - 🇩🇪 DE [ws] | 95.129.236.252
 - name: 🎯 Direct
   type: select
   proxies:
