@@ -68,22 +68,6 @@ proxies:
     short-id: 3b802dad547b0847
   servername: yandex.ru
   client-fingerprint: firefox
-- name: 🇬🇧 GB [R] | 95.163.232.49
-  type: vless
-  server: 95.163.232.49
-  port: 443
-  uuid: 301d201a-cea0-4626-b593-c75d0699e89c
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: oqRus6Z_Q1jqJaTEPu7ENbRL0-XKOw54K0jwCCGLtEk
-    short-id: a9c4f17e3b62d8
-  servername: max.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
 - name: 🇬🇧 GB [R] | 95.85.224.51
   type: vless
   server: 95.85.224.51
@@ -131,37 +115,39 @@ proxies:
     public-key: 2P7D_IkxXWre3YziEe2tkF9L_gUbdZE_WCu9_SQq4hE
     short-id: 2b5b1ffa8a6a1a68
   servername: ya.ru
-  client-fingerprint: qq
-- name: 🇦🇪 AE [R][xhttp] | mnl.savesafe.space
-  type: vless
-  server: mnl.savesafe.space
-  port: 443
-  uuid: b5ca5ab3-8cbc-4ac3-89da-9cd360589ecb
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: 2P7D_IkxXWre3YziEe2tkF9L_gUbdZE_WCu9_SQq4hE
-    short-id: 2b5b1ffa8a6a1a68
-  servername: ya.ru
   client-fingerprint: firefox
-- name: 🇦🇪 AE [R][xhttp] | 200.165.229.169
+- name: 🇬🇧 GB [R] | 176.109.88.216
   type: vless
-  server: 200.165.229.169
+  server: 176.109.88.216
   port: 443
-  uuid: b5ca5ab3-8cbc-4ac3-89da-9cd360589ecb
+  uuid: 2c7f1414-87ae-4a01-9796-a02c067891a6
   udp: true
   skip-cert-verify: true
-  network: xhttp
+  network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: 2P7D_IkxXWre3YziEe2tkF9L_gUbdZE_WCu9_SQq4hE
-    short-id: 2b5b1ffa8a6a1a68
-  servername: ya.ru
+    public-key: oqRus6Z_Q1jqJaTEPu7ENbRL0-XKOw54K0jwCCGLtEk
+    short-id: a9c4f17e3b62d8
+  servername: api-maps.yandex.ru
+  flow: xtls-rprx-vision
   client-fingerprint: qq
+- name: 🇰🇿 KZ [R] | 5.180.40.9
+  type: vless
+  server: 5.180.40.9
+  port: 443
+  uuid: 5e19b3c8-c1dc-4163-95e2-895319c15d6c
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 06GvG7PU5F3Hgq-vUH24tU0tpsbGMCCt26BSvlaBNUE
+    short-id: dfbfa87e9f37f1f0
+  servername: cloud.mail.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇰🇿 KZ [R] | kz2.techdatacloud.org
   type: vless
   server: kz2.techdatacloud.org
@@ -194,22 +180,6 @@ proxies:
   servername: cloud.mail.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇫🇮 FI [ws] | 5.101.114.243
-  type: vless
-  server: 5.101.114.243
-  port: 443
-  uuid: c7e9c591-2764-423a-afca-efbd010fd396
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: forfreeuse.rtqa.ru
-  client-fingerprint: chrome
-  ws-opts:
-    path: /
-    headers:
-      Host: forfreeuse.rtqa.ru
 - name: 🇫🇮 FI [ws] | 46.17.45.216
   type: vless
   server: 46.17.45.216
@@ -226,9 +196,9 @@ proxies:
     path: /
     headers:
       Host: forfreeuse.rtqa.ru
-- name: 🇫🇮 FI [ws] | 94.159.105.213
+- name: 🇫🇮 FI [ws] | 194.154.30.154
   type: vless
-  server: 94.159.105.213
+  server: 194.154.30.154
   port: 443
   uuid: c7e9c591-2764-423a-afca-efbd010fd396
   udp: true
@@ -237,27 +207,19 @@ proxies:
   encryption: none
   tls: true
   servername: forfreeuse.rtqa.ru
-  client-fingerprint: chrome
   ws-opts:
     path: /
     headers:
       Host: forfreeuse.rtqa.ru
-- name: 🇫🇮 FI [ws] | 94.159.108.9
+- name: 🇫🇷 FR  | 89.208.113.16
   type: vless
-  server: 94.159.108.9
+  server: 89.208.113.16
   port: 443
-  uuid: c7e9c591-2764-423a-afca-efbd010fd396
+  uuid: adce7c2a-3191-49ae-b61c-9b8258ea1b0e
   udp: true
   skip-cert-verify: true
-  network: ws
+  network: tcp
   encryption: none
-  tls: true
-  servername: forfreeuse.rtqa.ru
-  client-fingerprint: chrome
-  ws-opts:
-    path: /
-    headers:
-      Host: forfreeuse.rtqa.ru
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
@@ -265,13 +227,13 @@ proxy-groups:
   - 🇪🇪 EE [R][grpc] | 31.129.42.239
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇬🇧 GB [R] | 144.31.87.16
-  - 🇬🇧 GB [R] | 95.163.232.49
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
   - 🇦🇪 AE [R][xhttp] | 200.165.232.177
-  - 🇦🇪 AE [R][xhttp] | mnl.savesafe.space
-  - 🇦🇪 AE [R][xhttp] | 200.165.229.169
+  - 🇬🇧 GB [R] | 176.109.88.216
+  - 🇰🇿 KZ [R] | 5.180.40.9
   - 🇰🇿 KZ [R] | kz2.techdatacloud.org
+  - 🇰🇿 KZ [R] | 5.180.42.85
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -282,18 +244,16 @@ proxy-groups:
   - 🇪🇪 EE [R][grpc] | 31.129.42.239
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇬🇧 GB [R] | 144.31.87.16
-  - 🇬🇧 GB [R] | 95.163.232.49
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
   - 🇦🇪 AE [R][xhttp] | 200.165.232.177
-  - 🇦🇪 AE [R][xhttp] | mnl.savesafe.space
-  - 🇦🇪 AE [R][xhttp] | 200.165.229.169
+  - 🇬🇧 GB [R] | 176.109.88.216
+  - 🇰🇿 KZ [R] | 5.180.40.9
   - 🇰🇿 KZ [R] | kz2.techdatacloud.org
   - 🇰🇿 KZ [R] | 5.180.42.85
-  - 🇫🇮 FI [ws] | 5.101.114.243
   - 🇫🇮 FI [ws] | 46.17.45.216
-  - 🇫🇮 FI [ws] | 94.159.105.213
-  - 🇫🇮 FI [ws] | 94.159.108.9
+  - 🇫🇮 FI [ws] | 194.154.30.154
+  - 🇫🇷 FR  | 89.208.113.16
 - name: 🎯 Direct
   type: select
   proxies:
