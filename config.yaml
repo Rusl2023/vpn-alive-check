@@ -36,21 +36,6 @@ proxies:
     short-id: '67'
   servername: vk.com
   client-fingerprint: chrome
-- name: 🇬🇧 GB [R] | 144.31.87.16
-  type: vless
-  server: 144.31.87.16
-  port: 443
-  uuid: c40f773e-3b96-417e-b22c-e48cb63ca7d9
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: l5eAOSPQMEyzEPvWGAKvCkcPpsJvR3DJfYo6elw1UTE
-    short-id: 3b802dad547b0847
-  servername: yandex.ru
-  client-fingerprint: firefox
 - name: 🇪🇪 EE [R][grpc] | 31.129.42.239
   type: vless
   server: 31.129.42.239
@@ -83,7 +68,22 @@ proxies:
     short-id: a696de84963656de
   servername: max.ru
   flow: xtls-rprx-vision
-  client-fingerprint: qq
+  client-fingerprint: chrome
+- name: 🇬🇧 GB [R] | 144.31.87.16
+  type: vless
+  server: 144.31.87.16
+  port: 443
+  uuid: c40f773e-3b96-417e-b22c-e48cb63ca7d9
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: l5eAOSPQMEyzEPvWGAKvCkcPpsJvR3DJfYo6elw1UTE
+    short-id: 3b802dad547b0847
+  servername: yandex.ru
+  client-fingerprint: firefox
 - name: 🇳🇱 NL [R][grpc] | 72.56.78.50
   type: vless
   server: 72.56.78.50
@@ -100,20 +100,20 @@ proxies:
   servername: sun6-21.userapi.com
   grpc-opts:
     grpc-service-name: ''
-- name: 🇰🇿 KZ [R] | 5.180.40.9
+- name: 🇫🇷 FR [R] | 72.56.4.94
   type: vless
-  server: 5.180.40.9
+  server: 72.56.4.94
   port: 443
-  uuid: 5e19b3c8-c1dc-4163-95e2-895319c15d6c
+  uuid: 86e1cbab-329e-48ca-a213-71745655886f
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: 06GvG7PU5F3Hgq-vUH24tU0tpsbGMCCt26BSvlaBNUE
-    short-id: dfbfa87e9f37f1f0
-  servername: cloud.mail.ru
+    public-key: ra-OyOGZwj9ZApabpTq2sZWIzub52UfzLvnfw1utsQg
+    short-id: '23637807'
+  servername: www.gosuslugi.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
 - name: 🇰🇿 KZ [R] | kz2.techdatacloud.org
@@ -132,6 +132,49 @@ proxies:
   servername: cloud.mail.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
+- name: 🇰🇿 KZ [R] | 5.180.40.9
+  type: vless
+  server: 5.180.40.9
+  port: 443
+  uuid: 5e19b3c8-c1dc-4163-95e2-895319c15d6c
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 06GvG7PU5F3Hgq-vUH24tU0tpsbGMCCt26BSvlaBNUE
+    short-id: dfbfa87e9f37f1f0
+  servername: cloud.mail.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇬🇧 GB [grpc] | de-pautina.unlimited-access.ru
+  type: vless
+  server: de-pautina.unlimited-access.ru
+  port: 443
+  uuid: dfd586fd-f329-46c4-ba9a-b6c3cf8e06ba
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  servername: de-pautina.unlimited-access.ru
+  client-fingerprint: qq
+  grpc-opts:
+    grpc-service-name: vless
+- name: 🇫🇷 FR  | lapa4.api3-max.ru
+  type: vless
+  server: lapa4.api3-max.ru
+  port: 443
+  uuid: ac7fb60f-0b7a-465d-a002-05160ec04ed6
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  servername: lapa4.api3-max.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
 - name: 🇫🇷 FR  | 88.218.196.178
   type: vless
   server: 88.218.196.178
@@ -145,19 +188,22 @@ proxies:
   servername: lapa4.api3-max.ru
   flow: xtls-rprx-vision-udp443
   client-fingerprint: firefox
-- name: 🇫🇷 FR  | lapa4.api3-max.ru
+- name: 🇸🇪 SE [ws] | 95.129.236.252
   type: vless
-  server: lapa4.api3-max.ru
+  server: 95.129.236.252
   port: 443
-  uuid: ac7fb60f-0b7a-465d-a002-05160ec04ed6
+  uuid: 08835f14-cb9c-4513-87d0-68989d16e88d
   udp: true
   skip-cert-verify: true
-  network: tcp
+  network: ws
   encryption: none
   tls: true
-  servername: lapa4.api3-max.ru
-  flow: xtls-rprx-vision
+  servername: benzin.mapzapravki.space
   client-fingerprint: firefox
+  ws-opts:
+    path: /api/v2/partner/xafiz
+    headers:
+      Host: benzin.mapzapravki.space
 - name: 🇫🇷 FR  | 89.208.113.16
   type: vless
   server: 89.208.113.16
@@ -172,15 +218,15 @@ proxy-groups:
   type: url-test
   proxies:
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  - 🇬🇧 GB [R] | 144.31.87.16
   - 🇪🇪 EE [R][grpc] | 31.129.42.239
   - 🇬🇧 GB [R] | 95.85.224.51
+  - 🇬🇧 GB [R] | 144.31.87.16
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
-  - 🇰🇿 KZ [R] | 5.180.40.9
+  - 🇫🇷 FR [R] | 72.56.4.94
   - 🇰🇿 KZ [R] | kz2.techdatacloud.org
-  - 🇫🇷 FR  | 88.218.196.178
+  - 🇰🇿 KZ [R] | 5.180.40.9
+  - 🇬🇧 GB [grpc] | de-pautina.unlimited-access.ru
   - 🇫🇷 FR  | lapa4.api3-max.ru
-  - 🇫🇷 FR  | 89.208.113.16
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -189,14 +235,17 @@ proxy-groups:
   proxies:
   - 🚀 Auto
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  - 🇬🇧 GB [R] | 144.31.87.16
   - 🇪🇪 EE [R][grpc] | 31.129.42.239
   - 🇬🇧 GB [R] | 95.85.224.51
+  - 🇬🇧 GB [R] | 144.31.87.16
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
-  - 🇰🇿 KZ [R] | 5.180.40.9
+  - 🇫🇷 FR [R] | 72.56.4.94
   - 🇰🇿 KZ [R] | kz2.techdatacloud.org
-  - 🇫🇷 FR  | 88.218.196.178
+  - 🇰🇿 KZ [R] | 5.180.40.9
+  - 🇬🇧 GB [grpc] | de-pautina.unlimited-access.ru
   - 🇫🇷 FR  | lapa4.api3-max.ru
+  - 🇫🇷 FR  | 88.218.196.178
+  - 🇸🇪 SE [ws] | 95.129.236.252
   - 🇫🇷 FR  | 89.208.113.16
 - name: 🎯 Direct
   type: select
