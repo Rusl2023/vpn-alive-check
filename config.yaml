@@ -132,82 +132,22 @@ proxies:
   servername: cloud.mail.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇫🇷 FR [xhttp] | 188.68.218.160
+- name: 🇰🇿 KZ [R] | kz2.techdatacloud.org
   type: vless
-  server: 188.68.218.160
+  server: kz2.techdatacloud.org
   port: 443
-  uuid: a86c99a4-947f-4fb9-b96a-fc03bc33a1a2
+  uuid: 5e19b3c8-c1dc-4163-95e2-895319c15d6c
   udp: true
   skip-cert-verify: true
-  network: xhttp
+  network: tcp
   encryption: none
   tls: true
-  servername: host.pushbyte.cc
+  reality-opts:
+    public-key: 06GvG7PU5F3Hgq-vUH24tU0tpsbGMCCt26BSvlaBNUE
+    short-id: dfbfa87e9f37f1f0
+  servername: cloud.mail.ru
+  flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇸🇪 SE [ws] | 95.129.236.252
-  type: vless
-  server: 95.129.236.252
-  port: 443
-  uuid: cc5fca9b-ee14-485c-8e12-f82629fb6aba
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: benzin.mapzapravki.space
-  client-fingerprint: firefox
-  ws-opts:
-    path: /api/v2/partner/xafiz
-    headers:
-      Host: benzin.mapzapravki.space
-- name: 🇸🇪 SE [ws] | 185.178.208.176
-  type: vless
-  server: 185.178.208.176
-  port: 443
-  uuid: cc5fca9b-ee14-485c-8e12-f82629fb6aba
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: founders-blog.online
-  client-fingerprint: chrome
-  ws-opts:
-    path: /stream/615428/socket
-    headers:
-      Host: founders-blog.online
-- name: 🇱🇹 LT [ws] | 95.129.236.216
-  type: vless
-  server: 95.129.236.216
-  port: 443
-  uuid: 156bc3db-e97f-43f7-b6e7-3b9b90dcaea9
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: cdnguard.org
-  client-fingerprint: firefox
-  ws-opts:
-    path: /origin/190546791/fetch
-    headers:
-      Host: cdnguard.org
-- name: 🇩🇪 DE [ws] | 185.178.208.140
-  type: vless
-  server: 185.178.208.140
-  port: 443
-  uuid: 799cb1ca-daa6-4cab-867f-a6c8ccd06856
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: mapgasstation.ru
-  client-fingerprint: firefox
-  ws-opts:
-    path: /api/v3/live/hls/segment
-    headers:
-      Host: mapgasstation.ru
 - name: 🇫🇷 FR  | 89.208.113.16
   type: vless
   server: 89.208.113.16
@@ -228,9 +168,8 @@ proxy-groups:
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
   - 🇰🇿 KZ [R] | 5.180.40.9
-  - 🇫🇷 FR [xhttp] | 188.68.218.160
-  - 🇸🇪 SE [ws] | 95.129.236.252
-  - 🇸🇪 SE [ws] | 185.178.208.176
+  - 🇰🇿 KZ [R] | kz2.techdatacloud.org
+  - 🇫🇷 FR  | 89.208.113.16
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -245,11 +184,7 @@ proxy-groups:
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
   - 🇰🇿 KZ [R] | 5.180.40.9
-  - 🇫🇷 FR [xhttp] | 188.68.218.160
-  - 🇸🇪 SE [ws] | 95.129.236.252
-  - 🇸🇪 SE [ws] | 185.178.208.176
-  - 🇱🇹 LT [ws] | 95.129.236.216
-  - 🇩🇪 DE [ws] | 185.178.208.140
+  - 🇰🇿 KZ [R] | kz2.techdatacloud.org
   - 🇫🇷 FR  | 89.208.113.16
 - name: 🎯 Direct
   type: select
