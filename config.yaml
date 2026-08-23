@@ -36,6 +36,21 @@ proxies:
     short-id: '67'
   servername: vk.com
   client-fingerprint: chrome
+- name: 🇬🇧 GB [R] | 144.31.87.16
+  type: vless
+  server: 144.31.87.16
+  port: 443
+  uuid: c40f773e-3b96-417e-b22c-e48cb63ca7d9
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: l5eAOSPQMEyzEPvWGAKvCkcPpsJvR3DJfYo6elw1UTE
+    short-id: 3b802dad547b0847
+  servername: yandex.ru
+  client-fingerprint: firefox
 - name: 🇪🇪 EE [R][grpc] | 31.129.42.239
   type: vless
   server: 31.129.42.239
@@ -69,37 +84,6 @@ proxies:
   servername: max.ru
   flow: xtls-rprx-vision
   client-fingerprint: qq
-- name: 🇬🇧 GB [R] | 95.163.232.49
-  type: vless
-  server: 95.163.232.49
-  port: 443
-  uuid: 301d201a-cea0-4626-b593-c75d0699e89c
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: oqRus6Z_Q1jqJaTEPu7ENbRL0-XKOw54K0jwCCGLtEk
-    short-id: a9c4f17e3b62d8
-  servername: max.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇬🇧 GB [R] | 144.31.87.16
-  type: vless
-  server: 144.31.87.16
-  port: 443
-  uuid: c40f773e-3b96-417e-b22c-e48cb63ca7d9
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: l5eAOSPQMEyzEPvWGAKvCkcPpsJvR3DJfYo6elw1UTE
-    short-id: 3b802dad547b0847
-  servername: yandex.ru
-  client-fingerprint: firefox
 - name: 🇳🇱 NL [R][grpc] | 72.56.78.50
   type: vless
   server: 72.56.78.50
@@ -148,70 +132,32 @@ proxies:
   servername: cloud.mail.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇸🇪 SE [ws] | 95.129.236.252
+- name: 🇫🇷 FR  | 88.218.196.178
   type: vless
-  server: 95.129.236.252
+  server: 88.218.196.178
   port: 443
-  uuid: 2c21a5e6-8d49-4846-8dbe-d5ce0eb6dfc3
+  uuid: ac7fb60f-0b7a-465d-a002-05160ec04ed6
   udp: true
   skip-cert-verify: true
-  network: ws
+  network: tcp
   encryption: none
   tls: true
-  servername: benzin.mapzapravki.space
+  servername: lapa4.api3-max.ru
+  flow: xtls-rprx-vision-udp443
   client-fingerprint: firefox
-  ws-opts:
-    path: /api/v2/partner/xafiz
-    headers:
-      Host: benzin.mapzapravki.space
-- name: 🇱🇹 LT [ws] | 95.129.236.216
+- name: 🇫🇷 FR  | lapa4.api3-max.ru
   type: vless
-  server: 95.129.236.216
+  server: lapa4.api3-max.ru
   port: 443
-  uuid: a390e88d-2808-435e-9b47-938284cfa0d5
+  uuid: ac7fb60f-0b7a-465d-a002-05160ec04ed6
   udp: true
   skip-cert-verify: true
-  network: ws
+  network: tcp
   encryption: none
   tls: true
-  servername: cdnguard.org
+  servername: lapa4.api3-max.ru
+  flow: xtls-rprx-vision
   client-fingerprint: firefox
-  ws-opts:
-    path: /origin/190546791/fetch
-    headers:
-      Host: cdnguard.org
-- name: 🇩🇪 DE [ws] | 185.178.208.140
-  type: vless
-  server: 185.178.208.140
-  port: 443
-  uuid: 46befac7-2136-44fa-a1bd-b7ea302a85bf
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: mapgasstation.ru
-  client-fingerprint: firefox
-  ws-opts:
-    path: /api/v3/live/hls/segment
-    headers:
-      Host: mapgasstation.ru
-- name: 🇸🇪 SE [ws] | 185.178.208.176
-  type: vless
-  server: 185.178.208.176
-  port: 443
-  uuid: 2c21a5e6-8d49-4846-8dbe-d5ce0eb6dfc3
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: founders-blog.online
-  client-fingerprint: chrome
-  ws-opts:
-    path: /stream/615428/socket
-    headers:
-      Host: founders-blog.online
 - name: 🇫🇷 FR  | 89.208.113.16
   type: vless
   server: 89.208.113.16
@@ -226,15 +172,15 @@ proxy-groups:
   type: url-test
   proxies:
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
+  - 🇬🇧 GB [R] | 144.31.87.16
   - 🇪🇪 EE [R][grpc] | 31.129.42.239
   - 🇬🇧 GB [R] | 95.85.224.51
-  - 🇬🇧 GB [R] | 95.163.232.49
-  - 🇬🇧 GB [R] | 144.31.87.16
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
   - 🇰🇿 KZ [R] | 5.180.40.9
   - 🇰🇿 KZ [R] | kz2.techdatacloud.org
-  - 🇸🇪 SE [ws] | 95.129.236.252
-  - 🇱🇹 LT [ws] | 95.129.236.216
+  - 🇫🇷 FR  | 88.218.196.178
+  - 🇫🇷 FR  | lapa4.api3-max.ru
+  - 🇫🇷 FR  | 89.208.113.16
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -243,17 +189,14 @@ proxy-groups:
   proxies:
   - 🚀 Auto
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
+  - 🇬🇧 GB [R] | 144.31.87.16
   - 🇪🇪 EE [R][grpc] | 31.129.42.239
   - 🇬🇧 GB [R] | 95.85.224.51
-  - 🇬🇧 GB [R] | 95.163.232.49
-  - 🇬🇧 GB [R] | 144.31.87.16
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
   - 🇰🇿 KZ [R] | 5.180.40.9
   - 🇰🇿 KZ [R] | kz2.techdatacloud.org
-  - 🇸🇪 SE [ws] | 95.129.236.252
-  - 🇱🇹 LT [ws] | 95.129.236.216
-  - 🇩🇪 DE [ws] | 185.178.208.140
-  - 🇸🇪 SE [ws] | 185.178.208.176
+  - 🇫🇷 FR  | 88.218.196.178
+  - 🇫🇷 FR  | lapa4.api3-max.ru
   - 🇫🇷 FR  | 89.208.113.16
 - name: 🎯 Direct
   type: select
