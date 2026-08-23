@@ -53,6 +53,36 @@ proxies:
   client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: grpc8c948083b439
+- name: 🇩🇪 DE [R] | 91.185.83.88
+  type: vless
+  server: 91.185.83.88
+  port: 443
+  uuid: 8d44a812-229a-4c54-a461-8109b29621a7
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: vZ22ThhkpXUd5-tY-v5TTrouLHjgYYmeQgqeLt7HRz0
+  servername: google.com
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇩🇪 DE [R] | 81.163.23.243
+  type: vless
+  server: 81.163.23.243
+  port: 443
+  uuid: 8d44a812-229a-4c54-a461-8109b29621a7
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: vZ22ThhkpXUd5-tY-v5TTrouLHjgYYmeQgqeLt7HRz0
+  servername: google.com
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 144.31.87.16
   type: vless
   server: 144.31.87.16
@@ -68,6 +98,36 @@ proxies:
     short-id: 3b802dad547b0847
   servername: yandex.ru
   client-fingerprint: firefox
+- name: 🇩🇪 DE [R] | 82.202.247.181
+  type: vless
+  server: 82.202.247.181
+  port: 443
+  uuid: 8d44a812-229a-4c54-a461-8109b29621a7
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: vZ22ThhkpXUd5-tY-v5TTrouLHjgYYmeQgqeLt7HRz0
+  servername: yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇩🇪 DE [R] | 91.185.83.111
+  type: vless
+  server: 91.185.83.111
+  port: 443
+  uuid: 8d44a812-229a-4c54-a461-8109b29621a7
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: vZ22ThhkpXUd5-tY-v5TTrouLHjgYYmeQgqeLt7HRz0
+  servername: google.com
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
 - name: 🇬🇧 GB [R] | 95.85.224.51
   type: vless
   server: 95.85.224.51
@@ -100,9 +160,9 @@ proxies:
   servername: sun6-21.userapi.com
   grpc-opts:
     grpc-service-name: ''
-- name: 🇰🇿 KZ [R] | kz2.techdatacloud.org
+- name: 🇰🇿 KZ [R] | 5.180.40.9
   type: vless
-  server: kz2.techdatacloud.org
+  server: 5.180.40.9
   port: 443
   uuid: 5e19b3c8-c1dc-4163-95e2-895319c15d6c
   udp: true
@@ -116,9 +176,25 @@ proxies:
   servername: cloud.mail.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇰🇿 KZ [R] | 5.180.40.9
+- name: 🇰🇿 KZ [R] | 5.180.42.85
   type: vless
-  server: 5.180.40.9
+  server: 5.180.42.85
+  port: 443
+  uuid: 5e19b3c8-c1dc-4163-95e2-895319c15d6c
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 06GvG7PU5F3Hgq-vUH24tU0tpsbGMCCt26BSvlaBNUE
+    short-id: dfbfa87e9f37f1f0
+  servername: cloud.mail.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇰🇿 KZ [R] | kz2.techdatacloud.org
+  type: vless
+  server: kz2.techdatacloud.org
   port: 443
   uuid: 5e19b3c8-c1dc-4163-95e2-895319c15d6c
   udp: true
@@ -169,43 +245,11 @@ proxies:
   encryption: none
   tls: true
   servername: chat.cloud.v1.telemetryapi.uk
-  client-fingerprint: qq
+  client-fingerprint: chrome
   ws-opts:
     path: /api/v2/client/session/connect
     headers:
       Host: chat.cloud.v1.telemetryapi.uk
-- name: 🇱🇹 LT [ws] | 95.129.236.216
-  type: vless
-  server: 95.129.236.216
-  port: 443
-  uuid: 610396e8-ffe5-4731-baa1-3dc5daee15b6
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: cdnguard.org
-  client-fingerprint: firefox
-  ws-opts:
-    path: /origin/190546791/fetch
-    headers:
-      Host: cdnguard.org
-- name: 🇩🇪 DE [ws] | 185.178.208.140
-  type: vless
-  server: 185.178.208.140
-  port: 443
-  uuid: 9db825c6-7953-4a01-8999-7fe21aaa6a10
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: mapgasstation.ru
-  client-fingerprint: firefox
-  ws-opts:
-    path: /api/v3/live/hls/segment
-    headers:
-      Host: mapgasstation.ru
 - name: 🇫🇷 FR  | 89.208.113.16
   type: vless
   server: 89.208.113.16
@@ -221,14 +265,14 @@ proxy-groups:
   proxies:
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇪🇪 EE [R][grpc] | 31.129.42.239
+  - 🇩🇪 DE [R] | 91.185.83.88
+  - 🇩🇪 DE [R] | 81.163.23.243
   - 🇬🇧 GB [R] | 144.31.87.16
+  - 🇩🇪 DE [R] | 82.202.247.181
+  - 🇩🇪 DE [R] | 91.185.83.111
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
-  - 🇰🇿 KZ [R] | kz2.techdatacloud.org
   - 🇰🇿 KZ [R] | 5.180.40.9
-  - 🇫🇷 FR  | 88.218.196.178
-  - 🇫🇷 FR  | lapa4.api3-max.ru
-  - 🇩🇪 DE [ws] | 185.178.208.176
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -238,16 +282,19 @@ proxy-groups:
   - 🚀 Auto
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇪🇪 EE [R][grpc] | 31.129.42.239
+  - 🇩🇪 DE [R] | 91.185.83.88
+  - 🇩🇪 DE [R] | 81.163.23.243
   - 🇬🇧 GB [R] | 144.31.87.16
+  - 🇩🇪 DE [R] | 82.202.247.181
+  - 🇩🇪 DE [R] | 91.185.83.111
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
-  - 🇰🇿 KZ [R] | kz2.techdatacloud.org
   - 🇰🇿 KZ [R] | 5.180.40.9
+  - 🇰🇿 KZ [R] | 5.180.42.85
+  - 🇰🇿 KZ [R] | kz2.techdatacloud.org
   - 🇫🇷 FR  | 88.218.196.178
   - 🇫🇷 FR  | lapa4.api3-max.ru
   - 🇩🇪 DE [ws] | 185.178.208.176
-  - 🇱🇹 LT [ws] | 95.129.236.216
-  - 🇩🇪 DE [ws] | 185.178.208.140
   - 🇫🇷 FR  | 89.208.113.16
 - name: 🎯 Direct
   type: select
