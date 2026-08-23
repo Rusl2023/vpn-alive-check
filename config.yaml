@@ -21,21 +21,6 @@ dns:
   - tls://8.8.8.8
   - tls://1.1.1.1
 proxies:
-- name: 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  type: vless
-  server: 91.84.117.29
-  port: 443
-  uuid: a4037b4c-6a9d-528c-9efb-7d801cce8adb
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: PyV8IrAs0LkE2d_DdjvdCtpWG7MZyUKsYkb52GUmuDM
-    short-id: '67'
-  servername: vk.com
-  client-fingerprint: chrome
 - name: 🇪🇪 EE [R][grpc] | 31.129.42.239
   type: vless
   server: 31.129.42.239
@@ -53,37 +38,21 @@ proxies:
   client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: grpc8c948083b439
-- name: 🇬🇧 GB [R] | 95.85.224.51
+- name: 🇳🇱 NL [R][xhttp] | 91.84.117.29
   type: vless
-  server: 95.85.224.51
+  server: 91.84.117.29
   port: 443
-  uuid: 342ab7e4-5a89-0001-8809-304120d4aa83
+  uuid: a4037b4c-6a9d-528c-9efb-7d801cce8adb
   udp: true
   skip-cert-verify: true
-  network: tcp
+  network: xhttp
   encryption: none
   tls: true
   reality-opts:
-    public-key: WWeAHWUVD-phmnjNJ823cer0c4CMIbEs08AhsuEZmDc
-    short-id: a696de84963656de
-  servername: max.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: qq
-- name: 🇬🇧 GB [R] | 144.31.87.16
-  type: vless
-  server: 144.31.87.16
-  port: 443
-  uuid: c40f773e-3b96-417e-b22c-e48cb63ca7d9
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: l5eAOSPQMEyzEPvWGAKvCkcPpsJvR3DJfYo6elw1UTE
-    short-id: 3b802dad547b0847
-  servername: yandex.ru
-  client-fingerprint: firefox
+    public-key: PyV8IrAs0LkE2d_DdjvdCtpWG7MZyUKsYkb52GUmuDM
+    short-id: '67'
+  servername: vk.com
+  client-fingerprint: chrome
 - name: 🇬🇧 GB [R] | 95.163.232.49
   type: vless
   server: 95.163.232.49
@@ -100,6 +69,53 @@ proxies:
   servername: max.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
+- name: 🇬🇧 GB [R] | 144.31.87.16
+  type: vless
+  server: 144.31.87.16
+  port: 443
+  uuid: c40f773e-3b96-417e-b22c-e48cb63ca7d9
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: l5eAOSPQMEyzEPvWGAKvCkcPpsJvR3DJfYo6elw1UTE
+    short-id: 3b802dad547b0847
+  servername: yandex.ru
+  client-fingerprint: firefox
+- name: 🇬🇧 GB [R] | 95.85.224.51
+  type: vless
+  server: 95.85.224.51
+  port: 443
+  uuid: 342ab7e4-5a89-0001-8809-304120d4aa83
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: WWeAHWUVD-phmnjNJ823cer0c4CMIbEs08AhsuEZmDc
+    short-id: a696de84963656de
+  servername: max.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇺🇸 US [R] | 31.76.82.230
+  type: vless
+  server: 31.76.82.230
+  port: 443
+  uuid: 663836b2-f676-43fb-977f-47c495b1b383
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: rgVwK1tNuKMOuTY2ZLXoV511cXPO-L8mXTq0jhG5_WU
+    short-id: 3476d0c6139ad353
+  servername: st.ozone.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 176.109.88.216
   type: vless
   server: 176.109.88.216
@@ -115,10 +131,10 @@ proxies:
     short-id: a9c4f17e3b62d8
   servername: api-maps.yandex.ru
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇺🇸 US [R] | 31.76.82.230
+  client-fingerprint: firefox
+- name: 🇺🇸 US [R] | 31.76.82.229
   type: vless
-  server: 31.76.82.230
+  server: 31.76.82.229
   port: 443
   uuid: 663836b2-f676-43fb-977f-47c495b1b383
   udp: true
@@ -148,7 +164,7 @@ proxies:
   servername: st.ozone.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇵🇱 PL [R] | pl2.chick-team.ru
+- name: 🇺🇸 US [R] | pl2.chick-team.ru
   type: vless
   server: pl2.chick-team.ru
   port: 443
@@ -180,9 +196,9 @@ proxies:
   servername: st.ozone.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇰🇿 KZ [R] | 5.180.40.9
+- name: 🇰🇿 KZ [R] | 5.180.42.85
   type: vless
-  server: 5.180.40.9
+  server: 5.180.42.85
   port: 443
   uuid: 5e19b3c8-c1dc-4163-95e2-895319c15d6c
   udp: true
@@ -194,22 +210,6 @@ proxies:
     public-key: 06GvG7PU5F3Hgq-vUH24tU0tpsbGMCCt26BSvlaBNUE
     short-id: dfbfa87e9f37f1f0
   servername: cloud.mail.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇵🇱 PL [R] | 45.144.48.223
-  type: vless
-  server: 45.144.48.223
-  port: 443
-  uuid: 663836b2-f676-43fb-977f-47c495b1b383
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: rgVwK1tNuKMOuTY2ZLXoV511cXPO-L8mXTq0jhG5_WU
-    short-id: 3476d0c6139ad353
-  servername: st.ozone.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
 - name: 🇰🇿 KZ [R] | kz2.techdatacloud.org
@@ -228,9 +228,41 @@ proxies:
   servername: cloud.mail.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇫🇷 FR  | 88.218.196.33
+- name: 🇰🇿 KZ [R] | 5.180.40.9
   type: vless
-  server: 88.218.196.33
+  server: 5.180.40.9
+  port: 443
+  uuid: 5e19b3c8-c1dc-4163-95e2-895319c15d6c
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 06GvG7PU5F3Hgq-vUH24tU0tpsbGMCCt26BSvlaBNUE
+    short-id: dfbfa87e9f37f1f0
+  servername: cloud.mail.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇵🇱 PL [R] | 45.144.48.223
+  type: vless
+  server: 45.144.48.223
+  port: 443
+  uuid: 663836b2-f676-43fb-977f-47c495b1b383
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: rgVwK1tNuKMOuTY2ZLXoV511cXPO-L8mXTq0jhG5_WU
+    short-id: 3476d0c6139ad353
+  servername: st.ozone.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇫🇷 FR  | lapa1.api3-max.ru
+  type: vless
+  server: lapa1.api3-max.ru
   port: 443
   uuid: ac7fb60f-0b7a-465d-a002-05160ec04ed6
   udp: true
@@ -239,71 +271,6 @@ proxies:
   encryption: none
   tls: true
   servername: lapa1.api3-max.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇫🇷 FR  | 88.218.196.64
-  type: vless
-  server: 88.218.196.64
-  port: 443
-  uuid: ac7fb60f-0b7a-465d-a002-05160ec04ed6
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: lapa8.api3-max.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇫🇷 FR  | 88.218.196.243
-  type: vless
-  server: 88.218.196.243
-  port: 443
-  uuid: ac7fb60f-0b7a-465d-a002-05160ec04ed6
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: lapa10.api3-max.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇫🇷 FR  | 88.218.196.178
-  type: vless
-  server: 88.218.196.178
-  port: 443
-  uuid: ac7fb60f-0b7a-465d-a002-05160ec04ed6
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: lapa4.api3-max.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇫🇷 FR  | lapa4.api3-max.ru
-  type: vless
-  server: lapa4.api3-max.ru
-  port: 443
-  uuid: ac7fb60f-0b7a-465d-a002-05160ec04ed6
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: lapa4.api3-max.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇫🇷 FR  | lapa8.api3-max.ru
-  type: vless
-  server: lapa8.api3-max.ru
-  port: 443
-  uuid: ac7fb60f-0b7a-465d-a002-05160ec04ed6
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: lapa8.api3-max.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
 - name: 🇫🇷 FR  | lapa10.api3-max.ru
@@ -319,9 +286,22 @@ proxies:
   servername: lapa10.api3-max.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇫🇷 FR  | lapa1.api3-max.ru
+- name: 🇫🇷 FR  | lapa4.api3-max.ru
   type: vless
-  server: lapa1.api3-max.ru
+  server: lapa4.api3-max.ru
+  port: 443
+  uuid: ac7fb60f-0b7a-465d-a002-05160ec04ed6
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  servername: lapa4.api3-max.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇫🇷 FR  | 88.218.196.33
+  type: vless
+  server: 88.218.196.33
   port: 443
   uuid: ac7fb60f-0b7a-465d-a002-05160ec04ed6
   udp: true
@@ -330,6 +310,90 @@ proxies:
   encryption: none
   tls: true
   servername: lapa1.api3-max.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇫🇷 FR  | lapa8.api3-max.ru
+  type: vless
+  server: lapa8.api3-max.ru
+  port: 443
+  uuid: ac7fb60f-0b7a-465d-a002-05160ec04ed6
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  servername: lapa8.api3-max.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇫🇷 FR  | 88.218.196.178
+  type: vless
+  server: 88.218.196.178
+  port: 443
+  uuid: ac7fb60f-0b7a-465d-a002-05160ec04ed6
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  servername: lapa4.api3-max.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇦🇹 AT [ws] | 94.159.110.41
+  type: vless
+  server: 94.159.110.41
+  port: 443
+  uuid: e911c552-3a98-41e0-b5fb-0dd3879887b7
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: vod.ensf.top
+  client-fingerprint: firefox
+  ws-opts:
+    path: /api/v1/irc
+    headers:
+      Host: vod.ensf.top
+- name: 🇫🇷 FR  | 88.218.196.243
+  type: vless
+  server: 88.218.196.243
+  port: 443
+  uuid: ac7fb60f-0b7a-465d-a002-05160ec04ed6
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  servername: lapa10.api3-max.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇳🇱 NL [ws] | 147.45.219.167.sslip.io
+  type: vless
+  server: 147.45.219.167.sslip.io
+  port: 443
+  uuid: d1ff8392-0569-4553-b0a9-76eb30929851
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: 147.45.219.167.sslip.io
+  client-fingerprint: firefox
+  ws-opts:
+    path: /entry/wl
+    headers:
+      Host: 147.45.219.167.sslip.io
+- name: 🇫🇷 FR  | 88.218.196.64
+  type: vless
+  server: 88.218.196.64
+  port: 443
+  uuid: ac7fb60f-0b7a-465d-a002-05160ec04ed6
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  servername: lapa8.api3-max.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
 - name: 🇫🇷 FR [ws] | 95.129.236.252
@@ -361,16 +425,16 @@ proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
-  - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇪🇪 EE [R][grpc] | 31.129.42.239
-  - 🇬🇧 GB [R] | 95.85.224.51
-  - 🇬🇧 GB [R] | 144.31.87.16
+  - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇬🇧 GB [R] | 95.163.232.49
-  - 🇬🇧 GB [R] | 176.109.88.216
+  - 🇬🇧 GB [R] | 144.31.87.16
+  - 🇬🇧 GB [R] | 95.85.224.51
   - 🇺🇸 US [R] | 31.76.82.230
+  - 🇬🇧 GB [R] | 176.109.88.216
+  - 🇺🇸 US [R] | 31.76.82.229
   - 🇺🇸 US [R] | 31.76.82.231
-  - 🇵🇱 PL [R] | pl2.chick-team.ru
-  - 🇵🇱 PL [R] | 45.144.51.101
+  - 🇺🇸 US [R] | pl2.chick-team.ru
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -378,27 +442,31 @@ proxy-groups:
   type: select
   proxies:
   - 🚀 Auto
-  - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇪🇪 EE [R][grpc] | 31.129.42.239
-  - 🇬🇧 GB [R] | 95.85.224.51
-  - 🇬🇧 GB [R] | 144.31.87.16
+  - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇬🇧 GB [R] | 95.163.232.49
-  - 🇬🇧 GB [R] | 176.109.88.216
+  - 🇬🇧 GB [R] | 144.31.87.16
+  - 🇬🇧 GB [R] | 95.85.224.51
   - 🇺🇸 US [R] | 31.76.82.230
+  - 🇬🇧 GB [R] | 176.109.88.216
+  - 🇺🇸 US [R] | 31.76.82.229
   - 🇺🇸 US [R] | 31.76.82.231
-  - 🇵🇱 PL [R] | pl2.chick-team.ru
+  - 🇺🇸 US [R] | pl2.chick-team.ru
   - 🇵🇱 PL [R] | 45.144.51.101
+  - 🇰🇿 KZ [R] | 5.180.42.85
+  - 🇰🇿 KZ [R] | kz2.techdatacloud.org
   - 🇰🇿 KZ [R] | 5.180.40.9
   - 🇵🇱 PL [R] | 45.144.48.223
-  - 🇰🇿 KZ [R] | kz2.techdatacloud.org
-  - 🇫🇷 FR  | 88.218.196.33
-  - 🇫🇷 FR  | 88.218.196.64
-  - 🇫🇷 FR  | 88.218.196.243
-  - 🇫🇷 FR  | 88.218.196.178
-  - 🇫🇷 FR  | lapa4.api3-max.ru
-  - 🇫🇷 FR  | lapa8.api3-max.ru
-  - 🇫🇷 FR  | lapa10.api3-max.ru
   - 🇫🇷 FR  | lapa1.api3-max.ru
+  - 🇫🇷 FR  | lapa10.api3-max.ru
+  - 🇫🇷 FR  | lapa4.api3-max.ru
+  - 🇫🇷 FR  | 88.218.196.33
+  - 🇫🇷 FR  | lapa8.api3-max.ru
+  - 🇫🇷 FR  | 88.218.196.178
+  - 🇦🇹 AT [ws] | 94.159.110.41
+  - 🇫🇷 FR  | 88.218.196.243
+  - 🇳🇱 NL [ws] | 147.45.219.167.sslip.io
+  - 🇫🇷 FR  | 88.218.196.64
   - 🇫🇷 FR [ws] | 95.129.236.252
   - 🇫🇷 FR  | 89.208.113.16
 - name: 🎯 Direct
