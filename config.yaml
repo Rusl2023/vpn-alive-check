@@ -53,21 +53,6 @@ proxies:
     short-id: '67'
   servername: vk.com
   client-fingerprint: chrome
-- name: 🇩🇪 DE [R] | 185.22.234.100
-  type: vless
-  server: 185.22.234.100
-  port: 443
-  uuid: a42939a4-c61c-4ecc-886b-3a317bdf4452
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: vZ22ThhkpXUd5-tY-v5TTrouLHjgYYmeQgqeLt7HRz0
-  servername: google.com
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 95.85.224.51
   type: vless
   server: 95.85.224.51
@@ -84,6 +69,22 @@ proxies:
   servername: max.ru
   flow: xtls-rprx-vision
   client-fingerprint: qq
+- name: 🇬🇧 GB [R] | 95.163.232.49
+  type: vless
+  server: 95.163.232.49
+  port: 443
+  uuid: 301d201a-cea0-4626-b593-c75d0699e89c
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: oqRus6Z_Q1jqJaTEPu7ENbRL0-XKOw54K0jwCCGLtEk
+    short-id: a9c4f17e3b62d8
+  servername: max.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 144.31.87.16
   type: vless
   server: 144.31.87.16
@@ -114,50 +115,93 @@ proxies:
   servername: sun6-21.userapi.com
   grpc-opts:
     grpc-service-name: ''
-- name: 🇰🇿 KZ [R] | 5.180.40.9
+- name: 🇱🇹 LT [ws] | 95.129.236.216
   type: vless
-  server: 5.180.40.9
+  server: 95.129.236.216
   port: 443
-  uuid: 5e19b3c8-c1dc-4163-95e2-895319c15d6c
+  uuid: e2b0917a-b9e8-4b83-a83e-25c049680f81
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: cdnguard.org
+  client-fingerprint: firefox
+  ws-opts:
+    path: /origin/190546791/fetch
+    headers:
+      Host: cdnguard.org
+- name: 🇩🇪 DE [ws] | 185.178.208.140
+  type: vless
+  server: 185.178.208.140
+  port: 443
+  uuid: 1c0f5eb9-4b73-4af7-af43-a33ea7a4f777
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: mapgasstation.ru
+  client-fingerprint: firefox
+  ws-opts:
+    path: /api/v3/live/hls/segment
+    headers:
+      Host: mapgasstation.ru
+- name: 🇸🇪 SE [ws] | 185.178.208.176
+  type: vless
+  server: 185.178.208.176
+  port: 443
+  uuid: 7f55169e-0fcb-4b7a-8619-453bee57ae8b
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: founders-blog.online
+  client-fingerprint: chrome
+  ws-opts:
+    path: /stream/615428/socket
+    headers:
+      Host: founders-blog.online
+- name: 🇸🇪 SE [ws] | 95.129.236.252
+  type: vless
+  server: 95.129.236.252
+  port: 443
+  uuid: 7f55169e-0fcb-4b7a-8619-453bee57ae8b
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: benzin.mapzapravki.space
+  client-fingerprint: firefox
+  ws-opts:
+    path: /api/v2/partner/xafiz
+    headers:
+      Host: benzin.mapzapravki.space
+- name: 🇫🇷 FR  | 89.208.113.16
+  type: vless
+  server: 89.208.113.16
+  port: 443
+  uuid: adce7c2a-3191-49ae-b61c-9b8258ea1b0e
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
-  tls: true
-  reality-opts:
-    public-key: 06GvG7PU5F3Hgq-vUH24tU0tpsbGMCCt26BSvlaBNUE
-    short-id: dfbfa87e9f37f1f0
-  servername: cloud.mail.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇰🇿 KZ [R] | kz2.techdatacloud.org
-  type: vless
-  server: kz2.techdatacloud.org
-  port: 443
-  uuid: 5e19b3c8-c1dc-4163-95e2-895319c15d6c
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: 06GvG7PU5F3Hgq-vUH24tU0tpsbGMCCt26BSvlaBNUE
-    short-id: dfbfa87e9f37f1f0
-  servername: cloud.mail.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
   - 🇪🇪 EE [R][grpc] | 31.129.42.239
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  - 🇩🇪 DE [R] | 185.22.234.100
   - 🇬🇧 GB [R] | 95.85.224.51
+  - 🇬🇧 GB [R] | 95.163.232.49
   - 🇬🇧 GB [R] | 144.31.87.16
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
-  - 🇰🇿 KZ [R] | 5.180.40.9
-  - 🇰🇿 KZ [R] | kz2.techdatacloud.org
+  - 🇱🇹 LT [ws] | 95.129.236.216
+  - 🇩🇪 DE [ws] | 185.178.208.140
+  - 🇸🇪 SE [ws] | 185.178.208.176
+  - 🇸🇪 SE [ws] | 95.129.236.252
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -167,12 +211,15 @@ proxy-groups:
   - 🚀 Auto
   - 🇪🇪 EE [R][grpc] | 31.129.42.239
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  - 🇩🇪 DE [R] | 185.22.234.100
   - 🇬🇧 GB [R] | 95.85.224.51
+  - 🇬🇧 GB [R] | 95.163.232.49
   - 🇬🇧 GB [R] | 144.31.87.16
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
-  - 🇰🇿 KZ [R] | 5.180.40.9
-  - 🇰🇿 KZ [R] | kz2.techdatacloud.org
+  - 🇱🇹 LT [ws] | 95.129.236.216
+  - 🇩🇪 DE [ws] | 185.178.208.140
+  - 🇸🇪 SE [ws] | 185.178.208.176
+  - 🇸🇪 SE [ws] | 95.129.236.252
+  - 🇫🇷 FR  | 89.208.113.16
 - name: 🎯 Direct
   type: select
   proxies:
