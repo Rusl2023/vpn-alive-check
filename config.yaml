@@ -53,6 +53,21 @@ proxies:
   client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: grpc8c948083b439
+- name: 🇬🇧 GB [R] | 144.31.87.16
+  type: vless
+  server: 144.31.87.16
+  port: 443
+  uuid: c40f773e-3b96-417e-b22c-e48cb63ca7d9
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: l5eAOSPQMEyzEPvWGAKvCkcPpsJvR3DJfYo6elw1UTE
+    short-id: 3b802dad547b0847
+  servername: yandex.ru
+  client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 95.85.224.51
   type: vless
   server: 95.85.224.51
@@ -85,39 +100,26 @@ proxies:
   servername: max.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇬🇧 GB [R] | 144.31.87.16
+- name: 🇳🇱 NL [R][grpc] | 72.56.78.50
   type: vless
-  server: 144.31.87.16
+  server: 72.56.78.50
   port: 443
-  uuid: c40f773e-3b96-417e-b22c-e48cb63ca7d9
+  uuid: fee2cdd8-55d1-4c5b-a67a-cfde8d45eed0
   udp: true
   skip-cert-verify: true
-  network: tcp
+  network: grpc
   encryption: none
   tls: true
   reality-opts:
-    public-key: l5eAOSPQMEyzEPvWGAKvCkcPpsJvR3DJfYo6elw1UTE
-    short-id: 3b802dad547b0847
-  servername: yandex.ru
-- name: 🇺🇸 US [R] | pl2.chick-team.ru
+    public-key: huH_8n0Dfk4iolIkzrc-qET8ySHWgZAr-i6K6lr6xSs
+    short-id: 375838bc17c0
+  servername: sun6-21.userapi.com
+  client-fingerprint: firefox
+  grpc-opts:
+    grpc-service-name: ''
+- name: 🇺🇸 US [R] | 31.76.82.230
   type: vless
-  server: pl2.chick-team.ru
-  port: 443
-  uuid: 663836b2-f676-43fb-977f-47c495b1b383
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: rgVwK1tNuKMOuTY2ZLXoV511cXPO-L8mXTq0jhG5_WU
-    short-id: 3476d0c6139ad353
-  servername: st.ozone.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: qq
-- name: 🇺🇸 US [R] | 31.76.82.229
-  type: vless
-  server: 31.76.82.229
+  server: 31.76.82.230
   port: 443
   uuid: 663836b2-f676-43fb-977f-47c495b1b383
   udp: true
@@ -131,9 +133,9 @@ proxies:
   servername: st.ozone.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇺🇸 US [R] | 31.76.82.230
+- name: 🇺🇸 US [R] | 31.76.82.229
   type: vless
-  server: 31.76.82.230
+  server: 31.76.82.229
   port: 443
   uuid: 663836b2-f676-43fb-977f-47c495b1b383
   udp: true
@@ -163,6 +165,22 @@ proxies:
   servername: st.ozone.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
+- name: 🇺🇸 US [R] | pl2.chick-team.ru
+  type: vless
+  server: pl2.chick-team.ru
+  port: 443
+  uuid: 663836b2-f676-43fb-977f-47c495b1b383
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: rgVwK1tNuKMOuTY2ZLXoV511cXPO-L8mXTq0jhG5_WU
+    short-id: 3476d0c6139ad353
+  servername: st.ozone.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: qq
 - name: 🇰🇿 KZ [R] | 5.180.40.9
   type: vless
   server: 5.180.40.9
@@ -210,18 +228,6 @@ proxies:
     short-id: dfbfa87e9f37f1f0
   servername: cloud.mail.ru
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇫🇷 FR [xhttp] | 188.68.218.160
-  type: vless
-  server: 188.68.218.160
-  port: 443
-  uuid: 2d4df62f-378f-458c-b086-23105ef8769a
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  servername: host.pushbyte.cc
   client-fingerprint: firefox
 - name: 🇫🇷 FR  | lapa1.api3-max.ru
   type: vless
@@ -301,19 +307,6 @@ proxies:
   servername: lapa10.api3-max.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇫🇷 FR  | 88.218.196.64
-  type: vless
-  server: 88.218.196.64
-  port: 443
-  uuid: ac7fb60f-0b7a-465d-a002-05160ec04ed6
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: lapa8.api3-max.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: qq
 - name: 🇫🇷 FR  | 88.218.196.178
   type: vless
   server: 88.218.196.178
@@ -327,22 +320,19 @@ proxies:
   servername: lapa4.api3-max.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇫🇷 FR [ws] | 95.129.236.252
+- name: 🇫🇷 FR  | 88.218.196.64
   type: vless
-  server: 95.129.236.252
+  server: 88.218.196.64
   port: 443
-  uuid: 98c1aa63-6364-4d30-a9e8-db37ae737189
+  uuid: ac7fb60f-0b7a-465d-a002-05160ec04ed6
   udp: true
   skip-cert-verify: true
-  network: ws
+  network: tcp
   encryption: none
   tls: true
-  servername: benzin.benz.ink
-  client-fingerprint: firefox
-  ws-opts:
-    path: /api/v2/vms/stream/genka
-    headers:
-      Host: benzin.benz.ink
+  servername: lapa8.api3-max.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: qq
 - name: 🇫🇷 FR  | 89.208.113.16
   type: vless
   server: 89.208.113.16
@@ -358,14 +348,14 @@ proxy-groups:
   proxies:
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇪🇪 EE [R][grpc] | 31.129.42.239
+  - 🇬🇧 GB [R] | 144.31.87.16
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇬🇧 GB [R] | 95.163.232.49
-  - 🇬🇧 GB [R] | 144.31.87.16
-  - 🇺🇸 US [R] | pl2.chick-team.ru
-  - 🇺🇸 US [R] | 31.76.82.229
+  - 🇳🇱 NL [R][grpc] | 72.56.78.50
   - 🇺🇸 US [R] | 31.76.82.230
+  - 🇺🇸 US [R] | 31.76.82.229
   - 🇺🇸 US [R] | 31.76.82.231
-  - 🇰🇿 KZ [R] | 5.180.40.9
+  - 🇺🇸 US [R] | pl2.chick-team.ru
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -375,26 +365,25 @@ proxy-groups:
   - 🚀 Auto
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇪🇪 EE [R][grpc] | 31.129.42.239
+  - 🇬🇧 GB [R] | 144.31.87.16
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇬🇧 GB [R] | 95.163.232.49
-  - 🇬🇧 GB [R] | 144.31.87.16
-  - 🇺🇸 US [R] | pl2.chick-team.ru
-  - 🇺🇸 US [R] | 31.76.82.229
+  - 🇳🇱 NL [R][grpc] | 72.56.78.50
   - 🇺🇸 US [R] | 31.76.82.230
+  - 🇺🇸 US [R] | 31.76.82.229
   - 🇺🇸 US [R] | 31.76.82.231
+  - 🇺🇸 US [R] | pl2.chick-team.ru
   - 🇰🇿 KZ [R] | 5.180.40.9
   - 🇵🇱 PL [R] | 45.144.51.101
   - 🇰🇿 KZ [R] | kz2.techdatacloud.org
-  - 🇫🇷 FR [xhttp] | 188.68.218.160
   - 🇫🇷 FR  | lapa1.api3-max.ru
   - 🇫🇷 FR  | lapa4.api3-max.ru
   - 🇫🇷 FR  | lapa10.api3-max.ru
   - 🇫🇷 FR  | lapa8.api3-max.ru
   - 🇫🇷 FR  | 88.218.196.33
   - 🇫🇷 FR  | 88.218.196.243
-  - 🇫🇷 FR  | 88.218.196.64
   - 🇫🇷 FR  | 88.218.196.178
-  - 🇫🇷 FR [ws] | 95.129.236.252
+  - 🇫🇷 FR  | 88.218.196.64
   - 🇫🇷 FR  | 89.208.113.16
 - name: 🎯 Direct
   type: select
