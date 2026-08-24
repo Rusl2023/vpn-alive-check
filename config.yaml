@@ -53,6 +53,22 @@ proxies:
   client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: grpc8c948083b439
+- name: 🇩🇪 DE [R] | 188.225.27.115
+  type: vless
+  server: 188.225.27.115
+  port: 443
+  uuid: 82d145c1-d691-4eef-9de1-9c316db4859a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: NzaCxfbgTDajw93CJs3uFkFJzp7DWhzJIqcnzoZwGQ4
+    short-id: d68d40aba9c0394a
+  servername: max.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 95.85.224.51
   type: vless
   server: 95.85.224.51
@@ -69,6 +85,22 @@ proxies:
   servername: max.ru
   flow: xtls-rprx-vision
   client-fingerprint: qq
+- name: 🇬🇧 GB [R] | 95.163.232.49
+  type: vless
+  server: 95.163.232.49
+  port: 443
+  uuid: 301d201a-cea0-4626-b593-c75d0699e89c
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: oqRus6Z_Q1jqJaTEPu7ENbRL0-XKOw54K0jwCCGLtEk
+    short-id: a9c4f17e3b62d8
+  servername: max.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 144.31.87.16
   type: vless
   server: 144.31.87.16
@@ -83,22 +115,6 @@ proxies:
     public-key: l5eAOSPQMEyzEPvWGAKvCkcPpsJvR3DJfYo6elw1UTE
     short-id: 3b802dad547b0847
   servername: yandex.ru
-  client-fingerprint: firefox
-- name: 🇩🇪 DE [R] | 188.225.27.115
-  type: vless
-  server: 188.225.27.115
-  port: 443
-  uuid: 82d145c1-d691-4eef-9de1-9c316db4859a
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: NzaCxfbgTDajw93CJs3uFkFJzp7DWhzJIqcnzoZwGQ4
-    short-id: d68d40aba9c0394a
-  servername: max.ru
-  flow: xtls-rprx-vision
   client-fingerprint: firefox
 - name: 🇳🇱 NL [R][grpc] | 72.56.78.50
   type: vless
@@ -116,18 +132,19 @@ proxies:
   servername: sun6-21.userapi.com
   grpc-opts:
     grpc-service-name: ''
-- name: 🇸🇪 SE [R] | sw1111.bearbeer.digital
+- name: 🇬🇧 GB [R] | 176.109.88.216
   type: vless
-  server: sw1111.bearbeer.digital
+  server: 176.109.88.216
   port: 443
-  uuid: c6fdfa4b-742c-4225-986b-b0e3bd3146a4
+  uuid: 2c7f1414-87ae-4a01-9796-a02c067891a6
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: SwfpVdTE6Ay33LQpgRl2Q97t7HFrGREkpE7E1A6pCD4
+    public-key: oqRus6Z_Q1jqJaTEPu7ENbRL0-XKOw54K0jwCCGLtEk
+    short-id: a9c4f17e3b62d8
   servername: api-maps.yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: qq
@@ -147,38 +164,22 @@ proxies:
   servername: cloud.mail.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇬🇧 GB [R] | 176.109.88.216
+- name: 🇰🇿 KZ [R] | kz2.techdatacloud.org
   type: vless
-  server: 176.109.88.216
+  server: kz2.techdatacloud.org
   port: 443
-  uuid: 2c7f1414-87ae-4a01-9796-a02c067891a6
+  uuid: 5e19b3c8-c1dc-4163-95e2-895319c15d6c
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: oqRus6Z_Q1jqJaTEPu7ENbRL0-XKOw54K0jwCCGLtEk
-    short-id: a9c4f17e3b62d8
-  servername: api-maps.yandex.ru
+    public-key: 06GvG7PU5F3Hgq-vUH24tU0tpsbGMCCt26BSvlaBNUE
+    short-id: dfbfa87e9f37f1f0
+  servername: cloud.mail.ru
   flow: xtls-rprx-vision
-  client-fingerprint: qq
-- name: 🇯🇵 JP [ws] | 91.250.248.151
-  type: vless
-  server: 91.250.248.151
-  port: 443
-  uuid: 83afd88f-200f-4d89-bfc7-66eff160c1d8
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: josni.hoyes.cloudns.ch
-  client-fingerprint: chrome
-  ws-opts:
-    path: /sg-melbi/
-    headers:
-      Host: josni.hoyes.cloudns.ch
+  client-fingerprint: firefox
 - name: 🇫🇷 FR  | 89.208.113.16
   type: vless
   server: 89.208.113.16
@@ -194,14 +195,14 @@ proxy-groups:
   proxies:
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇪🇪 EE [R][grpc] | 31.129.42.239
-  - 🇬🇧 GB [R] | 95.85.224.51
-  - 🇬🇧 GB [R] | 144.31.87.16
   - 🇩🇪 DE [R] | 188.225.27.115
+  - 🇬🇧 GB [R] | 95.85.224.51
+  - 🇬🇧 GB [R] | 95.163.232.49
+  - 🇬🇧 GB [R] | 144.31.87.16
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
-  - 🇸🇪 SE [R] | sw1111.bearbeer.digital
-  - 🇰🇿 KZ [R] | 5.180.40.9
   - 🇬🇧 GB [R] | 176.109.88.216
-  - 🇯🇵 JP [ws] | 91.250.248.151
+  - 🇰🇿 KZ [R] | 5.180.40.9
+  - 🇰🇿 KZ [R] | kz2.techdatacloud.org
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -211,14 +212,14 @@ proxy-groups:
   - 🚀 Auto
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇪🇪 EE [R][grpc] | 31.129.42.239
-  - 🇬🇧 GB [R] | 95.85.224.51
-  - 🇬🇧 GB [R] | 144.31.87.16
   - 🇩🇪 DE [R] | 188.225.27.115
+  - 🇬🇧 GB [R] | 95.85.224.51
+  - 🇬🇧 GB [R] | 95.163.232.49
+  - 🇬🇧 GB [R] | 144.31.87.16
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
-  - 🇸🇪 SE [R] | sw1111.bearbeer.digital
-  - 🇰🇿 KZ [R] | 5.180.40.9
   - 🇬🇧 GB [R] | 176.109.88.216
-  - 🇯🇵 JP [ws] | 91.250.248.151
+  - 🇰🇿 KZ [R] | 5.180.40.9
+  - 🇰🇿 KZ [R] | kz2.techdatacloud.org
   - 🇫🇷 FR  | 89.208.113.16
 - name: 🎯 Direct
   type: select
