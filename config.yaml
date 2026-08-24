@@ -57,7 +57,7 @@ proxies:
   type: vless
   server: 188.225.27.115
   port: 443
-  uuid: 0e75f6ee-9a4d-4019-8276-cacf388d2ec6
+  uuid: 82d145c1-d691-4eef-9de1-9c316db4859a
   udp: true
   skip-cert-verify: true
   network: tcp
@@ -68,37 +68,6 @@ proxies:
     short-id: d68d40aba9c0394a
   servername: max.ru
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇬🇧 GB [R] | 95.163.232.49
-  type: vless
-  server: 95.163.232.49
-  port: 443
-  uuid: 301d201a-cea0-4626-b593-c75d0699e89c
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: oqRus6Z_Q1jqJaTEPu7ENbRL0-XKOw54K0jwCCGLtEk
-    short-id: a9c4f17e3b62d8
-  servername: max.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇬🇧 GB [R] | 144.31.87.16
-  type: vless
-  server: 144.31.87.16
-  port: 443
-  uuid: c40f773e-3b96-417e-b22c-e48cb63ca7d9
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: l5eAOSPQMEyzEPvWGAKvCkcPpsJvR3DJfYo6elw1UTE
-    short-id: 3b802dad547b0847
-  servername: yandex.ru
   client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 95.85.224.51
   type: vless
@@ -115,22 +84,37 @@ proxies:
     short-id: a696de84963656de
   servername: max.ru
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇩🇪 DE [R] | 188.225.27.115 (2)
+  client-fingerprint: qq
+- name: 🇬🇧 GB [R] | 95.163.232.49
   type: vless
-  server: 188.225.27.115
+  server: 95.163.232.49
   port: 443
-  uuid: 82d145c1-d691-4eef-9de1-9c316db4859a
+  uuid: 301d201a-cea0-4626-b593-c75d0699e89c
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: NzaCxfbgTDajw93CJs3uFkFJzp7DWhzJIqcnzoZwGQ4
-    short-id: d68d40aba9c0394a
+    public-key: oqRus6Z_Q1jqJaTEPu7ENbRL0-XKOw54K0jwCCGLtEk
+    short-id: a9c4f17e3b62d8
   servername: max.ru
   flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇬🇧 GB [R] | 144.31.87.16
+  type: vless
+  server: 144.31.87.16
+  port: 443
+  uuid: c40f773e-3b96-417e-b22c-e48cb63ca7d9
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: l5eAOSPQMEyzEPvWGAKvCkcPpsJvR3DJfYo6elw1UTE
+    short-id: 3b802dad547b0847
+  servername: yandex.ru
   client-fingerprint: firefox
 - name: 🇳🇱 NL [R][grpc] | 72.56.78.50
   type: vless
@@ -163,10 +147,10 @@ proxies:
     short-id: a9c4f17e3b62d8
   servername: api-maps.yandex.ru
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇰🇿 KZ [R] | kz2.techdatacloud.org
+  client-fingerprint: qq
+- name: 🇰🇿 KZ [R] | 5.180.40.9
   type: vless
-  server: kz2.techdatacloud.org
+  server: 5.180.40.9
   port: 443
   uuid: 5e19b3c8-c1dc-4163-95e2-895319c15d6c
   udp: true
@@ -179,10 +163,10 @@ proxies:
     short-id: dfbfa87e9f37f1f0
   servername: cloud.mail.ru
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇰🇿 KZ [R] | 5.180.40.9
+  client-fingerprint: chrome
+- name: 🇰🇿 KZ [R] | kz2.techdatacloud.org
   type: vless
-  server: 5.180.40.9
+  server: kz2.techdatacloud.org
   port: 443
   uuid: 5e19b3c8-c1dc-4163-95e2-895319c15d6c
   udp: true
@@ -212,12 +196,12 @@ proxy-groups:
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇪🇪 EE [R][grpc] | 31.129.42.239
   - 🇩🇪 DE [R] | 188.225.27.115
+  - 🇬🇧 GB [R] | 95.85.224.51
   - 🇬🇧 GB [R] | 95.163.232.49
   - 🇬🇧 GB [R] | 144.31.87.16
-  - 🇬🇧 GB [R] | 95.85.224.51
-  - 🇩🇪 DE [R] | 188.225.27.115 (2)
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
   - 🇬🇧 GB [R] | 176.109.88.216
+  - 🇰🇿 KZ [R] | 5.180.40.9
   - 🇰🇿 KZ [R] | kz2.techdatacloud.org
   url: https://www.google.com/generate_204
   interval: 300
@@ -229,14 +213,13 @@ proxy-groups:
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇪🇪 EE [R][grpc] | 31.129.42.239
   - 🇩🇪 DE [R] | 188.225.27.115
+  - 🇬🇧 GB [R] | 95.85.224.51
   - 🇬🇧 GB [R] | 95.163.232.49
   - 🇬🇧 GB [R] | 144.31.87.16
-  - 🇬🇧 GB [R] | 95.85.224.51
-  - 🇩🇪 DE [R] | 188.225.27.115 (2)
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
   - 🇬🇧 GB [R] | 176.109.88.216
-  - 🇰🇿 KZ [R] | kz2.techdatacloud.org
   - 🇰🇿 KZ [R] | 5.180.40.9
+  - 🇰🇿 KZ [R] | kz2.techdatacloud.org
   - 🇫🇷 FR  | 89.208.113.16
 - name: 🎯 Direct
   type: select
