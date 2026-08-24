@@ -68,22 +68,6 @@ proxies:
     short-id: 3b802dad547b0847
   servername: yandex.ru
   client-fingerprint: firefox
-- name: 🇬🇧 GB [R] | 95.163.232.49
-  type: vless
-  server: 95.163.232.49
-  port: 443
-  uuid: 301d201a-cea0-4626-b593-c75d0699e89c
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: oqRus6Z_Q1jqJaTEPu7ENbRL0-XKOw54K0jwCCGLtEk
-    short-id: a9c4f17e3b62d8
-  servername: max.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 95.85.224.51
   type: vless
   server: 95.85.224.51
@@ -100,6 +84,22 @@ proxies:
   servername: max.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
+- name: 🇬🇧 GB [R] | 95.163.232.49
+  type: vless
+  server: 95.163.232.49
+  port: 443
+  uuid: 301d201a-cea0-4626-b593-c75d0699e89c
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: oqRus6Z_Q1jqJaTEPu7ENbRL0-XKOw54K0jwCCGLtEk
+    short-id: a9c4f17e3b62d8
+  servername: max.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇳🇱 NL [R][grpc] | 72.56.78.50
   type: vless
   server: 72.56.78.50
@@ -116,6 +116,21 @@ proxies:
   servername: sun6-21.userapi.com
   grpc-opts:
     grpc-service-name: ''
+- name: 🇩🇪 DE [R][xhttp] | 194.5.65.36
+  type: vless
+  server: 194.5.65.36
+  port: 443
+  uuid: d49e6f64-2a62-4fc6-8dde-9ab1bdf12c02
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: v_s3GW5_7jvB081tdUeyoDUUTq6fZwqKbVS7CdvLFA0
+    short-id: 72cd47c079c0a3df
+  servername: ya.ru
+  client-fingerprint: random
 - name: 🇰🇿 KZ [R] | kz2.techdatacloud.org
   type: vless
   server: kz2.techdatacloud.org
@@ -180,13 +195,13 @@ proxy-groups:
   - 🇪🇪 EE [R][grpc] | 31.129.42.239
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇬🇧 GB [R] | 144.31.87.16
-  - 🇬🇧 GB [R] | 95.163.232.49
   - 🇬🇧 GB [R] | 95.85.224.51
+  - 🇬🇧 GB [R] | 95.163.232.49
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
+  - 🇩🇪 DE [R][xhttp] | 194.5.65.36
   - 🇰🇿 KZ [R] | kz2.techdatacloud.org
   - 🇰🇿 KZ [R] | 5.180.40.9
   - 🇰🇿 KZ [R] | 5.180.42.85
-  - 🇫🇷 FR  | 89.208.113.16
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -197,9 +212,10 @@ proxy-groups:
   - 🇪🇪 EE [R][grpc] | 31.129.42.239
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇬🇧 GB [R] | 144.31.87.16
-  - 🇬🇧 GB [R] | 95.163.232.49
   - 🇬🇧 GB [R] | 95.85.224.51
+  - 🇬🇧 GB [R] | 95.163.232.49
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
+  - 🇩🇪 DE [R][xhttp] | 194.5.65.36
   - 🇰🇿 KZ [R] | kz2.techdatacloud.org
   - 🇰🇿 KZ [R] | 5.180.40.9
   - 🇰🇿 KZ [R] | 5.180.42.85
