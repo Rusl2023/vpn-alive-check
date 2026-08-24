@@ -83,6 +83,7 @@ proxies:
     public-key: l5eAOSPQMEyzEPvWGAKvCkcPpsJvR3DJfYo6elw1UTE
     short-id: 3b802dad547b0847
   servername: yandex.ru
+  client-fingerprint: firefox
 - name: 🇳🇱 NL [R][grpc] | 72.56.78.50
   type: vless
   server: 72.56.78.50
@@ -100,35 +101,33 @@ proxies:
   client-fingerprint: chrome
   grpc-opts:
     grpc-service-name: ''
-- name: 🇸🇰 SK [R] | 156.146.40.201
+- name: 🇸🇪 SE [R] | 64.188.81.56
   type: vless
-  server: 156.146.40.201
+  server: 64.188.81.56
   port: 443
-  uuid: 92e41c23-4b39-464a-bbff-63ef84f317da
+  uuid: c6fdfa4b-742c-4225-986b-b0e3bd3146a4
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: WMO-BNY1BX2nNlOOQgxLP4D3H-OnE2ypbXlbSMjLRVM
-    short-id: e764f0ea
+    public-key: SwfpVdTE6Ay33LQpgRl2Q97t7HFrGREkpE7E1A6pCD4
   servername: api-maps.yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇬🇧 GB [R] | 176.109.88.216
+- name: 🇸🇪 SE [R] | sw1111.bearbeer.digital
   type: vless
-  server: 176.109.88.216
+  server: sw1111.bearbeer.digital
   port: 443
-  uuid: 2c7f1414-87ae-4a01-9796-a02c067891a6
+  uuid: c6fdfa4b-742c-4225-986b-b0e3bd3146a4
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: oqRus6Z_Q1jqJaTEPu7ENbRL0-XKOw54K0jwCCGLtEk
-    short-id: a9c4f17e3b62d8
+    public-key: SwfpVdTE6Ay33LQpgRl2Q97t7HFrGREkpE7E1A6pCD4
   servername: api-maps.yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: qq
@@ -180,18 +179,38 @@ proxies:
   servername: yastatic.net
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇫🇷 FR [xhttp] | 188.68.218.160
+- name: 🇬🇧 GB [R] | 176.109.88.216
   type: vless
-  server: 188.68.218.160
+  server: 176.109.88.216
   port: 443
-  uuid: bd81ae1d-f0ff-4f49-96fb-d17552cca5ca
+  uuid: 2c7f1414-87ae-4a01-9796-a02c067891a6
   udp: true
   skip-cert-verify: true
-  network: xhttp
+  network: tcp
   encryption: none
   tls: true
-  servername: host.pushbyte.cc
-  client-fingerprint: firefox
+  reality-opts:
+    public-key: oqRus6Z_Q1jqJaTEPu7ENbRL0-XKOw54K0jwCCGLtEk
+    short-id: a9c4f17e3b62d8
+  servername: api-maps.yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: qq
+- name: 🇯🇵 JP [ws] | 91.250.248.151
+  type: vless
+  server: 91.250.248.151
+  port: 443
+  uuid: 83afd88f-200f-4d89-bfc7-66eff160c1d8
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: josni.hoyes.cloudns.ch
+  client-fingerprint: chrome
+  ws-opts:
+    path: /sg-melbi/
+    headers:
+      Host: josni.hoyes.cloudns.ch
 - name: 🇩🇪 DE [ws] | chat.dev.fosonmine.site
   type: vless
   server: chat.dev.fosonmine.site
@@ -203,59 +222,11 @@ proxies:
   encryption: none
   tls: true
   servername: chat.dev.fosonmine.site
-  client-fingerprint: firefox
+  client-fingerprint: chrome
   ws-opts:
     path: /api/client/realtime/sync
     headers:
       Host: chat.dev.fosonmine.site
-- name: 🇩🇪 DE [ws] | 185.178.208.140
-  type: vless
-  server: 185.178.208.140
-  port: 443
-  uuid: a2ec6ed8-ef05-4fa9-b6c5-aec54186f89a
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: chat.dev.fosonmine.site
-  client-fingerprint: firefox
-  ws-opts:
-    path: /api/client/realtime/sync
-    headers:
-      Host: chat.dev.fosonmine.site
-- name: 🇩🇪 DE [ws] | cloud.dev.fosonmine.site
-  type: vless
-  server: cloud.dev.fosonmine.site
-  port: 443
-  uuid: a2ec6ed8-ef05-4fa9-b6c5-aec54186f89a
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: cloud.dev.fosonmine.site
-  client-fingerprint: firefox
-  ws-opts:
-    path: /api/v2/session/channel/connect
-    headers:
-      Host: cloud.dev.fosonmine.site
-- name: 🇱🇹 LT [ws] | 95.129.236.216
-  type: vless
-  server: 95.129.236.216
-  port: 443
-  uuid: 7423c62f-e8e8-43ad-b434-351763fb5621
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: cdnguard.org
-  client-fingerprint: firefox
-  ws-opts:
-    path: /origin/190546791/fetch
-    headers:
-      Host: cdnguard.org
 - name: 🇫🇷 FR  | 89.208.113.16
   type: vless
   server: 89.208.113.16
@@ -274,8 +245,8 @@ proxy-groups:
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇬🇧 GB [R] | 144.31.87.16
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
-  - 🇸🇰 SK [R] | 156.146.40.201
-  - 🇬🇧 GB [R] | 176.109.88.216
+  - 🇸🇪 SE [R] | 64.188.81.56
+  - 🇸🇪 SE [R] | sw1111.bearbeer.digital
   - 🇰🇿 KZ [R] | 5.180.40.9
   - 🇰🇿 KZ [R] | kz2.techdatacloud.org
   - 🇵🇱 PL [R] | 81.90.17.164
@@ -291,16 +262,14 @@ proxy-groups:
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇬🇧 GB [R] | 144.31.87.16
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
-  - 🇸🇰 SK [R] | 156.146.40.201
-  - 🇬🇧 GB [R] | 176.109.88.216
+  - 🇸🇪 SE [R] | 64.188.81.56
+  - 🇸🇪 SE [R] | sw1111.bearbeer.digital
   - 🇰🇿 KZ [R] | 5.180.40.9
   - 🇰🇿 KZ [R] | kz2.techdatacloud.org
   - 🇵🇱 PL [R] | 81.90.17.164
-  - 🇫🇷 FR [xhttp] | 188.68.218.160
+  - 🇬🇧 GB [R] | 176.109.88.216
+  - 🇯🇵 JP [ws] | 91.250.248.151
   - 🇩🇪 DE [ws] | chat.dev.fosonmine.site
-  - 🇩🇪 DE [ws] | 185.178.208.140
-  - 🇩🇪 DE [ws] | cloud.dev.fosonmine.site
-  - 🇱🇹 LT [ws] | 95.129.236.216
   - 🇫🇷 FR  | 89.208.113.16
 - name: 🎯 Direct
   type: select
