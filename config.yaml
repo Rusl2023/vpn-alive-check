@@ -53,6 +53,22 @@ proxies:
   client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: grpc8c948083b439
+- name: 🇸🇪 SE [R][grpc] | 81.163.22.15
+  type: vless
+  server: 81.163.22.15
+  port: 443
+  uuid: b489076a-8355-4263-a3a8-de96703c64e4
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: nc5dunLF2knU5PkMbQlklbp_tZPfOx6xuHu4mkdYPBc
+  servername: max.ru
+  client-fingerprint: firefox
+  grpc-opts:
+    grpc-service-name: ''
 - name: 🇬🇧 GB [R] | 95.85.224.51
   type: vless
   server: 95.85.224.51
@@ -84,7 +100,7 @@ proxies:
     short-id: a9c4f17e3b62d8
   servername: max.ru
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
+  client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 144.31.87.16
   type: vless
   server: 144.31.87.16
@@ -99,7 +115,6 @@ proxies:
     public-key: l5eAOSPQMEyzEPvWGAKvCkcPpsJvR3DJfYo6elw1UTE
     short-id: 3b802dad547b0847
   servername: yandex.ru
-  client-fingerprint: firefox
 - name: 🇳🇱 NL [R][grpc] | 72.56.78.50
   type: vless
   server: 72.56.78.50
@@ -114,7 +129,6 @@ proxies:
     public-key: huH_8n0Dfk4iolIkzrc-qET8ySHWgZAr-i6K6lr6xSs
     short-id: 375838bc17c0
   servername: sun6-21.userapi.com
-  client-fingerprint: chrome
   grpc-opts:
     grpc-service-name: ''
 - name: 🇸🇰 SK [R] | 156.146.40.201
@@ -130,6 +144,38 @@ proxies:
   reality-opts:
     public-key: WMO-BNY1BX2nNlOOQgxLP4D3H-OnE2ypbXlbSMjLRVM
     short-id: e764f0ea
+  servername: api-maps.yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇫🇷 FR [R] | 79.127.215.226
+  type: vless
+  server: 79.127.215.226
+  port: 443
+  uuid: a704443d-655e-4d9f-8ce6-12eeb17a9a08
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 5isIe0GLddqsEuDcnLop5Ex3q4Ibg_AKpogxAvhLMWs
+    short-id: 4501f602
+  servername: api-maps.yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇬🇧 GB [R] | 176.109.88.216
+  type: vless
+  server: 176.109.88.216
+  port: 443
+  uuid: 2c7f1414-87ae-4a01-9796-a02c067891a6
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: oqRus6Z_Q1jqJaTEPu7ENbRL0-XKOw54K0jwCCGLtEk
+    short-id: a9c4f17e3b62d8
   servername: api-maps.yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
@@ -149,9 +195,9 @@ proxies:
   servername: api-maps.yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇬🇧 GB [R] | 84.17.50.118
+- name: 🇪🇪 EE [R] | 77.239.126.210
   type: vless
-  server: 84.17.50.118
+  server: 77.239.126.210
   port: 443
   uuid: a704443d-655e-4d9f-8ce6-12eeb17a9a08
   udp: true
@@ -160,24 +206,8 @@ proxies:
   encryption: none
   tls: true
   reality-opts:
-    public-key: i5_jSoc9DraIlWT7xls9w5PxjeaIjwBS_24nPX_9eGE
-    short-id: 051880fe
-  servername: api-maps.yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇳🇱 NL [R] | 95.85.247.137
-  type: vless
-  server: 95.85.247.137
-  port: 443
-  uuid: a704443d-655e-4d9f-8ce6-12eeb17a9a08
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: -Ip8VUNFCdnt03bAS90yHxL91mf49D2dJmkKB_d_n0g
-    short-id: b5dd1544
+    public-key: nP6l7_NPVUklPsrochXfsGGjbDHMHGWodoXN3h_6RQU
+    short-id: b71a4299
   servername: api-maps.yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
@@ -213,9 +243,25 @@ proxies:
   servername: api-maps.yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇪🇪 EE [R] | 77.239.126.210
+- name: 🇵🇹 PT [R] | pp.alertyagency.com
   type: vless
-  server: 77.239.126.210
+  server: pp.alertyagency.com
+  port: 443
+  uuid: c7fc6e44-d57b-49b9-9ff2-a4e0aa9e9b8c
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: kUuy5M4V5bfjri7m_XBryv1YTLLlPLPIwPotJJgpgEc
+    short-id: '87922049'
+  servername: api-maps.yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇳🇱 NL [R] | 95.85.247.137
+  type: vless
+  server: 95.85.247.137
   port: 443
   uuid: a704443d-655e-4d9f-8ce6-12eeb17a9a08
   udp: true
@@ -224,56 +270,8 @@ proxies:
   encryption: none
   tls: true
   reality-opts:
-    public-key: nP6l7_NPVUklPsrochXfsGGjbDHMHGWodoXN3h_6RQU
-    short-id: b71a4299
-  servername: api-maps.yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇮🇹 IT [R] | 84.17.58.133
-  type: vless
-  server: 84.17.58.133
-  port: 443
-  uuid: 92e41c23-4b39-464a-bbff-63ef84f317da
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: 3hiGU9oArRYulbhHEJa7nTfx1k0XL6ItE_xs-8Yi_Uc
-    short-id: 17a2a5e0
-  servername: api-maps.yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇺🇸 US [R] | 79.127.245.249
-  type: vless
-  server: 79.127.245.249
-  port: 443
-  uuid: a704443d-655e-4d9f-8ce6-12eeb17a9a08
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: IhcYDA8gF5PuTtKLu-kB6zezpqAKQvnjE_XbgNg8nXI
-    short-id: 157ce3ba
-  servername: api-maps.yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇭🇺 HU [R] | 152.233.41.10
-  type: vless
-  server: 152.233.41.10
-  port: 443
-  uuid: a704443d-655e-4d9f-8ce6-12eeb17a9a08
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: LubLmalkyXoDFKxVQLtf1mh5cVK7W8K-MeNQf6ZDQ2I
-    short-id: 9e354fd8
+    public-key: -Ip8VUNFCdnt03bAS90yHxL91mf49D2dJmkKB_d_n0g
+    short-id: b5dd1544
   servername: api-maps.yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
@@ -293,25 +291,25 @@ proxies:
   servername: api-maps.yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇷🇴 RO [R] | 85.120.216.178
+- name: 🇮🇹 IT [R] | 84.17.58.133
   type: vless
-  server: 85.120.216.178
+  server: 84.17.58.133
   port: 443
-  uuid: a704443d-655e-4d9f-8ce6-12eeb17a9a08
+  uuid: 92e41c23-4b39-464a-bbff-63ef84f317da
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: RTJejnFwln1GAFLeyZ4NRcMpvsRiL1Yu-WFRy8NtIwU
-    short-id: a0a5d889
+    public-key: 3hiGU9oArRYulbhHEJa7nTfx1k0XL6ItE_xs-8Yi_Uc
+    short-id: 17a2a5e0
   servername: api-maps.yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇫🇷 FR [R] | fra2.alertyagency.com
+- name: 🇫🇮 FI [R] | fi.alertyagency.com
   type: vless
-  server: fra2.alertyagency.com
+  server: fi.alertyagency.com
   port: 443
   uuid: a704443d-655e-4d9f-8ce6-12eeb17a9a08
   udp: true
@@ -320,14 +318,14 @@ proxies:
   encryption: none
   tls: true
   reality-opts:
-    public-key: 5isIe0GLddqsEuDcnLop5Ex3q4Ibg_AKpogxAvhLMWs
-    short-id: 4501f602
+    public-key: vLb66rBLZnMI1VPKxp90Dcuc0p2fyHdL3HwaxvNHzTA
+    short-id: f3a0090e
   servername: api-maps.yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇨🇭 CH [R] | sw.alertyagency.com
+- name: 🇭🇺 HU [R] | vv.alertyagency.com
   type: vless
-  server: sw.alertyagency.com
+  server: vv.alertyagency.com
   port: 443
   uuid: a704443d-655e-4d9f-8ce6-12eeb17a9a08
   udp: true
@@ -336,14 +334,14 @@ proxies:
   encryption: none
   tls: true
   reality-opts:
-    public-key: sT3IlhEi8k7BA0jYkn5TkJ8HcX3_FZ7USnfnqCAGrhw
-    short-id: 1750fe7d
+    public-key: LubLmalkyXoDFKxVQLtf1mh5cVK7W8K-MeNQf6ZDQ2I
+    short-id: 9e354fd8
   servername: api-maps.yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇯🇵 JP [R] | 31.76.91.185
+- name: 🇺🇸 US [R] | 85.209.157.153
   type: vless
-  server: 31.76.91.185
+  server: 85.209.157.153
   port: 443
   uuid: a704443d-655e-4d9f-8ce6-12eeb17a9a08
   udp: true
@@ -352,14 +350,14 @@ proxies:
   encryption: none
   tls: true
   reality-opts:
-    public-key: a7QPumBr-7EpnnPJ8TRr38MapK3xNGt59kfdPwud4xA
-    short-id: 48ced39e
+    public-key: 1XpNlsef90L81E3u3vvxwcLQDtPizZ8JKtBV8ijKRVw
+    short-id: 1854cebd
   servername: api-maps.yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇸🇪 SE [R] | se.alertyagency.com
+- name: 🇺🇸 US [R] | usa.alertyagency.com
   type: vless
-  server: se.alertyagency.com
+  server: usa.alertyagency.com
   port: 443
   uuid: a704443d-655e-4d9f-8ce6-12eeb17a9a08
   udp: true
@@ -368,8 +366,8 @@ proxies:
   encryption: none
   tls: true
   reality-opts:
-    public-key: UtAnh-HlChjh3afrhycDmeOSFs7cZBjIJx0qG7NB5Rc
-    short-id: b419319c
+    public-key: IhcYDA8gF5PuTtKLu-kB6zezpqAKQvnjE_XbgNg8nXI
+    short-id: 157ce3ba
   servername: api-maps.yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
@@ -389,9 +387,9 @@ proxies:
   servername: api-maps.yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇺🇸 US [R] | il.alertyagency.com
+- name: 🇸🇪 SE [R] | se.alertyagency.com
   type: vless
-  server: il.alertyagency.com
+  server: se.alertyagency.com
   port: 443
   uuid: a704443d-655e-4d9f-8ce6-12eeb17a9a08
   udp: true
@@ -400,40 +398,8 @@ proxies:
   encryption: none
   tls: true
   reality-opts:
-    public-key: 1XpNlsef90L81E3u3vvxwcLQDtPizZ8JKtBV8ijKRVw
-    short-id: 1854cebd
-  servername: api-maps.yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇰🇿 KZ [R] | kz.alertyagency.com
-  type: vless
-  server: kz.alertyagency.com
-  port: 443
-  uuid: a704443d-655e-4d9f-8ce6-12eeb17a9a08
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: vsDwubDjDjfLpWAHRNFGVfmC8hLiXDablO1iOOXdUhQ
-    short-id: 01e4de88
-  servername: api-maps.yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇦🇲 AM [R] | am.alertyagency.com
-  type: vless
-  server: am.alertyagency.com
-  port: 443
-  uuid: a704443d-655e-4d9f-8ce6-12eeb17a9a08
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: SgV6vBorDPinOHb19xf_3sCP_IUI5Ot9zv7lPuUVhjM
-    short-id: 1388c268
+    public-key: UtAnh-HlChjh3afrhycDmeOSFs7cZBjIJx0qG7NB5Rc
+    short-id: b419319c
   servername: api-maps.yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
@@ -469,6 +435,54 @@ proxies:
   servername: cloud.mail.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
+- name: 🇬🇧 GB [R] | 84.17.50.118
+  type: vless
+  server: 84.17.50.118
+  port: 443
+  uuid: a704443d-655e-4d9f-8ce6-12eeb17a9a08
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: i5_jSoc9DraIlWT7xls9w5PxjeaIjwBS_24nPX_9eGE
+    short-id: 051880fe
+  servername: api-maps.yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇨🇭 CH [R] | 138.199.20.4
+  type: vless
+  server: 138.199.20.4
+  port: 443
+  uuid: a704443d-655e-4d9f-8ce6-12eeb17a9a08
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: sT3IlhEi8k7BA0jYkn5TkJ8HcX3_FZ7USnfnqCAGrhw
+    short-id: 1750fe7d
+  servername: api-maps.yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇷🇴 RO [R] | 85.120.216.178
+  type: vless
+  server: 85.120.216.178
+  port: 443
+  uuid: a704443d-655e-4d9f-8ce6-12eeb17a9a08
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: RTJejnFwln1GAFLeyZ4NRcMpvsRiL1Yu-WFRy8NtIwU
+    short-id: a0a5d889
+  servername: api-maps.yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇰🇿 KZ [R] | 5.180.40.9
   type: vless
   server: 5.180.40.9
@@ -483,6 +497,70 @@ proxies:
     public-key: 06GvG7PU5F3Hgq-vUH24tU0tpsbGMCCt26BSvlaBNUE
     short-id: dfbfa87e9f37f1f0
   servername: cloud.mail.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇯🇵 JP [R] | 31.76.91.185
+  type: vless
+  server: 31.76.91.185
+  port: 443
+  uuid: a704443d-655e-4d9f-8ce6-12eeb17a9a08
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: a7QPumBr-7EpnnPJ8TRr38MapK3xNGt59kfdPwud4xA
+    short-id: 48ced39e
+  servername: api-maps.yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇭🇺 HU [R] | 152.233.41.10
+  type: vless
+  server: 152.233.41.10
+  port: 443
+  uuid: a704443d-655e-4d9f-8ce6-12eeb17a9a08
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: LubLmalkyXoDFKxVQLtf1mh5cVK7W8K-MeNQf6ZDQ2I
+    short-id: 9e354fd8
+  servername: api-maps.yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇦🇲 AM [R] | am.alertyagency.com
+  type: vless
+  server: am.alertyagency.com
+  port: 443
+  uuid: a704443d-655e-4d9f-8ce6-12eeb17a9a08
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: SgV6vBorDPinOHb19xf_3sCP_IUI5Ot9zv7lPuUVhjM
+    short-id: 1388c268
+  servername: api-maps.yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇰🇿 KZ [R] | kz.alertyagency.com
+  type: vless
+  server: kz.alertyagency.com
+  port: 443
+  uuid: a704443d-655e-4d9f-8ce6-12eeb17a9a08
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: vsDwubDjDjfLpWAHRNFGVfmC8hLiXDablO1iOOXdUhQ
+    short-id: 01e4de88
+  servername: api-maps.yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
 - name: 🇪🇸 ES [R] | 152.233.56.39
@@ -501,9 +579,25 @@ proxies:
   servername: api-maps.yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇩🇪 DE [ws] | 185.178.208.140
+- name: 🇵🇱 PL [R] | 81.90.17.164
   type: vless
-  server: 185.178.208.140
+  server: 81.90.17.164
+  port: 443
+  uuid: cb784d00-d34a-4389-b938-8717f7b28353
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: v0XQn6uvyC8q5CThcRYLer1F1OOYpZDn5NLOvDicaWg
+    short-id: b31c2b75add2e5fa
+  servername: yastatic.net
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇩🇪 DE [ws] | chat.dev.fosonmine.site
+  type: vless
+  server: chat.dev.fosonmine.site
   port: 443
   uuid: a2ec6ed8-ef05-4fa9-b6c5-aec54186f89a
   udp: true
@@ -517,23 +611,7 @@ proxies:
     path: /api/client/realtime/sync
     headers:
       Host: chat.dev.fosonmine.site
-- name: 🇩🇪 DE [ws] | chat.dev.fosonmine.site
-  type: vless
-  server: chat.dev.fosonmine.site
-  port: 443
-  uuid: a2ec6ed8-ef05-4fa9-b6c5-aec54186f89a
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: chat.dev.fosonmine.site
-  client-fingerprint: firefox
-  ws-opts:
-    path: /api/client/realtime/sync
-    headers:
-      Host: chat.dev.fosonmine.site
-- name: 🇩🇪 DE [ws] | 185.178.208.140 (2)
+- name: 🇩🇪 DE [ws] | 185.178.208.140
   type: vless
   server: 185.178.208.140
   port: 443
@@ -549,6 +627,38 @@ proxies:
     path: /api/v2/session/channel/connect
     headers:
       Host: cloud.dev.fosonmine.site
+- name: 🇩🇪 DE [ws] | cloud.dev.fosonmine.site
+  type: vless
+  server: cloud.dev.fosonmine.site
+  port: 443
+  uuid: a2ec6ed8-ef05-4fa9-b6c5-aec54186f89a
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: cloud.dev.fosonmine.site
+  client-fingerprint: firefox
+  ws-opts:
+    path: /api/v2/session/channel/connect
+    headers:
+      Host: cloud.dev.fosonmine.site
+- name: 🇩🇪 DE [ws] | 185.178.208.140 (2)
+  type: vless
+  server: 185.178.208.140
+  port: 443
+  uuid: a2ec6ed8-ef05-4fa9-b6c5-aec54186f89a
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: chat.dev.fosonmine.site
+  client-fingerprint: firefox
+  ws-opts:
+    path: /api/client/realtime/sync
+    headers:
+      Host: chat.dev.fosonmine.site
 - name: 🇫🇷 FR  | 89.208.113.16
   type: vless
   server: 89.208.113.16
@@ -564,14 +674,14 @@ proxy-groups:
   proxies:
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇪🇪 EE [R][grpc] | 31.129.42.239
+  - 🇸🇪 SE [R][grpc] | 81.163.22.15
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇬🇧 GB [R] | 95.163.232.49
   - 🇬🇧 GB [R] | 144.31.87.16
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
   - 🇸🇰 SK [R] | 156.146.40.201
-  - 🇵🇹 PT [R] | 152.233.62.135
-  - 🇬🇧 GB [R] | 84.17.50.118
-  - 🇳🇱 NL [R] | 95.85.247.137
+  - 🇫🇷 FR [R] | 79.127.215.226
+  - 🇬🇧 GB [R] | 176.109.88.216
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -581,36 +691,43 @@ proxy-groups:
   - 🚀 Auto
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇪🇪 EE [R][grpc] | 31.129.42.239
+  - 🇸🇪 SE [R][grpc] | 81.163.22.15
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇬🇧 GB [R] | 95.163.232.49
   - 🇬🇧 GB [R] | 144.31.87.16
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
   - 🇸🇰 SK [R] | 156.146.40.201
+  - 🇫🇷 FR [R] | 79.127.215.226
+  - 🇬🇧 GB [R] | 176.109.88.216
   - 🇵🇹 PT [R] | 152.233.62.135
-  - 🇬🇧 GB [R] | 84.17.50.118
-  - 🇳🇱 NL [R] | 95.85.247.137
+  - 🇪🇪 EE [R] | 77.239.126.210
   - 🇩🇪 DE [R] | 77.91.66.223
   - 🇵🇱 PL [R] | 152.233.43.71
-  - 🇪🇪 EE [R] | 77.239.126.210
-  - 🇮🇹 IT [R] | 84.17.58.133
-  - 🇺🇸 US [R] | 79.127.245.249
-  - 🇭🇺 HU [R] | 152.233.41.10
+  - 🇵🇹 PT [R] | pp.alertyagency.com
+  - 🇳🇱 NL [R] | 95.85.247.137
   - 🇷🇴 RO [R] | 95.173.199.110
-  - 🇷🇴 RO [R] | 85.120.216.178
-  - 🇫🇷 FR [R] | fra2.alertyagency.com
-  - 🇨🇭 CH [R] | sw.alertyagency.com
-  - 🇯🇵 JP [R] | 31.76.91.185
-  - 🇸🇪 SE [R] | se.alertyagency.com
+  - 🇮🇹 IT [R] | 84.17.58.133
+  - 🇫🇮 FI [R] | fi.alertyagency.com
+  - 🇭🇺 HU [R] | vv.alertyagency.com
+  - 🇺🇸 US [R] | 85.209.157.153
+  - 🇺🇸 US [R] | usa.alertyagency.com
   - 🇹🇷 TR [R] | tr.alertyagency.com
-  - 🇺🇸 US [R] | il.alertyagency.com
-  - 🇰🇿 KZ [R] | kz.alertyagency.com
-  - 🇦🇲 AM [R] | am.alertyagency.com
+  - 🇸🇪 SE [R] | se.alertyagency.com
   - 🇰🇿 KZ [R] | 5.180.42.103
   - 🇰🇿 KZ [R] | kz2.techdatacloud.org
+  - 🇬🇧 GB [R] | 84.17.50.118
+  - 🇨🇭 CH [R] | 138.199.20.4
+  - 🇷🇴 RO [R] | 85.120.216.178
   - 🇰🇿 KZ [R] | 5.180.40.9
+  - 🇯🇵 JP [R] | 31.76.91.185
+  - 🇭🇺 HU [R] | 152.233.41.10
+  - 🇦🇲 AM [R] | am.alertyagency.com
+  - 🇰🇿 KZ [R] | kz.alertyagency.com
   - 🇪🇸 ES [R] | 152.233.56.39
-  - 🇩🇪 DE [ws] | 185.178.208.140
+  - 🇵🇱 PL [R] | 81.90.17.164
   - 🇩🇪 DE [ws] | chat.dev.fosonmine.site
+  - 🇩🇪 DE [ws] | 185.178.208.140
+  - 🇩🇪 DE [ws] | cloud.dev.fosonmine.site
   - 🇩🇪 DE [ws] | 185.178.208.140 (2)
   - 🇫🇷 FR  | 89.208.113.16
 - name: 🎯 Direct
