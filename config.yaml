@@ -36,19 +36,19 @@ proxies:
     short-id: '67'
   servername: vk.com
   client-fingerprint: chrome
-- name: 🇩🇪 DE [R] | 31.76.71.133
+- name: 🇬🇧 GB [R] | 95.163.232.49
   type: vless
-  server: 31.76.71.133
+  server: 95.163.232.49
   port: 443
-  uuid: 75079a7f-75b5-418b-8a65-f7b2f438cd4a
+  uuid: 301d201a-cea0-4626-b593-c75d0699e89c
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: NzaCxfbgTDajw93CJs3uFkFJzp7DWhzJIqcnzoZwGQ4
-    short-id: d68d40aba9c0394a
+    public-key: oqRus6Z_Q1jqJaTEPu7ENbRL0-XKOw54K0jwCCGLtEk
+    short-id: a9c4f17e3b62d8
   servername: max.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
@@ -68,22 +68,22 @@ proxies:
   servername: max.ru
   flow: xtls-rprx-vision
   client-fingerprint: qq
-- name: 🇬🇧 GB [R] | 95.163.232.49
+- name: 🇩🇪 DE [R] | 31.76.71.133
   type: vless
-  server: 95.163.232.49
+  server: 31.76.71.133
   port: 443
-  uuid: 301d201a-cea0-4626-b593-c75d0699e89c
+  uuid: 80d02a71-54a5-4c5b-976d-5ee573c502af
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: oqRus6Z_Q1jqJaTEPu7ENbRL0-XKOw54K0jwCCGLtEk
-    short-id: a9c4f17e3b62d8
+    public-key: NzaCxfbgTDajw93CJs3uFkFJzp7DWhzJIqcnzoZwGQ4
+    short-id: d68d40aba9c0394a
   servername: max.ru
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
+  client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 144.31.87.16
   type: vless
   server: 144.31.87.16
@@ -98,6 +98,38 @@ proxies:
     public-key: l5eAOSPQMEyzEPvWGAKvCkcPpsJvR3DJfYo6elw1UTE
     short-id: 3b802dad547b0847
   servername: yandex.ru
+  client-fingerprint: firefox
+- name: 🇳🇱 NL [R][grpc] | 72.56.78.50
+  type: vless
+  server: 72.56.78.50
+  port: 443
+  uuid: fee2cdd8-55d1-4c5b-a67a-cfde8d45eed0
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: huH_8n0Dfk4iolIkzrc-qET8ySHWgZAr-i6K6lr6xSs
+    short-id: 375838bc17c0
+  servername: sun6-21.userapi.com
+  grpc-opts:
+    grpc-service-name: ''
+- name: 🇸🇨 SC [R] | 45.133.210.83
+  type: vless
+  server: 45.133.210.83
+  port: 443
+  uuid: 392058de-bb7e-44f5-b5bf-9184109cb42b
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: cttKOS1BlF-u-mvX63PWNPJK6W_RXfx1wo8yjBEt1hI
+    short-id: a2eb8d694a5480ff
+  servername: api-maps.yandex.ru
+  flow: xtls-rprx-vision
   client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 176.109.88.216
   type: vless
@@ -115,22 +147,22 @@ proxies:
   servername: api-maps.yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇸🇨 SC [R] | 45.133.210.83
+- name: 🇰🇿 KZ [R] | 5.180.42.85
   type: vless
-  server: 45.133.210.83
+  server: 5.180.42.85
   port: 443
-  uuid: 392058de-bb7e-44f5-b5bf-9184109cb42b
+  uuid: 5e19b3c8-c1dc-4163-95e2-895319c15d6c
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: cttKOS1BlF-u-mvX63PWNPJK6W_RXfx1wo8yjBEt1hI
-    short-id: a2eb8d694a5480ff
-  servername: api-maps.yandex.ru
+    public-key: 06GvG7PU5F3Hgq-vUH24tU0tpsbGMCCt26BSvlaBNUE
+    short-id: dfbfa87e9f37f1f0
+  servername: cloud.mail.ru
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
+  client-fingerprint: qq
 - name: 🇰🇿 KZ [R] | 5.180.40.9
   type: vless
   server: 5.180.40.9
@@ -194,36 +226,21 @@ proxies:
     short-id: b31c2b75add2e5fa
   servername: yastatic.net
   flow: xtls-rprx-vision
-- name: 🇳🇱 NL [R] | 194.55.239.164
-  type: vless
-  server: 194.55.239.164
-  port: 443
-  uuid: 0cfee0f7-de6d-4d72-95c5-bb5d35094974
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: sdnD0vxmj8kHBOoVM8TE9IyBCGwnKNB8hZVaHp_Zfjk
-    short-id: 2cd5
-  servername: ads.vk.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
+  client-fingerprint: chrome
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  - 🇩🇪 DE [R] | 31.76.71.133
-  - 🇬🇧 GB [R] | 95.85.224.51
   - 🇬🇧 GB [R] | 95.163.232.49
+  - 🇬🇧 GB [R] | 95.85.224.51
+  - 🇩🇪 DE [R] | 31.76.71.133
   - 🇬🇧 GB [R] | 144.31.87.16
-  - 🇬🇧 GB [R] | 176.109.88.216
+  - 🇳🇱 NL [R][grpc] | 72.56.78.50
   - 🇸🇨 SC [R] | 45.133.210.83
+  - 🇬🇧 GB [R] | 176.109.88.216
+  - 🇰🇿 KZ [R] | 5.180.42.85
   - 🇰🇿 KZ [R] | 5.180.40.9
-  - 🇰🇿 KZ [R] | kz2.techdatacloud.org
-  - 🇳🇱 NL [R] | wl-1.myfreedom.rest
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -232,17 +249,18 @@ proxy-groups:
   proxies:
   - 🚀 Auto
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  - 🇩🇪 DE [R] | 31.76.71.133
-  - 🇬🇧 GB [R] | 95.85.224.51
   - 🇬🇧 GB [R] | 95.163.232.49
+  - 🇬🇧 GB [R] | 95.85.224.51
+  - 🇩🇪 DE [R] | 31.76.71.133
   - 🇬🇧 GB [R] | 144.31.87.16
-  - 🇬🇧 GB [R] | 176.109.88.216
+  - 🇳🇱 NL [R][grpc] | 72.56.78.50
   - 🇸🇨 SC [R] | 45.133.210.83
+  - 🇬🇧 GB [R] | 176.109.88.216
+  - 🇰🇿 KZ [R] | 5.180.42.85
   - 🇰🇿 KZ [R] | 5.180.40.9
   - 🇰🇿 KZ [R] | kz2.techdatacloud.org
   - 🇳🇱 NL [R] | wl-1.myfreedom.rest
   - 🇵🇱 PL [R] | 81.90.17.164
-  - 🇳🇱 NL [R] | 194.55.239.164
 - name: 🎯 Direct
   type: select
   proxies:
