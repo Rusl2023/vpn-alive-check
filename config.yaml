@@ -21,40 +21,9 @@ dns:
   - tls://8.8.8.8
   - tls://1.1.1.1
 proxies:
-- name: 🇳🇱 NL [R][xhttp] | 91.84.117.29
+- name: 🇫🇷 FR [R] | 45.150.64.169
   type: vless
-  server: 91.84.117.29
-  port: 443
-  uuid: a4037b4c-6a9d-528c-9efb-7d801cce8adb
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: PyV8IrAs0LkE2d_DdjvdCtpWG7MZyUKsYkb52GUmuDM
-    short-id: '67'
-  servername: vk.com
-  client-fingerprint: chrome
-- name: 🇩🇪 DE [R] | 31.76.71.133
-  type: vless
-  server: 31.76.71.133
-  port: 443
-  uuid: 80d02a71-54a5-4c5b-976d-5ee573c502af
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: NzaCxfbgTDajw93CJs3uFkFJzp7DWhzJIqcnzoZwGQ4
-    short-id: d68d40aba9c0394a
-  servername: max.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇫🇷 FR [R] | battery.repaironline.biz
-  type: vless
-  server: battery.repaironline.biz
+  server: 45.150.64.169
   port: 443
   uuid: ad87d7fd-f5e2-4d59-aa58-36df84a2e3de
   udp: true
@@ -68,37 +37,23 @@ proxies:
   servername: max.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇬🇧 GB [R] | 95.163.232.49
+- name: 🇳🇱 NL [R][grpc] | 79.174.92.185
   type: vless
-  server: 95.163.232.49
+  server: 79.174.92.185
   port: 443
-  uuid: 301d201a-cea0-4626-b593-c75d0699e89c
+  uuid: 8aa160b7-0879-4961-85bb-0206938cd7bd
   udp: true
   skip-cert-verify: true
-  network: tcp
+  network: grpc
   encryption: none
   tls: true
   reality-opts:
-    public-key: oqRus6Z_Q1jqJaTEPu7ENbRL0-XKOw54K0jwCCGLtEk
-    short-id: a9c4f17e3b62d8
+    public-key: PAP10NLpy_4J_vf1CEtDuLJtce3pLSNhHLbuuAUXqBU
+    short-id: a1b2c3d4
   servername: max.ru
-  flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇬🇧 GB [R] | 144.31.87.16
-  type: vless
-  server: 144.31.87.16
-  port: 443
-  uuid: c40f773e-3b96-417e-b22c-e48cb63ca7d9
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: l5eAOSPQMEyzEPvWGAKvCkcPpsJvR3DJfYo6elw1UTE
-    short-id: 3b802dad547b0847
-  servername: yandex.ru
-  client-fingerprint: firefox
+  grpc-opts:
+    grpc-service-name: ''
 - name: 🇬🇧 GB [R] | 95.85.224.51
   type: vless
   server: 95.85.224.51
@@ -115,6 +70,37 @@ proxies:
   servername: max.ru
   flow: xtls-rprx-vision
   client-fingerprint: qq
+- name: 🇳🇱 NL [R][xhttp] | 91.84.117.29
+  type: vless
+  server: 91.84.117.29
+  port: 443
+  uuid: a4037b4c-6a9d-528c-9efb-7d801cce8adb
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: PyV8IrAs0LkE2d_DdjvdCtpWG7MZyUKsYkb52GUmuDM
+    short-id: '67'
+  servername: vk.com
+  client-fingerprint: chrome
+- name: 🇫🇷 FR [R] | battery.repaironline.biz
+  type: vless
+  server: battery.repaironline.biz
+  port: 443
+  uuid: ad87d7fd-f5e2-4d59-aa58-36df84a2e3de
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: ZERDIRJVpavCyXjWVAK81RPw3e6TyeJxG-FYqnjA50M
+    short-id: 0ad27dc6
+  servername: max.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇳🇱 NL [R][grpc] | 72.56.78.50
   type: vless
   server: 72.56.78.50
@@ -131,6 +117,21 @@ proxies:
   servername: sun6-21.userapi.com
   grpc-opts:
     grpc-service-name: ''
+- name: 🇬🇧 GB [R] | 144.31.87.16
+  type: vless
+  server: 144.31.87.16
+  port: 443
+  uuid: c40f773e-3b96-417e-b22c-e48cb63ca7d9
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: l5eAOSPQMEyzEPvWGAKvCkcPpsJvR3DJfYo6elw1UTE
+    short-id: 3b802dad547b0847
+  servername: yandex.ru
+  client-fingerprint: firefox
 - name: 🇹🇷 TR [R] | 51.250.41.143
   type: vless
   server: 51.250.41.143
@@ -146,24 +147,8 @@ proxies:
     short-id: 27e53bbcab7593d7
   servername: api-maps.yandex.ru
   flow: xtls-rprx-vision
-  client-fingerprint: random
-- name: 🇳🇱 NL [R] | 194.55.239.164
-  type: vless
-  server: 194.55.239.164
-  port: 443
-  uuid: 0cfee0f7-de6d-4d72-95c5-bb5d35094974
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: sdnD0vxmj8kHBOoVM8TE9IyBCGwnKNB8hZVaHp_Zfjk
-    short-id: 2cd5
-  servername: ads.vk.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇳🇱 NL [R] | wl-1.myfreedom.rest
+  client-fingerprint: chrome
+- name: 🇨🇭 CH [R] | wl-1.myfreedom.rest
   type: vless
   server: wl-1.myfreedom.rest
   port: 443
@@ -175,27 +160,11 @@ proxies:
   tls: true
   reality-opts:
     public-key: sdnD0vxmj8kHBOoVM8TE9IyBCGwnKNB8hZVaHp_Zfjk
-    short-id: 3b42
+    short-id: c427
   servername: ads.vk.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇸🇨 SC [R] | 45.133.210.83
-  type: vless
-  server: 45.133.210.83
-  port: 443
-  uuid: 392058de-bb7e-44f5-b5bf-9184109cb42b
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: cttKOS1BlF-u-mvX63PWNPJK6W_RXfx1wo8yjBEt1hI
-    short-id: a2eb8d694a5480ff
-  servername: api-maps.yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇳🇱 NL [R] | 194.55.239.164 (2)
+- name: 🇳🇱 NL [R] | 194.55.239.164
   type: vless
   server: 194.55.239.164
   port: 443
@@ -226,10 +195,10 @@ proxies:
     short-id: dfbfa87e9f37f1f0
   servername: cloud.mail.ru
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇰🇿 KZ [R] | kz2.techdatacloud.org
+  client-fingerprint: firefox
+- name: 🇰🇿 KZ [R] | 5.180.42.85
   type: vless
-  server: kz2.techdatacloud.org
+  server: 5.180.42.85
   port: 443
   uuid: 5e19b3c8-c1dc-4163-95e2-895319c15d6c
   udp: true
@@ -258,6 +227,23 @@ proxies:
     short-id: b31c2b75add2e5fa
   servername: yastatic.net
   flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇬🇧 GB [R] | 176.109.88.216
+  type: vless
+  server: 176.109.88.216
+  port: 443
+  uuid: 2c7f1414-87ae-4a01-9796-a02c067891a6
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: oqRus6Z_Q1jqJaTEPu7ENbRL0-XKOw54K0jwCCGLtEk
+    short-id: a9c4f17e3b62d8
+  servername: api-maps.yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
 - name: 🇳🇱 NL [ws] | 5.129.224.93
   type: vless
   server: 5.129.224.93
@@ -304,46 +290,20 @@ proxies:
     path: /
     headers:
       Host: hys42.wba-pn.ru
-- name: 🇫🇮 FI  | fast_s10.slopllex.app
-  type: vless
-  server: fast_s10.slopllex.app
-  port: 443
-  uuid: 0bc09995-7ee6-462e-bfc3-75c880b9d675
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: fast_s10.slopllex.app
-  flow: xtls-rprx-vision
-  client-fingerprint: qq
-- name: 🇫🇮 FI  | 217.144.184.246
-  type: vless
-  server: 217.144.184.246
-  port: 443
-  uuid: 0bc09995-7ee6-462e-bfc3-75c880b9d675
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: fast_s10.slopllex.app
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
-  - 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  - 🇩🇪 DE [R] | 31.76.71.133
-  - 🇫🇷 FR [R] | battery.repaironline.biz
-  - 🇬🇧 GB [R] | 95.163.232.49
-  - 🇬🇧 GB [R] | 144.31.87.16
+  - 🇫🇷 FR [R] | 45.150.64.169
+  - 🇳🇱 NL [R][grpc] | 79.174.92.185
   - 🇬🇧 GB [R] | 95.85.224.51
+  - 🇳🇱 NL [R][xhttp] | 91.84.117.29
+  - 🇫🇷 FR [R] | battery.repaironline.biz
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
+  - 🇬🇧 GB [R] | 144.31.87.16
   - 🇹🇷 TR [R] | 51.250.41.143
+  - 🇨🇭 CH [R] | wl-1.myfreedom.rest
   - 🇳🇱 NL [R] | 194.55.239.164
-  - 🇳🇱 NL [R] | wl-1.myfreedom.rest
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -351,26 +311,23 @@ proxy-groups:
   type: select
   proxies:
   - 🚀 Auto
-  - 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  - 🇩🇪 DE [R] | 31.76.71.133
-  - 🇫🇷 FR [R] | battery.repaironline.biz
-  - 🇬🇧 GB [R] | 95.163.232.49
-  - 🇬🇧 GB [R] | 144.31.87.16
+  - 🇫🇷 FR [R] | 45.150.64.169
+  - 🇳🇱 NL [R][grpc] | 79.174.92.185
   - 🇬🇧 GB [R] | 95.85.224.51
+  - 🇳🇱 NL [R][xhttp] | 91.84.117.29
+  - 🇫🇷 FR [R] | battery.repaironline.biz
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
+  - 🇬🇧 GB [R] | 144.31.87.16
   - 🇹🇷 TR [R] | 51.250.41.143
+  - 🇨🇭 CH [R] | wl-1.myfreedom.rest
   - 🇳🇱 NL [R] | 194.55.239.164
-  - 🇳🇱 NL [R] | wl-1.myfreedom.rest
-  - 🇸🇨 SC [R] | 45.133.210.83
-  - 🇳🇱 NL [R] | 194.55.239.164 (2)
   - 🇰🇿 KZ [R] | 5.180.40.9
-  - 🇰🇿 KZ [R] | kz2.techdatacloud.org
+  - 🇰🇿 KZ [R] | 5.180.42.85
   - 🇵🇱 PL [R] | 81.90.17.164
+  - 🇬🇧 GB [R] | 176.109.88.216
   - 🇳🇱 NL [ws] | 5.129.224.93
   - 🇳🇱 NL [ws] | hys42.wba-pn.ru
   - 🇳🇱 NL [ws] | hys42.wba-pn.ru (2)
-  - 🇫🇮 FI  | fast_s10.slopllex.app
-  - 🇫🇮 FI  | 217.144.184.246
 - name: 🎯 Direct
   type: select
   proxies:
