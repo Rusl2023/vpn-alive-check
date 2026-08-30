@@ -99,22 +99,37 @@ proxies:
   servername: sun6-21.userapi.com
   grpc-opts:
     grpc-service-name: ''
-- name: 🇬🇧 GB [R] | 176.109.88.216
+- name: 🇬🇧 GB [R][xhttp] | 178.236.254.132
   type: vless
-  server: 176.109.88.216
+  server: 178.236.254.132
   port: 443
-  uuid: 2c7f1414-87ae-4a01-9796-a02c067891a6
+  uuid: b5ca5ab3-8cbc-4ac3-89da-9cd360589ecb
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 2P7D_IkxXWre3YziEe2tkF9L_gUbdZE_WCu9_SQq4hE
+    short-id: 2b5b1ffa8a6a1a68
+  servername: ya.ru
+  client-fingerprint: qq
+- name: 🇨🇭 CH [R] | 194.55.239.164
+  type: vless
+  server: 194.55.239.164
+  port: 443
+  uuid: 0cfee0f7-de6d-4d72-95c5-bb5d35094974
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: oqRus6Z_Q1jqJaTEPu7ENbRL0-XKOw54K0jwCCGLtEk
-    short-id: a9c4f17e3b62d8
-  servername: api-maps.yandex.ru
+    public-key: sdnD0vxmj8kHBOoVM8TE9IyBCGwnKNB8hZVaHp_Zfjk
+    short-id: 2cd5
+  servername: ads.vk.ru
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
+  client-fingerprint: firefox
 - name: 🇳🇱 NL [R] | 194.55.239.164
   type: vless
   server: 194.55.239.164
@@ -131,6 +146,37 @@ proxies:
   servername: ads.vk.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
+- name: 🇳🇱 NL [R] | wl-1.myfreedom.rest
+  type: vless
+  server: wl-1.myfreedom.rest
+  port: 443
+  uuid: 0cfee0f7-de6d-4d72-95c5-bb5d35094974
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: sdnD0vxmj8kHBOoVM8TE9IyBCGwnKNB8hZVaHp_Zfjk
+    short-id: 2cd5
+  servername: ads.vk.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇵🇱 PL [R] | 81.90.17.164
+  type: vless
+  server: 81.90.17.164
+  port: 443
+  uuid: cb784d00-d34a-4389-b938-8717f7b28353
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: v0XQn6uvyC8q5CThcRYLer1F1OOYpZDn5NLOvDicaWg
+    short-id: b31c2b75add2e5fa
+  servername: yastatic.net
+  flow: xtls-rprx-vision
 - name: 🇰🇿 KZ [R] | kz2.techdatacloud.org
   type: vless
   server: kz2.techdatacloud.org
@@ -162,70 +208,7 @@ proxies:
     short-id: dfbfa87e9f37f1f0
   servername: cloud.mail.ru
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇳🇱 NL [R] | wl-1.myfreedom.rest
-  type: vless
-  server: wl-1.myfreedom.rest
-  port: 443
-  uuid: 0cfee0f7-de6d-4d72-95c5-bb5d35094974
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: sdnD0vxmj8kHBOoVM8TE9IyBCGwnKNB8hZVaHp_Zfjk
-    short-id: c427
-  servername: ads.vk.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇵🇱 PL [R] | 81.90.17.164
-  type: vless
-  server: 81.90.17.164
-  port: 443
-  uuid: cb784d00-d34a-4389-b938-8717f7b28353
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: v0XQn6uvyC8q5CThcRYLer1F1OOYpZDn5NLOvDicaWg
-    short-id: b31c2b75add2e5fa
-  servername: yastatic.net
-  flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇳🇱 NL [ws] | hys42.wba-pn.ru
-  type: vless
-  server: hys42.wba-pn.ru
-  port: 443
-  uuid: f0d24eb0-a88a-455f-92b8-3a99c38dfb0c
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  client-fingerprint: qq
-  ws-opts:
-    path: /
-    headers:
-      Host: hys42.wba-pn.ru
-- name: 🇳🇱 NL [ws] | hys42.wba-pn.ru (2)
-  type: vless
-  server: hys42.wba-pn.ru
-  port: 443
-  uuid: f0d24eb0-a88a-455f-92b8-3a99c38dfb0c
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: hys42.wba-pn.ru
-  client-fingerprint: qq
-  ws-opts:
-    path: /
-    headers:
-      Host: hys42.wba-pn.ru
 - name: 🇳🇱 NL [ws] | 5.129.224.93
   type: vless
   server: 5.129.224.93
@@ -241,6 +224,37 @@ proxies:
   ws-opts:
     headers:
       Host: hys42.wba-pn.ru
+- name: 🇳🇱 NL [ws] | hys42.wba-pn.ru
+  type: vless
+  server: hys42.wba-pn.ru
+  port: 443
+  uuid: f0d24eb0-a88a-455f-92b8-3a99c38dfb0c
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: hys42.wba-pn.ru
+  client-fingerprint: qq
+  ws-opts:
+    path: /
+    headers:
+      Host: hys42.wba-pn.ru
+- name: 🇳🇱 NL [ws] | hys42.wba-pn.ru (2)
+  type: vless
+  server: hys42.wba-pn.ru
+  port: 443
+  uuid: f0d24eb0-a88a-455f-92b8-3a99c38dfb0c
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  client-fingerprint: qq
+  ws-opts:
+    path: /
+    headers:
+      Host: hys42.wba-pn.ru
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
@@ -250,11 +264,11 @@ proxy-groups:
   - 🇬🇧 GB [R] | 95.163.232.49
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
-  - 🇬🇧 GB [R] | 176.109.88.216
+  - 🇬🇧 GB [R][xhttp] | 178.236.254.132
+  - 🇨🇭 CH [R] | 194.55.239.164
   - 🇳🇱 NL [R] | 194.55.239.164
-  - 🇰🇿 KZ [R] | kz2.techdatacloud.org
-  - 🇰🇿 KZ [R] | 5.180.40.9
   - 🇳🇱 NL [R] | wl-1.myfreedom.rest
+  - 🇵🇱 PL [R] | 81.90.17.164
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -267,15 +281,16 @@ proxy-groups:
   - 🇬🇧 GB [R] | 95.163.232.49
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
-  - 🇬🇧 GB [R] | 176.109.88.216
+  - 🇬🇧 GB [R][xhttp] | 178.236.254.132
+  - 🇨🇭 CH [R] | 194.55.239.164
   - 🇳🇱 NL [R] | 194.55.239.164
-  - 🇰🇿 KZ [R] | kz2.techdatacloud.org
-  - 🇰🇿 KZ [R] | 5.180.40.9
   - 🇳🇱 NL [R] | wl-1.myfreedom.rest
   - 🇵🇱 PL [R] | 81.90.17.164
+  - 🇰🇿 KZ [R] | kz2.techdatacloud.org
+  - 🇰🇿 KZ [R] | 5.180.40.9
+  - 🇳🇱 NL [ws] | 5.129.224.93
   - 🇳🇱 NL [ws] | hys42.wba-pn.ru
   - 🇳🇱 NL [ws] | hys42.wba-pn.ru (2)
-  - 🇳🇱 NL [ws] | 5.129.224.93
 - name: 🎯 Direct
   type: select
   proxies:
