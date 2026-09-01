@@ -36,6 +36,21 @@ proxies:
     short-id: '67'
   servername: vk.com
   client-fingerprint: chrome
+- name: 🇬🇧 GB [R] | 144.31.87.16
+  type: vless
+  server: 144.31.87.16
+  port: 443
+  uuid: c40f773e-3b96-417e-b22c-e48cb63ca7d9
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: l5eAOSPQMEyzEPvWGAKvCkcPpsJvR3DJfYo6elw1UTE
+    short-id: 3b802dad547b0847
+  servername: yandex.ru
+  client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 95.85.224.51
   type: vless
   server: 95.85.224.51
@@ -52,37 +67,6 @@ proxies:
   servername: max.ru
   flow: xtls-rprx-vision
   client-fingerprint: qq
-- name: 🇧🇬 BG [R] | 144.31.50.236
-  type: vless
-  server: 144.31.50.236
-  port: 443
-  uuid: 1c332eae-7e02-4acd-996d-4eb3e652401c
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: uitO4Z8t9TplwwYaqwLqh5rfxDh_X8bOBiNuPbzvaEM
-    short-id: bbe46bd8f6b96839
-  servername: yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇬🇧 GB [R] | 144.31.87.16
-  type: vless
-  server: 144.31.87.16
-  port: 443
-  uuid: c40f773e-3b96-417e-b22c-e48cb63ca7d9
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: l5eAOSPQMEyzEPvWGAKvCkcPpsJvR3DJfYo6elw1UTE
-    short-id: 3b802dad547b0847
-  servername: yandex.ru
-  client-fingerprint: firefox
 - name: 🇧🇬 BG [R] | prep.wwwinternetvideo.click
   type: vless
   server: prep.wwwinternetvideo.click
@@ -99,19 +83,19 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇬🇧 GB [R] | 193.163.203.170
+- name: 🇧🇬 BG [R] | 144.31.50.236
   type: vless
-  server: 193.163.203.170
+  server: 144.31.50.236
   port: 443
-  uuid: 11aabba0-5fd1-4f15-8068-74c1a466cefc
+  uuid: 1c332eae-7e02-4acd-996d-4eb3e652401c
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: GCCZ1ZZjB_nj7yxqFi22bIIWWr_G6rnWUzDcssN_40o
-    short-id: b28db60d77c50b4f
+    public-key: uitO4Z8t9TplwwYaqwLqh5rfxDh_X8bOBiNuPbzvaEM
+    short-id: bbe46bd8f6b96839
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
@@ -146,23 +130,7 @@ proxies:
     short-id: a9c4f17e3b62d8
   servername: api-maps.yandex.ru
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇳🇱 NL [R] | 194.55.239.164
-  type: vless
-  server: 194.55.239.164
-  port: 443
-  uuid: 0cfee0f7-de6d-4d72-95c5-bb5d35094974
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: sdnD0vxmj8kHBOoVM8TE9IyBCGwnKNB8hZVaHp_Zfjk
-    short-id: c427
-  servername: ads.vk.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
+  client-fingerprint: chrome
 - name: 🇵🇱 PL [R] | 81.90.17.164
   type: vless
   server: 81.90.17.164
@@ -211,22 +179,6 @@ proxies:
   servername: cloud.mail.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇳🇱 NL [R] | wl-1.myfreedom.rest
-  type: vless
-  server: wl-1.myfreedom.rest
-  port: 443
-  uuid: 0cfee0f7-de6d-4d72-95c5-bb5d35094974
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: sdnD0vxmj8kHBOoVM8TE9IyBCGwnKNB8hZVaHp_Zfjk
-    short-id: c427
-  servername: ads.vk.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇳🇱 NL [ws] | 5.129.224.93
   type: vless
   server: 5.129.224.93
@@ -253,6 +205,7 @@ proxies:
   encryption: none
   tls: true
   servername: hys42.wba-pn.ru
+  client-fingerprint: qq
   ws-opts:
     path: /
     headers:
@@ -272,48 +225,20 @@ proxies:
     path: /
     headers:
       Host: hys42.wba-pn.ru
-- name: 🇩🇪 DE [ws] | 147.45.173.149
-  type: vless
-  server: 147.45.173.149
-  port: 443
-  uuid: 47667ac5-ac51-7fc6-181f-65321ee2387b
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: svg-2.onrender.com
-  client-fingerprint: chrome
-  ws-opts:
-    path: /ws/47667ac5-ac51-7fc6-181f-65321ee2387b
-    headers:
-      Host: svg-2.onrender.com
-- name: 🇺🇸 US  | husuzahre.mvp-rk.site
-  type: vless
-  server: husuzahre.mvp-rk.site
-  port: 443
-  uuid: d3bc474a-3153-4e46-bfd4-b57e1b493cb6
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: husuzahre.mvp-rk.site
-  flow: xtls-rprx-vision
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  - 🇬🇧 GB [R] | 95.85.224.51
-  - 🇧🇬 BG [R] | 144.31.50.236
   - 🇬🇧 GB [R] | 144.31.87.16
+  - 🇬🇧 GB [R] | 95.85.224.51
   - 🇧🇬 BG [R] | prep.wwwinternetvideo.click
-  - 🇬🇧 GB [R] | 193.163.203.170
+  - 🇧🇬 BG [R] | 144.31.50.236
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
   - 🇬🇧 GB [R] | 176.109.88.216
-  - 🇳🇱 NL [R] | 194.55.239.164
   - 🇵🇱 PL [R] | 81.90.17.164
+  - 🇰🇿 KZ [R] | kz2.techdatacloud.org
+  - 🇰🇿 KZ [R] | 5.180.40.9
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -322,23 +247,18 @@ proxy-groups:
   proxies:
   - 🚀 Auto
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  - 🇬🇧 GB [R] | 95.85.224.51
-  - 🇧🇬 BG [R] | 144.31.50.236
   - 🇬🇧 GB [R] | 144.31.87.16
+  - 🇬🇧 GB [R] | 95.85.224.51
   - 🇧🇬 BG [R] | prep.wwwinternetvideo.click
-  - 🇬🇧 GB [R] | 193.163.203.170
+  - 🇧🇬 BG [R] | 144.31.50.236
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
   - 🇬🇧 GB [R] | 176.109.88.216
-  - 🇳🇱 NL [R] | 194.55.239.164
   - 🇵🇱 PL [R] | 81.90.17.164
   - 🇰🇿 KZ [R] | kz2.techdatacloud.org
   - 🇰🇿 KZ [R] | 5.180.40.9
-  - 🇳🇱 NL [R] | wl-1.myfreedom.rest
   - 🇳🇱 NL [ws] | 5.129.224.93
   - 🇳🇱 NL [ws] | hys42.wba-pn.ru
   - 🇳🇱 NL [ws] | hys42.wba-pn.ru (2)
-  - 🇩🇪 DE [ws] | 147.45.173.149
-  - 🇺🇸 US  | husuzahre.mvp-rk.site
 - name: 🎯 Direct
   type: select
   proxies:
