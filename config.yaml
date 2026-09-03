@@ -21,21 +21,6 @@ dns:
   - tls://8.8.8.8
   - tls://1.1.1.1
 proxies:
-- name: 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  type: vless
-  server: 91.84.117.29
-  port: 443
-  uuid: a4037b4c-6a9d-528c-9efb-7d801cce8adb
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: PyV8IrAs0LkE2d_DdjvdCtpWG7MZyUKsYkb52GUmuDM
-    short-id: '67'
-  servername: vk.com
-  client-fingerprint: chrome
 - name: 🇬🇧 GB [R] | 144.31.87.16
   type: vless
   server: 144.31.87.16
@@ -51,6 +36,21 @@ proxies:
     short-id: 3b802dad547b0847
   servername: yandex.ru
   client-fingerprint: firefox
+- name: 🇳🇱 NL [R][xhttp] | 91.84.117.29
+  type: vless
+  server: 91.84.117.29
+  port: 443
+  uuid: a4037b4c-6a9d-528c-9efb-7d801cce8adb
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: PyV8IrAs0LkE2d_DdjvdCtpWG7MZyUKsYkb52GUmuDM
+    short-id: '67'
+  servername: vk.com
+  client-fingerprint: chrome
 - name: 🇬🇧 GB [R] | 95.85.224.51
   type: vless
   server: 95.85.224.51
@@ -67,9 +67,9 @@ proxies:
   servername: max.ru
   flow: xtls-rprx-vision
   client-fingerprint: qq
-- name: 🇵🇱 PL [R] | 144.31.93.231
+- name: 🇵🇱 PL [R] | av513u.sysopnova.art
   type: vless
-  server: 144.31.93.231
+  server: av513u.sysopnova.art
   port: 443
   uuid: 3710fc0f-5f0c-4b9c-a5d4-40cb419e943a
   udp: true
@@ -144,7 +144,39 @@ proxies:
     short-id: a9c4f17e3b62d8
   servername: api-maps.yandex.ru
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
+  client-fingerprint: qq
+- name: 🇳🇱 NL [R] | 194.55.239.164
+  type: vless
+  server: 194.55.239.164
+  port: 443
+  uuid: f5d86c05-fead-4819-b6a2-83b2857fd5de
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: sdnD0vxmj8kHBOoVM8TE9IyBCGwnKNB8hZVaHp_Zfjk
+    short-id: e791
+  servername: ads.vk.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇰🇿 KZ [R] | kz2.techdatacloud.org
+  type: vless
+  server: kz2.techdatacloud.org
+  port: 443
+  uuid: 5e19b3c8-c1dc-4163-95e2-895319c15d6c
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 06GvG7PU5F3Hgq-vUH24tU0tpsbGMCCt26BSvlaBNUE
+    short-id: dfbfa87e9f37f1f0
+  servername: cloud.mail.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇰🇿 KZ [R] | 5.180.40.9
   type: vless
   server: 5.180.40.9
@@ -160,7 +192,7 @@ proxies:
     short-id: dfbfa87e9f37f1f0
   servername: cloud.mail.ru
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
+  client-fingerprint: firefox
 - name: 🇰🇿 KZ [R] | 5.180.42.85
   type: vless
   server: 5.180.42.85
@@ -176,34 +208,6 @@ proxies:
     short-id: dfbfa87e9f37f1f0
   servername: cloud.mail.ru
   flow: xtls-rprx-vision
-  client-fingerprint: qq
-- name: 🇳🇱 NL [ws] | 5.129.224.93
-  type: vless
-  server: 5.129.224.93
-  port: 443
-  uuid: f0d24eb0-a88a-455f-92b8-3a99c38dfb0c
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: hys42.wba-pn.ru
-  client-fingerprint: chrome
-  ws-opts:
-    headers:
-      Host: hys42.wba-pn.ru
-- name: 🇳🇱 NL  | 147.45.61.188
-  type: vless
-  server: 147.45.61.188
-  port: 443
-  uuid: 5999a497-a2da-41d0-92cb-5b758082f83c
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: som3.api3-max.ru
-  flow: xtls-rprx-vision
   client-fingerprint: firefox
 - name: 🇳🇱 NL  | 147.45.61.190
   type: vless
@@ -218,6 +222,34 @@ proxies:
   servername: som5.api3-max.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
+- name: 🇳🇱 NL  | 147.45.61.188
+  type: vless
+  server: 147.45.61.188
+  port: 443
+  uuid: 5999a497-a2da-41d0-92cb-5b758082f83c
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  servername: som3.api3-max.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇳🇱 NL [ws] | 5.129.224.93
+  type: vless
+  server: 5.129.224.93
+  port: 443
+  uuid: f0d24eb0-a88a-455f-92b8-3a99c38dfb0c
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: hys42.wba-pn.ru
+  client-fingerprint: firefox
+  ws-opts:
+    headers:
+      Host: hys42.wba-pn.ru
 - name: 🇳🇱 NL  | 193.233.82.32
   type: vless
   server: 193.233.82.32
@@ -262,20 +294,36 @@ proxies:
     path: /
     headers:
       Host: hys42.wba-pn.ru
+- name: 🇸🇪 SE [ws] | 185.178.208.176
+  type: vless
+  server: 185.178.208.176
+  port: 443
+  uuid: c350b6bb-79d1-42fa-a55a-c3a8794c7385
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: founders-blog.online
+  client-fingerprint: chrome
+  ws-opts:
+    path: /stream/615428/socket
+    headers:
+      Host: founders-blog.online
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
-  - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇬🇧 GB [R] | 144.31.87.16
+  - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇬🇧 GB [R] | 95.85.224.51
-  - 🇵🇱 PL [R] | 144.31.93.231
+  - 🇵🇱 PL [R] | av513u.sysopnova.art
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
   - 🇬🇧 GB [R][xhttp] | 178.236.254.76
   - 🇵🇱 PL [R] | 81.90.17.164
   - 🇬🇧 GB [R] | 176.109.88.216
-  - 🇰🇿 KZ [R] | 5.180.40.9
-  - 🇰🇿 KZ [R] | 5.180.42.85
+  - 🇳🇱 NL [R] | 194.55.239.164
+  - 🇰🇿 KZ [R] | kz2.techdatacloud.org
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -283,22 +331,25 @@ proxy-groups:
   type: select
   proxies:
   - 🚀 Auto
-  - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇬🇧 GB [R] | 144.31.87.16
+  - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇬🇧 GB [R] | 95.85.224.51
-  - 🇵🇱 PL [R] | 144.31.93.231
+  - 🇵🇱 PL [R] | av513u.sysopnova.art
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
   - 🇬🇧 GB [R][xhttp] | 178.236.254.76
   - 🇵🇱 PL [R] | 81.90.17.164
   - 🇬🇧 GB [R] | 176.109.88.216
+  - 🇳🇱 NL [R] | 194.55.239.164
+  - 🇰🇿 KZ [R] | kz2.techdatacloud.org
   - 🇰🇿 KZ [R] | 5.180.40.9
   - 🇰🇿 KZ [R] | 5.180.42.85
-  - 🇳🇱 NL [ws] | 5.129.224.93
-  - 🇳🇱 NL  | 147.45.61.188
   - 🇳🇱 NL  | 147.45.61.190
+  - 🇳🇱 NL  | 147.45.61.188
+  - 🇳🇱 NL [ws] | 5.129.224.93
   - 🇳🇱 NL  | 193.233.82.32
   - 🇳🇱 NL [ws] | hys42.wba-pn.ru
   - 🇳🇱 NL [ws] | hys42.wba-pn.ru (2)
+  - 🇸🇪 SE [ws] | 185.178.208.176
 - name: 🎯 Direct
   type: select
   proxies:
