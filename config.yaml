@@ -84,22 +84,6 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇵🇱 PL [R] | av513u.sysopnova.art
-  type: vless
-  server: av513u.sysopnova.art
-  port: 443
-  uuid: 3710fc0f-5f0c-4b9c-a5d4-40cb419e943a
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: WKN5yaRN05O2WdCURXRmS-yBVYaabaFWOvGudX6ohWc
-    short-id: b97e7d4582b6fa6e
-  servername: yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇳🇱 NL [R][grpc] | 72.56.78.50
   type: vless
   server: 72.56.78.50
@@ -116,22 +100,6 @@ proxies:
   servername: sun6-21.userapi.com
   grpc-opts:
     grpc-service-name: ''
-- name: 🇬🇧 GB [R] | 176.109.88.216
-  type: vless
-  server: 176.109.88.216
-  port: 443
-  uuid: 2c7f1414-87ae-4a01-9796-a02c067891a6
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: oqRus6Z_Q1jqJaTEPu7ENbRL0-XKOw54K0jwCCGLtEk
-    short-id: a9c4f17e3b62d8
-  servername: api-maps.yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
 - name: 🇵🇱 PL [R] | 81.90.17.164
   type: vless
   server: 81.90.17.164
@@ -148,52 +116,22 @@ proxies:
   servername: yastatic.net
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇳🇱 NL [ws] | 5.129.224.93
+- name: 🇬🇧 GB [R] | 176.109.88.216
   type: vless
-  server: 5.129.224.93
+  server: 176.109.88.216
   port: 443
-  uuid: f0d24eb0-a88a-455f-92b8-3a99c38dfb0c
+  uuid: 2c7f1414-87ae-4a01-9796-a02c067891a6
   udp: true
   skip-cert-verify: true
-  network: ws
+  network: tcp
   encryption: none
   tls: true
-  servername: hys42.wba-pn.ru
-  client-fingerprint: firefox
-  ws-opts:
-    headers:
-      Host: hys42.wba-pn.ru
-- name: 🇳🇱 NL [ws] | hys42.wba-pn.ru
-  type: vless
-  server: hys42.wba-pn.ru
-  port: 443
-  uuid: f0d24eb0-a88a-455f-92b8-3a99c38dfb0c
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: hys42.wba-pn.ru
+  reality-opts:
+    public-key: oqRus6Z_Q1jqJaTEPu7ENbRL0-XKOw54K0jwCCGLtEk
+    short-id: a9c4f17e3b62d8
+  servername: api-maps.yandex.ru
+  flow: xtls-rprx-vision
   client-fingerprint: qq
-  ws-opts:
-    path: /
-    headers:
-      Host: hys42.wba-pn.ru
-- name: 🇳🇱 NL [ws] | hys42.wba-pn.ru (2)
-  type: vless
-  server: hys42.wba-pn.ru
-  port: 443
-  uuid: f0d24eb0-a88a-455f-92b8-3a99c38dfb0c
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  client-fingerprint: qq
-  ws-opts:
-    path: /
-    headers:
-      Host: hys42.wba-pn.ru
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
@@ -202,12 +140,9 @@ proxy-groups:
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇧🇬 BG [R] | 144.31.50.236
   - 🇧🇬 BG [R] | prep.wwwinternetvideo.click
-  - 🇵🇱 PL [R] | av513u.sysopnova.art
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
-  - 🇬🇧 GB [R] | 176.109.88.216
   - 🇵🇱 PL [R] | 81.90.17.164
-  - 🇳🇱 NL [ws] | 5.129.224.93
-  - 🇳🇱 NL [ws] | hys42.wba-pn.ru
+  - 🇬🇧 GB [R] | 176.109.88.216
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -219,13 +154,9 @@ proxy-groups:
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇧🇬 BG [R] | 144.31.50.236
   - 🇧🇬 BG [R] | prep.wwwinternetvideo.click
-  - 🇵🇱 PL [R] | av513u.sysopnova.art
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
-  - 🇬🇧 GB [R] | 176.109.88.216
   - 🇵🇱 PL [R] | 81.90.17.164
-  - 🇳🇱 NL [ws] | 5.129.224.93
-  - 🇳🇱 NL [ws] | hys42.wba-pn.ru
-  - 🇳🇱 NL [ws] | hys42.wba-pn.ru (2)
+  - 🇬🇧 GB [R] | 176.109.88.216
 - name: 🎯 Direct
   type: select
   proxies:
