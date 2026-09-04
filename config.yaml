@@ -21,69 +21,6 @@ dns:
   - tls://8.8.8.8
   - tls://1.1.1.1
 proxies:
-- name: 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  type: vless
-  server: 91.84.117.29
-  port: 443
-  uuid: a4037b4c-6a9d-528c-9efb-7d801cce8adb
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: PyV8IrAs0LkE2d_DdjvdCtpWG7MZyUKsYkb52GUmuDM
-    short-id: '67'
-  servername: vk.com
-  client-fingerprint: chrome
-- name: 🇧🇬 BG [R] | prep.wwwinternetvideo.click
-  type: vless
-  server: prep.wwwinternetvideo.click
-  port: 443
-  uuid: 1c332eae-7e02-4acd-996d-4eb3e652401c
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: uitO4Z8t9TplwwYaqwLqh5rfxDh_X8bOBiNuPbzvaEM
-    short-id: bbe46bd8f6b96839
-  servername: yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇷🇴 RO [R] | 193.163.203.253
-  type: vless
-  server: 193.163.203.253
-  port: 443
-  uuid: 441afe11-a180-4516-bb80-80a8a6b38705
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: gE8LUmGFXik94SoDXNiAG5KprGyhjoRwDuhGebgAVWk
-    short-id: 5ee019e02e6ed99a
-  servername: yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇧🇬 BG [R] | 144.31.50.236
-  type: vless
-  server: 144.31.50.236
-  port: 443
-  uuid: 1c332eae-7e02-4acd-996d-4eb3e652401c
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: uitO4Z8t9TplwwYaqwLqh5rfxDh_X8bOBiNuPbzvaEM
-    short-id: bbe46bd8f6b96839
-  servername: yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 95.85.224.51
   type: vless
   server: 95.85.224.51
@@ -99,7 +36,70 @@ proxies:
     short-id: a696de84963656de
   servername: max.ru
   flow: xtls-rprx-vision
-  client-fingerprint: qq
+  client-fingerprint: chrome
+- name: 🇧🇬 BG [R] | 144.31.50.236
+  type: vless
+  server: 144.31.50.236
+  port: 443
+  uuid: 1c332eae-7e02-4acd-996d-4eb3e652401c
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: uitO4Z8t9TplwwYaqwLqh5rfxDh_X8bOBiNuPbzvaEM
+    short-id: bbe46bd8f6b96839
+  servername: yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: randomized
+- name: 🇳🇱 NL [R][xhttp] | 91.84.117.29
+  type: vless
+  server: 91.84.117.29
+  port: 443
+  uuid: a4037b4c-6a9d-528c-9efb-7d801cce8adb
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: PyV8IrAs0LkE2d_DdjvdCtpWG7MZyUKsYkb52GUmuDM
+    short-id: '67'
+  servername: vk.com
+  client-fingerprint: chrome
+- name: 🇷🇴 RO [R] | bl3fk52.sysopnova.art
+  type: vless
+  server: bl3fk52.sysopnova.art
+  port: 443
+  uuid: 441afe11-a180-4516-bb80-80a8a6b38705
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: gE8LUmGFXik94SoDXNiAG5KprGyhjoRwDuhGebgAVWk
+    short-id: 5ee019e02e6ed99a
+  servername: yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇵🇱 PL [R] | 144.31.93.231
+  type: vless
+  server: 144.31.93.231
+  port: 443
+  uuid: 3710fc0f-5f0c-4b9c-a5d4-40cb419e943a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: WKN5yaRN05O2WdCURXRmS-yBVYaabaFWOvGudX6ohWc
+    short-id: b97e7d4582b6fa6e
+  servername: yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇳🇱 NL [R][grpc] | 72.56.78.50
   type: vless
   server: 72.56.78.50
@@ -114,7 +114,6 @@ proxies:
     public-key: huH_8n0Dfk4iolIkzrc-qET8ySHWgZAr-i6K6lr6xSs
     short-id: 375838bc17c0
   servername: sun6-21.userapi.com
-  client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: ''
 - name: 🇵🇱 PL [R] | 81.90.17.164
@@ -132,6 +131,7 @@ proxies:
     short-id: b31c2b75add2e5fa
   servername: yastatic.net
   flow: xtls-rprx-vision
+  client-fingerprint: chrome
 - name: 🇬🇧 GB [R] | 176.109.88.216
   type: vless
   server: 176.109.88.216
@@ -147,23 +147,7 @@ proxies:
     short-id: a9c4f17e3b62d8
   servername: api-maps.yandex.ru
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇳🇱 NL [R] | wl-1.myfreedom.rest
-  type: vless
-  server: wl-1.myfreedom.rest
-  port: 443
-  uuid: 0cfee0f7-de6d-4d72-95c5-bb5d35094974
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: sdnD0vxmj8kHBOoVM8TE9IyBCGwnKNB8hZVaHp_Zfjk
-    short-id: c427
-  servername: ads.vk.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
+  client-fingerprint: qq
 - name: 🇳🇱 NL [ws] | hys42.wba-pn.ru
   type: vless
   server: hys42.wba-pn.ru
@@ -174,6 +158,7 @@ proxies:
   network: ws
   encryption: none
   tls: true
+  servername: hys42.wba-pn.ru
   client-fingerprint: qq
   ws-opts:
     path: /
@@ -204,7 +189,6 @@ proxies:
   network: ws
   encryption: none
   tls: true
-  servername: hys42.wba-pn.ru
   client-fingerprint: qq
   ws-opts:
     path: /
@@ -214,16 +198,16 @@ proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
-  - 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  - 🇧🇬 BG [R] | prep.wwwinternetvideo.click
-  - 🇷🇴 RO [R] | 193.163.203.253
-  - 🇧🇬 BG [R] | 144.31.50.236
   - 🇬🇧 GB [R] | 95.85.224.51
+  - 🇧🇬 BG [R] | 144.31.50.236
+  - 🇳🇱 NL [R][xhttp] | 91.84.117.29
+  - 🇷🇴 RO [R] | bl3fk52.sysopnova.art
+  - 🇵🇱 PL [R] | 144.31.93.231
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
   - 🇵🇱 PL [R] | 81.90.17.164
   - 🇬🇧 GB [R] | 176.109.88.216
-  - 🇳🇱 NL [R] | wl-1.myfreedom.rest
   - 🇳🇱 NL [ws] | hys42.wba-pn.ru
+  - 🇳🇱 NL [ws] | 5.129.224.93
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -231,15 +215,14 @@ proxy-groups:
   type: select
   proxies:
   - 🚀 Auto
-  - 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  - 🇧🇬 BG [R] | prep.wwwinternetvideo.click
-  - 🇷🇴 RO [R] | 193.163.203.253
-  - 🇧🇬 BG [R] | 144.31.50.236
   - 🇬🇧 GB [R] | 95.85.224.51
+  - 🇧🇬 BG [R] | 144.31.50.236
+  - 🇳🇱 NL [R][xhttp] | 91.84.117.29
+  - 🇷🇴 RO [R] | bl3fk52.sysopnova.art
+  - 🇵🇱 PL [R] | 144.31.93.231
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
   - 🇵🇱 PL [R] | 81.90.17.164
   - 🇬🇧 GB [R] | 176.109.88.216
-  - 🇳🇱 NL [R] | wl-1.myfreedom.rest
   - 🇳🇱 NL [ws] | hys42.wba-pn.ru
   - 🇳🇱 NL [ws] | 5.129.224.93
   - 🇳🇱 NL [ws] | hys42.wba-pn.ru (2)
