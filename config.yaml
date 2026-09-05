@@ -36,9 +36,9 @@ proxies:
     short-id: '67'
   servername: vk.com
   client-fingerprint: chrome
-- name: 🇧🇬 BG [R] | 144.31.50.236
+- name: 🇧🇬 BG [R] | prep.wwwinternetvideo.click
   type: vless
-  server: 144.31.50.236
+  server: prep.wwwinternetvideo.click
   port: 443
   uuid: 1c332eae-7e02-4acd-996d-4eb3e652401c
   udp: true
@@ -68,25 +68,9 @@ proxies:
   servername: max.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇬🇧 GB [R] | 193.163.203.170
+- name: 🇧🇬 BG [R] | 144.31.50.236
   type: vless
-  server: 193.163.203.170
-  port: 443
-  uuid: 11aabba0-5fd1-4f15-8068-74c1a466cefc
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: GCCZ1ZZjB_nj7yxqFi22bIIWWr_G6rnWUzDcssN_40o
-    short-id: b28db60d77c50b4f
-  servername: yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇧🇬 BG [R] | prep.wwwinternetvideo.click
-  type: vless
-  server: prep.wwwinternetvideo.click
+  server: 144.31.50.236
   port: 443
   uuid: 1c332eae-7e02-4acd-996d-4eb3e652401c
   udp: true
@@ -99,7 +83,7 @@ proxies:
     short-id: bbe46bd8f6b96839
   servername: yandex.ru
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
+  client-fingerprint: chrome
 - name: 🇵🇱 PL [R] | 144.31.93.231
   type: vless
   server: 144.31.93.231
@@ -130,8 +114,25 @@ proxies:
     public-key: huH_8n0Dfk4iolIkzrc-qET8ySHWgZAr-i6K6lr6xSs
     short-id: 375838bc17c0
   servername: sun6-21.userapi.com
+  client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: ''
+- name: 🇵🇱 PL [R] | av513u.sysopnova.art
+  type: vless
+  server: av513u.sysopnova.art
+  port: 443
+  uuid: 3710fc0f-5f0c-4b9c-a5d4-40cb419e943a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: WKN5yaRN05O2WdCURXRmS-yBVYaabaFWOvGudX6ohWc
+    short-id: b97e7d4582b6fa6e
+  servername: yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 176.109.88.216
   type: vless
   server: 176.109.88.216
@@ -163,52 +164,20 @@ proxies:
     short-id: b31c2b75add2e5fa
   servername: yastatic.net
   flow: xtls-rprx-vision
-- name: 🇩🇪 DE [ws] | 185.96.80.147
-  type: vless
-  server: 185.96.80.147
-  port: 443
-  uuid: bec4b96c-0328-4abd-be5e-437ac9f65bcd
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: seksi-lady.ru
-  client-fingerprint: firefox
-  ws-opts:
-    path: /cfbot
-    headers:
-      Host: seksi-lady.ru
-- name: 🇩🇪 DE [ws] | 185.178.208.140
-  type: vless
-  server: 185.178.208.140
-  port: 443
-  uuid: 7e9c6d37-3952-4562-a924-9d1b8478ac21
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: mapgasstation.ru
-  client-fingerprint: firefox
-  ws-opts:
-    path: /api/v3/live/hls/segment
-    headers:
-      Host: mapgasstation.ru
+  client-fingerprint: chrome
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  - 🇧🇬 BG [R] | 144.31.50.236
-  - 🇬🇧 GB [R] | 95.85.224.51
-  - 🇬🇧 GB [R] | 193.163.203.170
   - 🇧🇬 BG [R] | prep.wwwinternetvideo.click
+  - 🇬🇧 GB [R] | 95.85.224.51
+  - 🇧🇬 BG [R] | 144.31.50.236
   - 🇵🇱 PL [R] | 144.31.93.231
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
+  - 🇵🇱 PL [R] | av513u.sysopnova.art
   - 🇬🇧 GB [R] | 176.109.88.216
   - 🇵🇱 PL [R] | 81.90.17.164
-  - 🇩🇪 DE [ws] | 185.96.80.147
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -217,16 +186,14 @@ proxy-groups:
   proxies:
   - 🚀 Auto
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  - 🇧🇬 BG [R] | 144.31.50.236
-  - 🇬🇧 GB [R] | 95.85.224.51
-  - 🇬🇧 GB [R] | 193.163.203.170
   - 🇧🇬 BG [R] | prep.wwwinternetvideo.click
+  - 🇬🇧 GB [R] | 95.85.224.51
+  - 🇧🇬 BG [R] | 144.31.50.236
   - 🇵🇱 PL [R] | 144.31.93.231
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
+  - 🇵🇱 PL [R] | av513u.sysopnova.art
   - 🇬🇧 GB [R] | 176.109.88.216
   - 🇵🇱 PL [R] | 81.90.17.164
-  - 🇩🇪 DE [ws] | 185.96.80.147
-  - 🇩🇪 DE [ws] | 185.178.208.140
 - name: 🎯 Direct
   type: select
   proxies:
