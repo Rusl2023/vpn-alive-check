@@ -21,6 +21,21 @@ dns:
   - tls://8.8.8.8
   - tls://1.1.1.1
 proxies:
+- name: 🇳🇱 NL [R][xhttp] | 91.84.117.29
+  type: vless
+  server: 91.84.117.29
+  port: 443
+  uuid: a4037b4c-6a9d-528c-9efb-7d801cce8adb
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: PyV8IrAs0LkE2d_DdjvdCtpWG7MZyUKsYkb52GUmuDM
+    short-id: '67'
+  servername: vk.com
+  client-fingerprint: chrome
 - name: 🇬🇧 GB [R] | 95.85.224.51
   type: vless
   server: 95.85.224.51
@@ -68,7 +83,23 @@ proxies:
     short-id: bbe46bd8f6b96839
   servername: yandex.ru
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
+  client-fingerprint: chrome
+- name: 🇫🇮 FI [R] | 185.58.207.249
+  type: vless
+  server: 185.58.207.249
+  port: 443
+  uuid: e24cf9d3-e936-4a90-9932-33931b6a9b45
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 7sFZz7V1r5qtysLzjw07rOOA2P8NG7kvVX5BxFfc-Xc
+    short-id: db39
+  servername: yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
 - name: 🇳🇱 NL [R][grpc] | 72.56.78.50
   type: vless
   server: 72.56.78.50
@@ -85,21 +116,6 @@ proxies:
   servername: sun6-21.userapi.com
   grpc-opts:
     grpc-service-name: ''
-- name: 🇵🇱 PL [R] | 81.90.17.164
-  type: vless
-  server: 81.90.17.164
-  port: 443
-  uuid: cb784d00-d34a-4389-b938-8717f7b28353
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: v0XQn6uvyC8q5CThcRYLer1F1OOYpZDn5NLOvDicaWg
-    short-id: b31c2b75add2e5fa
-  servername: yastatic.net
-  flow: xtls-rprx-vision
 - name: 🇬🇧 GB [R] | 176.109.88.216
   type: vless
   server: 176.109.88.216
@@ -115,17 +131,35 @@ proxies:
     short-id: a9c4f17e3b62d8
   servername: api-maps.yandex.ru
   flow: xtls-rprx-vision
-  client-fingerprint: qq
+  client-fingerprint: chrome
+- name: 🇵🇱 PL [R] | 81.90.17.164
+  type: vless
+  server: 81.90.17.164
+  port: 443
+  uuid: cb784d00-d34a-4389-b938-8717f7b28353
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: v0XQn6uvyC8q5CThcRYLer1F1OOYpZDn5NLOvDicaWg
+    short-id: b31c2b75add2e5fa
+  servername: yastatic.net
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
+  - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇧🇬 BG [R] | 144.31.50.236
   - 🇧🇬 BG [R] | prep.wwwinternetvideo.click
+  - 🇫🇮 FI [R] | 185.58.207.249
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
-  - 🇵🇱 PL [R] | 81.90.17.164
   - 🇬🇧 GB [R] | 176.109.88.216
+  - 🇵🇱 PL [R] | 81.90.17.164
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -133,12 +167,14 @@ proxy-groups:
   type: select
   proxies:
   - 🚀 Auto
+  - 🇳🇱 NL [R][xhttp] | 91.84.117.29
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇧🇬 BG [R] | 144.31.50.236
   - 🇧🇬 BG [R] | prep.wwwinternetvideo.click
+  - 🇫🇮 FI [R] | 185.58.207.249
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
-  - 🇵🇱 PL [R] | 81.90.17.164
   - 🇬🇧 GB [R] | 176.109.88.216
+  - 🇵🇱 PL [R] | 81.90.17.164
 - name: 🎯 Direct
   type: select
   proxies:
