@@ -35,22 +35,7 @@ proxies:
     public-key: PyV8IrAs0LkE2d_DdjvdCtpWG7MZyUKsYkb52GUmuDM
     short-id: '67'
   servername: vk.com
-- name: 🇧🇬 BG [R] | 144.31.50.236
-  type: vless
-  server: 144.31.50.236
-  port: 443
-  uuid: 1c332eae-7e02-4acd-996d-4eb3e652401c
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: uitO4Z8t9TplwwYaqwLqh5rfxDh_X8bOBiNuPbzvaEM
-    short-id: bbe46bd8f6b96839
-  servername: yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
+  client-fingerprint: chrome
 - name: 🇬🇧 GB [R] | 95.85.224.51
   type: vless
   server: 95.85.224.51
@@ -67,22 +52,22 @@ proxies:
   servername: max.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇫🇮 FI [R] | 185.58.207.249
+- name: 🇧🇬 BG [R] | 144.31.50.236
   type: vless
-  server: 185.58.207.249
+  server: 144.31.50.236
   port: 443
-  uuid: e24cf9d3-e936-4a90-9932-33931b6a9b45
+  uuid: 1c332eae-7e02-4acd-996d-4eb3e652401c
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: 7sFZz7V1r5qtysLzjw07rOOA2P8NG7kvVX5BxFfc-Xc
-    short-id: db39
+    public-key: uitO4Z8t9TplwwYaqwLqh5rfxDh_X8bOBiNuPbzvaEM
+    short-id: bbe46bd8f6b96839
   servername: yandex.ru
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
+  client-fingerprint: firefox
 - name: 🇧🇬 BG [R] | prep.wwwinternetvideo.click
   type: vless
   server: prep.wwwinternetvideo.click
@@ -96,6 +81,38 @@ proxies:
   reality-opts:
     public-key: uitO4Z8t9TplwwYaqwLqh5rfxDh_X8bOBiNuPbzvaEM
     short-id: bbe46bd8f6b96839
+  servername: yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇵🇱 PL [R] | 144.31.93.231
+  type: vless
+  server: 144.31.93.231
+  port: 443
+  uuid: 3710fc0f-5f0c-4b9c-a5d4-40cb419e943a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: WKN5yaRN05O2WdCURXRmS-yBVYaabaFWOvGudX6ohWc
+    short-id: b97e7d4582b6fa6e
+  servername: yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇫🇮 FI [R] | 185.58.207.249
+  type: vless
+  server: 185.58.207.249
+  port: 443
+  uuid: e24cf9d3-e936-4a90-9932-33931b6a9b45
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 7sFZz7V1r5qtysLzjw07rOOA2P8NG7kvVX5BxFfc-Xc
+    short-id: db39
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
@@ -146,32 +163,19 @@ proxies:
     short-id: b31c2b75add2e5fa
   servername: yastatic.net
   flow: xtls-rprx-vision
-- name: 🇺🇸 US  | cdn2.24lider.ru
-  type: vless
-  server: cdn2.24lider.ru
-  port: 443
-  uuid: d4719d52-c3fc-4651-98e1-535dbd77dbcf
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: cdn2.24lider.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  - 🇧🇬 BG [R] | 144.31.50.236
   - 🇬🇧 GB [R] | 95.85.224.51
-  - 🇫🇮 FI [R] | 185.58.207.249
+  - 🇧🇬 BG [R] | 144.31.50.236
   - 🇧🇬 BG [R] | prep.wwwinternetvideo.click
+  - 🇵🇱 PL [R] | 144.31.93.231
+  - 🇫🇮 FI [R] | 185.58.207.249
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
   - 🇬🇧 GB [R] | 176.109.88.216
   - 🇵🇱 PL [R] | 81.90.17.164
-  - 🇺🇸 US  | cdn2.24lider.ru
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -180,14 +184,14 @@ proxy-groups:
   proxies:
   - 🚀 Auto
   - 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  - 🇧🇬 BG [R] | 144.31.50.236
   - 🇬🇧 GB [R] | 95.85.224.51
-  - 🇫🇮 FI [R] | 185.58.207.249
+  - 🇧🇬 BG [R] | 144.31.50.236
   - 🇧🇬 BG [R] | prep.wwwinternetvideo.click
+  - 🇵🇱 PL [R] | 144.31.93.231
+  - 🇫🇮 FI [R] | 185.58.207.249
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
   - 🇬🇧 GB [R] | 176.109.88.216
   - 🇵🇱 PL [R] | 81.90.17.164
-  - 🇺🇸 US  | cdn2.24lider.ru
 - name: 🎯 Direct
   type: select
   proxies:
