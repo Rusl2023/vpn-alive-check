@@ -21,50 +21,19 @@ dns:
   - tls://8.8.8.8
   - tls://1.1.1.1
 proxies:
-- name: 🇳🇱 NL [R][xhttp] | 91.84.117.29
+- name: 🇧🇬 BG [R] | prep.wwwinternetvideo.click
   type: vless
-  server: 91.84.117.29
+  server: prep.wwwinternetvideo.click
   port: 443
-  uuid: a4037b4c-6a9d-528c-9efb-7d801cce8adb
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: PyV8IrAs0LkE2d_DdjvdCtpWG7MZyUKsYkb52GUmuDM
-    short-id: '67'
-  servername: vk.com
-  client-fingerprint: chrome
-- name: 🇬🇧 GB [R] | 95.85.224.51
-  type: vless
-  server: 95.85.224.51
-  port: 443
-  uuid: 342ab7e4-5a89-0001-8809-304120d4aa83
+  uuid: 1c332eae-7e02-4acd-996d-4eb3e652401c
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: WWeAHWUVD-phmnjNJ823cer0c4CMIbEs08AhsuEZmDc
-    short-id: a696de84963656de
-  servername: max.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇬🇧 GB [R] | 193.163.203.170
-  type: vless
-  server: 193.163.203.170
-  port: 443
-  uuid: 11aabba0-5fd1-4f15-8068-74c1a466cefc
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: GCCZ1ZZjB_nj7yxqFi22bIIWWr_G6rnWUzDcssN_40o
-    short-id: b28db60d77c50b4f
+    public-key: uitO4Z8t9TplwwYaqwLqh5rfxDh_X8bOBiNuPbzvaEM
+    short-id: bbe46bd8f6b96839
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
@@ -84,22 +53,22 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇧🇬 BG [R] | prep.wwwinternetvideo.click
+- name: 🇬🇧 GB [R] | 95.85.224.51
   type: vless
-  server: prep.wwwinternetvideo.click
+  server: 95.85.224.51
   port: 443
-  uuid: 1c332eae-7e02-4acd-996d-4eb3e652401c
+  uuid: 342ab7e4-5a89-0001-8809-304120d4aa83
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: uitO4Z8t9TplwwYaqwLqh5rfxDh_X8bOBiNuPbzvaEM
-    short-id: bbe46bd8f6b96839
-  servername: yandex.ru
+    public-key: WWeAHWUVD-phmnjNJ823cer0c4CMIbEs08AhsuEZmDc
+    short-id: a696de84963656de
+  servername: max.ru
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
+  client-fingerprint: chrome
 - name: 🇫🇮 FI [R] | 185.58.207.249
   type: vless
   server: 185.58.207.249
@@ -130,6 +99,7 @@ proxies:
     public-key: huH_8n0Dfk4iolIkzrc-qET8ySHWgZAr-i6K6lr6xSs
     short-id: 375838bc17c0
   servername: sun6-21.userapi.com
+  client-fingerprint: chrome
   grpc-opts:
     grpc-service-name: ''
 - name: 🇬🇧 GB [R] | 176.109.88.216
@@ -148,52 +118,50 @@ proxies:
   servername: api-maps.yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇩🇪 DE [ws] | 185.178.208.140
+- name: 🇵🇱 PL [R] | 81.90.17.164
   type: vless
-  server: 185.178.208.140
+  server: 81.90.17.164
   port: 443
-  uuid: 3bdc20da-71bf-4d60-a1c0-ace7fcd5ba78
+  uuid: cb784d00-d34a-4389-b938-8717f7b28353
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: v0XQn6uvyC8q5CThcRYLer1F1OOYpZDn5NLOvDicaWg
+    short-id: b31c2b75add2e5fa
+  servername: yastatic.net
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇳🇱 NL [ws] | 95.129.236.124
+  type: vless
+  server: 95.129.236.124
+  port: 443
+  uuid: ecf728d9-1555-4e12-b178-1d8bd98465e4
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: mapgasstation.ru
-  client-fingerprint: firefox
-  ws-opts:
-    path: /api/v3/live/hls/segment
-    headers:
-      Host: mapgasstation.ru
-- name: 🇸🇪 SE [ws] | 185.178.208.176
-  type: vless
-  server: 185.178.208.176
-  port: 443
-  uuid: 67c2b583-27af-4748-bf37-c311e7159b8a
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: founders-blog.online
+  servername: game-booster.sowt.app
   client-fingerprint: chrome
   ws-opts:
-    path: /stream/615428/socket
+    path: /gateway/v1/ws/6d50d81f0b49c137b1564bce4760eaee
     headers:
-      Host: founders-blog.online
+      Host: game-booster.sowt.app
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
-  - 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  - 🇬🇧 GB [R] | 95.85.224.51
-  - 🇬🇧 GB [R] | 193.163.203.170
-  - 🇧🇬 BG [R] | 144.31.50.236
   - 🇧🇬 BG [R] | prep.wwwinternetvideo.click
+  - 🇧🇬 BG [R] | 144.31.50.236
+  - 🇬🇧 GB [R] | 95.85.224.51
   - 🇫🇮 FI [R] | 185.58.207.249
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
   - 🇬🇧 GB [R] | 176.109.88.216
-  - 🇩🇪 DE [ws] | 185.178.208.140
-  - 🇸🇪 SE [ws] | 185.178.208.176
+  - 🇵🇱 PL [R] | 81.90.17.164
+  - 🇳🇱 NL [ws] | 95.129.236.124
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -201,16 +169,14 @@ proxy-groups:
   type: select
   proxies:
   - 🚀 Auto
-  - 🇳🇱 NL [R][xhttp] | 91.84.117.29
-  - 🇬🇧 GB [R] | 95.85.224.51
-  - 🇬🇧 GB [R] | 193.163.203.170
-  - 🇧🇬 BG [R] | 144.31.50.236
   - 🇧🇬 BG [R] | prep.wwwinternetvideo.click
+  - 🇧🇬 BG [R] | 144.31.50.236
+  - 🇬🇧 GB [R] | 95.85.224.51
   - 🇫🇮 FI [R] | 185.58.207.249
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
   - 🇬🇧 GB [R] | 176.109.88.216
-  - 🇩🇪 DE [ws] | 185.178.208.140
-  - 🇸🇪 SE [ws] | 185.178.208.176
+  - 🇵🇱 PL [R] | 81.90.17.164
+  - 🇳🇱 NL [ws] | 95.129.236.124
 - name: 🎯 Direct
   type: select
   proxies:
