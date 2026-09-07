@@ -1,0 +1,129 @@
+proxies:
+  - name: "🇬🇧 GB [R] | 95.85.224.51"
+    type: "vless"
+    server: 95.85.224.51
+    port: 443
+    uuid: "342ab7e4-5a89-0001-8809-304120d4aa83"
+    network: "tcp"
+    flow: "xtls-rprx-vision"
+    servername: "max.ru"
+    client-fingerprint: "chrome"
+    encryption: "none"
+    tls: true
+    udp: true
+    reality-opts:
+      public-key: "WWeAHWUVD-phmnjNJ823cer0c4CMIbEs08AhsuEZmDc"
+      short-id: "a696de84963656de"
+
+  - name: "🇧🇬 BG [R] | 144.31.50.236"
+    type: "vless"
+    server: 144.31.50.236
+    port: 443
+    uuid: "1c332eae-7e02-4acd-996d-4eb3e652401c"
+    network: "tcp"
+    flow: "xtls-rprx-vision"
+    servername: "yandex.ru"
+    client-fingerprint: "chrome"
+    encryption: "none"
+    tls: true
+    udp: true
+    reality-opts:
+      public-key: "uitO4Z8t9TplwwYaqwLqh5rfxDh_X8bOBiNuPbzvaEM"
+      short-id: "bbe46bd8f6b96839"
+
+  - name: "🇧🇬 BG [R] | prep.wwwinternetvideo.click"
+    type: "vless"
+    server: prep.wwwinternetvideo.click
+    port: 443
+    uuid: "1c332eae-7e02-4acd-996d-4eb3e652401c"
+    network: "tcp"
+    flow: "xtls-rprx-vision"
+    servername: "yandex.ru"
+    client-fingerprint: "chrome"
+    encryption: "none"
+    tls: true
+    udp: true
+    reality-opts:
+      public-key: "uitO4Z8t9TplwwYaqwLqh5rfxDh_X8bOBiNuPbzvaEM"
+      short-id: "bbe46bd8f6b96839"
+
+  - name: "🇫🇮 FI [R] | 185.58.207.249"
+    type: "vless"
+    server: 185.58.207.249
+    port: 443
+    uuid: "e24cf9d3-e936-4a90-9932-33931b6a9b45"
+    network: "tcp"
+    flow: "xtls-rprx-vision"
+    servername: "yandex.ru"
+    client-fingerprint: "chrome"
+    encryption: "none"
+    tls: true
+    udp: true
+    reality-opts:
+      public-key: "7sFZz7V1r5qtysLzjw07rOOA2P8NG7kvVX5BxFfc-Xc"
+      short-id: "db39"
+
+  - name: "🇳🇱 NL [R][grpc] | 72.56.78.50"
+    type: "vless"
+    server: 72.56.78.50
+    port: 443
+    uuid: "fee2cdd8-55d1-4c5b-a67a-cfde8d45eed0"
+    network: "grpc"
+    flow: ""
+    servername: "sun6-21.userapi.com"
+    client-fingerprint: "chrome"
+    encryption: "none"
+    tls: true
+    udp: true
+    reality-opts:
+      public-key: "huH_8n0Dfk4iolIkzrc-qET8ySHWgZAr-i6K6lr6xSs"
+      short-id: "375838bc17c0"
+
+  - name: "🇵🇱 PL [R] | 81.90.17.164"
+    type: "vless"
+    server: 81.90.17.164
+    port: 443
+    uuid: "cb784d00-d34a-4389-b938-8717f7b28353"
+    network: "tcp"
+    flow: "xtls-rprx-vision"
+    servername: "yastatic.net"
+    client-fingerprint: "chrome"
+    encryption: "none"
+    tls: true
+    udp: true
+    reality-opts:
+      public-key: "v0XQn6uvyC8q5CThcRYLer1F1OOYpZDn5NLOvDicaWg"
+      short-id: "b31c2b75add2e5fa"
+
+  - name: "🇬🇧 GB [R] | 176.109.88.216"
+    type: "vless"
+    server: 176.109.88.216
+    port: 443
+    uuid: "2c7f1414-87ae-4a01-9796-a02c067891a6"
+    network: "tcp"
+    flow: "xtls-rprx-vision"
+    servername: "api-maps.yandex.ru"
+    client-fingerprint: "chrome"
+    encryption: "none"
+    tls: true
+    udp: true
+    reality-opts:
+      public-key: "oqRus6Z_Q1jqJaTEPu7ENbRL0-XKOw54K0jwCCGLtEk"
+      short-id: "a9c4f17e3b62d8"
+
+proxy-groups:
+  - name: "auto"
+    type: "select"
+    proxies:
+      - "🇬🇧 GB [R] | 95.85.224.51"
+      - "🇧🇬 BG [R] | 144.31.50.236"
+      - "🇧🇬 BG [R] | prep.wwwinternetvideo.click"
+      - "🇫🇮 FI [R] | 185.58.207.249"
+      - "🇳🇱 NL [R][grpc] | 72.56.78.50"
+      - "🇵🇱 PL [R] | 81.90.17.164"
+      - "🇬🇧 GB [R] | 176.109.88.216"
+
+rules:
+  - GEOIP,RU,DIRECT
+  - DOMAIN-SUFFIX,ru,DIRECT
+  - MATCH,auto
