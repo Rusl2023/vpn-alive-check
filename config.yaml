@@ -21,6 +21,39 @@ dns:
   - tls://8.8.8.8
   - tls://1.1.1.1
 proxies:
+- name: 🇦🇪 AE [R][grpc] | 31.56.189.147
+  type: vless
+  server: 31.56.189.147
+  port: 443
+  uuid: 99e5e9a0-1c6b-4cb0-805d-a810fd47eb15
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: gyVm1AWjn649wcSvTmyS12lsmecJFjm51BjUSWOjkxM
+    short-id: 35debf0dc757d053
+  servername: max.ru
+  client-fingerprint: firefox
+  grpc-opts:
+    grpc-service-name: grpc
+- name: 🇧🇬 BG [R] | prep.wwwinternetvideo.click
+  type: vless
+  server: prep.wwwinternetvideo.click
+  port: 443
+  uuid: 1c332eae-7e02-4acd-996d-4eb3e652401c
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: uitO4Z8t9TplwwYaqwLqh5rfxDh_X8bOBiNuPbzvaEM
+    short-id: bbe46bd8f6b96839
+  servername: yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇧🇬 BG [R] | 144.31.50.236
   type: vless
   server: 144.31.50.236
@@ -69,19 +102,19 @@ proxies:
   servername: max.ru
   flow: xtls-rprx-vision
   client-fingerprint: qq
-- name: 🇧🇬 BG [R] | prep.wwwinternetvideo.click
+- name: 🇷🇴 RO [R] | 193.163.203.253
   type: vless
-  server: prep.wwwinternetvideo.click
+  server: 193.163.203.253
   port: 443
-  uuid: 1c332eae-7e02-4acd-996d-4eb3e652401c
+  uuid: 441afe11-a180-4516-bb80-80a8a6b38705
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: uitO4Z8t9TplwwYaqwLqh5rfxDh_X8bOBiNuPbzvaEM
-    short-id: bbe46bd8f6b96839
+    public-key: gE8LUmGFXik94SoDXNiAG5KprGyhjoRwDuhGebgAVWk
+    short-id: 5ee019e02e6ed99a
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
@@ -101,6 +134,22 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
+- name: 🇵🇱 PL [R] | 144.31.93.231
+  type: vless
+  server: 144.31.93.231
+  port: 443
+  uuid: 3710fc0f-5f0c-4b9c-a5d4-40cb419e943a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: WKN5yaRN05O2WdCURXRmS-yBVYaabaFWOvGudX6ohWc
+    short-id: b97e7d4582b6fa6e
+  servername: yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇳🇱 NL [R][grpc] | 72.56.78.50
   type: vless
   server: 72.56.78.50
@@ -117,33 +166,19 @@ proxies:
   servername: sun6-21.userapi.com
   grpc-opts:
     grpc-service-name: ''
-- name: 🇷🇴 RO [R] | 193.163.203.253
-  type: vless
-  server: 193.163.203.253
-  port: 443
-  uuid: 441afe11-a180-4516-bb80-80a8a6b38705
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: gE8LUmGFXik94SoDXNiAG5KprGyhjoRwDuhGebgAVWk
-    short-id: 5ee019e02e6ed99a
-  servername: yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
+  - 🇦🇪 AE [R][grpc] | 31.56.189.147
+  - 🇧🇬 BG [R] | prep.wwwinternetvideo.click
   - 🇧🇬 BG [R] | 144.31.50.236
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇬🇧 GB [R] | 95.85.224.51
-  - 🇧🇬 BG [R] | prep.wwwinternetvideo.click
-  - 🇫🇮 FI [R] | 185.58.207.249
-  - 🇳🇱 NL [R][grpc] | 72.56.78.50
   - 🇷🇴 RO [R] | 193.163.203.253
+  - 🇫🇮 FI [R] | 185.58.207.249
+  - 🇵🇱 PL [R] | 144.31.93.231
+  - 🇳🇱 NL [R][grpc] | 72.56.78.50
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -151,13 +186,15 @@ proxy-groups:
   type: select
   proxies:
   - 🚀 Auto
+  - 🇦🇪 AE [R][grpc] | 31.56.189.147
+  - 🇧🇬 BG [R] | prep.wwwinternetvideo.click
   - 🇧🇬 BG [R] | 144.31.50.236
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇬🇧 GB [R] | 95.85.224.51
-  - 🇧🇬 BG [R] | prep.wwwinternetvideo.click
-  - 🇫🇮 FI [R] | 185.58.207.249
-  - 🇳🇱 NL [R][grpc] | 72.56.78.50
   - 🇷🇴 RO [R] | 193.163.203.253
+  - 🇫🇮 FI [R] | 185.58.207.249
+  - 🇵🇱 PL [R] | 144.31.93.231
+  - 🇳🇱 NL [R][grpc] | 72.56.78.50
 - name: 🎯 Direct
   type: select
   proxies:
