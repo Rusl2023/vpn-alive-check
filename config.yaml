@@ -35,7 +35,7 @@ proxies:
     public-key: gyVm1AWjn649wcSvTmyS12lsmecJFjm51BjUSWOjkxM
     short-id: 35debf0dc757d053
   servername: max.ru
-  client-fingerprint: chrome
+  client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: grpc
 - name: 🇧🇬 BG [R] | 144.31.50.236
@@ -86,54 +86,6 @@ proxies:
   servername: max.ru
   flow: xtls-rprx-vision
   client-fingerprint: qq
-- name: 🇷🇴 RO [R] | bl3fk52.sysopnova.art
-  type: vless
-  server: bl3fk52.sysopnova.art
-  port: 443
-  uuid: 441afe11-a180-4516-bb80-80a8a6b38705
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: gE8LUmGFXik94SoDXNiAG5KprGyhjoRwDuhGebgAVWk
-    short-id: 5ee019e02e6ed99a
-  servername: yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇵🇱 PL [R] | 144.31.93.231
-  type: vless
-  server: 144.31.93.231
-  port: 443
-  uuid: 3710fc0f-5f0c-4b9c-a5d4-40cb419e943a
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: WKN5yaRN05O2WdCURXRmS-yBVYaabaFWOvGudX6ohWc
-    short-id: b97e7d4582b6fa6e
-  servername: yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇵🇱 PL [R] | av513u.sysopnova.art
-  type: vless
-  server: av513u.sysopnova.art
-  port: 443
-  uuid: 3710fc0f-5f0c-4b9c-a5d4-40cb419e943a
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: WKN5yaRN05O2WdCURXRmS-yBVYaabaFWOvGudX6ohWc
-    short-id: b97e7d4582b6fa6e
-  servername: yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇷🇴 RO [R] | 193.163.203.253
   type: vless
   server: 193.163.203.253
@@ -147,22 +99,6 @@ proxies:
   reality-opts:
     public-key: gE8LUmGFXik94SoDXNiAG5KprGyhjoRwDuhGebgAVWk
     short-id: 5ee019e02e6ed99a
-  servername: yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇬🇧 GB [R] | 193.163.203.170
-  type: vless
-  server: 193.163.203.170
-  port: 443
-  uuid: 11aabba0-5fd1-4f15-8068-74c1a466cefc
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: GCCZ1ZZjB_nj7yxqFi22bIIWWr_G6rnWUzDcssN_40o
-    short-id: b28db60d77c50b4f
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
@@ -180,35 +116,9 @@ proxies:
     public-key: huH_8n0Dfk4iolIkzrc-qET8ySHWgZAr-i6K6lr6xSs
     short-id: 375838bc17c0
   servername: sun6-21.userapi.com
+  client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: ''
-- name: 🇳🇱 NL [R] | wl01.sv-dock.me
-  type: vless
-  server: wl01.sv-dock.me
-  port: 443
-  uuid: 7e7605df-7493-4dcf-8e1f-76784f2c6613
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: sntQ0HsOXhaye-K7bKrMw1w3cRmjgp0lT5IhP-ngwlU
-    short-id: 998432bc
-  servername: api-maps.yandex.ru
-  flow: xtls-rprx-vision
-- name: 🇦🇹 AT [xhttp] | 89.169.0.193
-  type: vless
-  server: 89.169.0.193
-  port: 443
-  uuid: da57dfef-d209-45a1-bfd8-56081a9cd85a
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  servername: api-as.data-media-social.org
-  client-fingerprint: chrome
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
@@ -217,11 +127,7 @@ proxy-groups:
   - 🇧🇬 BG [R] | 144.31.50.236
   - 🇧🇬 BG [R] | prep.wwwinternetvideo.click
   - 🇬🇧 GB [R] | 95.85.224.51
-  - 🇷🇴 RO [R] | bl3fk52.sysopnova.art
-  - 🇵🇱 PL [R] | 144.31.93.231
-  - 🇵🇱 PL [R] | av513u.sysopnova.art
   - 🇷🇴 RO [R] | 193.163.203.253
-  - 🇬🇧 GB [R] | 193.163.203.170
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
   url: https://www.google.com/generate_204
   interval: 300
@@ -234,14 +140,8 @@ proxy-groups:
   - 🇧🇬 BG [R] | 144.31.50.236
   - 🇧🇬 BG [R] | prep.wwwinternetvideo.click
   - 🇬🇧 GB [R] | 95.85.224.51
-  - 🇷🇴 RO [R] | bl3fk52.sysopnova.art
-  - 🇵🇱 PL [R] | 144.31.93.231
-  - 🇵🇱 PL [R] | av513u.sysopnova.art
   - 🇷🇴 RO [R] | 193.163.203.253
-  - 🇬🇧 GB [R] | 193.163.203.170
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
-  - 🇳🇱 NL [R] | wl01.sv-dock.me
-  - 🇦🇹 AT [xhttp] | 89.169.0.193
 - name: 🎯 Direct
   type: select
   proxies:
