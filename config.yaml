@@ -35,7 +35,7 @@ proxies:
     public-key: gyVm1AWjn649wcSvTmyS12lsmecJFjm51BjUSWOjkxM
     short-id: 35debf0dc757d053
   servername: max.ru
-  client-fingerprint: firefox
+  client-fingerprint: chrome
   grpc-opts:
     grpc-service-name: grpc
 - name: 🇧🇬 BG [R] | prep.wwwinternetvideo.click
@@ -67,22 +67,6 @@ proxies:
   reality-opts:
     public-key: uitO4Z8t9TplwwYaqwLqh5rfxDh_X8bOBiNuPbzvaEM
     short-id: bbe46bd8f6b96839
-  servername: yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇷🇴 RO [R] | bl3fk52.sysopnova.art
-  type: vless
-  server: bl3fk52.sysopnova.art
-  port: 443
-  uuid: 441afe11-a180-4516-bb80-80a8a6b38705
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: gE8LUmGFXik94SoDXNiAG5KprGyhjoRwDuhGebgAVWk
-    short-id: 5ee019e02e6ed99a
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
@@ -118,6 +102,21 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
+- name: 🇬🇧 GB [R] | 193.163.203.170
+  type: vless
+  server: 193.163.203.170
+  port: 443
+  uuid: 11aabba0-5fd1-4f15-8068-74c1a466cefc
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: GCCZ1ZZjB_nj7yxqFi22bIIWWr_G6rnWUzDcssN_40o
+    short-id: b28db60d77c50b4f
+  servername: yandex.ru
+  flow: xtls-rprx-vision
 - name: 🇳🇱 NL [R][grpc] | 72.56.78.50
   type: vless
   server: 72.56.78.50
@@ -149,62 +148,6 @@ proxies:
     short-id: 71fb59bc
   servername: yastatic.net
   client-fingerprint: chrome
-- name: 🇫🇷 FR [xhttp] | 188.68.218.160
-  type: vless
-  server: 188.68.218.160
-  port: 443
-  uuid: 59f6f821-9f51-4dc5-b498-039b12468535
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  servername: forward-change.madapp.cc
-  client-fingerprint: firefox
-- name: 🇫🇷 FR [xhttp] | 188.68.218.110
-  type: vless
-  server: 188.68.218.110
-  port: 443
-  uuid: 59f6f821-9f51-4dc5-b498-039b12468535
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  servername: forward-change.pushbyte.cc
-  client-fingerprint: firefox
-- name: 🇱🇹 LT [ws] | 95.129.236.216
-  type: vless
-  server: 95.129.236.216
-  port: 443
-  uuid: 812dc422-b973-46b8-ba16-73b06f38b1dd
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: cdnguard.org
-  client-fingerprint: firefox
-  ws-opts:
-    path: /origin/190546791/fetch
-    headers:
-      Host: cdnguard.org
-- name: 🇸🇪 SE [ws] | 185.178.208.176
-  type: vless
-  server: 185.178.208.176
-  port: 443
-  uuid: 5176f58d-734a-4526-8aa5-64b7046003e0
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: founders-blog.online
-  client-fingerprint: chrome
-  ws-opts:
-    path: /stream/615428/socket
-    headers:
-      Host: founders-blog.online
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
@@ -212,13 +155,11 @@ proxy-groups:
   - 🇦🇪 AE [R][grpc] | 31.56.189.147
   - 🇧🇬 BG [R] | prep.wwwinternetvideo.click
   - 🇧🇬 BG [R] | 144.31.50.236
-  - 🇷🇴 RO [R] | bl3fk52.sysopnova.art
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇷🇴 RO [R] | 193.163.203.253
+  - 🇬🇧 GB [R] | 193.163.203.170
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
   - 🇸🇪 SE [R][xhttp] | 138.124.29.78
-  - 🇫🇷 FR [xhttp] | 188.68.218.160
-  - 🇫🇷 FR [xhttp] | 188.68.218.110
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -229,15 +170,11 @@ proxy-groups:
   - 🇦🇪 AE [R][grpc] | 31.56.189.147
   - 🇧🇬 BG [R] | prep.wwwinternetvideo.click
   - 🇧🇬 BG [R] | 144.31.50.236
-  - 🇷🇴 RO [R] | bl3fk52.sysopnova.art
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇷🇴 RO [R] | 193.163.203.253
+  - 🇬🇧 GB [R] | 193.163.203.170
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
   - 🇸🇪 SE [R][xhttp] | 138.124.29.78
-  - 🇫🇷 FR [xhttp] | 188.68.218.160
-  - 🇫🇷 FR [xhttp] | 188.68.218.110
-  - 🇱🇹 LT [ws] | 95.129.236.216
-  - 🇸🇪 SE [ws] | 185.178.208.176
 - name: 🎯 Direct
   type: select
   proxies:
