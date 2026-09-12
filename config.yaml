@@ -37,21 +37,6 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇷🇴 RO [R] | 193.163.203.253
-  type: vless
-  server: 193.163.203.253
-  port: 443
-  uuid: 441afe11-a180-4516-bb80-80a8a6b38705
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: gE8LUmGFXik94SoDXNiAG5KprGyhjoRwDuhGebgAVWk
-    short-id: 5ee019e02e6ed99a
-  servername: yandex.ru
-  flow: xtls-rprx-vision
 - name: 🇦🇪 AE [R][grpc] | 31.56.189.147
   type: vless
   server: 31.56.189.147
@@ -66,40 +51,9 @@ proxies:
     public-key: gyVm1AWjn649wcSvTmyS12lsmecJFjm51BjUSWOjkxM
     short-id: 35debf0dc757d053
   servername: max.ru
-  client-fingerprint: chrome
+  client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: grpc
-- name: 🇬🇧 GB [R] | 193.163.203.170
-  type: vless
-  server: 193.163.203.170
-  port: 443
-  uuid: 11aabba0-5fd1-4f15-8068-74c1a466cefc
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: GCCZ1ZZjB_nj7yxqFi22bIIWWr_G6rnWUzDcssN_40o
-    short-id: b28db60d77c50b4f
-  servername: yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇷🇴 RO [R] | bl3fk52.sysopnova.art
-  type: vless
-  server: bl3fk52.sysopnova.art
-  port: 443
-  uuid: 441afe11-a180-4516-bb80-80a8a6b38705
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: gE8LUmGFXik94SoDXNiAG5KprGyhjoRwDuhGebgAVWk
-    short-id: 5ee019e02e6ed99a
-  servername: yandex.ru
-  flow: xtls-rprx-vision
 - name: 🇧🇬 BG [R] | prep.wwwinternetvideo.click
   type: vless
   server: prep.wwwinternetvideo.click
@@ -116,6 +70,53 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
+- name: 🇬🇧 GB [R] | 193.163.203.170
+  type: vless
+  server: 193.163.203.170
+  port: 443
+  uuid: 11aabba0-5fd1-4f15-8068-74c1a466cefc
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: GCCZ1ZZjB_nj7yxqFi22bIIWWr_G6rnWUzDcssN_40o
+    short-id: b28db60d77c50b4f
+  servername: yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇷🇴 RO [R] | 193.163.203.253
+  type: vless
+  server: 193.163.203.253
+  port: 443
+  uuid: 441afe11-a180-4516-bb80-80a8a6b38705
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: gE8LUmGFXik94SoDXNiAG5KprGyhjoRwDuhGebgAVWk
+    short-id: 5ee019e02e6ed99a
+  servername: yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇷🇴 RO [R] | bl3fk52.sysopnova.art
+  type: vless
+  server: bl3fk52.sysopnova.art
+  port: 443
+  uuid: 441afe11-a180-4516-bb80-80a8a6b38705
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: gE8LUmGFXik94SoDXNiAG5KprGyhjoRwDuhGebgAVWk
+    short-id: 5ee019e02e6ed99a
+  servername: yandex.ru
+  flow: xtls-rprx-vision
 - name: 🇬🇧 GB [R] | 95.85.224.51
   type: vless
   server: 95.85.224.51
@@ -148,48 +149,34 @@ proxies:
   servername: sun6-21.userapi.com
   grpc-opts:
     grpc-service-name: ''
-- name: 🇫🇮 FI [xhttp] | 5.23.53.234
+- name: 🇦🇺 AU [R][xhttp] | 103.75.119.11
   type: vless
-  server: 5.23.53.234
+  server: 103.75.119.11
   port: 443
-  uuid: d73e3cdc-a80b-4e73-a11b-cc467d7a84f8
+  uuid: 682300d9-74d0-4dae-923c-09cb5d5e9951
   udp: true
   skip-cert-verify: true
   network: xhttp
   encryption: none
   tls: true
-  servername: fin.sdssh-vid.online
+  reality-opts:
+    public-key: OvlkCDO6YdWR0ec3kVHW-Ul7I9TuEmJVfxXdaZiy5Ug
+    short-id: 2cbe511ff1f9200b
+  servername: sberbank.ru
   client-fingerprint: chrome
-- name: 🇸🇪 SE [ws] | 185.178.208.176
-  type: vless
-  server: 185.178.208.176
-  port: 443
-  uuid: f07eb014-f811-4f81-9b15-b213caaeed7c
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: founders-blog.online
-  client-fingerprint: chrome
-  ws-opts:
-    path: /stream/615428/socket
-    headers:
-      Host: founders-blog.online
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
   - 🇧🇬 BG [R] | 144.31.50.236
-  - 🇷🇴 RO [R] | 193.163.203.253
   - 🇦🇪 AE [R][grpc] | 31.56.189.147
-  - 🇬🇧 GB [R] | 193.163.203.170
-  - 🇷🇴 RO [R] | bl3fk52.sysopnova.art
   - 🇧🇬 BG [R] | prep.wwwinternetvideo.click
+  - 🇬🇧 GB [R] | 193.163.203.170
+  - 🇷🇴 RO [R] | 193.163.203.253
+  - 🇷🇴 RO [R] | bl3fk52.sysopnova.art
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
-  - 🇫🇮 FI [xhttp] | 5.23.53.234
-  - 🇸🇪 SE [ws] | 185.178.208.176
+  - 🇦🇺 AU [R][xhttp] | 103.75.119.11
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -198,15 +185,14 @@ proxy-groups:
   proxies:
   - 🚀 Auto
   - 🇧🇬 BG [R] | 144.31.50.236
-  - 🇷🇴 RO [R] | 193.163.203.253
   - 🇦🇪 AE [R][grpc] | 31.56.189.147
-  - 🇬🇧 GB [R] | 193.163.203.170
-  - 🇷🇴 RO [R] | bl3fk52.sysopnova.art
   - 🇧🇬 BG [R] | prep.wwwinternetvideo.click
+  - 🇬🇧 GB [R] | 193.163.203.170
+  - 🇷🇴 RO [R] | 193.163.203.253
+  - 🇷🇴 RO [R] | bl3fk52.sysopnova.art
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
-  - 🇫🇮 FI [xhttp] | 5.23.53.234
-  - 🇸🇪 SE [ws] | 185.178.208.176
+  - 🇦🇺 AU [R][xhttp] | 103.75.119.11
 - name: 🎯 Direct
   type: select
   proxies:
