@@ -36,7 +36,7 @@ proxies:
     short-id: b28db60d77c50b4f
   servername: yandex.ru
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
+  client-fingerprint: firefox
 - name: 🇧🇬 BG [R] | 144.31.50.236
   type: vless
   server: 144.31.50.236
@@ -53,39 +53,6 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇧🇬 BG [R] | prep.wwwinternetvideo.click
-  type: vless
-  server: prep.wwwinternetvideo.click
-  port: 443
-  uuid: 1c332eae-7e02-4acd-996d-4eb3e652401c
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: uitO4Z8t9TplwwYaqwLqh5rfxDh_X8bOBiNuPbzvaEM
-    short-id: bbe46bd8f6b96839
-  servername: yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇦🇪 AE [R][grpc] | 31.56.189.147
-  type: vless
-  server: 31.56.189.147
-  port: 443
-  uuid: 99e5e9a0-1c6b-4cb0-805d-a810fd47eb15
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: gyVm1AWjn649wcSvTmyS12lsmecJFjm51BjUSWOjkxM
-    short-id: 35debf0dc757d053
-  servername: max.ru
-  client-fingerprint: chrome
-  grpc-opts:
-    grpc-service-name: grpc
 - name: 🇷🇴 RO [R] | 193.163.203.253
   type: vless
   server: 193.163.203.253
@@ -101,19 +68,20 @@ proxies:
     short-id: 5ee019e02e6ed99a
   servername: yandex.ru
   flow: xtls-rprx-vision
-- name: 🇬🇧 GB [R] | rus.2clash.ru
+- name: 🇧🇬 BG [R] | prep.wwwinternetvideo.click
   type: vless
-  server: rus.2clash.ru
+  server: prep.wwwinternetvideo.click
   port: 443
-  uuid: 3b6a9df3-f1d1-4bc1-94a5-0d8f2d5512b1
+  uuid: 1c332eae-7e02-4acd-996d-4eb3e652401c
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: Rf2jgZShaYRQ2kh9nF79eB2KFcIdiYHwPWJyFKA_CWU
-  servername: max.ru
+    public-key: uitO4Z8t9TplwwYaqwLqh5rfxDh_X8bOBiNuPbzvaEM
+    short-id: bbe46bd8f6b96839
+  servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
 - name: 🇷🇴 RO [R] | bl3fk52.sysopnova.art
@@ -131,6 +99,22 @@ proxies:
     short-id: 5ee019e02e6ed99a
   servername: yandex.ru
   flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇬🇧 GB [R] | rus.2clash.ru
+  type: vless
+  server: rus.2clash.ru
+  port: 443
+  uuid: 3b6a9df3-f1d1-4bc1-94a5-0d8f2d5512b1
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: Rf2jgZShaYRQ2kh9nF79eB2KFcIdiYHwPWJyFKA_CWU
+  servername: max.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 95.85.224.51
   type: vless
   server: 95.85.224.51
@@ -147,22 +131,6 @@ proxies:
   servername: max.ru
   flow: xtls-rprx-vision
   client-fingerprint: qq
-- name: 🇵🇱 PL [R] | av513u.sysopnova.art
-  type: vless
-  server: av513u.sysopnova.art
-  port: 443
-  uuid: 3710fc0f-5f0c-4b9c-a5d4-40cb419e943a
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: WKN5yaRN05O2WdCURXRmS-yBVYaabaFWOvGudX6ohWc
-    short-id: b97e7d4582b6fa6e
-  servername: yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇳🇱 NL [R][grpc] | 72.56.78.50
   type: vless
   server: 72.56.78.50
@@ -177,38 +145,54 @@ proxies:
     public-key: huH_8n0Dfk4iolIkzrc-qET8ySHWgZAr-i6K6lr6xSs
     short-id: 375838bc17c0
   servername: sun6-21.userapi.com
-  client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: ''
-- name: 🇦🇺 AU [R][xhttp] | 103.75.119.11
+- name: 🇱🇻 LV [R] | 8.kiska.lol
   type: vless
-  server: 103.75.119.11
+  server: 8.kiska.lol
   port: 443
-  uuid: 682300d9-74d0-4dae-923c-09cb5d5e9951
+  uuid: 163ae334-0013-4e1d-b573-02c23310738f
   udp: true
   skip-cert-verify: true
-  network: xhttp
+  network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: OvlkCDO6YdWR0ec3kVHW-Ul7I9TuEmJVfxXdaZiy5Ug
-    short-id: 2cbe511ff1f9200b
-  servername: sberbank.ru
+    public-key: 0_FWbcTe6tvBuSZ7_7PrMaNmg44a8VxYRXPKjZuERwQ
+    short-id: a150dff4
+  servername: eh.vk.com
+  flow: xtls-rprx-vision
   client-fingerprint: chrome
+- name: 🇩🇪 DE [R] | 194.48.142.103
+  type: vless
+  server: 194.48.142.103
+  port: 443
+  uuid: 59d1cc91-38c9-4ea2-ac52-4aed672877ff
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 6IoebfcPVf_Mlr5uIpwIAPRSw10b--Nu-bMY5AT_ADw
+    short-id: 08
+  servername: www.ozon.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇧🇬 BG [R] | 144.31.50.236
-  - 🇧🇬 BG [R] | prep.wwwinternetvideo.click
-  - 🇦🇪 AE [R][grpc] | 31.56.189.147
   - 🇷🇴 RO [R] | 193.163.203.253
-  - 🇬🇧 GB [R] | rus.2clash.ru
+  - 🇧🇬 BG [R] | prep.wwwinternetvideo.click
   - 🇷🇴 RO [R] | bl3fk52.sysopnova.art
+  - 🇬🇧 GB [R] | rus.2clash.ru
   - 🇬🇧 GB [R] | 95.85.224.51
-  - 🇵🇱 PL [R] | av513u.sysopnova.art
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
+  - 🇱🇻 LV [R] | 8.kiska.lol
+  - 🇩🇪 DE [R] | 194.48.142.103
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -218,15 +202,14 @@ proxy-groups:
   - 🚀 Auto
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇧🇬 BG [R] | 144.31.50.236
-  - 🇧🇬 BG [R] | prep.wwwinternetvideo.click
-  - 🇦🇪 AE [R][grpc] | 31.56.189.147
   - 🇷🇴 RO [R] | 193.163.203.253
-  - 🇬🇧 GB [R] | rus.2clash.ru
+  - 🇧🇬 BG [R] | prep.wwwinternetvideo.click
   - 🇷🇴 RO [R] | bl3fk52.sysopnova.art
+  - 🇬🇧 GB [R] | rus.2clash.ru
   - 🇬🇧 GB [R] | 95.85.224.51
-  - 🇵🇱 PL [R] | av513u.sysopnova.art
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
-  - 🇦🇺 AU [R][xhttp] | 103.75.119.11
+  - 🇱🇻 LV [R] | 8.kiska.lol
+  - 🇩🇪 DE [R] | 194.48.142.103
 - name: 🎯 Direct
   type: select
   proxies:
