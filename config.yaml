@@ -35,25 +35,9 @@ proxies:
     public-key: gyVm1AWjn649wcSvTmyS12lsmecJFjm51BjUSWOjkxM
     short-id: 35debf0dc757d053
   servername: max.ru
-  client-fingerprint: firefox
+  client-fingerprint: chrome
   grpc-opts:
     grpc-service-name: grpc
-- name: 🇬🇧 GB [R] | 193.163.203.170
-  type: vless
-  server: 193.163.203.170
-  port: 443
-  uuid: 11aabba0-5fd1-4f15-8068-74c1a466cefc
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: GCCZ1ZZjB_nj7yxqFi22bIIWWr_G6rnWUzDcssN_40o
-    short-id: b28db60d77c50b4f
-  servername: yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇧🇬 BG [R] | 144.31.50.236
   type: vless
   server: 144.31.50.236
@@ -67,6 +51,22 @@ proxies:
   reality-opts:
     public-key: uitO4Z8t9TplwwYaqwLqh5rfxDh_X8bOBiNuPbzvaEM
     short-id: bbe46bd8f6b96839
+  servername: yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇬🇧 GB [R] | 193.163.203.170
+  type: vless
+  server: 193.163.203.170
+  port: 443
+  uuid: 11aabba0-5fd1-4f15-8068-74c1a466cefc
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: GCCZ1ZZjB_nj7yxqFi22bIIWWr_G6rnWUzDcssN_40o
+    short-id: b28db60d77c50b4f
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
@@ -85,7 +85,7 @@ proxies:
     short-id: bbe46bd8f6b96839
   servername: yandex.ru
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
+  client-fingerprint: chrome
 - name: 🇬🇧 GB [R] | 95.85.224.51
   type: vless
   server: 95.85.224.51
@@ -102,6 +102,22 @@ proxies:
   servername: max.ru
   flow: xtls-rprx-vision
   client-fingerprint: qq
+- name: 🇵🇱 PL [R] | av513u.sysopnova.art
+  type: vless
+  server: av513u.sysopnova.art
+  port: 443
+  uuid: 3710fc0f-5f0c-4b9c-a5d4-40cb419e943a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: WKN5yaRN05O2WdCURXRmS-yBVYaabaFWOvGudX6ohWc
+    short-id: b97e7d4582b6fa6e
+  servername: yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇵🇱 PL [R] | 144.31.93.231
   type: vless
   server: 144.31.93.231
@@ -117,7 +133,7 @@ proxies:
     short-id: b97e7d4582b6fa6e
   servername: yandex.ru
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
+  client-fingerprint: firefox
 - name: 🇳🇱 NL [R][grpc] | 72.56.78.50
   type: vless
   server: 72.56.78.50
@@ -139,10 +155,11 @@ proxy-groups:
   type: url-test
   proxies:
   - 🇦🇪 AE [R][grpc] | 31.56.189.147
-  - 🇬🇧 GB [R] | 193.163.203.170
   - 🇧🇬 BG [R] | 144.31.50.236
+  - 🇬🇧 GB [R] | 193.163.203.170
   - 🇧🇬 BG [R] | prep.wwwinternetvideo.click
   - 🇬🇧 GB [R] | 95.85.224.51
+  - 🇵🇱 PL [R] | av513u.sysopnova.art
   - 🇵🇱 PL [R] | 144.31.93.231
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
   url: https://www.google.com/generate_204
@@ -153,10 +170,11 @@ proxy-groups:
   proxies:
   - 🚀 Auto
   - 🇦🇪 AE [R][grpc] | 31.56.189.147
-  - 🇬🇧 GB [R] | 193.163.203.170
   - 🇧🇬 BG [R] | 144.31.50.236
+  - 🇬🇧 GB [R] | 193.163.203.170
   - 🇧🇬 BG [R] | prep.wwwinternetvideo.click
   - 🇬🇧 GB [R] | 95.85.224.51
+  - 🇵🇱 PL [R] | av513u.sysopnova.art
   - 🇵🇱 PL [R] | 144.31.93.231
   - 🇳🇱 NL [R][grpc] | 72.56.78.50
 - name: 🎯 Direct
