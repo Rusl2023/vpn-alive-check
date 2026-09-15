@@ -38,6 +38,22 @@ proxies:
   client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: grpc
+- name: 🇬🇧 GB [R] | 193.163.203.170
+  type: vless
+  server: 193.163.203.170
+  port: 443
+  uuid: 11aabba0-5fd1-4f15-8068-74c1a466cefc
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: GCCZ1ZZjB_nj7yxqFi22bIIWWr_G6rnWUzDcssN_40o
+    short-id: b28db60d77c50b4f
+  servername: yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
 - name: 🇧🇬 BG [R] | 144.31.50.236
   type: vless
   server: 144.31.50.236
@@ -51,6 +67,22 @@ proxies:
   reality-opts:
     public-key: uitO4Z8t9TplwwYaqwLqh5rfxDh_X8bOBiNuPbzvaEM
     short-id: bbe46bd8f6b96839
+  servername: yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇵🇱 PL [R] | 144.31.93.231
+  type: vless
+  server: 144.31.93.231
+  port: 443
+  uuid: 3710fc0f-5f0c-4b9c-a5d4-40cb419e943a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: WKN5yaRN05O2WdCURXRmS-yBVYaabaFWOvGudX6ohWc
+    short-id: b97e7d4582b6fa6e
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
@@ -86,6 +118,22 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
+- name: 🇬🇧 GB [R] | 95.85.224.51
+  type: vless
+  server: 95.85.224.51
+  port: 443
+  uuid: 342ab7e4-5a89-0001-8809-304120d4aa83
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: WWeAHWUVD-phmnjNJ823cer0c4CMIbEs08AhsuEZmDc
+    short-id: a696de84963656de
+  servername: max.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
 - name: 🇷🇴 RO [R] | bl3fk52.sysopnova.art
   type: vless
   server: bl3fk52.sysopnova.art
@@ -102,83 +150,52 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇬🇧 GB [R] | 95.85.224.51
+- name: 🇸🇪 SE [R] | in4.linestring.ru
   type: vless
-  server: 95.85.224.51
+  server: in4.linestring.ru
   port: 443
-  uuid: 342ab7e4-5a89-0001-8809-304120d4aa83
+  uuid: 901cb0b0-0185-4983-b42a-67c431fa2f10
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: WWeAHWUVD-phmnjNJ823cer0c4CMIbEs08AhsuEZmDc
-    short-id: a696de84963656de
-  servername: max.ru
+    public-key: eWZTT3b4Xa0dYUdW52WtF1n8w3-AS4EHcaettRRa_0Q
+    short-id: 5f96c103e5734528
+  servername: api-maps.yandex.ru
   flow: xtls-rprx-vision
-  client-fingerprint: qq
-- name: 🇫🇮 FI [ws] | 188.225.36.189
+  client-fingerprint: firefox
+- name: 🇩🇪 DE [ws] | 212.233.120.1
   type: vless
-  server: 188.225.36.189
+  server: 212.233.120.1
   port: 443
-  uuid: 97ad0365-9197-4d44-b21b-3e2f1a23e578
+  uuid: b697353a-54b6-435c-b0c5-c25a2a424058
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: app.console-club.com
-  client-fingerprint: chrome
+  servername: dostavitos.stroymatdv.cc
+  client-fingerprint: firefox
   ws-opts:
-    path: /consws
+    path: /e7ws
     headers:
-      Host: app.console-club.com
-- name: 🇫🇮 FI [ws] | app.console-club.com
-  type: vless
-  server: app.console-club.com
-  port: 443
-  uuid: 97ad0365-9197-4d44-b21b-3e2f1a23e578
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: app.console-club.com
-  client-fingerprint: chrome
-  ws-opts:
-    path: /consws
-    headers:
-      Host: app.console-club.com
-- name: 🇸🇪 SE [ws] | 95.129.236.239
-  type: vless
-  server: 95.129.236.239
-  port: 443
-  uuid: c9c8e7c0-7849-4f26-ae58-526680a32802
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: login.ansable.cc
-  client-fingerprint: chrome
-  ws-opts:
-    path: /stream/615428/socket
-    headers:
-      Host: login.ansable.cc
+      Host: dostavitos.stroymatdv.cc
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
   - 🇦🇪 AE [R][grpc] | 31.56.189.147
+  - 🇬🇧 GB [R] | 193.163.203.170
   - 🇧🇬 BG [R] | 144.31.50.236
+  - 🇵🇱 PL [R] | 144.31.93.231
   - 🇷🇴 RO [R] | 193.163.203.253
   - 🇧🇬 BG [R] | prep.wwwinternetvideo.click
-  - 🇷🇴 RO [R] | bl3fk52.sysopnova.art
   - 🇬🇧 GB [R] | 95.85.224.51
-  - 🇫🇮 FI [ws] | 188.225.36.189
-  - 🇫🇮 FI [ws] | app.console-club.com
-  - 🇸🇪 SE [ws] | 95.129.236.239
+  - 🇷🇴 RO [R] | bl3fk52.sysopnova.art
+  - 🇸🇪 SE [R] | in4.linestring.ru
+  - 🇩🇪 DE [ws] | 212.233.120.1
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -187,14 +204,15 @@ proxy-groups:
   proxies:
   - 🚀 Auto
   - 🇦🇪 AE [R][grpc] | 31.56.189.147
+  - 🇬🇧 GB [R] | 193.163.203.170
   - 🇧🇬 BG [R] | 144.31.50.236
+  - 🇵🇱 PL [R] | 144.31.93.231
   - 🇷🇴 RO [R] | 193.163.203.253
   - 🇧🇬 BG [R] | prep.wwwinternetvideo.click
-  - 🇷🇴 RO [R] | bl3fk52.sysopnova.art
   - 🇬🇧 GB [R] | 95.85.224.51
-  - 🇫🇮 FI [ws] | 188.225.36.189
-  - 🇫🇮 FI [ws] | app.console-club.com
-  - 🇸🇪 SE [ws] | 95.129.236.239
+  - 🇷🇴 RO [R] | bl3fk52.sysopnova.art
+  - 🇸🇪 SE [R] | in4.linestring.ru
+  - 🇩🇪 DE [ws] | 212.233.120.1
 - name: 🎯 Direct
   type: select
   proxies:
