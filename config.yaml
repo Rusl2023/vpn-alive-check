@@ -35,24 +35,9 @@ proxies:
     public-key: gyVm1AWjn649wcSvTmyS12lsmecJFjm51BjUSWOjkxM
     short-id: 35debf0dc757d053
   servername: max.ru
-  client-fingerprint: firefox
+  client-fingerprint: chrome
   grpc-opts:
     grpc-service-name: grpc
-- name: 🇧🇬 BG [R] | 144.31.50.236
-  type: vless
-  server: 144.31.50.236
-  port: 443
-  uuid: 1c332eae-7e02-4acd-996d-4eb3e652401c
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: uitO4Z8t9TplwwYaqwLqh5rfxDh_X8bOBiNuPbzvaEM
-    short-id: bbe46bd8f6b96839
-  servername: yandex.ru
-  flow: xtls-rprx-vision
 - name: 🇷🇴 RO [R] | 193.163.203.253
   type: vless
   server: 193.163.203.253
@@ -68,36 +53,37 @@ proxies:
     short-id: 5ee019e02e6ed99a
   servername: yandex.ru
   flow: xtls-rprx-vision
-- name: 🇷🇴 RO [R] | bl3fk52.sysopnova.art
+  client-fingerprint: firefox
+- name: 🇧🇬 BG [R] | 144.31.50.236
   type: vless
-  server: bl3fk52.sysopnova.art
+  server: 144.31.50.236
   port: 443
-  uuid: 441afe11-a180-4516-bb80-80a8a6b38705
+  uuid: 1c332eae-7e02-4acd-996d-4eb3e652401c
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: gE8LUmGFXik94SoDXNiAG5KprGyhjoRwDuhGebgAVWk
-    short-id: 5ee019e02e6ed99a
+    public-key: uitO4Z8t9TplwwYaqwLqh5rfxDh_X8bOBiNuPbzvaEM
+    short-id: bbe46bd8f6b96839
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇬🇧 GB [R] | 95.85.224.51
+- name: 🇵🇱 PL [R] | 144.31.93.231
   type: vless
-  server: 95.85.224.51
+  server: 144.31.93.231
   port: 443
-  uuid: 342ab7e4-5a89-0001-8809-304120d4aa83
+  uuid: 3710fc0f-5f0c-4b9c-a5d4-40cb419e943a
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: WWeAHWUVD-phmnjNJ823cer0c4CMIbEs08AhsuEZmDc
-    short-id: a696de84963656de
-  servername: max.ru
+    public-key: WKN5yaRN05O2WdCURXRmS-yBVYaabaFWOvGudX6ohWc
+    short-id: b97e7d4582b6fa6e
+  servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
 - name: 🇧🇬 BG [R] | prep.wwwinternetvideo.click
@@ -131,22 +117,23 @@ proxies:
     short-id: b28db60d77c50b4f
   servername: yandex.ru
   flow: xtls-rprx-vision
-- name: 🇵🇱 PL [R] | 144.31.93.231
+  client-fingerprint: firefox
+- name: 🇬🇧 GB [R] | 95.85.224.51
   type: vless
-  server: 144.31.93.231
+  server: 95.85.224.51
   port: 443
-  uuid: 3710fc0f-5f0c-4b9c-a5d4-40cb419e943a
+  uuid: 342ab7e4-5a89-0001-8809-304120d4aa83
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: WKN5yaRN05O2WdCURXRmS-yBVYaabaFWOvGudX6ohWc
-    short-id: b97e7d4582b6fa6e
-  servername: yandex.ru
+    public-key: WWeAHWUVD-phmnjNJ823cer0c4CMIbEs08AhsuEZmDc
+    short-id: a696de84963656de
+  servername: max.ru
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
+  client-fingerprint: chrome
 - name: 🇳🇱 NL [R] | 146.103.100.242
   type: vless
   server: 146.103.100.242
@@ -163,19 +150,35 @@ proxies:
   servername: dzen.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
+- name: 🇩🇪 DE [R] | 194.48.142.103
+  type: vless
+  server: 194.48.142.103
+  port: 443
+  uuid: 59d1cc91-38c9-4ea2-ac52-4aed672877ff
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 6IoebfcPVf_Mlr5uIpwIAPRSw10b--Nu-bMY5AT_ADw
+    short-id: 08
+  servername: www.ozon.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
   - 🇩🇪 DE [R][grpc] | 31.56.189.147
-  - 🇧🇬 BG [R] | 144.31.50.236
   - 🇷🇴 RO [R] | 193.163.203.253
-  - 🇷🇴 RO [R] | bl3fk52.sysopnova.art
-  - 🇬🇧 GB [R] | 95.85.224.51
+  - 🇧🇬 BG [R] | 144.31.50.236
+  - 🇵🇱 PL [R] | 144.31.93.231
   - 🇧🇬 BG [R] | prep.wwwinternetvideo.click
   - 🇬🇧 GB [R] | 193.163.203.170
-  - 🇵🇱 PL [R] | 144.31.93.231
+  - 🇬🇧 GB [R] | 95.85.224.51
   - 🇳🇱 NL [R] | 146.103.100.242
+  - 🇩🇪 DE [R] | 194.48.142.103
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -184,14 +187,14 @@ proxy-groups:
   proxies:
   - 🚀 Auto
   - 🇩🇪 DE [R][grpc] | 31.56.189.147
-  - 🇧🇬 BG [R] | 144.31.50.236
   - 🇷🇴 RO [R] | 193.163.203.253
-  - 🇷🇴 RO [R] | bl3fk52.sysopnova.art
-  - 🇬🇧 GB [R] | 95.85.224.51
+  - 🇧🇬 BG [R] | 144.31.50.236
+  - 🇵🇱 PL [R] | 144.31.93.231
   - 🇧🇬 BG [R] | prep.wwwinternetvideo.click
   - 🇬🇧 GB [R] | 193.163.203.170
-  - 🇵🇱 PL [R] | 144.31.93.231
+  - 🇬🇧 GB [R] | 95.85.224.51
   - 🇳🇱 NL [R] | 146.103.100.242
+  - 🇩🇪 DE [R] | 194.48.142.103
 - name: 🎯 Direct
   type: select
   proxies:
