@@ -35,7 +35,7 @@ proxies:
     public-key: gyVm1AWjn649wcSvTmyS12lsmecJFjm51BjUSWOjkxM
     short-id: 35debf0dc757d053
   servername: max.ru
-  client-fingerprint: firefox
+  client-fingerprint: chrome
   grpc-opts:
     grpc-service-name: grpc
 - name: 🇧🇬 BG [R] | 144.31.50.236
@@ -54,38 +54,6 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇧🇬 BG [R] | prep.wwwinternetvideo.click
-  type: vless
-  server: prep.wwwinternetvideo.click
-  port: 443
-  uuid: 1c332eae-7e02-4acd-996d-4eb3e652401c
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: uitO4Z8t9TplwwYaqwLqh5rfxDh_X8bOBiNuPbzvaEM
-    short-id: bbe46bd8f6b96839
-  servername: yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇬🇧 GB [R] | 193.163.203.170
-  type: vless
-  server: 193.163.203.170
-  port: 443
-  uuid: 11aabba0-5fd1-4f15-8068-74c1a466cefc
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: GCCZ1ZZjB_nj7yxqFi22bIIWWr_G6rnWUzDcssN_40o
-    short-id: b28db60d77c50b4f
-  servername: yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
 - name: 🇷🇴 RO [R] | 193.163.203.253
   type: vless
   server: 193.163.203.253
@@ -118,6 +86,38 @@ proxies:
   servername: max.ru
   flow: xtls-rprx-vision
   client-fingerprint: qq
+- name: 🇬🇧 GB [R] | 193.163.203.170
+  type: vless
+  server: 193.163.203.170
+  port: 443
+  uuid: 11aabba0-5fd1-4f15-8068-74c1a466cefc
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: GCCZ1ZZjB_nj7yxqFi22bIIWWr_G6rnWUzDcssN_40o
+    short-id: b28db60d77c50b4f
+  servername: yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇧🇬 BG [R] | prep.wwwinternetvideo.click
+  type: vless
+  server: prep.wwwinternetvideo.click
+  port: 443
+  uuid: 1c332eae-7e02-4acd-996d-4eb3e652401c
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: uitO4Z8t9TplwwYaqwLqh5rfxDh_X8bOBiNuPbzvaEM
+    short-id: bbe46bd8f6b96839
+  servername: yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
 - name: 🇷🇴 RO [R] | bl3fk52.sysopnova.art
   type: vless
   server: bl3fk52.sysopnova.art
@@ -133,34 +133,34 @@ proxies:
     short-id: 5ee019e02e6ed99a
   servername: yandex.ru
   flow: xtls-rprx-vision
-- name: 🇳🇱 NL [R] | 146.103.100.242
+- name: 🇸🇪 SE [R] | in4.linestring.ru
   type: vless
-  server: 146.103.100.242
+  server: in4.linestring.ru
   port: 443
-  uuid: a7c35c0c-e8b6-49a4-9d2c-1acee63fe2d6
+  uuid: 901cb0b0-0185-4983-b42a-67c431fa2f10
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: CxjnGHCI3HXN2RAXwytela7jXyOGDCBqzMAqTfm60D0
-    short-id: 4ed920401771c4ab
-  servername: dzen.ru
+    public-key: eWZTT3b4Xa0dYUdW52WtF1n8w3-AS4EHcaettRRa_0Q
+    short-id: 5f96c103e5734528
+  servername: api-maps.yandex.ru
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
+  client-fingerprint: firefox
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
   - 🇦🇪 AE [R][grpc] | 31.56.189.147
   - 🇧🇬 BG [R] | 144.31.50.236
-  - 🇧🇬 BG [R] | prep.wwwinternetvideo.click
-  - 🇬🇧 GB [R] | 193.163.203.170
   - 🇷🇴 RO [R] | 193.163.203.253
   - 🇬🇧 GB [R] | 95.85.224.51
+  - 🇬🇧 GB [R] | 193.163.203.170
+  - 🇧🇬 BG [R] | prep.wwwinternetvideo.click
   - 🇷🇴 RO [R] | bl3fk52.sysopnova.art
-  - 🇳🇱 NL [R] | 146.103.100.242
+  - 🇸🇪 SE [R] | in4.linestring.ru
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -170,12 +170,12 @@ proxy-groups:
   - 🚀 Auto
   - 🇦🇪 AE [R][grpc] | 31.56.189.147
   - 🇧🇬 BG [R] | 144.31.50.236
-  - 🇧🇬 BG [R] | prep.wwwinternetvideo.click
-  - 🇬🇧 GB [R] | 193.163.203.170
   - 🇷🇴 RO [R] | 193.163.203.253
   - 🇬🇧 GB [R] | 95.85.224.51
+  - 🇬🇧 GB [R] | 193.163.203.170
+  - 🇧🇬 BG [R] | prep.wwwinternetvideo.click
   - 🇷🇴 RO [R] | bl3fk52.sysopnova.art
-  - 🇳🇱 NL [R] | 146.103.100.242
+  - 🇸🇪 SE [R] | in4.linestring.ru
 - name: 🎯 Direct
   type: select
   proxies:
