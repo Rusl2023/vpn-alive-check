@@ -35,9 +35,25 @@ proxies:
     public-key: gyVm1AWjn649wcSvTmyS12lsmecJFjm51BjUSWOjkxM
     short-id: 35debf0dc757d053
   servername: max.ru
-  client-fingerprint: chrome
+  client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: grpc
+- name: 🇪🇸 ES [R] | 94.237.92.65
+  type: vless
+  server: 94.237.92.65
+  port: 443
+  uuid: e4b11ac9-46f7-4cc0-92ed-bb9dfaaf3600
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: lkMM9FR-o7Z6NwmmQVK8rLhCQR1mbJTgjY_0upeS2SY
+    short-id: 0436301fb0178b
+  servername: google.com
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
 - name: 🇧🇬 BG [R] | 144.31.50.236
   type: vless
   server: 144.31.50.236
@@ -69,23 +85,23 @@ proxies:
     short-id: 5ee019e02e6ed99a
   servername: yandex.ru
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇬🇧 GB [R] | 95.85.224.51
+  client-fingerprint: chrome
+- name: 🇩🇪 DE [R] | 150.241.79.210
   type: vless
-  server: 95.85.224.51
+  server: 150.241.79.210
   port: 443
-  uuid: 342ab7e4-5a89-0001-8809-304120d4aa83
+  uuid: cfffb81e-5034-49ce-8729-18b60c7f1e89
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: WWeAHWUVD-phmnjNJ823cer0c4CMIbEs08AhsuEZmDc
-    short-id: a696de84963656de
-  servername: max.ru
+    public-key: 3J5mYA5NziIVJi77fRsx9dZPYWzLkvaIz-cCdZQvhn8
+    short-id: 1a2b
+  servername: rutube.ru
   flow: xtls-rprx-vision
-  client-fingerprint: qq
+  client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 193.163.203.170
   type: vless
   server: 193.163.203.170
@@ -118,6 +134,22 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
+- name: 🇬🇧 GB [R] | 95.85.224.51
+  type: vless
+  server: 95.85.224.51
+  port: 443
+  uuid: 342ab7e4-5a89-0001-8809-304120d4aa83
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: WWeAHWUVD-phmnjNJ823cer0c4CMIbEs08AhsuEZmDc
+    short-id: a696de84963656de
+  servername: max.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: qq
 - name: 🇷🇴 RO [R] | bl3fk52.sysopnova.art
   type: vless
   server: bl3fk52.sysopnova.art
@@ -133,34 +165,19 @@ proxies:
     short-id: 5ee019e02e6ed99a
   servername: yandex.ru
   flow: xtls-rprx-vision
-- name: 🇸🇪 SE [R] | in4.linestring.ru
-  type: vless
-  server: in4.linestring.ru
-  port: 443
-  uuid: 901cb0b0-0185-4983-b42a-67c431fa2f10
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: eWZTT3b4Xa0dYUdW52WtF1n8w3-AS4EHcaettRRa_0Q
-    short-id: 5f96c103e5734528
-  servername: api-maps.yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
   - 🇦🇪 AE [R][grpc] | 31.56.189.147
+  - 🇪🇸 ES [R] | 94.237.92.65
   - 🇧🇬 BG [R] | 144.31.50.236
   - 🇷🇴 RO [R] | 193.163.203.253
-  - 🇬🇧 GB [R] | 95.85.224.51
+  - 🇩🇪 DE [R] | 150.241.79.210
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇧🇬 BG [R] | prep.wwwinternetvideo.click
+  - 🇬🇧 GB [R] | 95.85.224.51
   - 🇷🇴 RO [R] | bl3fk52.sysopnova.art
-  - 🇸🇪 SE [R] | in4.linestring.ru
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -169,13 +186,14 @@ proxy-groups:
   proxies:
   - 🚀 Auto
   - 🇦🇪 AE [R][grpc] | 31.56.189.147
+  - 🇪🇸 ES [R] | 94.237.92.65
   - 🇧🇬 BG [R] | 144.31.50.236
   - 🇷🇴 RO [R] | 193.163.203.253
-  - 🇬🇧 GB [R] | 95.85.224.51
+  - 🇩🇪 DE [R] | 150.241.79.210
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇧🇬 BG [R] | prep.wwwinternetvideo.click
+  - 🇬🇧 GB [R] | 95.85.224.51
   - 🇷🇴 RO [R] | bl3fk52.sysopnova.art
-  - 🇸🇪 SE [R] | in4.linestring.ru
 - name: 🎯 Direct
   type: select
   proxies:
