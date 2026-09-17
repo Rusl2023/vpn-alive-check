@@ -69,6 +69,7 @@ proxies:
     short-id: bbe46bd8f6b96839
   servername: yandex.ru
   flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇷🇴 RO [R] | 193.163.203.253
   type: vless
   server: 193.163.203.253
@@ -84,21 +85,7 @@ proxies:
     short-id: 5ee019e02e6ed99a
   servername: yandex.ru
   flow: xtls-rprx-vision
-- name: 🇷🇴 RO [R] | bl3fk52.sysopnova.art
-  type: vless
-  server: bl3fk52.sysopnova.art
-  port: 443
-  uuid: 441afe11-a180-4516-bb80-80a8a6b38705
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: gE8LUmGFXik94SoDXNiAG5KprGyhjoRwDuhGebgAVWk
-    short-id: 5ee019e02e6ed99a
-  servername: yandex.ru
-  flow: xtls-rprx-vision
+  client-fingerprint: chrome
 - name: 🇵🇱 PL [R] | 144.31.93.231
   type: vless
   server: 144.31.93.231
@@ -115,6 +102,22 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
+- name: 🇬🇧 GB [R] | 193.163.203.170
+  type: vless
+  server: 193.163.203.170
+  port: 443
+  uuid: 11aabba0-5fd1-4f15-8068-74c1a466cefc
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: GCCZ1ZZjB_nj7yxqFi22bIIWWr_G6rnWUzDcssN_40o
+    short-id: b28db60d77c50b4f
+  servername: yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
 - name: 🇬🇧 GB [R] | 95.85.224.51
   type: vless
   server: 95.85.224.51
@@ -130,20 +133,20 @@ proxies:
     short-id: a696de84963656de
   servername: max.ru
   flow: xtls-rprx-vision
-  client-fingerprint: qq
-- name: 🇬🇧 GB [R] | 193.163.203.170
+  client-fingerprint: chrome
+- name: 🇷🇴 RO [R] | bl3fk52.sysopnova.art
   type: vless
-  server: 193.163.203.170
+  server: bl3fk52.sysopnova.art
   port: 443
-  uuid: 11aabba0-5fd1-4f15-8068-74c1a466cefc
+  uuid: 441afe11-a180-4516-bb80-80a8a6b38705
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: GCCZ1ZZjB_nj7yxqFi22bIIWWr_G6rnWUzDcssN_40o
-    short-id: b28db60d77c50b4f
+    public-key: gE8LUmGFXik94SoDXNiAG5KprGyhjoRwDuhGebgAVWk
+    short-id: 5ee019e02e6ed99a
   servername: yandex.ru
   flow: xtls-rprx-vision
 - name: 🇵🇱 PL [R] | av513u.sysopnova.art
@@ -162,6 +165,22 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
+- name: 🇷🇴 RO [R] | 45.43.166.56
+  type: vless
+  server: 45.43.166.56
+  port: 443
+  uuid: 4CD55C5_trial
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: sEzXu5KZcPPaT5ZKj8gBIOa4ana3Jq75-iZSMQPW9BY
+    short-id: 8c3f17a4d92be560
+  servername: travel.yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇩🇪 DE [ws] | 188.72.103.4
   type: vless
   server: 188.72.103.4
@@ -178,6 +197,35 @@ proxies:
     path: /apiv1/esa1-asda2jcvnbpseflkn-kjweksad
     headers:
       Host: apicdn.4subnodes.com
+- name: 🇵🇱 PL [ws] | oblako2.thewalkingded.life
+  type: vless
+  server: oblako2.thewalkingded.life
+  port: 443
+  uuid: fcbc0571-7b14-4699-830e-11cf3aa0ad6b
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: oblako2.thewalkingded.life
+  client-fingerprint: qq
+  ws-opts:
+    path: /wsline
+    headers:
+      Host: oblako2.thewalkingded.life
+- name: 🇩🇪 DE [ws] | apicdn.4subnodes.com
+  type: vless
+  server: apicdn.4subnodes.com
+  port: 443
+  uuid: 1f959100-a98b-47fb-84fa-359246dc458a
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  client-fingerprint: chrome
+  ws-opts:
+    path: /apiv1/esa1-asda2jcvnbpseflkn-kjweksad
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
@@ -186,12 +234,12 @@ proxy-groups:
   - 🇧🇬 BG [R] | 144.31.50.236
   - 🇧🇬 BG [R] | prep.wwwinternetvideo.click
   - 🇷🇴 RO [R] | 193.163.203.253
-  - 🇷🇴 RO [R] | bl3fk52.sysopnova.art
   - 🇵🇱 PL [R] | 144.31.93.231
-  - 🇬🇧 GB [R] | 95.85.224.51
   - 🇬🇧 GB [R] | 193.163.203.170
+  - 🇬🇧 GB [R] | 95.85.224.51
+  - 🇷🇴 RO [R] | bl3fk52.sysopnova.art
   - 🇵🇱 PL [R] | av513u.sysopnova.art
-  - 🇩🇪 DE [ws] | 188.72.103.4
+  - 🇷🇴 RO [R] | 45.43.166.56
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -203,12 +251,15 @@ proxy-groups:
   - 🇧🇬 BG [R] | 144.31.50.236
   - 🇧🇬 BG [R] | prep.wwwinternetvideo.click
   - 🇷🇴 RO [R] | 193.163.203.253
-  - 🇷🇴 RO [R] | bl3fk52.sysopnova.art
   - 🇵🇱 PL [R] | 144.31.93.231
-  - 🇬🇧 GB [R] | 95.85.224.51
   - 🇬🇧 GB [R] | 193.163.203.170
+  - 🇬🇧 GB [R] | 95.85.224.51
+  - 🇷🇴 RO [R] | bl3fk52.sysopnova.art
   - 🇵🇱 PL [R] | av513u.sysopnova.art
+  - 🇷🇴 RO [R] | 45.43.166.56
   - 🇩🇪 DE [ws] | 188.72.103.4
+  - 🇵🇱 PL [ws] | oblako2.thewalkingded.life
+  - 🇩🇪 DE [ws] | apicdn.4subnodes.com
 - name: 🎯 Direct
   type: select
   proxies:
