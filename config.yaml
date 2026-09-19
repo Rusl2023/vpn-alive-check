@@ -149,20 +149,66 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇷🇴 RO [R] | 45.43.166.56
+- name: 🇵🇱 PL [R] | 144.31.93.231
   type: vless
-  server: 45.43.166.56
+  server: 144.31.93.231
   port: 443
-  uuid: 4CD55C5_trial
+  uuid: 3710fc0f-5f0c-4b9c-a5d4-40cb419e943a
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: sEzXu5KZcPPaT5ZKj8gBIOa4ana3Jq75-iZSMQPW9BY
-    short-id: 8c3f17a4d92be560
-  servername: travel.yandex.ru
+    public-key: WKN5yaRN05O2WdCURXRmS-yBVYaabaFWOvGudX6ohWc
+    short-id: b97e7d4582b6fa6e
+  servername: yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇳🇱 NL [R] | 84.201.164.49
+  type: vless
+  server: 84.201.164.49
+  port: 443
+  uuid: 06ec3898-f952-52a5-8547-51ae1e6f0a62
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 2SVMBXiViUclgzkSfLCV2w6dOMJwA61YGFv7ne5wMgM
+  servername: api-maps.yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇳🇱 NL [R] | 84.201.169.241
+  type: vless
+  server: 84.201.169.241
+  port: 443
+  uuid: 1e2b9c0c-4f9b-56f5-a062-1c4f2d2aa200
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: xsKg-Qi8sZNRRaNf6svIUwSw6iMdOTc6Cl82inZFM1Y
+  servername: api-maps.yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇩🇪 DE [R] | 194.48.142.103
+  type: vless
+  server: 194.48.142.103
+  port: 443
+  uuid: 59d1cc91-38c9-4ea2-ac52-4aed672877ff
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 6IoebfcPVf_Mlr5uIpwIAPRSw10b--Nu-bMY5AT_ADw
+    short-id: 08
+  servername: www.ozon.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
 - name: 🇩🇪 DE [ws] | 188.72.103.4
@@ -176,7 +222,7 @@ proxies:
   encryption: none
   tls: true
   servername: apicdn.4subnodes.com
-  client-fingerprint: chrome
+  client-fingerprint: firefox
   ws-opts:
     path: /apiv1/esa1-asda2jcvnbpseflkn-kjweksad
     headers:
@@ -192,7 +238,7 @@ proxies:
   encryption: none
   tls: true
   servername: j8dvb.guardora.pro
-  client-fingerprint: firefox
+  client-fingerprint: random
   ws-opts:
     path: /api/v2/client/session/connect
     headers:
@@ -221,7 +267,7 @@ proxies:
   encryption: none
   tls: true
   servername: apicdn.4subnodes.com
-  client-fingerprint: chrome
+  client-fingerprint: firefox
   ws-opts:
     path: /apiv1/esa1-asda2jcvnbpseflkn-kjweksad
     headers:
@@ -238,8 +284,8 @@ proxy-groups:
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇷🇴 RO [R] | 193.163.203.253
-  - 🇷🇴 RO [R] | 45.43.166.56
-  - 🇩🇪 DE [ws] | 188.72.103.4
+  - 🇵🇱 PL [R] | 144.31.93.231
+  - 🇳🇱 NL [R] | 84.201.164.49
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -255,7 +301,10 @@ proxy-groups:
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇷🇴 RO [R] | 193.163.203.253
-  - 🇷🇴 RO [R] | 45.43.166.56
+  - 🇵🇱 PL [R] | 144.31.93.231
+  - 🇳🇱 NL [R] | 84.201.164.49
+  - 🇳🇱 NL [R] | 84.201.169.241
+  - 🇩🇪 DE [R] | 194.48.142.103
   - 🇩🇪 DE [ws] | 188.72.103.4
   - 🇺🇸 US [ws] | 37.18.15.103
   - 🇩🇪 DE [ws] | apicdn.4subnodes.com
