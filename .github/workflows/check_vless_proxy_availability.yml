@@ -7,7 +7,7 @@ on:
 
 concurrency:
   group: proxy-check
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   check-proxies:
@@ -21,6 +21,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: 'pip'
 
       - name: Install dependencies
         run: |
@@ -28,13 +29,17 @@ jobs:
 
       - name: Download GeoIP database
         run: |
-          wget -q https://git.io/GeoLite2-Country.mmdb -O GeoLite2-Country.mmdb
+          wget -q https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-Country.mmdb -O GeoLite2-Country.mmdb
+          ls -la GeoLite2-Country.mmdb
 
       - name: Download xray
+        env:
+          XRAY_VERSION: v26.9.9
         run: |
-          wget -q https://github.com/XTLS/Xray-core/releases/download/v26.6.1/Xray-linux-64.zip -O Xray-linux-64.zip
+          wget -q "https://github.com/XTLS/Xray-core/releases/download/${XRAY_VERSION}/Xray-linux-64.zip" -O Xray-linux-64.zip
           unzip -o Xray-linux-64.zip
           chmod +x xray
+          ./xray version
 
       - name: RUN Python filter & checker
         timeout-minutes: 20
@@ -43,6 +48,9 @@ jobs:
           import os, socket, urllib.parse, requests, random, ipaddress, subprocess, time, json, base64, re, asyncio
           from concurrent.futures import ThreadPoolExecutor, as_completed
           from threading import Lock
+          from collections import Counter
+          from requests.adapters import HTTPAdapter
+          from urllib3.util.retry import Retry
           import geoip2.database
           import aiohttp
 
@@ -112,6 +120,12 @@ jobs:
               'VN': '🇻🇳', 'VU': '🇻🇺', 'WF': '🇼🇫', 'WS': '🇼🇸', 'YE': '🇾🇪', 'YT': '🇾🇹', 'ZA': '🇿🇦', 'ZM': '🇿🇲', 'ZW': '🇿🇼', '??': '🌍??'
           }
 
+          # Один Session с Retry для всех HTTP-запросов
+          http = requests.Session()
+          http.mount("https://", HTTPAdapter(max_retries=Retry(total=3, backoff_factor=0.5, status_forcelist=[429, 500, 502, 503, 504])))
+          http.mount("http://", HTTPAdapter(max_retries=Retry(total=3, backoff_factor=0.5, status_forcelist=[429, 500, 502, 503, 504])))
+          http.headers.update({"User-Agent": "Mozilla/5.0"})
+
           dns_cache = {}
           lock = Lock()
           country_reader = None
@@ -129,29 +143,29 @@ jobs:
               s = set()
               for url in urls:
                   try:
-                      resp = requests.get(url, timeout=20).text.lower()
+                      resp = http.get(url, timeout=20).text.lower()
                       s.update(line.strip() for line in resp.splitlines() if line.strip())
-                  except:
-                      pass
+                  except Exception as e:
+                      print(f"[-] load_multi_set {url}: {e}")
               return s
 
           def load_multi_cidr(urls):
               out = []
               for url in urls:
                   try:
-                      for line in requests.get(url, timeout=20).text.splitlines():
+                      for line in http.get(url, timeout=20).text.splitlines():
                           if line.strip():
                               try:
                                   out.append(ipaddress.ip_network(line.strip(), strict=False))
-                              except:
-                                  pass
-                  except:
-                      pass
+                              except Exception as e:
+                                  print(f"[-] bad CIDR in {url}: {e}")
+                  except Exception as e:
+                      print(f"[-] load_multi_cidr {url}: {e}")
               return out
 
           def load_white_ips_and_cidrs_from_json(url):
               try:
-                  resp = requests.get(url, timeout=25)
+                  resp = http.get(url, timeout=25)
                   resp.raise_for_status()
                   data = resp.json()
                   all_ips = set()
@@ -161,7 +175,8 @@ jobs:
                       if 'cidr' in entry:
                           try:
                               cidr_list.append(ipaddress.ip_network(entry['cidr'], strict=False))
-                          except: pass
+                          except Exception as e:
+                              print(f"[-] bad CIDR in subnets.json: {e}")
                       if 'ips' in entry and isinstance(entry['ips'], list):
                           for ip_str in entry['ips']:
                               if str(ip_str).strip():
@@ -176,7 +191,7 @@ jobs:
               try:
                   ip_obj = ipaddress.ip_address(ip)
                   return any(ip_obj in net for net in networks)
-              except:
+              except Exception:
                   return False
 
           def resolve(hostname):
@@ -185,7 +200,8 @@ jobs:
                   ip = socket.gethostbyname(hostname)
                   dns_cache[hostname] = ip
                   return ip
-              except:
+              except Exception as e:
+                  print(f"[-] resolve {hostname}: {e}")
                   dns_cache[hostname] = None
                   return None
 
@@ -196,7 +212,7 @@ jobs:
                   result = s.connect_ex((ip, port)) == 0
                   s.close()
                   return result
-              except:
+              except Exception:
                   return False
 
           def get_country(ip):
@@ -208,7 +224,7 @@ jobs:
                   if cc:
                       return cc
                   return "??"
-              except:
+              except Exception:
                   return "??"
 
           def get_flag(cc):
@@ -216,14 +232,18 @@ jobs:
 
           def download_and_parse():
               all_links = []
-              for url in CONFIG_URLS:
+              def fetch(url):
                   try:
-                      resp = requests.get(url, timeout=20, headers={"User-Agent": "Mozilla/5.0"})
+                      resp = http.get(url, timeout=20)
                       links = re.findall(r'(vless://[^\s#]+)', resp.text)
                       print(f"[+] {url.split('/')[-1]}: {len(links)} VLESS")
-                      all_links.extend(links)
+                      return links
                   except Exception as e:
                       print(f"[-] Error {url}: {e}")
+                      return []
+              with ThreadPoolExecutor(max_workers=8) as ex:
+                  for links in ex.map(fetch, CONFIG_URLS):
+                      all_links.extend(links)
               all_links = list(dict.fromkeys(all_links))
               print(f"[✓] Total unique VLESS: {len(all_links)}")
               return all_links
@@ -249,7 +269,8 @@ jobs:
                       'path': q.get('path', ['/'])[0],
                       'original': link
                   }
-              except:
+              except Exception as e:
+                  print(f"[-] parse_vless: {e}")
                   return None
 
           def build_xray_cfg(cfg, local_port):
@@ -259,12 +280,10 @@ jobs:
                   stream['security'] = 'reality'
                   stream['realitySettings'] = {
                       'serverName': cfg['sni'],
-                      'publicKey': cfg['pbk'],
-                      'password': cfg['pbk'],
-                      'shortId': cfg['sid'],
+                      'password': cfg['pbk'],          # предпочтительно (alias publicKey)
+                      'shortId': cfg.get('sid', ''),
                       'spiderX': '',
-                      'show': False,
-                      'fingerprint': cfg['fp']
+                      'fingerprint': cfg.get('fp', 'chrome')
                   }
               elif cfg['security'] == 'tls':
                   stream['security'] = 'tls'
@@ -294,13 +313,13 @@ jobs:
                   s.bind(('', 0))
                   return s.getsockname()[1]
 
-          def wait_port(port, retries=25):
+          def wait_port(port, retries=40):
               for _ in range(retries):
                   try:
-                      socket.create_connection(("127.0.0.1", port), timeout=0.5)
+                      socket.create_connection(("127.0.0.1", port), timeout=0.1)
                       return True
-                  except:
-                      time.sleep(0.3)
+                  except Exception:
+                      time.sleep(0.08)
               return False
 
           async def improved_test_proxy_async(port):
@@ -329,7 +348,7 @@ jobs:
                                       try:
                                           data = json.loads(text)
                                           exit_ip = data.get('ip') or data.get('origin')
-                                      except:
+                                      except Exception:
                                           ip_match = re.search(r'\b(?:\d{1,3}\.){3}\d{1,3}\b', text)
                                           if ip_match:
                                               exit_ip = ip_match.group(0)
@@ -377,7 +396,8 @@ jobs:
                       return None
                       
                   return cfg if is_white else None
-              except:
+              except Exception as e:
+                  print(f"[-] check_one: {e}")
                   return None
 
           links = download_and_parse()
@@ -437,7 +457,8 @@ jobs:
                       proc.kill()
                       proc.wait()
                   try: os.remove(cfg_path)
-                  except: pass
+                  except Exception:
+                      pass
 
           tested = []
           with ThreadPoolExecutor(max_workers=TEST_WORKERS) as executor:
@@ -469,13 +490,16 @@ jobs:
           with open(b64_path, 'w', encoding='utf-8') as f:
               f.write(b64_content)
 
-          reality_count = sum(1 for l in final_links if (parse_vless(l) or {}).get('security') == 'reality')
-          grpc_count = sum(1 for l in final_links if (parse_vless(l) or {}).get('net') == 'grpc')
-          xhttp_count = sum(1 for l in final_links if (parse_vless(l) or {}).get('net') == 'xhttp')
+          # Один проход для статистики
+          stats = Counter()
+          for l in final_links:
+              c = parse_vless(l) or {}
+              stats[c.get('security')] += 1
+              stats[c.get('net')] += 1
           
           print(f"\n{'='*50}")
           print(f"✅ ГОТОВО! Рабочих ключей: {len(final_links)}")
-          print(f"📊 Статистика: Reality={reality_count} | gRPC={grpc_count} | XHTTP={xhttp_count}")
+          print(f"📊 Статистика: Reality={stats.get('reality', 0)} | gRPC={stats.get('grpc', 0)} | XHTTP={stats.get('xhttp', 0)}")
           print(f"📁 Файлы сохранены:")
           print(f"   • {raw_path}")
           print(f"   • {b64_path}")
@@ -483,26 +507,8 @@ jobs:
           PYTHON_EOF
 
       - name: Commit and push updated files
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          
-          git add githubmirror/26_proxy_subscription_raw.txt githubmirror/26_proxy_subscription_base64.txt
-          
-          if git diff --staged --quiet; then
-            echo "No changes to commit"
-            exit 0
-          fi
-          
-          git commit -m "🔄 Auto-update proxy list [$(date -u +'%Y-%m-%d %H:%M UTC')]"
-          
-          git pull --rebase origin main || {
-            echo "Rebase failed, resetting and retrying with force push"
-            git rebase --abort 2>/dev/null || true
-            git fetch origin main
-            git reset --soft origin/main
-            git add githubmirror/26_proxy_subscription_raw.txt githubmirror/26_proxy_subscription_base64.txt
-            git commit -m "🔄 Auto-update proxy list [$(date -u +'%Y-%m-%d %H:%M UTC')]"
-          }
-          
-          git push origin main
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "🔄 Auto-update proxy list [$(date -u +'%Y-%m-%d %H:%M UTC')]"
+          file_pattern: "githubmirror/*.txt"
+          commit_options: "--no-verify"
