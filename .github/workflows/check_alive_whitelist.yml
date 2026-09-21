@@ -1,23 +1,23 @@
-name: Check Alive Keys for Karing (Strict Sources + IP Dedup)
+name: Check Alive White-List Proxies for RF BS
 
 on:
   schedule:
-    - cron: '0 * * * *' # Каждый час
-  workflow_dispatch: # Ручной запуск
+    - cron: '0 * * * *'
+  workflow_dispatch:
 
 concurrency:
-  group: karing-alive-strict
+  group: alive-whitelist-bs
   cancel-in-progress: true
 
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 14
     permissions:
       contents: write
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Python
@@ -28,7 +28,7 @@ jobs:
       - name: Install dependencies
         run: pip install --quiet requests
 
-      - name: Validate, Deduplicate by IP, and Collect TOP Keys
+      - name: Run filter + real TCP check
         run: |
           python3 << 'PYEOF'
           #!/usr/bin/env python3
@@ -37,195 +37,172 @@ jobs:
           import re
           import socket
           import urllib.parse
-          from concurrent.futures import ThreadPoolExecutor
+          from concurrent.futures import ThreadPoolExecutor, as_completed
           from datetime import datetime, timezone
           import requests
 
           OUTPUT_DIR = "githubmirror"
-          OUTPUT_FILE = os.path.join(OUTPUT_DIR, "karing_alive_keys.txt")
-          MAX_WORKERS = 50
-          MAX_OUTPUT_KEYS = 150 # Оптимальное количество для быстрого URL-Test в Karing
+          OUTPUT_FILE = os.path.join(OUTPUT_DIR, "alive_whitelist_bs.txt")
+          MAX_WORKERS = 40
+          MAX_FINAL = 50
+          TCP_TIMEOUT = 4.0
 
-          # ТОЛЬКО ПРОВЕРЕННЫЕ ИСТОЧНИКИ
-          SUBSCRIPTION_URLS = [
+          # Только те источники, в которых у тебя были живые ключи
+          CONFIG_URLS = [
               "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt",
               "https://raw.githubusercontent.com/zieng2/wl/main/vless_universal.txt",
               "https://raw.githubusercontent.com/VOID-Anonymity/V.O.I.D-VPN_Bypass/refs/heads/main/url_work.txt",
-              "https://raw.githubusercontent.com/whoahaow/rjsxrd/refs/heads/main/githubmirror/bypass/bypass-all.txt"
+              "https://raw.githubusercontent.com/whoahaow/rjsxrd/refs/heads/main/githubmirror/bypass/bypass-all.txt",
           ]
 
-          WHITE_DOMAINS = [
-              'yandex.ru', 'ya.ru', 'dzen.ru', 'max.ru', 'ozon.ru', 'wb.ru', 
-              'wildberries.ru', 'vk.com', 'vk-portal.net', 'mail.ru', 'tbank.ru', 
-              'sberbank.ru', '4subnodes', 'apicdn', 'cloudflare', 'gcore'
-          ]
+          # Приоритетные SNI для белых списков
+          PREFERRED_SNI = {
+              "max.ru", "yandex.ru", "ya.ru", "dzen.ru",
+              "ozon.ru", "www.ozon.ru", "vk.com", "stats.vk-portal.net",
+              "queuev4.vk.com", "ok.ru", "mail.ru"
+          }
 
           def download(url: str) -> str:
               try:
-                  # User-Agent как у Karing для корректного скачивания
-                  r = requests.get(url, timeout=10, headers={"User-Agent": "Karing/1.2.25.2802 platform/android"})
+                  r = requests.get(url, timeout=12, headers={"User-Agent": "Mozilla/5.0"})
                   if r.status_code == 200:
                       return r.text
               except Exception:
                   pass
               return ""
 
-          def validate_and_score(link: str):
+          def resolve_ip(host: str):
               try:
-                  link = link.strip()
-                  if not link or link.startswith('#'):
+                  return socket.gethostbyname(host)
+              except Exception:
+                  return None
+
+          def parse_link(link: str):
+              try:
+                  original = link.strip()
+                  if not original.startswith("vless://"):
                       return None
 
-                  # Парсинг базовой части (без имени #name)
-                  base = link.split('#')[0]
-                  
-                  if link.startswith('vless://'):
-                      match = re.match(r'vless://([^@]+)@([^:]+):(\d+)', base)
-                      if not match: return None
-                      uuid, host, port = match.groups()
-                      port = int(port)
-                      security = 'none'
-                      sni = host
-                      flow = ''
-                      
-                      # Парсинг параметров
-                      if '?' in base:
-                          params_str = base.split('?', 1)[1]
-                          params = urllib.parse.parse_qs(urllib.parse.unquote(params_str))
-                          security = params.get('security', ['none'])[0].lower()
-                          sni = params.get('sni', [host])[0].lower()
-                          flow = params.get('flow', [''])[0].lower()
-                      
-                      config_type = "Reality" if security == 'reality' else "TLS" if security == 'tls' else "Plain"
-                      
-                      # Расчет Score
-                      score = 50
-                      if security == 'reality' and 'vision' in flow:
-                          score = 100
-                      elif security == 'tls':
-                          score = 80
-                      
-                      # Бонус за белый SNI или CDN
-                      if any(sni.endswith(d) or d in sni for d in WHITE_DOMAINS):
+                  clean = original.split("#")[0].strip()
+                  u = urllib.parse.urlparse(clean)
+                  if u.scheme != "vless" or not u.hostname or not u.username:
+                      return None
+
+                  q = urllib.parse.parse_qs(urllib.parse.unquote(u.query))
+                  security = (q.get("security") or ["none"])[0].lower()
+                  flow = (q.get("flow") or [""])[0].lower()
+                  net = (q.get("type") or ["tcp"])[0].lower()
+                  sni = (q.get("sni") or [""])[0].lower().strip()
+                  pbk = (q.get("pbk") or [""])[0]
+                  port = int(u.port) if u.port else 443
+
+                  # Предпочитаем Reality + Vision + TCP
+                  is_reality = (security == "reality" and "vision" in flow and net in ("tcp", "raw"))
+                  is_ws = (net == "ws" and security in ("tls", "none"))
+
+                  if not (is_reality or is_ws):
+                      return None
+
+                  if is_reality and (not pbk or len(pbk) < 20):
+                      return None
+
+                  score = 50
+                  if is_reality:
+                      score += 40
+                      if sni in PREFERRED_SNI:
                           score += 20
+                  if is_ws:
+                      score += 15
 
-                      return {
-                          'link': link,
-                          'host': host,
-                          'port': port,
-                          'uuid': uuid,
-                          'security': security,
-                          'config_type': config_type,
-                          'sni': sni,
-                          'score': score
-                      }
-
-                  elif link.startswith('hysteria2://') or link.startswith('hy2://'):
-                      match = re.match(r'hysteria2://([^@]+)@([^:]+):(\d+)', base)
-                      if not match: return None
-                      pwd, host, port = match.groups()
-                      return {
-                          'link': link, 'host': host, 'port': int(port), 'uuid': pwd,
-                          'security': 'tls', 'config_type': 'Hysteria2', 'sni': host, 'score': 70
-                      }
-
-                  elif link.startswith('trojan://'):
-                      match = re.match(r'trojan://([^@]+)@([^:]+):(\d+)', base)
-                      if not match: return None
-                      pwd, host, port = match.groups()
-                      return {
-                          'link': link, 'host': host, 'port': int(port), 'uuid': pwd,
-                          'security': 'tls', 'config_type': 'Trojan', 'sni': host, 'score': 60
-                      }
-                  
-                  return None
+                  return {
+                      "link": clean,
+                      "host": u.hostname,
+                      "port": port,
+                      "sni": sni or u.hostname,
+                      "uuid": u.username,
+                      "type": "reality" if is_reality else "ws",
+                      "score": score,
+                      "key": f"{u.username}|{u.hostname}|{port}"
+                  }
               except Exception:
                   return None
 
-          def process_link(item):
-              if not item:
-                  return None
-              
-              # === УМНАЯ ДЕДУПЛИКАЦИЯ ПО IP ===
+          def tcp_check(host: str, port: int) -> bool:
               try:
-                  # Пробуем разрешить домен в IP. Если это уже IP, вернет его же.
-                  resolved_ip = socket.gethostbyname(item['host'])
+                  with socket.create_connection((host, port), timeout=TCP_TIMEOUT):
+                      return True
               except Exception:
-                  resolved_ip = item['host'] # Фоллбэк, если DNS не отвечает
-              
-              # Уникальный ключ: IP + Порт + UUID/Пароль + Тип безопасности
-              # Это гарантирует, что 10 ссылок на один сервер с разными именами схлопнутся в 1
-              unique_key = f"{resolved_ip}:{item['port']}:{item['uuid']}:{item['security']}"
-              
-              item['unique_key'] = unique_key
-              item['resolved_ip'] = resolved_ip
-              return item
+                  return False
 
           def main():
               os.makedirs(OUTPUT_DIR, exist_ok=True)
-              all_links = []
-              
-              print("[1/4] Downloading sources...")
-              for url in SUBSCRIPTION_URLS:
-                  text = download(url)
-                  links = re.findall(r'(vless://[^\s<>"]+|hysteria2://[^\s<>"]+|trojan://[^\s<>"]+)', text)
-                  all_links.extend(links)
-                  print(f"  - {url.split('/')[-1]}: {len(links)} links")
-              
-              print(f"[2/4] Total raw links: {len(all_links)}")
-              
-              # Валидация и парсинг
-              validated = []
-              with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-                  for item in executor.map(validate_and_score, all_links):
-                      if item:
-                          validated.append(item)
-              
-              print(f"[3/4] Valid parsed links: {len(validated)}")
 
-              # Разрешение IP и дедупликация
-              unique_configs = {}
-              with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-                  for item in executor.map(process_link, validated):
-                      if item:
-                          key = item['unique_key']
-                          # Сохраняем только если такого IP+конфига еще нет, 
-                          # ИЛИ если текущий вариант имеет более высокий Score
-                          if key not in unique_configs or item['score'] > unique_configs[key]['score']:
-                              unique_configs[key] = item
-              
-              deduplicated = list(unique_configs.values())
-              print(f"[4/4] After IP deduplication: {len(deduplicated)} unique servers")
-              
-              # Сортировка: сначала самые высокие Score
-              deduplicated.sort(key=lambda x: -x['score'])
-              
-              # Берем только ТОП
-              final_keys = deduplicated[:MAX_OUTPUT_KEYS]
-              
-              print(f"\n[✓] Selected TOP {len(final_keys)} keys for Karing.")
-              print("--- PREVIEW OF FIRST 3 KEYS ---")
-              for k in final_keys[:3]:
-                  print(f"Score: {k['score']:3d} | {k['config_type']:8s} | IP: {k['resolved_ip']:15s} | SNI: {k['sni']}")
-              print("---------------------------------\n")
+              all_raw = []
+              for url in CONFIG_URLS:
+                  text = download(url)
+                  found = re.findall(r"vless://[^\s<>\"']+", text, re.IGNORECASE)
+                  print(f"[+] {url.split('/')[-1]}: {len(found)}")
+                  all_raw.extend(found)
+
+              unique_raw = list(dict.fromkeys(all_raw))
+              print(f"[✓] unique raw: {len(unique_raw)}")
+
+              candidates = []
+              seen_keys = set()
+              for link in unique_raw:
+                  cfg = parse_link(link)
+                  if cfg and cfg["key"] not in seen_keys:
+                      seen_keys.add(cfg["key"])
+                      candidates.append(cfg)
+
+              print(f"[✓] after parse: {len(candidates)}")
+
+              # Резолвим IP и убираем дубли по IP+Port
+              alive = []
+              seen_ips = set()
+
+              with ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
+                  # Сначала проверяем TCP
+                  futs = {pool.submit(tcp_check, c["host"], c["port"]): c for c in candidates}
+                  for fut in as_completed(futs):
+                      cfg = futs[fut]
+                      try:
+                          if fut.result():
+                              ip = resolve_ip(cfg["host"])
+                              if ip:
+                                  ip_key = f"{ip}|{cfg['port']}"
+                                  if ip_key not in seen_ips:
+                                      seen_ips.add(ip_key)
+                                      cfg["ip"] = ip
+                                      alive.append(cfg)
+                      except Exception:
+                          pass
+
+              print(f"[✓] TCP alive + unique IP: {len(alive)}")
+
+              # Сортировка
+              alive.sort(key=lambda x: (-x["score"], x["host"]))
+              final = alive[:MAX_FINAL]
 
               now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-              repo = os.environ.get('GITHUB_REPOSITORY', 'user/repo')
-              
-              with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
-                  f.write(f"# Karing Alive Keys (TOP {MAX_OUTPUT_KEYS} Unique IPs)\n")
-                  f.write(f"# Updated: {now}\n")
-                  f.write(f"# Sources: igareck, zieng2, VOID, whoahaow (Strict filter)\n")
-                  f.write(f"# Deduplication: Applied by Resolved IP + Port + UUID\n")
-                  f.write(f"# Raw URL: https://raw.githubusercontent.com/{repo}/main/{OUTPUT_FILE}\n")
-                  f.write("#" + "="*60 + "\n\n")
-                  
-                  for item in final_keys:
-                      tag = f"#{item['config_type']}|{item['sni'].replace('.', '_')}|Score:{item['score']}"
-                      clean_link = item['link'].rsplit('#', 1)[0] if '#' in item['link'] else item['link']
-                      f.write(clean_link + tag + "\n")
-              
-              print(f"[✓] Successfully saved to {OUTPUT_FILE}")
+              header = [
+                  "# profile-title: Alive RF BS (only working sources)",
+                  "# profile-update-interval: 1",
+                  f"# Updated: {now}",
+                  f"# Count: {len(final)}",
+                  "# Sources: igareck + zieng2 + VOID + whoahaow",
+                  "# Deduplicated by UUID+Host+Port and by IP",
+                  "# TCP port checked",
+                  ""
+              ]
+
+              with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
+                  f.write("\n".join(header))
+                  for c in final:
+                      tag = f"#{c['type'].upper()}|{c['sni'].replace('.', '_')}"
+                      f.write(c["link"] + tag + "\n")
+
+              print(f"[✓] Saved {len(final)} keys → {OUTPUT_FILE}")
 
           if __name__ == "__main__":
               main()
@@ -235,10 +212,10 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add githubmirror/karing_alive_keys.txt || true
+          git add githubmirror/alive_whitelist_bs.txt || true
           if git diff --staged --quiet; then
-            echo "No changes to commit"
+            echo "No changes"
           else
-            git commit -m "chore: update top unique IP keys for Karing $(date -u +'%Y-%m-%d %H:%M UTC')"
+            git commit -m "Update alive_whitelist_bs.txt (only 4 working sources) $(date -u +'%Y-%m-%d %H:%M UTC')"
             git push
           fi
