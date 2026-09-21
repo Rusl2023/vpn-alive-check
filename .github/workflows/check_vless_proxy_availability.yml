@@ -260,7 +260,10 @@ jobs:
                   stream['realitySettings'] = {
                       'serverName': cfg['sni'],
                       'publicKey': cfg['pbk'],
+                      'password': cfg['pbk'],
                       'shortId': cfg['sid'],
+                      'spiderX': '',
+                      'show': False
                       'fingerprint': cfg['fp']
                   }
               elif cfg['security'] == 'tls':
