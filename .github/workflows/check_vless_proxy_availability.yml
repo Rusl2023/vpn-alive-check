@@ -2,7 +2,7 @@ name: Check VLESS Proxy Availability
 
 on:
   schedule:
-    - cron: '*/30 * * * *'  
+    - cron: '*/30 * * * *'
   workflow_dispatch:
 
 concurrency:
@@ -303,76 +303,42 @@ jobs:
                       time.sleep(0.3)
               return False
 
-          async def test_url(session, proxy, url):
-              try:
-                  async with session.get(url, proxy=proxy, timeout=aiohttp.ClientTimeout(total=6)) as resp:
-                      if resp.status in (200, 204, 301, 302):
-                          if 'geoip' in url or 'ipify' in url:
-                              return await resp.text()
-                          return True
-              except:
-                  pass
-              return False
-
           async def improved_test_proxy_async(port):
-          proxy = f"socks5h://127.0.0.1:{port}"
-          timeout = aiohttp.ClientTimeout(total=10)
-    
-          success_count = 0
-          exit_ip = None
-    
-          test_urls = [
-          ('http://connectivitycheck.gstatic.com/generate_204', False),  # не нужен текст
-          ('https://www.google.com/generate_204', False),
-          ('https://yandex.ru', False),
-          ('https://api.ip.sb/geoip', True),     # нужен текст (IP)
-          ('https://httpbin.org/ip', True),
-          ]
-    
-          async with aiohttp.ClientSession(timeout=timeout) as session:
-          for url, need_text in test_urls:
-            try:
-                async with session.get(url, proxy=proxy, ssl=False) as resp:  # ssl=False иногда помогает
-                    if resp.status in (200, 204, 301, 302):
-                        success_count += 1
-                        if need_text and not exit_ip:
-                            text = await resp.text()
-                            try:
-                                data = json.loads(text)
-                                exit_ip = data.get('ip') or data.get('origin')
-                            except:
-                                # пробуем вытащить IP из текста
-                                import re
-                                ip_match = re.search(r'\b(?:\d{1,3}\.){3}\d{1,3}\b', text)
-                                if ip_match:
-                                    exit_ip = ip_match.group(0)
-            except Exception:
-                continue
-    
-           # Считаем рабочим, если хотя бы 2 успешных запроса ИЛИ получили exit IP
-           if success_count >= 2 or exit_ip:
-           return exit_ip or "OK"
-           return None
-              
+              proxy = f"socks5h://127.0.0.1:{port}"
+              timeout = aiohttp.ClientTimeout(total=10)
+
+              success_count = 0
+              exit_ip = None
+
+              test_urls = [
+                  ('http://connectivitycheck.gstatic.com/generate_204', False),
+                  ('https://www.google.com/generate_204', False),
+                  ('https://yandex.ru', False),
+                  ('https://api.ip.sb/geoip', True),
+                  ('https://httpbin.org/ip', True),
+              ]
+
               async with aiohttp.ClientSession(timeout=timeout) as session:
-                  tasks = [test_url(session, proxy, url) for url in urls]
-                  results = await asyncio.gather(*tasks, return_exceptions=True)
-                  
-                  success = sum(1 for r in results if r is True)
-                  exit_ip = None
-                  
-                  for r in results:
-                      if isinstance(r, str):
-                          try:
-                              data = json.loads(r)
-                              exit_ip = data.get('ip', r)
-                          except:
-                              exit_ip = r.strip()
-                          break
-                  
-                  if success >= 2 or exit_ip:
-                      return exit_ip
-                  return None
+                  for url, need_text in test_urls:
+                      try:
+                          async with session.get(url, proxy=proxy, ssl=False) as resp:
+                              if resp.status in (200, 204, 301, 302):
+                                  success_count += 1
+                                  if need_text and not exit_ip:
+                                      text = await resp.text()
+                                      try:
+                                          data = json.loads(text)
+                                          exit_ip = data.get('ip') or data.get('origin')
+                                      except:
+                                          ip_match = re.search(r'\b(?:\d{1,3}\.){3}\d{1,3}\b', text)
+                                          if ip_match:
+                                              exit_ip = ip_match.group(0)
+                      except Exception:
+                          continue
+
+              if success_count >= 2 or exit_ip:
+                  return exit_ip or "OK"
+              return None
 
           sni_wl = load_multi_set(RU_SNI_URLS)
           cidr_wl = load_multi_cidr(RU_CIDR_URLS)
@@ -456,7 +422,7 @@ jobs:
                   
                   if not exit_ip: return None
                   
-                  cc = get_country(exit_ip)
+                  cc = get_country(exit_ip) if exit_ip != "OK" else "??"
                   if cc == 'RU': return None
                   flag = get_flag(cc)
                   net_info = f"[{cfg['net']}]" if cfg['net'] != 'tcp' else ""
@@ -521,19 +487,15 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           
-          # Добавляем файлы
           git add githubmirror/26_proxy_subscription_raw.txt githubmirror/26_proxy_subscription_base64.txt
           
-          # Проверяем есть ли изменения
           if git diff --staged --quiet; then
             echo "No changes to commit"
             exit 0
           fi
           
-          # Коммитим изменения
           git commit -m "🔄 Auto-update proxy list [$(date -u +'%Y-%m-%d %H:%M UTC')]"
           
-          # Пробуем запушить с rebase
           git pull --rebase origin main || {
             echo "Rebase failed, resetting and retrying with force push"
             git rebase --abort 2>/dev/null || true
@@ -543,5 +505,4 @@ jobs:
             git commit -m "🔄 Auto-update proxy list [$(date -u +'%Y-%m-%d %H:%M UTC')]"
           }
           
-          # Пушим
           git push origin main
