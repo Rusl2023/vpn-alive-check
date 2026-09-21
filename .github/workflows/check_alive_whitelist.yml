@@ -1,4 +1,4 @@
-name: Check Alive Keys for Karing (No TCP Check)
+name: Check Alive Keys for Karing (Top 150 Best)
 
 on:
   schedule:
@@ -28,7 +28,7 @@ jobs:
       - name: Install dependencies
         run: pip install --quiet requests
 
-      - name: Validate and collect keys (No TCP check)
+      - name: Validate and collect TOP keys
         run: |
           python3 << 'PYEOF'
           #!/usr/bin/env python3
@@ -37,15 +37,15 @@ jobs:
           import re
           import socket
           import urllib.parse
-          from concurrent.futures import ThreadPoolExecutor, as_completed
+          from concurrent.futures import ThreadPoolExecutor
           from datetime import datetime, timezone
           import requests
 
           OUTPUT_DIR = "githubmirror"
           OUTPUT_FILE = os.path.join(OUTPUT_DIR, "karing_alive_keys.txt")
           MAX_WORKERS = 60
+          MAX_OUTPUT_KEYS = 150  # !!! ОГРАНИЧЕНИЕ: сохраняем только топ-150 лучших !!!
 
-          # Твои источники (только рабочие списки)
           SUBSCRIPTION_URLS = [
               "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt",
               "https://raw.githubusercontent.com/coloramamoe/vless-parser/main/githubmirror/ru-sni-best-vless.txt",
@@ -63,251 +63,142 @@ jobs:
 
           def download(url: str) -> str:
               try:
-                  r = requests.get(url, timeout=10, headers={
-                      "User-Agent": "Karing/1.2.25.2802 platform/android"
-                  })
+                  r = requests.get(url, timeout=10, headers={"User-Agent": "Karing/1.2.25.2802 platform/android"})
                   if r.status_code == 200:
                       return r.text
-              except Exception as e:
-                  print(f"[-] Failed to download {url.split('/')[-1]}: {e}")
+              except Exception:
+                  pass
               return ""
 
           def validate_link(link: str):
-              """Проверяет только формат ссылки и DNS, БЕЗ TCP"""
               try:
                   link = link.strip()
                   if not link or link.startswith('#'):
                       return None
 
-                  # Поддерживаемые протоколы
                   if link.startswith('vless://'):
                       return validate_vless(link)
                   elif link.startswith('hysteria2://') or link.startswith('hy2://'):
                       return validate_hysteria2(link)
                   elif link.startswith('trojan://'):
                       return validate_trojan(link)
-                  elif link.startswith('vmess://'):
-                      return validate_vmess(link)
-                  else:
-                      return None
+                  return None
               except Exception:
                   return None
 
           def validate_vless(link: str):
               try:
-                  # Парсинг vless://UUID@HOST:PORT?params#name
-                  if '#' in link:
-                      base, name = link.rsplit('#', 1)
-                  else:
-                      base, name = link, "VLESS"
-                  
-                  if '?' in base:
-                      url_part, params = base.split('?', 1)
-                  else:
-                      url_part, params = base, ""
-                  
-                  # vless://UUID@HOST:PORT
-                  match = re.match(r'vless://([^@]+)@([^:]+):(\d+)', url_part)
+                  base = link.split('#')[0]
+                  match = re.match(r'vless://([^@]+)@([^:]+):(\d+)', base)
                   if not match:
                       return None
                   
                   uuid, host, port = match.groups()
                   port = int(port)
                   
-                  # Быстрая DNS проверка (не TCP!)
                   try:
                       socket.gethostbyname(host)
-                  except:
-                      return None  # Домен не резолвится
+                  except Exception:
+                      return None
                   
-                  # Извлекаем параметры
-                  params_dict = urllib.parse.parse_qs(params)
+                  params_str = link.split('?', 1)[1].split('#')[0] if '?' in link else ""
+                  params_dict = urllib.parse.parse_qs(urllib.parse.unquote(params_str))
+                  
                   security = params_dict.get('security', ['none'])[0]
                   sni = params_dict.get('sni', [host])[0]
                   flow = params_dict.get('flow', [''])[0]
                   
-                  # Определяем тип для сортировки
                   config_type = "Reality" if security == 'reality' else "TLS" if security == 'tls' else "Plain"
                   
-                  # Приоритет для Reality и белых SNI
-                  score = 100
+                  score = 50
                   if security == 'reality' and 'vision' in flow:
                       score = 100
                   elif security == 'tls':
                       score = 80
-                  else:
-                      score = 50
                   
-                  # Бонус за CDN/белые домены
-                  white_domains = ['yandex.ru', 'dzen.ru', 'max.ru', 'ozon.ru', 'vk.com', 'mail.ru']
-                  if any(sni.endswith(d) for d in white_domains):
+                  white_domains = ['yandex.ru', 'dzen.ru', 'max.ru', 'ozon.ru', 'vk.com', 'mail.ru', 'wb.ru', 'tbank.ru', 'sberbank.ru', '4subnodes', 'apicdn', 'cloudflare']
+                  if any(sni.endswith(d) or d in sni for d in white_domains):
                       score += 20
                   
-                  return {
-                      'link': link,
-                      'host': host,
-                      'port': port,
-                      'type': 'vless',
-                      'config_type': config_type,
-                      'sni': sni,
-                      'score': score,
-                      'name': name
-                  }
-              except:
+                  name = link.split('#')[-1] if '#' in link else "VLESS"
+                  return {'link': link, 'host': host, 'port': port, 'config_type': config_type, 'sni': sni, 'score': score, 'name': name}
+              except Exception:
                   return None
 
           def validate_hysteria2(link: str):
               try:
-                  # hysteria2://password@host:port?params#name
-                  clean = link.split('#')[0]
-                  match = re.match(r'hysteria2://([^@]+)@([^:]+):(\d+)', clean)
-                  if not match:
-                      return None
-                  
-                  password, host, port = match.groups()
-                  port = int(port)
-                  
-                  try:
-                      socket.gethostbyname(host)
-                  except:
-                      return None
-                  
-                  return {
-                      'link': link,
-                      'host': host,
-                      'port': port,
-                      'type': 'hysteria2',
-                      'config_type': 'Hysteria2',
-                      'sni': host,
-                      'score': 70,
-                      'name': 'Hysteria2'
-                  }
-              except:
+                  base = link.split('#')[0]
+                  match = re.match(r'hysteria2://([^@]+)@([^:]+):(\d+)', base)
+                  if not match: return None
+                  host, port = match.group(2), int(match.group(3))
+                  try: socket.gethostbyname(host)
+                  except Exception: return None
+                  return {'link': link, 'host': host, 'port': port, 'config_type': 'Hysteria2', 'sni': host, 'score': 70, 'name': 'Hysteria2'}
+              except Exception:
                   return None
 
           def validate_trojan(link: str):
               try:
-                  clean = link.split('#')[0]
-                  match = re.match(r'trojan://([^@]+)@([^:]+):(\d+)', clean)
-                  if not match:
-                      return None
-                  
-                  password, host, port = match.groups()
-                  port = int(port)
-                  
-                  try:
-                      socket.gethostbyname(host)
-                  except:
-                      return None
-                  
-                  return {
-                      'link': link,
-                      'host': host,
-                      'port': port,
-                      'type': 'trojan',
-                      'config_type': 'Trojan',
-                      'sni': host,
-                      'score': 60,
-                      'name': 'Trojan'
-                  }
-              except:
-                  return None
-
-          def validate_vmess(link: str):
-              try:
-                  # vmess://base64(json)
-                  import base64
-                  import json
-                  
-                  b64 = link.replace('vmess://', '')
-                  # Добавляем паддинг если нужно
-                  b64 += '=' * (4 - len(b64) % 4) if len(b64) % 4 else ''
-                  
-                  config = json.loads(base64.b64decode(b64).decode('utf-8'))
-                  host = config.get('add', '')
-                  port = config.get('port', 443)
-                  
-                  if not host:
-                      return None
-                  
-                  try:
-                      socket.gethostbyname(host)
-                  except:
-                      return None
-                  
-                  return {
-                      'link': link,
-                      'host': host,
-                      'port': int(port),
-                      'type': 'vmess',
-                      'config_type': 'VMess',
-                      'sni': config.get('host', host),
-                      'score': 50,
-                      'name': 'VMess'
-                  }
-              except:
+                  base = link.split('#')[0]
+                  match = re.match(r'trojan://([^@]+)@([^:]+):(\d+)', base)
+                  if not match: return None
+                  host, port = match.group(2), int(match.group(3))
+                  try: socket.gethostbyname(host)
+                  except Exception: return None
+                  return {'link': link, 'host': host, 'port': port, 'config_type': 'Trojan', 'sni': host, 'score': 60, 'name': 'Trojan'}
+              except Exception:
                   return None
 
           def main():
               os.makedirs(OUTPUT_DIR, exist_ok=True)
-              
               all_links = []
               
-              # Скачиваем все подписки
               for url in SUBSCRIPTION_URLS:
-                  print(f"[+] Downloading {url.split('/')[-1]}...")
                   text = download(url)
-                  
-                  # Извлекаем все ссылки
-                  links = re.findall(r'(vless://[^\s<>"]+|hysteria2://[^\s<>"]+|trojan://[^\s<>"]+|vmess://[^\s<>"]+)', text)
-                  print(f"    Found {len(links)} links")
+                  links = re.findall(r'(vless://[^\s<>"]+|hysteria2://[^\s<>"]+|trojan://[^\s<>"]+)', text)
                   all_links.extend(links)
               
-              print(f"\n[✓] Total raw links: {len(all_links)}")
+              print(f"[✓] Total raw links found: {len(all_links)}")
               
-              # Валидируем и дедуплицируем
               validated = []
               seen = set()
-              
               with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-                  results = list(executor.map(validate_link, all_links))
-                  
-                  for item in results:
+                  for item in executor.map(validate_link, all_links):
                       if item and item['link'] not in seen:
                           seen.add(item['link'])
                           validated.append(item)
               
               print(f"[✓] Valid unique links: {len(validated)}")
               
-              # Сортируем по score (лучшие primero)
+              # Сортируем по убыванию скора (лучшие первые)
               validated.sort(key=lambda x: -x['score'])
               
-              # Генерируем output
+              # !!! БЕРЕМ ТОЛЬКО ТОП-150 !!!
+              final_keys = validated[:MAX_OUTPUT_KEYS]
+              print(f"[✓] Selected TOP {len(final_keys)} keys for output.")
+              
+              # Печатаем первые 3 ключа в лог, чтобы ты видел, что они есть
+              print("\n--- PREVIEW OF FIRST 3 KEYS ---")
+              for k in final_keys[:3]:
+                  print(f"Score: {k['score']} | {k['config_type']} | {k['sni']}")
+              print("---------------------------------\n")
+
               now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+              repo = os.environ.get('GITHUB_REPOSITORY', 'user/repo')
               
               with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
-                  f.write(f"# Karing Alive Keys - Updated {now}\n")
-                  f.write(f"# Total: {len(validated)}\n")
-                  f.write(f"# Format: Subscription for Karing app\n")
-                  f.write(f"# Note: Test with your mobile data (MTS/Megafon) for BS bypass\n")
+                  f.write(f"# Karing Alive Keys (TOP {MAX_OUTPUT_KEYS})\n")
+                  f.write(f"# Updated: {now}\n")
+                  f.write(f"# Filtered from {len(validated)} valid keys. Only highest score (Reality/White SNI/CDN) kept.\n")
+                  f.write(f"# Raw URL for Karing: https://raw.githubusercontent.com/{repo}/main/{OUTPUT_FILE}\n")
                   f.write("#" + "="*60 + "\n\n")
                   
-                  for item in validated:
-                      # Добавляем метку с типом и SNI для удобства
+                  for item in final_keys:
                       tag = f"#{item['config_type']}|{item['sni'].replace('.', '_')}|Score:{item['score']}"
-                      if '#' in item['link']:
-                          link = item['link'].rsplit('#', 1)[0] + tag
-                      else:
-                          link = item['link'] + tag
-                      f.write(link + "\n")
+                      clean_link = item['link'].rsplit('#', 1)[0] if '#' in item['link'] else item['link']
+                      f.write(clean_link + tag + "\n")
               
-              print(f"[✓] Saved {len(validated)} keys to {OUTPUT_FILE}")
-              print(f"\n[INFO] Next steps:")
-              print(f"1. Add this subscription to Karing:")
-              print(f"   https://raw.githubusercontent.com/{os.environ.get('GITHUB_REPOSITORY', 'user/repo')}/main/{OUTPUT_FILE}")
-              print(f"2. Use URL-Test group with 30-60s interval")
-              print(f"3. Test on mobile data (disable WiFi)")
-              print(f"4. Green keys = working, Red keys = blocked in your region")
+              print(f"[✓] Successfully saved {len(final_keys)} keys to {OUTPUT_FILE}")
 
           if __name__ == "__main__":
               main()
@@ -319,8 +210,9 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add githubmirror/karing_alive_keys.txt || true
           if git diff --staged --quiet; then
-            echo "No changes"
+            echo "No changes to commit"
           else
-            git commit -m "Update alive keys for Karing $(date -u +'%Y-%m-%d %H:%M UTC')"
+            git commit -m "chore: update top 150 alive keys for Karing $(date -u +'%Y-%m-%d %H:%M UTC')"
             git push
           fi
+          
