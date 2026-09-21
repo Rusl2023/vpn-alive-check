@@ -2,8 +2,8 @@ name: Check Alive White-List Proxies for RF BS
 
 on:
   schedule:
-    - cron: '0 * * * *'          # каждый час
-  workflow_dispatch:             # ручной запуск
+    - cron: '0 * * * *'
+  workflow_dispatch:
 
 concurrency:
   group: alive-whitelist
@@ -12,15 +12,13 @@ concurrency:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 18
+    timeout-minutes: 15
     permissions:
       contents: write
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -28,10 +26,9 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: |
-          pip install --quiet requests
+        run: pip install --quiet requests
 
-      - name: Run filter & check
+      - name: Run strict filter
         run: |
           python3 << 'PYEOF'
           #!/usr/bin/env python3
@@ -39,102 +36,102 @@ jobs:
           import os
           import re
           import socket
-          import time
           import urllib.parse
           from concurrent.futures import ThreadPoolExecutor, as_completed
           from datetime import datetime, timezone
           import requests
 
-          # ===================== КОНФИГ =====================
           OUTPUT_DIR = "githubmirror"
           OUTPUT_FILE = os.path.join(OUTPUT_DIR, "alive_whitelist_bs.txt")
-          MAX_WORKERS = 40
-          TCP_TIMEOUT = 6
-          MAX_FINAL = 120          # максимум ключей в итоговом файле
+          MAX_WORKERS = 35
+          TCP_TIMEOUT = 5
+          MAX_FINAL = 45
 
-          # Источники (только актуальные и ориентированные на белые списки / Reality)
+          # Только самые качественные источники под белые списки
           CONFIG_URLS = [
               "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt",
               "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/WHITE-CIDR-RU-all.txt",
               "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/WHITE-CIDR-RU-checked.txt",
               "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/WHITE-SNI-RU-all.txt",
+              "https://raw.githubusercontent.com/coloramamoe/vless-parser/main/githubmirror/ru-sni-best-vless.txt",
               "https://raw.githubusercontent.com/aviamastersgh/vpn-free-russia/main/ru_configs.txt",
               "https://raw.githubusercontent.com/aviamastersgh/vpn-free-russia/main/verified_configs.txt",
-              "https://raw.githubusercontent.com/coloramamoe/vless-parser/main/githubmirror/ru-sni-best-vless.txt",
-              "https://raw.githubusercontent.com/coloramamoe/vless-parser/main/githubmirror/whitelist-vless.txt",
-              "https://raw.githubusercontent.com/whoahaow/rjsxrd/refs/heads/main/githubmirror/bypass/bypass-all.txt",
-              "https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt",
-              "https://raw.githubusercontent.com/VOID-Anonymity/V.O.I.D-VPN_Bypass/refs/heads/main/url_work.txt",
           ]
 
-          # Белые SNI (приоритет — те, что чаще всего проходят МТС + Мегафон)
+          # Самые проверенные SNI для МТС + Мегафон
           WHITE_SNI = {
-              "max.ru", "yandex.ru", "ya.ru", "dzen.ru", "www.ozon.ru", "ozon.ru",
-              "stats.vk-portal.net", "queuev4.vk.com", "vk.com", "login.vk.com",
-              "sun6-21.userapi.com", "sun6-20.userapi.com", "sun6-22.userapi.com",
-              "eh.vk.com", "akashi.vk-portal.net", "st.ozone.ru", "ir.ozone.ru",
-              "vt-1.ozone.ru", "ozone.ru", "splitter.wb.ru", "www.wildberries.ru",
-              "www.kinopoisk.ru", "speller.yandex.net", "sba.yandex.net",
-              "ok.ru", "mail.ru", "goya.rutube.ru",
+              "max.ru", "yandex.ru", "ya.ru", "dzen.ru",
+              "www.ozon.ru", "ozon.ru",
+              "stats.vk-portal.net", "queuev4.vk.com", "vk.com",
+              "login.vk.com", "ok.ru",
           }
-
-          ALLOWED_NETWORKS = {"tcp", "grpc"}          # WS почти бесполезен в жёстких БС
-          PREFERRED_FLOW = {"xtls-rprx-vision", "xtls-rprx-vision-udp443", ""}
-
-          # ==================================================
 
           def download(url: str) -> str:
               try:
-                  r = requests.get(url, timeout=18, headers={"User-Agent": "Mozilla/5.0"})
-                  r.raise_for_status()
-                  return r.text
-              except Exception as e:
-                  print(f"[-] download fail {url}: {e}")
-                  return ""
+                  r = requests.get(url, timeout=15, headers={"User-Agent": "Mozilla/5.0"})
+                  if r.status_code == 200:
+                      return r.text
+              except Exception:
+                  pass
+              return ""
 
-          def parse_vless(link: str):
+          def clean_link(link: str) -> str:
+              # Берём только до # и убираем лишние пробелы
+              return link.split("#")[0].strip()
+
+          def parse_and_filter(link: str):
               try:
-                  clean = link.split("#")[0].strip()
+                  clean = clean_link(link)
                   u = urllib.parse.urlparse(clean)
                   if u.scheme != "vless" or not u.hostname or not u.username:
                       return None
+
                   q = urllib.parse.parse_qs(u.query)
                   sni = (q.get("sni") or [""])[0].lower().strip()
                   net = (q.get("type") or ["tcp"])[0].lower()
-                  security = (q.get("security") or ["none"])[0].lower()
+                  security = (q.get("security") or [""])[0].lower()
                   flow = (q.get("flow") or [""])[0].lower()
-                  fp = (q.get("fp") or ["chrome"])[0].lower()
                   pbk = (q.get("pbk") or [""])[0]
                   sid = (q.get("sid") or [""])[0]
                   port = int(u.port) if u.port else 443
 
-                  # Жёсткий фильтр под белые списки
+                  # Жёсткие требования
                   if security != "reality":
                       return None
-                  if net not in ALLOWED_NETWORKS:
+                  if net != "tcp":
+                      return None
+                  if "vision" not in flow:
                       return None
                   if sni not in WHITE_SNI:
                       return None
-                  if flow and flow not in PREFERRED_FLOW:
+                  if not pbk or len(pbk) < 20:
                       return None
-                  if not pbk:
+                  if sid and len(sid) < 2:
                       return None
 
+                  # Чистая ссылка без мусорного фрагмента
+                  clean_full = f"vless://{u.username}@{u.hostname}:{port}?{urllib.parse.urlencode({k: v[0] for k, v in q.items()}, doseq=False)}"
+                  # Восстанавливаем правильный порядок основных параметров
+                  params = []
+                  for key in ["encryption", "flow", "security", "sni", "fp", "pbk", "sid", "type", "headerType", "packetEncoding"]:
+                      if key in q and q[key][0]:
+                          params.append(f"{key}={q[key][0]}")
+                  if "encryption" not in q:
+                      params.insert(0, "encryption=none")
+                  clean_full = f"vless://{u.username}@{u.hostname}:{port}?{'&'.join(params)}"
+
                   return {
-                      "link": link.strip(),
+                      "link": clean_full,
                       "host": u.hostname,
                       "port": port,
                       "sni": sni,
-                      "net": net,
-                      "flow": flow,
-                      "fp": fp,
-                      "pbk": pbk,
-                      "sid": sid,
+                      "uuid": u.username,
+                      "key": f"{u.username}|{u.hostname}|{port}"
                   }
               except Exception:
                   return None
 
-          def tcp_alive(host: str, port: int) -> bool:
+          def tcp_check(host: str, port: int) -> bool:
               try:
                   with socket.create_connection((host, port), timeout=TCP_TIMEOUT):
                       return True
@@ -144,84 +141,84 @@ jobs:
           def main():
               os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-              all_links = []
+              all_raw = []
               for url in CONFIG_URLS:
                   text = download(url)
-                  found = re.findall(r"(vless://[^\s<>\"']+)", text, re.IGNORECASE)
-                  print(f"[+] {url.split('/')[-1]} → {len(found)} vless")
-                  all_links.extend(found)
+                  found = re.findall(r"vless://[^\s<>\"']+", text, re.IGNORECASE)
+                  print(f"[+] {url.split('/')[-1]}: {len(found)}")
+                  all_raw.extend(found)
 
-              # Уникальные
-              unique = list(dict.fromkeys(all_links))
-              print(f"[✓] unique raw: {len(unique)}")
+              unique_raw = list(dict.fromkeys(all_raw))
+              print(f"[✓] unique raw: {len(unique_raw)}")
 
-              # Парсинг + фильтр
               candidates = []
-              for link in unique:
-                  cfg = parse_vless(link)
-                  if cfg:
+              seen = set()
+              for link in unique_raw:
+                  cfg = parse_and_filter(link)
+                  if cfg and cfg["key"] not in seen:
+                      seen.add(cfg["key"])
                       candidates.append(cfg)
-              print(f"[✓] after Reality+white-SNI filter: {len(candidates)}")
 
-              # TCP-проверка
+              print(f"[✓] after strict filter: {len(candidates)}")
+
               alive = []
-              with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
-                  futs = {ex.submit(tcp_alive, c["host"], c["port"]): c for c in candidates}
-                  for fut in as_completed(futs):
-                      cfg = futs[fut]
+              with ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
+                  futures = {pool.submit(tcp_check, c["host"], c["port"]): c for c in candidates}
+                  for fut in as_completed(futures):
+                      cfg = futures[fut]
                       try:
                           if fut.result():
                               alive.append(cfg)
                       except Exception:
                           pass
+
               print(f"[✓] TCP alive: {len(alive)}")
 
-              # Сортировка: сначала vision + max.ru/yandex, потом остальные
+              # Приоритет SNI
               def score(c):
                   s = 0
-                  if "vision" in c["flow"]:
-                      s += 10
-                  if c["sni"] in ("max.ru", "yandex.ru", "ya.ru", "dzen.ru"):
-                      s += 5
-                  if c["net"] == "tcp":
-                      s += 2
+                  if c["sni"] in ("max.ru", "yandex.ru", "ya.ru"):
+                      s += 20
+                  elif c["sni"] == "dzen.ru":
+                      s += 12
+                  elif c["sni"] in ("www.ozon.ru", "ozon.ru"):
+                      s += 8
                   return -s
 
               alive.sort(key=score)
               final = alive[:MAX_FINAL]
 
-              # Запись файла
               now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-              lines = [
-                  "# profile-title: Alive White-List BS (MTS/Megafon oriented)",
+              header = [
+                  "# profile-title: Strict Alive White-List BS (MTS/Megafon)",
                   "# profile-update-interval: 1",
                   f"# Updated: {now}",
                   f"# Count: {len(final)}",
-                  "# Filter: Reality + white Russian SNI + Vision preferred + TCP/gRPC + TCP-alive",
-                  "# Note: GitHub runner is outside RF. True BS test only on your SIM in Karing.",
-                  "# Sources: igareck, aviamastersgh, coloramamoe, whoahaow, AvenCores, VOID",
+                  "# Strict filter: Reality + Vision + TCP only + white SNI + clean link + TCP alive",
+                  "# Sources: igareck (priority) + coloramamoe + aviamastersgh",
+                  "# Warning: public free keys die fast under real BS. Test in Karing yourself.",
                   "",
               ]
-              for c in final:
-                  lines.append(c["link"])
 
               with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
-                  f.write("\n".join(lines) + "\n")
+                  f.write("\n".join(header))
+                  for c in final:
+                      f.write(c["link"] + "\n")
 
-              print(f"[✓] written {OUTPUT_FILE} → {len(final)} keys")
+              print(f"[✓] Saved {len(final)} keys → {OUTPUT_FILE}")
 
           if __name__ == "__main__":
               main()
           PYEOF
 
-      - name: Commit and push
+      - name: Commit & push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add githubmirror/alive_whitelist_bs.txt || true
           if git diff --staged --quiet; then
-            echo "No changes"
+            echo "No changes to commit"
           else
-            git commit -m "Update alive_whitelist_bs.txt $(date -u +'%Y-%m-%d %H:%M UTC')"
+            git commit -m "Strict update alive_whitelist_bs.txt $(date -u +'%Y-%m-%d %H:%M UTC')"
             git push
           fi
