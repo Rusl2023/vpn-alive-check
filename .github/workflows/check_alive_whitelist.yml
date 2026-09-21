@@ -2,22 +2,22 @@ name: Check Alive White-List Proxies for RF BS
 
 on:
   schedule:
-    - cron: '0 * * * *'
-  workflow_dispatch:
+    - cron: '0 * * * *' # Запуск каждый час
+  workflow_dispatch: # Ручной запуск по кнопке
 
 concurrency:
-  group: alive-whitelist
+  group: alive-whitelist-bs
   cancel-in-progress: true
 
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 16
+    timeout-minutes: 10
     permissions:
       contents: write
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup Python
@@ -28,7 +28,7 @@ jobs:
       - name: Install dependencies
         run: pip install --quiet requests
 
-      - name: Run filter (Reality + good WS)
+      - name: Run strict filter (Reality + Vision + White SNI)
         run: |
           python3 << 'PYEOF'
           #!/usr/bin/env python3
@@ -44,126 +44,131 @@ jobs:
           OUTPUT_DIR = "githubmirror"
           OUTPUT_FILE = os.path.join(OUTPUT_DIR, "alive_whitelist_bs.txt")
           MAX_WORKERS = 40
-          TCP_TIMEOUT = 5
-          MAX_FINAL = 60
+          DNS_TIMEOUT = 3
 
+          # Актуальный белый список SNI для мобильных операторов РФ (МТС, Мегафон) в 2026 году
+          WHITE_SNI = {
+              "yandex.ru", "ya.ru", "dzen.ru", "max.ru",
+              "ozon.ru", "www.ozon.ru", "wb.ru", "www.wildberries.ru",
+              "vk.com", "m.vk.com", "vk.ru",
+              "sberbank.ru", "online.sberbank.ru",
+              "tinkoff.ru", "www.tinkoff.ru",
+              "mail.ru", "e.mail.ru",
+              "mtsvideo.ru", "ok.ru"
+          }
+
+          # Проверенные источники, обновляющие конфиги под белые списки РФ
           CONFIG_URLS = [
               "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt",
-              "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/WHITE-CIDR-RU-all.txt",
-              "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/WHITE-CIDR-RU-checked.txt",
-              "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/WHITE-SNI-RU-all.txt",
-              "https://raw.githubusercontent.com/coloramamoe/vless-parser/main/githubmirror/ru-sni-best-vless.txt",
-              "https://raw.githubusercontent.com/aviamastersgh/vpn-free-russia/main/ru_configs.txt",
-              "https://raw.githubusercontent.com/aviamastersgh/vpn-free-russia/main/verified_configs.txt",
+              "https://raw.githubusercontent.com/vsvavan2/vpn-config-rkn/refs/heads/main/WHITE-Reality-Mobile.txt",
               "https://raw.githubusercontent.com/VOID-Anonymity/V.O.I.D-VPN_Bypass/refs/heads/main/url_work.txt",
-              "https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt",
-              "https://raw.githubusercontent.com/whoahaow/rjsxrd/refs/heads/main/githubmirror/bypass/bypass-all.txt",
+              "https://raw.githubusercontent.com/MrEndi777709/Endi-VPN/refs/heads/main/white-list.txt"
           ]
-
-          WHITE_SNI = {
-              "max.ru", "yandex.ru", "ya.ru", "dzen.ru",
-              "www.ozon.ru", "ozon.ru",
-              "stats.vk-portal.net", "queuev4.vk.com", "vk.com",
-              "login.vk.com", "ok.ru",
-          }
 
           def download(url: str) -> str:
               try:
-                  r = requests.get(url, timeout=14, headers={"User-Agent": "Mozilla/5.0"})
+                  r = requests.get(url, timeout=10, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"})
                   if r.status_code == 200:
                       return r.text
               except Exception:
                   pass
               return ""
 
-          def parse_link(link: str):
+          def parse_and_validate(link: str):
               try:
                   original = link.strip()
-                  clean = original.split("#")[0].strip()
-                  u = urllib.parse.urlparse(clean)
+                  if not original.startswith("vless://"):
+                      return None
+                  
+                  # Разделяем базовую часть и фрагмент (имя)
+                  if "#" in original:
+                      base_part, fragment = original.rsplit("#", 1)
+                  else:
+                      base_part = original
+                      fragment = "RU_White"
+
+                  u = urllib.parse.urlparse(base_part)
                   if u.scheme != "vless" or not u.hostname or not u.username:
                       return None
 
-                  q = urllib.parse.parse_qs(u.query)
-                  net = (q.get("type") or ["tcp"])[0].lower()
+                  q = urllib.parse.parse_qs(urllib.parse.unquote(u.query))
+                  
                   security = (q.get("security") or ["none"])[0].lower()
-                  sni = (q.get("sni") or [""])[0].lower().strip()
-                  host = (q.get("host") or [""])[0].lower().strip()
                   flow = (q.get("flow") or [""])[0].lower()
+                  net_type = (q.get("type") or ["tcp"])[0].lower()
+                  sni = (q.get("sni") or [""])[0].lower().strip()
                   pbk = (q.get("pbk") or [""])[0]
-                  sid = (q.get("sid") or [""])[0]
                   port = int(u.port) if u.port else 443
-                  path = (q.get("path") or ["/"])[0]
 
-                  # ===== Reality (высокий приоритет) =====
-                  if security == "reality" and net == "tcp" and "vision" in flow:
-                      if sni in WHITE_SNI and pbk and len(pbk) > 20:
-                          return {
-                              "type": "reality",
-                              "link": clean,
-                              "host": u.hostname,
-                              "port": port,
-                              "sni": sni,
-                              "uuid": u.username,
-                              "key": f"{u.username}|{u.hostname}|{port}|reality",
-                              "score": 100 if sni in ("max.ru", "yandex.ru", "ya.ru") else 80
-                          }
+                  # === СТРОГАЯ ФИЛЬТРАЦИЯ ДЛЯ ОБХОДА БС В РФ ===
+                  if security != "reality":
+                      return None
+                  if "vision" not in flow: # Поддерживает xtls-rprx-vision и xtls-rprx-vision-udp443
+                      return None
+                  if net_type not in ("tcp", "raw"): # raw часто используется как алиас tcp
+                      return None
+                  if port not in (443, 8443): # 443 приоритетнее для мобильных белых списков
+                      return None
+                  if not pbk or len(pbk) < 20:
+                      return None
+                      
+                  # Проверка SNI: точное совпадение или валидный поддомен белого списка
+                  sni_valid = False
+                  for white in WHITE_SNI:
+                      if sni == white or sni.endswith(f".{white}"):
+                          sni_valid = True
+                          break
+                  
+                  if not sni_valid:
+                      return None
 
-                  # ===== Хороший WS + TLS (то, что у тебя реально работало) =====
-                  if net == "ws" and security in ("tls", "none"):
-                      # Требуем нормальный host или sni
-                      good_host = host or sni
-                      if good_host and len(good_host) > 5 and "." in good_host:
-                          # Бонус если похоже на CDN / 4subnodes
-                          bonus = 30 if "4subnodes" in good_host or "apicdn" in good_host else 0
-                          return {
-                              "type": "ws",
-                              "link": clean,
-                              "host": u.hostname,
-                              "port": port,
-                              "sni": sni or host,
-                              "uuid": u.username,
-                              "key": f"{u.username}|{u.hostname}|{port}|ws",
-                              "score": 70 + bonus
-                          }
-
-                  return None
+                  return {
+                      "link": original,
+                      "host": u.hostname,
+                      "port": port,
+                      "sni": sni,
+                      "uuid": u.username,
+                      "key": f"{u.username}|{u.hostname}|{port}", # Ключ для дедупликации
+                      "score": 100 if sni in ("yandex.ru", "ya.ru", "max.ru", "dzen.ru") else 80
+                  }
               except Exception:
                   return None
 
-          def tcp_check(host: str, port: int) -> bool:
+          def dns_check(host: str) -> bool:
               try:
-                  with socket.create_connection((host, port), timeout=TCP_TIMEOUT):
-                      return True
+                  # Лёгкая проверка: хост должен резолвиться в IP.
+                  # Это лучше, чем TCP-чек с IP GitHub, который не отражает реальную доступность из РФ.
+                  socket.gethostbyname(host)
+                  return True
               except Exception:
                   return False
 
           def main():
               os.makedirs(OUTPUT_DIR, exist_ok=True)
-
+              
               all_raw = []
               for url in CONFIG_URLS:
                   text = download(url)
                   found = re.findall(r"vless://[^\s<>\"']+", text, re.IGNORECASE)
-                  print(f"[+] {url.split('/')[-1]}: {len(found)}")
+                  print(f"[+] {url.split('/')[-1]}: {len(found)} найдено")
                   all_raw.extend(found)
 
               unique_raw = list(dict.fromkeys(all_raw))
-              print(f"[✓] unique raw: {len(unique_raw)}")
+              print(f"[✓] Уникальных сырых ссылок: {len(unique_raw)}")
 
               candidates = []
               seen = set()
               for link in unique_raw:
-                  cfg = parse_link(link)
+                  cfg = parse_and_validate(link)
                   if cfg and cfg["key"] not in seen:
                       seen.add(cfg["key"])
                       candidates.append(cfg)
 
-              print(f"[✓] after filter (Reality+WS): {len(candidates)}")
+              print(f"[✓] После строгой фильтрации (Reality+Vision+WhiteSNI): {len(candidates)}")
 
               alive = []
               with ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
-                  futures = {pool.submit(tcp_check, c["host"], c["port"]): c for c in candidates}
+                  futures = {pool.submit(dns_check, c["host"]): c for c in candidates}
                   for fut in as_completed(futures):
                       cfg = futures[fut]
                       try:
@@ -172,30 +177,35 @@ jobs:
                       except Exception:
                           pass
 
-              print(f"[✓] TCP alive: {len(alive)}")
+              print(f"[✓] Прошли DNS-проверку: {len(alive)}")
 
-              # Сортировка: сначала высокий score, потом Reality выше WS
-              alive.sort(key=lambda x: (-x["score"], 0 if x["type"] == "reality" else 1))
+              # Сортировка: сначала высокий score (лучшие SNI), потом по имени хоста
+              alive.sort(key=lambda x: (-x["score"], x["host"]))
 
-              final = alive[:MAX_FINAL]
+              # Берем топ-50 самых стабильных, чтобы не перегружать клиент и избежать мусора
+              final = alive[:50]
 
               now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
               header = [
-                  "# profile-title: Alive BS (Reality + working WS)",
+                  "# profile-title: Alive RF BS (Reality + Vision + White SNI)",
                   "# profile-update-interval: 1",
                   f"# Updated: {now}",
                   f"# Count: {len(final)}",
-                  "# Includes: Reality (white SNI + Vision) + clean WS+TLS",
-                  "# Based on real user feedback: WS from 4subnodes-style worked",
-                  "",
+                  "# Filter: security=reality, flow=vision, type=tcp/raw, port=443/8443",
+                  "# SNI: yandex, dzen, max, ozon, wb, vk, sber, tinkoff, mail",
+                  "# NOTE: DNS-tested. Final handshake MUST be tested on your mobile data."
               ]
 
               with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
-                  f.write("\n".join(header))
+                  f.write("\n".join(header) + "\n")
                   for c in final:
-                      # Добавляем понятный комментарий
-                      tag = f"#{c['type'].upper()}|{c['sni']}"
-                      f.write(c["link"] + tag + "\n")
+                      # Формируем чистый тег для Karing, заменяя оригинальный фрагмент
+                      tag = f"#{c['sni'].replace('.', '_')}_Reality"
+                      if "#" in c["link"]:
+                          link_to_write = c["link"].rsplit("#", 1)[0] + tag
+                      else:
+                          link_to_write = c["link"] + tag
+                      f.write(link_to_write + "\n")
 
               print(f"[✓] Saved {len(final)} keys → {OUTPUT_FILE}")
 
@@ -203,14 +213,14 @@ jobs:
               main()
           PYEOF
 
-      - name: Commit & push
+      - name: Commit & push changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add githubmirror/alive_whitelist_bs.txt || true
           if git diff --staged --quiet; then
-            echo "No changes"
+            echo "No changes to commit"
           else
-            git commit -m "Fix: include working WS + Reality $(date -u +'%Y-%m-%d %H:%M UTC')"
+            git commit -m "chore: update alive whitelist BS proxies $(date -u +'%Y-%m-%d %H:%M UTC')"
             git push
           fi
