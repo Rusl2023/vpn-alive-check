@@ -21,7 +21,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-          cache: 'pip'
 
       - name: Install dependencies
         run: |
@@ -280,7 +279,7 @@ jobs:
                   stream['security'] = 'reality'
                   stream['realitySettings'] = {
                       'serverName': cfg['sni'],
-                      'password': cfg['pbk'],          # предпочтительно (alias publicKey)
+                      'password': cfg['pbk'],          # актуальный предпочтительный способ
                       'shortId': cfg.get('sid', ''),
                       'spiderX': '',
                       'fingerprint': cfg.get('fp', 'chrome')
@@ -506,9 +505,12 @@ jobs:
           print(f"{'='*50}")
           PYTHON_EOF
 
+      - name: Generate build date
+        run: echo "BUILD_DATE=$(date -u +'%Y-%m-%d %H:%M UTC')" >> $GITHUB_ENV
+
       - name: Commit and push updated files
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "🔄 Auto-update proxy list [$(date -u +'%Y-%m-%d %H:%M UTC')]"
+          commit_message: "🔄 Auto-update proxy list [${{ env.BUILD_DATE }}]"
           file_pattern: "githubmirror/*.txt"
           commit_options: "--no-verify"
