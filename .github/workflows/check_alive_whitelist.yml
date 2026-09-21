@@ -1,4 +1,4 @@
-name: Check Alive White-List Proxies for RF BS
+name: Check Alive Keys for Karing (No TCP Check)
 
 on:
   schedule:
@@ -6,13 +6,13 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: alive-whitelist-bs
+  group: karing-alive-keys
   cancel-in-progress: true
 
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 10
     permissions:
       contents: write
 
@@ -28,7 +28,7 @@ jobs:
       - name: Install dependencies
         run: pip install --quiet requests
 
-      - name: Run hybrid filter (Reality + working WS)
+      - name: Validate and collect keys (No TCP check)
         run: |
           python3 << 'PYEOF'
           #!/usr/bin/env python3
@@ -42,183 +42,272 @@ jobs:
           import requests
 
           OUTPUT_DIR = "githubmirror"
-          OUTPUT_FILE = os.path.join(OUTPUT_DIR, "alive_whitelist_bs.txt")
-          MAX_WORKERS = 45
-          MAX_FINAL = 55
+          OUTPUT_FILE = os.path.join(OUTPUT_DIR, "karing_alive_keys.txt")
+          MAX_WORKERS = 60
 
-          # Самые сильные источники под РФ
-          CONFIG_URLS = [
+          # Твои источники (только рабочие списки)
+          SUBSCRIPTION_URLS = [
               "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt",
-              "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/WHITE-CIDR-RU-all.txt",
-              "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/WHITE-CIDR-RU-checked.txt",
-              "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/WHITE-SNI-RU-all.txt",
               "https://raw.githubusercontent.com/coloramamoe/vless-parser/main/githubmirror/ru-sni-best-vless.txt",
+              "https://raw.githubusercontent.com/coloramamoe/vless-parser/main/githubmirror/whitelist-vless.txt",
+              "https://raw.githubusercontent.com/zieng2/wl/main/vless_universal.txt",
               "https://raw.githubusercontent.com/aviamastersgh/vpn-free-russia/main/ru_configs.txt",
               "https://raw.githubusercontent.com/aviamastersgh/vpn-free-russia/main/verified_configs.txt",
               "https://raw.githubusercontent.com/VOID-Anonymity/V.O.I.D-VPN_Bypass/refs/heads/main/url_work.txt",
-              "https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt",
               "https://raw.githubusercontent.com/whoahaow/rjsxrd/refs/heads/main/githubmirror/bypass/bypass-all.txt",
-              "https://raw.githubusercontent.com/zieng2/wl/main/vless_universal.txt",
+              "https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt",
+              "https://raw.githubusercontent.com/sashalsk/v2ray/main/v2_config.txt",
+              "https://raw.githubusercontent.com/Epodonios/v2ray-configs/main/Config.txt",
+              "https://raw.githubusercontent.com/barry-far/V2ray-Configs/main/All_Configs_Sub.txt"
           ]
-
-          WHITE_SNI_URL = "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/whitelist.txt"
-
-          BASE_WHITE_SNI = {
-              "yandex.ru", "ya.ru", "dzen.ru", "max.ru",
-              "ozon.ru", "www.ozon.ru", "wb.ru", "www.wildberries.ru",
-              "vk.com", "m.vk.com", "vk.ru", "stats.vk-portal.net",
-              "queuev4.vk.com", "userapi.com", "login.vk.com",
-              "ok.ru", "mail.ru", "sberbank.ru", "tbank.ru",
-              "avito.ru", "gosuslugi.ru", "rzd.ru"
-          }
-
-          def get_white_snis():
-              snis = set(BASE_WHITE_SNI)
-              try:
-                  r = requests.get(WHITE_SNI_URL, timeout=10)
-                  if r.status_code == 200:
-                      for line in r.text.splitlines():
-                          d = line.strip().lower()
-                          if d and not d.startswith("#") and "." in d:
-                              snis.add(d)
-                  print(f"[+] White SNI loaded: {len(snis)}")
-              except Exception as e:
-                  print(f"[-] hxehex fail, using base: {e}")
-              return snis
 
           def download(url: str) -> str:
               try:
-                  r = requests.get(url, timeout=12, headers={"User-Agent": "Mozilla/5.0"})
+                  r = requests.get(url, timeout=10, headers={
+                      "User-Agent": "Karing/1.2.25.2802 platform/android"
+                  })
                   if r.status_code == 200:
                       return r.text
-              except Exception:
-                  pass
+              except Exception as e:
+                  print(f"[-] Failed to download {url.split('/')[-1]}: {e}")
               return ""
 
-          def parse_link(link: str, white_snis: set):
+          def validate_link(link: str):
+              """Проверяет только формат ссылки и DNS, БЕЗ TCP"""
               try:
-                  original = link.strip()
-                  if not original.startswith("vless://"):
+                  link = link.strip()
+                  if not link or link.startswith('#'):
                       return None
 
-                  clean = original.split("#")[0].strip()
-                  u = urllib.parse.urlparse(clean)
-                  if u.scheme != "vless" or not u.hostname or not u.username:
+                  # Поддерживаемые протоколы
+                  if link.startswith('vless://'):
+                      return validate_vless(link)
+                  elif link.startswith('hysteria2://') or link.startswith('hy2://'):
+                      return validate_hysteria2(link)
+                  elif link.startswith('trojan://'):
+                      return validate_trojan(link)
+                  elif link.startswith('vmess://'):
+                      return validate_vmess(link)
+                  else:
                       return None
-
-                  q = urllib.parse.parse_qs(urllib.parse.unquote(u.query))
-                  security = (q.get("security") or ["none"])[0].lower()
-                  flow = (q.get("flow") or [""])[0].lower()
-                  net = (q.get("type") or ["tcp"])[0].lower()
-                  sni = (q.get("sni") or [""])[0].lower().strip()
-                  host_param = (q.get("host") or [""])[0].lower().strip()
-                  pbk = (q.get("pbk") or [""])[0]
-                  port = int(u.port) if u.port else 443
-
-                  # === 1. Reality (высокий приоритет) ===
-                  if security == "reality" and net in ("tcp", "raw") and "vision" in flow:
-                      if pbk and len(pbk) >= 20:
-                          sni_ok = any(sni == w or sni.endswith("." + w) for w in white_snis)
-                          if sni_ok:
-                              score = 100 if sni in ("max.ru", "yandex.ru", "ya.ru", "dzen.ru") else 85
-                              return {
-                                  "type": "reality",
-                                  "link": clean,
-                                  "host": u.hostname,
-                                  "port": port,
-                                  "sni": sni,
-                                  "uuid": u.username,
-                                  "key": f"{u.username}|{u.hostname}|{port}|r",
-                                  "score": score
-                              }
-
-                  # === 2. Качественный WS + TLS (то, что у тебя реально работало) ===
-                  if net == "ws" and security in ("tls", "none"):
-                      good_name = host_param or sni or u.hostname
-                      if good_name and "." in good_name and len(good_name) > 6:
-                          # Бонус за стиль 4subnodes / CDN
-                          bonus = 25 if any(x in good_name for x in ("4subnodes", "apicdn", "cdn", "cloud")) else 0
-                          return {
-                              "type": "ws",
-                              "link": clean,
-                              "host": u.hostname,
-                              "port": port,
-                              "sni": sni or host_param or u.hostname,
-                              "uuid": u.username,
-                              "key": f"{u.username}|{u.hostname}|{port}|w",
-                              "score": 70 + bonus
-                          }
-
-                  return None
               except Exception:
                   return None
 
-          def dns_ok(host: str) -> bool:
+          def validate_vless(link: str):
               try:
-                  socket.gethostbyname(host)
-                  return True
-              except Exception:
-                  return False
+                  # Парсинг vless://UUID@HOST:PORT?params#name
+                  if '#' in link:
+                      base, name = link.rsplit('#', 1)
+                  else:
+                      base, name = link, "VLESS"
+                  
+                  if '?' in base:
+                      url_part, params = base.split('?', 1)
+                  else:
+                      url_part, params = base, ""
+                  
+                  # vless://UUID@HOST:PORT
+                  match = re.match(r'vless://([^@]+)@([^:]+):(\d+)', url_part)
+                  if not match:
+                      return None
+                  
+                  uuid, host, port = match.groups()
+                  port = int(port)
+                  
+                  # Быстрая DNS проверка (не TCP!)
+                  try:
+                      socket.gethostbyname(host)
+                  except:
+                      return None  # Домен не резолвится
+                  
+                  # Извлекаем параметры
+                  params_dict = urllib.parse.parse_qs(params)
+                  security = params_dict.get('security', ['none'])[0]
+                  sni = params_dict.get('sni', [host])[0]
+                  flow = params_dict.get('flow', [''])[0]
+                  
+                  # Определяем тип для сортировки
+                  config_type = "Reality" if security == 'reality' else "TLS" if security == 'tls' else "Plain"
+                  
+                  # Приоритет для Reality и белых SNI
+                  score = 100
+                  if security == 'reality' and 'vision' in flow:
+                      score = 100
+                  elif security == 'tls':
+                      score = 80
+                  else:
+                      score = 50
+                  
+                  # Бонус за CDN/белые домены
+                  white_domains = ['yandex.ru', 'dzen.ru', 'max.ru', 'ozon.ru', 'vk.com', 'mail.ru']
+                  if any(sni.endswith(d) for d in white_domains):
+                      score += 20
+                  
+                  return {
+                      'link': link,
+                      'host': host,
+                      'port': port,
+                      'type': 'vless',
+                      'config_type': config_type,
+                      'sni': sni,
+                      'score': score,
+                      'name': name
+                  }
+              except:
+                  return None
+
+          def validate_hysteria2(link: str):
+              try:
+                  # hysteria2://password@host:port?params#name
+                  clean = link.split('#')[0]
+                  match = re.match(r'hysteria2://([^@]+)@([^:]+):(\d+)', clean)
+                  if not match:
+                      return None
+                  
+                  password, host, port = match.groups()
+                  port = int(port)
+                  
+                  try:
+                      socket.gethostbyname(host)
+                  except:
+                      return None
+                  
+                  return {
+                      'link': link,
+                      'host': host,
+                      'port': port,
+                      'type': 'hysteria2',
+                      'config_type': 'Hysteria2',
+                      'sni': host,
+                      'score': 70,
+                      'name': 'Hysteria2'
+                  }
+              except:
+                  return None
+
+          def validate_trojan(link: str):
+              try:
+                  clean = link.split('#')[0]
+                  match = re.match(r'trojan://([^@]+)@([^:]+):(\d+)', clean)
+                  if not match:
+                      return None
+                  
+                  password, host, port = match.groups()
+                  port = int(port)
+                  
+                  try:
+                      socket.gethostbyname(host)
+                  except:
+                      return None
+                  
+                  return {
+                      'link': link,
+                      'host': host,
+                      'port': port,
+                      'type': 'trojan',
+                      'config_type': 'Trojan',
+                      'sni': host,
+                      'score': 60,
+                      'name': 'Trojan'
+                  }
+              except:
+                  return None
+
+          def validate_vmess(link: str):
+              try:
+                  # vmess://base64(json)
+                  import base64
+                  import json
+                  
+                  b64 = link.replace('vmess://', '')
+                  # Добавляем паддинг если нужно
+                  b64 += '=' * (4 - len(b64) % 4) if len(b64) % 4 else ''
+                  
+                  config = json.loads(base64.b64decode(b64).decode('utf-8'))
+                  host = config.get('add', '')
+                  port = config.get('port', 443)
+                  
+                  if not host:
+                      return None
+                  
+                  try:
+                      socket.gethostbyname(host)
+                  except:
+                      return None
+                  
+                  return {
+                      'link': link,
+                      'host': host,
+                      'port': int(port),
+                      'type': 'vmess',
+                      'config_type': 'VMess',
+                      'sni': config.get('host', host),
+                      'score': 50,
+                      'name': 'VMess'
+                  }
+              except:
+                  return None
 
           def main():
               os.makedirs(OUTPUT_DIR, exist_ok=True)
-              white_snis = get_white_snis()
-
-              all_raw = []
-              for url in CONFIG_URLS:
+              
+              all_links = []
+              
+              # Скачиваем все подписки
+              for url in SUBSCRIPTION_URLS:
+                  print(f"[+] Downloading {url.split('/')[-1]}...")
                   text = download(url)
-                  found = re.findall(r"vless://[^\s<>\"']+", text, re.IGNORECASE)
-                  print(f"[+] {url.split('/')[-1]}: {len(found)}")
-                  all_raw.extend(found)
-
-              unique_raw = list(dict.fromkeys(all_raw))
-              print(f"[✓] unique raw: {len(unique_raw)}")
-
-              candidates = []
+                  
+                  # Извлекаем все ссылки
+                  links = re.findall(r'(vless://[^\s<>"]+|hysteria2://[^\s<>"]+|trojan://[^\s<>"]+|vmess://[^\s<>"]+)', text)
+                  print(f"    Found {len(links)} links")
+                  all_links.extend(links)
+              
+              print(f"\n[✓] Total raw links: {len(all_links)}")
+              
+              # Валидируем и дедуплицируем
+              validated = []
               seen = set()
-              for link in unique_raw:
-                  cfg = parse_link(link, white_snis)
-                  if cfg and cfg["key"] not in seen:
-                      seen.add(cfg["key"])
-                      candidates.append(cfg)
-
-              print(f"[✓] after filter: {len(candidates)}")
-
-              alive = []
-              with ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
-                  futs = {pool.submit(dns_ok, c["host"]): c for c in candidates}
-                  for fut in as_completed(futs):
-                      cfg = futs[fut]
-                      try:
-                          if fut.result():
-                              alive.append(cfg)
-                      except Exception:
-                          pass
-
-              print(f"[✓] DNS alive: {len(alive)}")
-
-              alive.sort(key=lambda x: (-x["score"], 0 if x["type"] == "reality" else 1, x["host"]))
-              final = alive[:MAX_FINAL]
-
+              
+              with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+                  results = list(executor.map(validate_link, all_links))
+                  
+                  for item in results:
+                      if item and item['link'] not in seen:
+                          seen.add(item['link'])
+                          validated.append(item)
+              
+              print(f"[✓] Valid unique links: {len(validated)}")
+              
+              # Сортируем по score (лучшие primero)
+              validated.sort(key=lambda x: -x['score'])
+              
+              # Генерируем output
               now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-              header = [
-                  "# profile-title: Alive RF BS (Reality + working WS)",
-                  "# profile-update-interval: 1",
-                  f"# Updated: {now}",
-                  f"# Count: {len(final)}",
-                  "# Reality (white SNI + Vision) + clean WS+TLS",
-                  "# Based on real user tests: WS of 4subnodes-style worked on MTS/Megafon",
-                  "# DNS-checked. Final test only on your mobile data.",
-                  ""
-              ]
-
-              with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
-                  f.write("\n".join(header))
-                  for c in final:
-                      tag = f"#{c['type'].upper()}|{c['sni'].replace('.', '_')}"
-                      f.write(c["link"] + tag + "\n")
-
-              print(f"[✓] Saved {len(final)} keys → {OUTPUT_FILE}")
+              
+              with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
+                  f.write(f"# Karing Alive Keys - Updated {now}\n")
+                  f.write(f"# Total: {len(validated)}\n")
+                  f.write(f"# Format: Subscription for Karing app\n")
+                  f.write(f"# Note: Test with your mobile data (MTS/Megafon) for BS bypass\n")
+                  f.write("#" + "="*60 + "\n\n")
+                  
+                  for item in validated:
+                      # Добавляем метку с типом и SNI для удобства
+                      tag = f"#{item['config_type']}|{item['sni'].replace('.', '_')}|Score:{item['score']}"
+                      if '#' in item['link']:
+                          link = item['link'].rsplit('#', 1)[0] + tag
+                      else:
+                          link = item['link'] + tag
+                      f.write(link + "\n")
+              
+              print(f"[✓] Saved {len(validated)} keys to {OUTPUT_FILE}")
+              print(f"\n[INFO] Next steps:")
+              print(f"1. Add this subscription to Karing:")
+              print(f"   https://raw.githubusercontent.com/{os.environ.get('GITHUB_REPOSITORY', 'user/repo')}/main/{OUTPUT_FILE}")
+              print(f"2. Use URL-Test group with 30-60s interval")
+              print(f"3. Test on mobile data (disable WiFi)")
+              print(f"4. Green keys = working, Red keys = blocked in your region")
 
           if __name__ == "__main__":
               main()
@@ -228,10 +317,10 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add githubmirror/alive_whitelist_bs.txt || true
+          git add githubmirror/karing_alive_keys.txt || true
           if git diff --staged --quiet; then
             echo "No changes"
           else
-            git commit -m "Hybrid update: Reality + working WS $(date -u +'%Y-%m-%d %H:%M UTC')"
+            git commit -m "Update alive keys for Karing $(date -u +'%Y-%m-%d %H:%M UTC')"
             git push
           fi
