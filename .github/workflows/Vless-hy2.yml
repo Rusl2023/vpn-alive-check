@@ -15,7 +15,7 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 45
 
     steps:
       - name: Checkout Repository
@@ -71,19 +71,20 @@ jobs:
       - name: Download Latest Hysteria Client
         run: |
           echo "Downloading Hysteria client..."
+          # Prefer official GitHub release (more reliable than CDN)
+          wget -qL "https://github.com/apernet/hysteria/releases/latest/download/hysteria-linux-amd64" -O hysteria || \
           wget -qL "https://download.hysteria.network/app/latest/hysteria-linux-amd64" -O hysteria
           chmod +x hysteria
-          ./hysteria version || echo "Hysteria version check passed (binary exists)"
+          ./hysteria version || echo "Hysteria binary present (version check may fail on some builds)"
 
       - name: Run Checker Script
-        timeout-minutes: 35
+        timeout-minutes: 38
         env:
           PYTHONUNBUFFERED: 1
         run: |
           cat << 'PYEOF' > checker.py
-          import os, socket, urllib.parse, requests, ipaddress, subprocess, time, json, base64, re, threading, sys
+          import os, socket, urllib.parse, requests, ipaddress, subprocess, time, json, re, threading, sys
           from concurrent.futures import ThreadPoolExecutor, as_completed
-          from collections import Counter
           from requests.adapters import HTTPAdapter
           from urllib3.util.retry import Retry
           import geoip2.database
@@ -93,7 +94,8 @@ jobs:
           TEST_WORKERS = 12
           TIMEOUT_HTTP = 12
           TIMEOUT_PROCESS_START = 5
-          GLOBAL_DEADLINE_SEC = 2000
+          TIMEOUT_PROCESS_START_HY2 = 8
+          GLOBAL_DEADLINE_SEC = 1900
 
           XRAY_BIN = "./xray"
           HYSTERIA_BIN = "./hysteria"
@@ -161,7 +163,6 @@ jobs:
           dns_cache = {}
           dns_fail_count = 0
           results_lock = threading.Lock()
-          final_results = []
 
           http_session = requests.Session()
           retry_strategy = Retry(
@@ -220,10 +221,13 @@ jobs:
               try:
                   data = http_session.get(url, timeout=TIMEOUT_HTTP).json()
                   for item in data:
-                      if not isinstance(item, dict): continue
+                      if not isinstance(item, dict):
+                          continue
                       if 'cidr' in item:
-                          try: cidrs.append(ipaddress.ip_network(item['cidr'], strict=False))
-                          except: pass
+                          try:
+                              cidrs.append(ipaddress.ip_network(item['cidr'], strict=False))
+                          except Exception:
+                              pass
                       if 'ips' in item and isinstance(item['ips'], list):
                           for ip_str in item['ips']:
                               if str(ip_str).strip():
@@ -237,7 +241,7 @@ jobs:
               try:
                   ip_obj = ipaddress.ip_address(ip_str)
                   return any(ip_obj in net for net in nets_list)
-              except:
+              except Exception:
                   return False
 
           def resolve_dns(host):
@@ -245,7 +249,6 @@ jobs:
               with dns_lock:
                   if host in dns_cache:
                       return dns_cache[host]
-
               try:
                   ip = socket.gethostbyname(host)
                   with dns_lock:
@@ -258,11 +261,12 @@ jobs:
                   return None
 
           def get_country_code(ip):
-              if not country_reader or not ip: return "??"
+              if not country_reader or not ip:
+                  return "??"
               try:
                   response = country_reader.country(ip)
                   return response.country.iso_code or "??"
-              except:
+              except Exception:
                   return "??"
 
           def get_flag(cc):
@@ -270,15 +274,13 @@ jobs:
 
           def parse_vless(link):
               try:
-                  if 'emailprotected' in link: return None
+                  if 'emailprotected' in link:
+                      return None
                   clean_part = link.split('#')[0]
                   parsed_url = urllib.parse.urlparse(clean_part)
-
                   if parsed_url.scheme != 'vless' or not parsed_url.hostname:
                       return None
-
                   query_params = urllib.parse.parse_qs(parsed_url.query)
-
                   return {
                       'type': 'vless',
                       'hostname': parsed_url.hostname,
@@ -295,21 +297,25 @@ jobs:
                       'serviceName': query_params.get('serviceName', [''])[0],
                       'original_link': link
                   }
-              except:
+              except Exception:
                   return None
 
           def parse_hy2(link):
               try:
-                  if 'emailprotected' in link: return None
+                  if 'emailprotected' in link:
+                      return None
                   clean_part = link.split('#')[0]
                   parsed_url = urllib.parse.urlparse(clean_part)
-
                   if parsed_url.scheme not in ('hysteria2', 'hy2') or not parsed_url.hostname:
                       return None
-
                   query_params = urllib.parse.parse_qs(parsed_url.query)
-                  auth_val = parsed_url.username or query_params.get('auth', [''])[0] or query_params.get('password', [''])[0]
-
+                  auth_val = (
+                      parsed_url.username
+                      or query_params.get('auth', [''])[0]
+                      or query_params.get('password', [''])[0]
+                  )
+                  if not auth_val:
+                      return None
                   return {
                       'type': 'hy2',
                       'hostname': parsed_url.hostname,
@@ -321,7 +327,7 @@ jobs:
                       'obfs_password': query_params.get('obfs-password', [''])[0],
                       'original_link': link
                   }
-              except:
+              except Exception:
                   return None
 
           def download_and_parse_links():
@@ -333,15 +339,15 @@ jobs:
                       text = r.text
                       vless_matches = re.findall(r'vless://[^\s#]+', text)
                       hy2_matches = re.findall(r'(?:hysteria2|hy2)://[^\s#]+', text)
-
                       configs = []
                       for match in vless_matches:
                           cfg = parse_vless(match)
-                          if cfg: configs.append(cfg)
+                          if cfg:
+                              configs.append(cfg)
                       for match in hy2_matches:
                           cfg = parse_hy2(match)
-                          if cfg: configs.append(cfg)
-
+                          if cfg:
+                              configs.append(cfg)
                       print(f"[+] Source {url.split('/')[-1]}: Found {len(configs)} valid configs")
                       return configs
                   except Exception as e:
@@ -360,10 +366,8 @@ jobs:
                       key += f":{cfg['id'][:8]}"
                   else:
                       key += f":{cfg['auth'][:8] if cfg['auth'] else 'noauth'}"
-
                   if key not in unique_configs:
                       unique_configs[key] = cfg
-
               return list(unique_configs.values())
 
           print("Loading Whitelists...")
@@ -374,41 +378,39 @@ jobs:
           print(f"Loaded Filters: SNI={len(sni_whitelist)}, Networks={len(all_white_networks)}")
 
           def filter_config(cfg):
-              if is_deadline_exceeded(): return None
-
+              if is_deadline_exceeded():
+                  return None
               host = cfg['hostname']
               resolved_ip = resolve_dns(host)
-
               if not resolved_ip:
                   return None
-
               is_white = False
               if resolved_ip in white_ips_set:
                   is_white = True
               elif ip_in_nets(resolved_ip, all_white_networks):
                   is_white = True
-
               if not is_white:
                   return None
-
               if cfg['type'] == 'vless':
-                  if cfg['flow'] not in ALLOWED_FLOWS: return None
-                  if cfg['fp'] not in ALLOWED_FP: return None
-                  if cfg['net'] not in ALLOWED_NETWORKS: return None
-                  if cfg['security'] == 'reality' and (not cfg['pbk'] or not cfg['sni']): return None
-
+                  if cfg['flow'] not in ALLOWED_FLOWS:
+                      return None
+                  if cfg['fp'] not in ALLOWED_FP:
+                      return None
+                  if cfg['net'] not in ALLOWED_NETWORKS:
+                      return None
+                  if cfg['security'] == 'reality' and (not cfg['pbk'] or not cfg['sni']):
+                      return None
               cfg['resolved_ip'] = resolved_ip
               return cfg
 
           def build_xray_config_json(cfg, local_port):
               net_type = cfg['net']
-              if net_type == 'raw': net_type = 'tcp'
-
+              if net_type == 'raw':
+                  net_type = 'tcp'
               stream_settings = {
                   "network": net_type,
                   "security": "none"
               }
-
               if cfg['security'] == 'reality':
                   stream_settings["security"] = "reality"
                   stream_settings["realitySettings"] = {
@@ -424,13 +426,11 @@ jobs:
                       "serverName": cfg['sni'],
                       "fingerprint": cfg.get('fp', 'chrome')
                   }
-
               if cfg['net'] == 'grpc':
                   stream_settings["grpcSettings"] = {"serviceName": cfg.get('serviceName', '')}
               elif cfg['net'] in ('ws', 'xhttp'):
                   setting_key = 'wsSettings' if cfg['net'] == 'ws' else 'xhttpSettings'
                   stream_settings[setting_key] = {"path": cfg.get('path', '/')}
-
               config_dict = {
                   "log": {"loglevel": "warning"},
                   "inbounds": [{
@@ -459,6 +459,26 @@ jobs:
               }
               return json.dumps(config_dict)
 
+          def build_hy2_config_yaml(cfg, local_port):
+              # Official Hysteria2 client expects YAML
+              lines = [
+                  f"server: {cfg['hostname']}:{cfg['port']}",
+                  f'auth: "{cfg["auth"]}"',
+                  "tls:",
+                  f"  sni: {cfg['sni']}",
+                  f"  insecure: {'true' if cfg['insecure'] else 'false'}",
+                  "socks5:",
+                  f"  listen: 127.0.0.1:{local_port}",
+              ]
+              if cfg.get('obfs') == 'salamander':
+                  lines += [
+                      "obfs:",
+                      "  type: salamander",
+                      "  salamander:",
+                      f'    password: "{cfg.get("obfs_password", "")}"',
+                  ]
+              return "\n".join(lines) + "\n"
+
           def wait_for_port_open(port, max_wait_sec=5):
               deadline = time.time() + max_wait_sec
               while time.time() < deadline:
@@ -469,7 +489,7 @@ jobs:
                       sock.close()
                       if result == 0:
                           return True
-                  except:
+                  except Exception:
                       pass
                   time.sleep(0.15)
               return False
@@ -487,12 +507,14 @@ jobs:
                           ip = data.get('ip') or data.get('origin')
                           if ip:
                               return ip.strip()
-                  except:
+                  except Exception:
                       continue
               return None
 
           def test_vless(cfg):
               if is_deadline_exceeded():
+                  return None
+              if not os.path.exists(XRAY_BIN):
                   return None
 
               local_port = 0
@@ -505,17 +527,21 @@ jobs:
                   with open(cfg_path, 'w') as f:
                       f.write(build_xray_config_json(cfg, local_port))
 
-                  proc = subprocess.Popen([XRAY_BIN, 'run', '-c', cfg_path],
-                                          stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                  proc = subprocess.Popen(
+                      [XRAY_BIN, 'run', '-c', cfg_path],
+                      stdout=subprocess.DEVNULL,
+                      stderr=subprocess.DEVNULL
+                  )
                   try:
                       if not wait_for_port_open(local_port, TIMEOUT_PROCESS_START):
                           return None
-
                       exit_ip = test_connectivity_via_socks(local_port)
                       if not exit_ip:
                           return None
-
                       cc = get_country_code(exit_ip)
+                      # Skip pure RU exit (server does not proxy abroad)
+                      if cc == 'RU':
+                          return None
                       flag = get_flag(cc)
                       mark = f"{flag} {cc} [VLESS] | {cfg['hostname']}"
                       return cfg['original_link'].split('#')[0] + '#' + mark
@@ -523,12 +549,12 @@ jobs:
                       proc.terminate()
                       try:
                           proc.wait(timeout=2)
-                      except:
+                      except Exception:
                           proc.kill()
                       if os.path.exists(cfg_path):
                           try:
                               os.remove(cfg_path)
-                          except:
+                          except Exception:
                               pass
               except Exception:
                   return None
@@ -537,59 +563,50 @@ jobs:
           def test_hy2(cfg):
               if is_deadline_exceeded():
                   return None
+              if not os.path.exists(HYSTERIA_BIN):
+                  return None
 
               local_port = 0
               with socket.socket() as s:
                   s.bind(('', 0))
                   local_port = s.getsockname()[1]
 
-              # Minimal hysteria2 client config (SOCKS5 inbound)
-              hy_cfg = {
-                  "server": f"{cfg['hostname']}:{cfg['port']}",
-                  "auth": cfg['auth'],
-                  "tls": {
-                      "sni": cfg['sni'],
-                      "insecure": cfg['insecure']
-                  },
-                  "socks5": {
-                      "listen": f"127.0.0.1:{local_port}"
-                  }
-              }
-              if cfg.get('obfs'):
-                  hy_cfg["obfs"] = {
-                      "type": cfg['obfs'],
-                      "salamander": {"password": cfg.get('obfs_password', '')}
-                  }
-
-              cfg_path = f"/tmp/hy2_{local_port}.json"
+              cfg_path = f"/tmp/hy2_{local_port}.yaml"
               try:
-                  with open(cfg_path, 'w') as f:
-                      json.dump(hy_cfg, f)
+                  with open(cfg_path, 'w', encoding='utf-8') as f:
+                      f.write(build_hy2_config_yaml(cfg, local_port))
 
-                  proc = subprocess.Popen([HYSTERIA_BIN, 'client', '-c', cfg_path],
-                                          stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                  proc = subprocess.Popen(
+                      [HYSTERIA_BIN, 'client', '-c', cfg_path],
+                      stdout=subprocess.DEVNULL,
+                      stderr=subprocess.PIPE
+                  )
                   try:
-                      if not wait_for_port_open(local_port, TIMEOUT_PROCESS_START):
+                      if not wait_for_port_open(local_port, TIMEOUT_PROCESS_START_HY2):
                           return None
-
                       exit_ip = test_connectivity_via_socks(local_port)
                       if not exit_ip:
                           return None
-
                       cc = get_country_code(exit_ip)
+                      if cc == 'RU':
+                          return None
                       flag = get_flag(cc)
                       mark = f"{flag} {cc} [HY2] | {cfg['hostname']}"
                       return cfg['original_link'].split('#')[0] + '#' + mark
                   finally:
                       proc.terminate()
                       try:
-                          proc.wait(timeout=2)
-                      except:
+                          _, err = proc.communicate(timeout=2)
+                          if err:
+                              err_text = err.decode(errors='ignore')[:300].strip()
+                              if err_text:
+                                  print(f"[hy2 stderr] {cfg['hostname']}: {err_text}")
+                      except Exception:
                           proc.kill()
                       if os.path.exists(cfg_path):
                           try:
                               os.remove(cfg_path)
-                          except:
+                          except Exception:
                               pass
               except Exception:
                   return None
@@ -598,7 +615,7 @@ jobs:
           def test_config(cfg):
               if cfg['type'] == 'vless':
                   return test_vless(cfg)
-              elif cfg['type'] == 'hy2':
+              if cfg['type'] == 'hy2':
                   return test_hy2(cfg)
               return None
 
@@ -615,7 +632,6 @@ jobs:
                   res = future.result()
                   if res:
                       filtered.append(res)
-
           print(f"After white-list filter: {len(filtered)}")
 
           print("Testing connectivity...")
@@ -636,7 +652,6 @@ jobs:
           print(f"DNS fails: {dns_fail_count}")
           print(f"Time elapsed: {int(time.time() - start_time)}s")
 
-          # Save results
           os.makedirs("results", exist_ok=True)
           with open("results/working_vless_hy2.txt", "w", encoding="utf-8") as f:
               for line in sorted(set(working)):
@@ -661,5 +676,5 @@ jobs:
             echo "No changes to commit"
           else
             git commit -m "chore: update white-cidr working configs $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            git push
+            git push origin HEAD:${GITHUB_REF_NAME}
           fi
