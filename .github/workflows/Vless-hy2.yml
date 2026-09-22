@@ -15,7 +15,7 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 42
+    timeout-minutes: 25
 
     steps:
       - name: Checkout Repository
@@ -26,7 +26,6 @@ jobs:
           cat > requirements.txt << 'EOF'
           requests
           geoip2
-          pysocks
           EOF
 
       - name: Setup Python
@@ -52,46 +51,20 @@ jobs:
           fi
           ls -lh GeoLite2-Country.mmdb
 
-      - name: Download Latest Xray Core
-        run: |
-          echo "Fetching latest Xray release info..."
-          LATEST_TAG=$(curl -sL https://api.github.com/repos/XTLS/Xray-core/releases/latest | grep '"tag_name":' | head -n 1 | cut -d '"' -f 4)
-
-          if [ -z "$LATEST_TAG" ]; then
-            echo "::warning::Could not fetch latest tag, using fallback v1.8.24"
-            LATEST_TAG="v1.8.24"
-          fi
-
-          echo "Downloading Xray $LATEST_TAG..."
-          wget -qL "https://github.com/XTLS/Xray-core/releases/download/${LATEST_TAG}/Xray-linux-64.zip" -O xray.zip
-          unzip -o xray.zip
-          chmod +x xray
-          ./xray version
-
-      - name: Download Latest Hysteria Client
-        run: |
-          echo "Downloading Hysteria client..."
-          wget -qL "https://github.com/apernet/hysteria/releases/latest/download/hysteria-linux-amd64" -O hysteria || \
-          wget -qL "https://download.hysteria.network/app/latest/hysteria-linux-amd64" -O hysteria
-          chmod +x hysteria
-          ./hysteria version || echo "Hysteria binary present"
-
       - name: Run Checker Script
-        timeout-minutes: 36
+        timeout-minutes: 20
         env:
           PYTHONUNBUFFERED: 1
         run: |
           cat << 'PYEOF' > checker.py
           import os
           import re
-          import json
           import time
           import ipaddress
           import socket
-          import subprocess
           import threading
           import urllib.parse
-          from concurrent.futures import ThreadPoolExecutor, as_completed, TimeoutError as FuturesTimeoutError
+          from concurrent.futures import ThreadPoolExecutor, as_completed
 
           import geoip2.database
           import requests
@@ -99,18 +72,10 @@ jobs:
           from urllib3.util.retry import Retry
 
           # ====================== CONFIG ======================
-          MAX_WORKERS_FILTER = 24
-          TEST_WORKERS = 6
-          TIMEOUT_HTTP = 10
-          TIMEOUT_PROCESS_START = 6
-          TIMEOUT_PROCESS_START_HY2 = 10
-          PROXY_CONNECT_TIMEOUT = 4
-          PROXY_READ_TIMEOUT = 8
-          GLOBAL_DEADLINE_SEC = 2050
-          BATCH_SIZE = 100
+          MAX_WORKERS_FILTER = 32
+          TIMEOUT_HTTP = 12
+          GLOBAL_DEADLINE_SEC = 1100
 
-          XRAY_BIN = "./xray"
-          HYSTERIA_BIN = "./hysteria"
           GEO_DB_FILE = "GeoLite2-Country.mmdb"
 
           CONFIG_URLS = [
@@ -170,7 +135,6 @@ jobs:
           dns_lock = threading.Lock()
           dns_cache = {}
           dns_fail_count = 0
-          results_lock = threading.Lock()
 
           http_session = requests.Session()
           retry_strategy = Retry(
@@ -194,9 +158,6 @@ jobs:
 
           def is_deadline_exceeded():
               return (time.time() - start_time) > GLOBAL_DEADLINE_SEC
-
-          def remaining_time():
-              return max(0, GLOBAL_DEADLINE_SEC - (time.time() - start_time))
 
           def load_cidrs(urls):
               nets = []
@@ -347,7 +308,6 @@ jobs:
                   try:
                       r = http_session.get(url, timeout=TIMEOUT_HTTP)
                       text = r.text
-                      # Fixed: \s instead of s
                       vless_matches = re.findall(r"vless://[^\s#]+", text)
                       hy2_matches = re.findall(r"(?:hysteria2|hy2)://[^\s#]+", text)
                       configs = []
@@ -408,332 +368,18 @@ jobs:
                       return None
                   if cfg["security"] == "reality" and (not cfg["pbk"] or not cfg["sni"]):
                       return None
+
               cfg["resolved_ip"] = resolved_ip
               return cfg
 
-          def build_xray_config_json(cfg, local_port):
-              net_type = "tcp" if cfg["net"] == "raw" else cfg["net"]
-              stream_settings = {"network": net_type, "security": "none"}
-
-              if cfg["security"] == "reality":
-                  stream_settings["security"] = "reality"
-                  reality_settings = {
-                      "serverName": cfg["sni"],
-                      "publicKey": cfg["pbk"],
-                      "shortId": cfg.get("sid", ""),
-                      "fingerprint": cfg.get("fp", "chrome"),
-                      "spiderX": "",
-                  }
-                  if cfg.get("alpn"):
-                      reality_settings["alpn"] = [x.strip() for x in cfg["alpn"].split(",") if x.strip()]
-                  stream_settings["realitySettings"] = reality_settings
-              elif cfg["security"] == "tls":
-                  stream_settings["security"] = "tls"
-                  tls_settings = {
-                      "serverName": cfg["sni"],
-                      "fingerprint": cfg.get("fp", "chrome"),
-                  }
-                  if cfg.get("alpn"):
-                      tls_settings["alpn"] = [x.strip() for x in cfg["alpn"].split(",") if x.strip()]
-                  stream_settings["tlsSettings"] = tls_settings
-
-              if cfg["net"] == "grpc":
-                  stream_settings["grpcSettings"] = {"serviceName": cfg.get("serviceName", "")}
-                  if cfg.get("authority"):
-                      stream_settings["grpcSettings"]["authority"] = cfg["authority"]
-                  if cfg.get("mode"):
-                      stream_settings["grpcSettings"]["multiMode"] = cfg["mode"] == "multi"
-              elif cfg["net"] == "ws":
-                  ws_settings = {"path": cfg.get("path", "/")}
-                  if cfg.get("host"):
-                      ws_settings["headers"] = {"Host": cfg["host"]}
-                  stream_settings["wsSettings"] = ws_settings
-              elif cfg["net"] == "xhttp":
-                  stream_settings["xhttpSettings"] = {"path": cfg.get("path", "/")}
-
-              return json.dumps({
-                  "log": {"loglevel": "warning"},
-                  "inbounds": [{
-                      "listen": "127.0.0.1",
-                      "port": local_port,
-                      "protocol": "socks",
-                      "settings": {"udp": False},
-                      "sniffing": {"enabled": False},
-                  }],
-                  "outbounds": [{
-                      "protocol": "vless",
-                      "settings": {
-                          "vnext": [{
-                              "address": cfg["hostname"],
-                              "port": cfg["port"],
-                              "users": [{
-                                  "id": cfg["id"],
-                                  "encryption": "none",
-                                  "flow": cfg.get("flow", ""),
-                              }],
-                          }]
-                      },
-                      "streamSettings": stream_settings,
-                  }],
-                  "routing": {"domainStrategy": "AsIs"},
-              })
-
-          def build_hy2_config_yaml(cfg, local_port):
-              lines = [
-                  f'server: {cfg["hostname"]}:{cfg["port"]}',
-                  f'auth: "{cfg["auth"]}"',
-                  "tls:",
-                  f'  sni: {cfg["sni"]}',
-                  f'  insecure: {"true" if cfg["insecure"] else "false"}',
-                  "socks5:",
-                  f"  listen: 127.0.0.1:{local_port}",
-              ]
-              if cfg.get("obfs") == "salamander":
-                  lines += [
-                      "obfs:",
-                      "  type: salamander",
-                      "  salamander:",
-                      f'    password: "{cfg.get("obfs_password", "")}"',
-                  ]
-              return "\n".join(lines) + "\n"
-
-          def wait_for_port_open(port, max_wait_sec=5):
-              deadline = time.time() + max_wait_sec
-              while time.time() < deadline:
-                  try:
-                      with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-                          sock.settimeout(0.4)
-                          if sock.connect_ex(("127.0.0.1", port)) == 0:
-                              return True
-                  except Exception:
-                      pass
-                  time.sleep(0.12)
-              return False
-
-          def read_tail(path, n=1200):
-              try:
-                  with open(path, "r", encoding="utf-8", errors="replace") as f:
-                      return f.read()[-n:].strip()
-              except Exception:
-                  return ""
-
-          def test_connectivity_via_socks(local_port, label=""):
-              proxy = f"socks5h://127.0.0.1:{local_port}"
-              proxies = {"http": proxy, "https": proxy}
-              # Keep 3 fast endpoints. First success wins.
-              tests = [
-                  ("http://ifconfig.me/ip", "plain"),
-                  ("https://api.ipify.org?format=json", "json"),
-                  ("https://api.ip.sb/geoip", "json"),
-              ]
-
-              for url, mode in tests:
-                  try:
-                      with requests.Session() as session:
-                          session.trust_env = False
-                          response = session.get(
-                              url,
-                              proxies=proxies,
-                              timeout=(PROXY_CONNECT_TIMEOUT, PROXY_READ_TIMEOUT),
-                              headers={"User-Agent": "Mozilla/5.0"},
-                          )
-
-                      if response.status_code != 200:
-                          continue
-
-                      ip = None
-                      if mode == "plain":
-                          content = response.text.strip()
-                          m = re.search(r"\b(?:\d{1,3}\.){3}\d{1,3}\b", content)
-                          if m:
-                              ip = m.group(0)
-                      else:
-                          try:
-                              data = response.json()
-                              ip = data.get("ip") or data.get("origin")
-                              if isinstance(ip, str):
-                                  ip = ip.split(",")[0].strip()
-                          except Exception:
-                              pass
-
-                      if ip:
-                          try:
-                              ipaddress.ip_address(ip)
-                              print(f"[{label}] Success via {url}: {ip}")
-                              return ip
-                          except Exception:
-                              pass
-                  except Exception as e:
-                      err_msg = str(e)[:120]
-                      print(f"[{label}] Fail {url}: {err_msg}")
-              return None
-
-          def test_vless(cfg):
-              if is_deadline_exceeded() or not os.path.exists(XRAY_BIN):
-                  return None
-
-              with socket.socket() as s:
-                  s.bind(("", 0))
-                  local_port = s.getsockname()[1]
-
-              cfg_path = f"/tmp/xray_{local_port}.json"
-              log_path = f"/tmp/xray_{local_port}.log"
-              label = f'VL {cfg["hostname"]}'
-              proc = None
-
-              try:
-                  with open(cfg_path, "w", encoding="utf-8") as f:
-                      f.write(build_xray_config_json(cfg, local_port))
-
-                  with open(log_path, "w", encoding="utf-8") as log_file:
-                      proc = subprocess.Popen(
-                          [XRAY_BIN, "run", "-c", cfg_path],
-                          stdout=log_file,
-                          stderr=subprocess.STDOUT,
-                      )
-
-                  if not wait_for_port_open(local_port, TIMEOUT_PROCESS_START):
-                      tail = read_tail(log_path)
-                      if tail:
-                          print(f"[{label}] Startup fail: {tail}")
-                      return None
-
-                  exit_ip = test_connectivity_via_socks(local_port, label=label)
-                  if not exit_ip:
-                      tail = read_tail(log_path)
-                      if tail:
-                          print(f"[{label}] No exit IP, log: {tail}")
-                      return None
-
-                  cc = get_country_code(exit_ip)
-                  flag = get_flag(cc)
-                  mark = f'{flag} {cc} [VLESS] | {cfg["hostname"]}'
-                  return cfg["original_link"].split("#")[0] + "#" + mark
-
-              except Exception as e:
-                  print(f'[ERROR-VL] {cfg["hostname"]}: {e}')
-                  return None
-              finally:
-                  if proc is not None and proc.poll() is None:
-                      proc.terminate()
-                      try:
-                          proc.wait(timeout=2)
-                      except subprocess.TimeoutExpired:
-                          proc.kill()
-                  for p in (cfg_path, log_path):
-                      if os.path.exists(p):
-                          try:
-                              os.remove(p)
-                          except Exception:
-                              pass
-
-          def test_hy2(cfg):
-              if is_deadline_exceeded() or not os.path.exists(HYSTERIA_BIN):
-                  return None
-
-              with socket.socket() as s:
-                  s.bind(("", 0))
-                  local_port = s.getsockname()[1]
-
-              cfg_path = f"/tmp/hy2_{local_port}.yaml"
-              log_path = f"/tmp/hy2_{local_port}.log"
-              label = f'HY2 {cfg["hostname"]}'
-              proc = None
-
-              try:
-                  with open(cfg_path, "w", encoding="utf-8") as f:
-                      f.write(build_hy2_config_yaml(cfg, local_port))
-
-                  with open(log_path, "w", encoding="utf-8") as log_file:
-                      proc = subprocess.Popen(
-                          [HYSTERIA_BIN, "client", "-c", cfg_path],
-                          stdout=log_file,
-                          stderr=subprocess.STDOUT,
-                      )
-
-                  if not wait_for_port_open(local_port, TIMEOUT_PROCESS_START_HY2):
-                      tail = read_tail(log_path)
-                      if tail:
-                          print(f"[{label}] Startup fail: {tail}")
-                      return None
-
-                  print(f"[{label}] SOCKS5 ready on :{local_port}")
-                  exit_ip = test_connectivity_via_socks(local_port, label=label)
-                  if not exit_ip:
-                      tail = read_tail(log_path)
-                      if tail:
-                          print(f"[{label}] No exit IP, log: {tail}")
-                      return None
-
-                  cc = get_country_code(exit_ip)
-                  print(f"[{label}] GeoIP: {cc} ({exit_ip})")
-                  flag = get_flag(cc)
-                  mark = f'{flag} {cc} [HY2] | {cfg["hostname"]}'
-                  result = cfg["original_link"].split("#")[0] + "#" + mark
-                  print(f"[SUCCESS-HY2] {result[:70]}...")
-                  return result
-
-              except Exception as e:
-                  print(f'[ERROR-HY2] {cfg["hostname"]}: {type(e).__name__}: {e}')
-                  return None
-              finally:
-                  if proc is not None and proc.poll() is None:
-                      proc.terminate()
-                      try:
-                          proc.wait(timeout=2)
-                      except subprocess.TimeoutExpired:
-                          proc.kill()
-                  for p in (cfg_path, log_path):
-                      if os.path.exists(p):
-                          try:
-                              os.remove(p)
-                          except Exception:
-                              pass
-
-          def test_config(cfg):
-              if cfg["type"] == "vless":
-                  return test_vless(cfg)
-              if cfg["type"] == "hy2":
-                  return test_hy2(cfg)
-              return None
-
-          def test_in_batches(configs, batch_size=BATCH_SIZE):
-              working = []
-              total = len(configs)
-
-              for start in range(0, total, batch_size):
-                  if is_deadline_exceeded():
-                      print("[!] Global deadline reached – stopping batches")
-                      break
-
-                  batch = configs[start : start + batch_size]
-                  rem = remaining_time()
-                  print(f"=== Batch {start // batch_size + 1}: {len(batch)} configs, remaining={int(rem)}s ===")
-
-                  executor = ThreadPoolExecutor(max_workers=TEST_WORKERS)
-                  futures = {executor.submit(test_config, cfg): cfg for cfg in batch}
-
-                  try:
-                      for future in as_completed(futures, timeout=max(5, rem - 10)):
-                          try:
-                              result = future.result(timeout=1)
-                          except Exception as e:
-                              cfg = futures[future]
-                              print(f'[TEST ERROR] {cfg["type"]} {cfg["hostname"]}: {type(e).__name__}')
-                              continue
-
-                          if result:
-                              with results_lock:
-                                  working.append(result)
-                              print(f'[+] Working: {result.split("#")[-1][:80]}')
-                  except FuturesTimeoutError:
-                      print("[!] Batch timeout – cancelling remaining futures")
-                  finally:
-                      for f in futures:
-                          f.cancel()
-                      executor.shutdown(wait=False, cancel_futures=True)
-
-              return working
+          def make_marked_link(cfg):
+              """Добавляет флаг + код страны + тип + hostname в fragment"""
+              cc = get_country_code(cfg["resolved_ip"])
+              flag = get_flag(cc)
+              proto = "VLESS" if cfg["type"] == "vless" else "HY2"
+              mark = f"{flag} {cc} [{proto}] | {cfg['hostname']}"
+              base = cfg["original_link"].split("#")[0]
+              return base + "#" + mark
 
           # ====================== MAIN ======================
           print("Downloading and parsing configs...")
@@ -750,22 +396,31 @@ jobs:
                       filtered.append(res)
           print(f"After filter + TCP probe: {len(filtered)}")
 
-          print("Testing connectivity in batches...")
-          working = test_in_batches(filtered, batch_size=BATCH_SIZE)
+          # Формируем итоговые ссылки с метками
+          working = []
+          for cfg in filtered:
+              try:
+                  marked = make_marked_link(cfg)
+                  working.append(marked)
+              except Exception as e:
+                  print(f"[!] Mark error {cfg.get('hostname')}: {e}")
+
+          # Убираем дубликаты и сортируем
+          working = sorted(set(working))
 
           print("\n=== RESULTS ===")
-          print(f"Working configs: {len(working)}")
+          print(f"Working configs (filtered): {len(working)}")
           print(f"DNS fails: {dns_fail_count}")
           print(f"Time elapsed: {int(time.time() - start_time)}s")
 
           os.makedirs("results", exist_ok=True)
           with open("results/working_vless_hy2.txt", "w", encoding="utf-8") as f:
-              for line in sorted(set(working)):
+              for line in working:
                   f.write(line + "\n")
 
           with open("results/stats.txt", "w", encoding="utf-8") as f:
               f.write(f'Updated: {time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime())}\n')
-              f.write(f"Working: {len(working)}\n")
+              f.write(f"Working (filtered): {len(working)}\n")
               f.write(f"DNS fails: {dns_fail_count}\n")
               f.write(f"Elapsed: {int(time.time() - start_time)}s\n")
 
@@ -782,6 +437,6 @@ jobs:
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "chore: update white-cidr working configs $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            git commit -m "chore: update white-cidr filtered configs $(date -u +%Y-%m-%dT%H:%M:%SZ)"
             git push origin HEAD:${GITHUB_REF_NAME}
           fi
