@@ -83,25 +83,26 @@ jobs:
         run: |
           cat << 'PYEOF' > checker.py
           import os
-          import socket
-          import urllib.parse
-          import requests
-          import ipaddress
-          import subprocess
-          import time
-          import json
           import re
+          import json
+          import time
+          import ipaddress
+          import socket
+          import subprocess
           import threading
+          import urllib.parse
           from concurrent.futures import ThreadPoolExecutor, as_completed, TimeoutError as FuturesTimeoutError
+
+          import geoip2.database
+          import requests
           from requests.adapters import HTTPAdapter
           from urllib3.util.retry import Retry
-          import geoip2.database
 
           # ====================== CONFIG ======================
           MAX_WORKERS_FILTER = 24
-          TEST_WORKERS = 5
-          TIMEOUT_HTTP = 8
-          TIMEOUT_PROCESS_START = 5
+          TEST_WORKERS = 6
+          TIMEOUT_HTTP = 10
+          TIMEOUT_PROCESS_START = 6
           TIMEOUT_PROCESS_START_HY2 = 10
           PROXY_CONNECT_TIMEOUT = 4
           PROXY_READ_TIMEOUT = 8
@@ -134,8 +135,8 @@ jobs:
           WHITE_IP_URL = "https://raw.githubusercontent.com/openlibrecommunity/twl/main/code/subnet/out/subnets.json"
 
           ALLOWED_FP = {"chrome", "firefox", "qq", "random", "randomized", "edge", "ios", "android", "safari", "360"}
-          ALLOWED_FLOWS = {'xtls-rprx-vision', 'xtls-rprx-vision-udp443', ''}
-          ALLOWED_NETWORKS = {'tcp', 'grpc', 'xhttp', 'ws', 'raw'}
+          ALLOWED_FLOWS = {"xtls-rprx-vision", "xtls-rprx-vision-udp443", ""}
+          ALLOWED_NETWORKS = {"tcp", "grpc", "xhttp", "ws", "raw"}
 
           FLAGS = {
               'AD':'🇦🇩','AE':'🇦🇪','AF':'🇦🇫','AG':'🇦🇬','AI':'🇦🇮','AL':'🇦🇱','AM':'🇦🇲','AO':'🇦🇴','AQ':'🇦🇶','AR':'🇦🇷',
@@ -171,7 +172,6 @@ jobs:
           dns_fail_count = 0
           results_lock = threading.Lock()
 
-          # Session only for downloading lists (not for proxy tests)
           http_session = requests.Session()
           retry_strategy = Retry(
               total=2,
@@ -182,9 +182,7 @@ jobs:
           adapter = HTTPAdapter(max_retries=retry_strategy)
           http_session.mount("https://", adapter)
           http_session.mount("http://", adapter)
-          http_session.headers.update({
-              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-          })
+          http_session.headers.update({"User-Agent": "Mozilla/5.0"})
 
           country_reader = None
           try:
@@ -207,7 +205,7 @@ jobs:
                       resp = http_session.get(u, timeout=TIMEOUT_HTTP)
                       for line in resp.text.splitlines():
                           line = line.strip()
-                          if line and not line.startswith('#'):
+                          if line and not line.startswith("#"):
                               try:
                                   nets.append(ipaddress.ip_network(line, strict=False))
                               except ValueError:
@@ -223,13 +221,13 @@ jobs:
                   for item in data:
                       if not isinstance(item, dict):
                           continue
-                      if 'cidr' in item:
+                      if "cidr" in item:
                           try:
-                              cidrs.append(ipaddress.ip_network(item['cidr'], strict=False))
+                              cidrs.append(ipaddress.ip_network(item["cidr"], strict=False))
                           except Exception:
                               pass
-                      if 'ips' in item and isinstance(item['ips'], list):
-                          for ip_str in item['ips']:
+                      if "ips" in item and isinstance(item["ips"], list):
+                          for ip_str in item["ips"]:
                               if str(ip_str).strip():
                                   ips.add(str(ip_str).strip())
                   print(f"✓ Loaded subnets.json: {len(cidrs)} CIDRs, {len(ips)} IPs")
@@ -270,7 +268,7 @@ jobs:
                   return "??"
 
           def get_flag(cc):
-              return FLAGS.get(cc, '🌍')
+              return FLAGS.get(cc, "🌍")
 
           def tcp_probe(host, port, timeout=2.0):
               try:
@@ -281,58 +279,63 @@ jobs:
 
           def parse_vless(link):
               try:
-                  if 'emailprotected' in link:
+                  if "emailprotected" in link:
                       return None
-                  clean_part = link.split('#')[0]
+                  clean_part = link.split("#")[0]
                   parsed_url = urllib.parse.urlparse(clean_part)
-                  if parsed_url.scheme != 'vless' or not parsed_url.hostname:
+                  if parsed_url.scheme != "vless" or not parsed_url.hostname:
                       return None
                   query_params = urllib.parse.parse_qs(parsed_url.query)
                   return {
-                      'type': 'vless',
-                      'hostname': parsed_url.hostname,
-                      'port': int(parsed_url.port) if parsed_url.port else 443,
-                      'id': parsed_url.username or '',
-                      'net': query_params.get('type', ['tcp'])[0].lower(),
-                      'security': query_params.get('security', ['none'])[0].lower(),
-                      'sni': query_params.get('sni', [''])[0],
-                      'fp': query_params.get('fp', ['chrome'])[0].lower(),
-                      'pbk': query_params.get('pbk', [''])[0],
-                      'sid': query_params.get('sid', [''])[0],
-                      'flow': query_params.get('flow', [''])[0],
-                      'path': query_params.get('path', ['/'])[0],
-                      'serviceName': query_params.get('serviceName', [''])[0],
-                      'original_link': link
+                      "type": "vless",
+                      "hostname": parsed_url.hostname,
+                      "port": int(parsed_url.port) if parsed_url.port else 443,
+                      "id": parsed_url.username or "",
+                      "net": query_params.get("type", ["tcp"])[0].lower(),
+                      "security": query_params.get("security", ["none"])[0].lower(),
+                      "sni": query_params.get("sni", [""])[0],
+                      "fp": query_params.get("fp", ["chrome"])[0].lower(),
+                      "pbk": query_params.get("pbk", [""])[0],
+                      "sid": query_params.get("sid", [""])[0],
+                      "flow": query_params.get("flow", [""])[0],
+                      "path": query_params.get("path", ["/"])[0],
+                      "serviceName": query_params.get("serviceName", [""])[0],
+                      "host": query_params.get("host", [""])[0],
+                      "alpn": query_params.get("alpn", [""])[0],
+                      "authority": query_params.get("authority", [""])[0],
+                      "mode": query_params.get("mode", [""])[0],
+                      "headerType": query_params.get("headerType", ["none"])[0],
+                      "original_link": link,
                   }
               except Exception:
                   return None
 
           def parse_hy2(link):
               try:
-                  if 'emailprotected' in link:
+                  if "emailprotected" in link:
                       return None
-                  clean_part = link.split('#')[0]
+                  clean_part = link.split("#")[0]
                   parsed_url = urllib.parse.urlparse(clean_part)
-                  if parsed_url.scheme not in ('hysteria2', 'hy2') or not parsed_url.hostname:
+                  if parsed_url.scheme not in ("hysteria2", "hy2") or not parsed_url.hostname:
                       return None
                   query_params = urllib.parse.parse_qs(parsed_url.query)
                   auth_val = (
                       parsed_url.username
-                      or query_params.get('auth', [''])[0]
-                      or query_params.get('password', [''])[0]
+                      or query_params.get("auth", [""])[0]
+                      or query_params.get("password", [""])[0]
                   )
                   if not auth_val:
                       return None
                   return {
-                      'type': 'hy2',
-                      'hostname': parsed_url.hostname,
-                      'port': int(parsed_url.port) if parsed_url.port else 443,
-                      'auth': auth_val,
-                      'sni': query_params.get('sni', [parsed_url.hostname])[0],
-                      'insecure': query_params.get('insecure', ['0'])[0] in ('1', 'true', 'yes'),
-                      'obfs': query_params.get('obfs', [''])[0],
-                      'obfs_password': query_params.get('obfs-password', [''])[0],
-                      'original_link': link
+                      "type": "hy2",
+                      "hostname": parsed_url.hostname,
+                      "port": int(parsed_url.port) if parsed_url.port else 443,
+                      "auth": auth_val,
+                      "sni": query_params.get("sni", [parsed_url.hostname])[0],
+                      "insecure": query_params.get("insecure", ["0"])[0] in ("1", "true", "yes"),
+                      "obfs": query_params.get("obfs", [""])[0],
+                      "obfs_password": query_params.get("obfs-password", [""])[0],
+                      "original_link": link,
                   }
               except Exception:
                   return None
@@ -344,8 +347,9 @@ jobs:
                   try:
                       r = http_session.get(url, timeout=TIMEOUT_HTTP)
                       text = r.text
-                      vless_matches = re.findall(r'vless://[^\s#]+', text)
-                      hy2_matches = re.findall(r'(?:hysteria2|hy2)://[^\s#]+', text)
+                      # Fixed: \s instead of s
+                      vless_matches = re.findall(r"vless://[^\s#]+", text)
+                      hy2_matches = re.findall(r"(?:hysteria2|hy2)://[^\s#]+", text)
                       configs = []
                       for m in vless_matches:
                           cfg = parse_vless(m)
@@ -369,7 +373,7 @@ jobs:
               unique = {}
               for cfg in all_parsed:
                   key = f"{cfg['hostname']}:{cfg['port']}"
-                  if cfg['type'] == 'vless':
+                  if cfg["type"] == "vless":
                       key += f":{cfg['id'][:8]}"
                   else:
                       key += f":{cfg['auth'][:8]}"
@@ -386,57 +390,66 @@ jobs:
           def filter_config(cfg):
               if is_deadline_exceeded():
                   return None
-
-              resolved_ip = resolve_dns(cfg['hostname'])
+              resolved_ip = resolve_dns(cfg["hostname"])
               if not resolved_ip:
                   return None
-
               is_white = resolved_ip in white_ips_set or ip_in_nets(resolved_ip, all_white_networks)
               if not is_white:
                   return None
-
-              # Fast TCP probe – skip dead hosts early
-              if not tcp_probe(resolved_ip, cfg['port'], timeout=2.0):
+              if not tcp_probe(resolved_ip, cfg["port"], timeout=2.0):
                   return None
 
-              if cfg['type'] == 'vless':
-                  if cfg['flow'] not in ALLOWED_FLOWS:
+              if cfg["type"] == "vless":
+                  if cfg["flow"] not in ALLOWED_FLOWS:
                       return None
-                  if cfg['fp'] not in ALLOWED_FP:
+                  if cfg["fp"] not in ALLOWED_FP:
                       return None
-                  if cfg['net'] not in ALLOWED_NETWORKS:
+                  if cfg["net"] not in ALLOWED_NETWORKS:
                       return None
-                  if cfg['security'] == 'reality' and (not cfg['pbk'] or not cfg['sni']):
+                  if cfg["security"] == "reality" and (not cfg["pbk"] or not cfg["sni"]):
                       return None
-
-              cfg['resolved_ip'] = resolved_ip
+              cfg["resolved_ip"] = resolved_ip
               return cfg
 
           def build_xray_config_json(cfg, local_port):
-              net_type = 'tcp' if cfg['net'] == 'raw' else cfg['net']
+              net_type = "tcp" if cfg["net"] == "raw" else cfg["net"]
               stream_settings = {"network": net_type, "security": "none"}
 
-              if cfg['security'] == 'reality':
+              if cfg["security"] == "reality":
                   stream_settings["security"] = "reality"
-                  stream_settings["realitySettings"] = {
-                      "serverName": cfg['sni'],
-                      "publicKey": cfg['pbk'],
-                      "shortId": cfg.get('sid', ''),
-                      "fingerprint": cfg.get('fp', 'chrome'),
-                      "spiderX": ""
+                  reality_settings = {
+                      "serverName": cfg["sni"],
+                      "publicKey": cfg["pbk"],
+                      "shortId": cfg.get("sid", ""),
+                      "fingerprint": cfg.get("fp", "chrome"),
+                      "spiderX": "",
                   }
-              elif cfg['security'] == 'tls':
+                  if cfg.get("alpn"):
+                      reality_settings["alpn"] = [x.strip() for x in cfg["alpn"].split(",") if x.strip()]
+                  stream_settings["realitySettings"] = reality_settings
+              elif cfg["security"] == "tls":
                   stream_settings["security"] = "tls"
-                  stream_settings["tlsSettings"] = {
-                      "serverName": cfg['sni'],
-                      "fingerprint": cfg.get('fp', 'chrome')
+                  tls_settings = {
+                      "serverName": cfg["sni"],
+                      "fingerprint": cfg.get("fp", "chrome"),
                   }
+                  if cfg.get("alpn"):
+                      tls_settings["alpn"] = [x.strip() for x in cfg["alpn"].split(",") if x.strip()]
+                  stream_settings["tlsSettings"] = tls_settings
 
-              if cfg['net'] == 'grpc':
-                  stream_settings["grpcSettings"] = {"serviceName": cfg.get('serviceName', '')}
-              elif cfg['net'] in ('ws', 'xhttp'):
-                  key = 'wsSettings' if cfg['net'] == 'ws' else 'xhttpSettings'
-                  stream_settings[key] = {"path": cfg.get('path', '/')}
+              if cfg["net"] == "grpc":
+                  stream_settings["grpcSettings"] = {"serviceName": cfg.get("serviceName", "")}
+                  if cfg.get("authority"):
+                      stream_settings["grpcSettings"]["authority"] = cfg["authority"]
+                  if cfg.get("mode"):
+                      stream_settings["grpcSettings"]["multiMode"] = cfg["mode"] == "multi"
+              elif cfg["net"] == "ws":
+                  ws_settings = {"path": cfg.get("path", "/")}
+                  if cfg.get("host"):
+                      ws_settings["headers"] = {"Host": cfg["host"]}
+                  stream_settings["wsSettings"] = ws_settings
+              elif cfg["net"] == "xhttp":
+                  stream_settings["xhttpSettings"] = {"path": cfg.get("path", "/")}
 
               return json.dumps({
                   "log": {"loglevel": "warning"},
@@ -445,37 +458,37 @@ jobs:
                       "port": local_port,
                       "protocol": "socks",
                       "settings": {"udp": False},
-                      "sniffing": {"enabled": False}
+                      "sniffing": {"enabled": False},
                   }],
                   "outbounds": [{
                       "protocol": "vless",
                       "settings": {
                           "vnext": [{
-                              "address": cfg['hostname'],
-                              "port": cfg['port'],
+                              "address": cfg["hostname"],
+                              "port": cfg["port"],
                               "users": [{
-                                  "id": cfg['id'],
+                                  "id": cfg["id"],
                                   "encryption": "none",
-                                  "flow": cfg.get('flow', '')
-                              }]
+                                  "flow": cfg.get("flow", ""),
+                              }],
                           }]
                       },
-                      "streamSettings": stream_settings
+                      "streamSettings": stream_settings,
                   }],
-                  "routing": {"domainStrategy": "AsIs"}
+                  "routing": {"domainStrategy": "AsIs"},
               })
 
           def build_hy2_config_yaml(cfg, local_port):
               lines = [
-                  f"server: {cfg['hostname']}:{cfg['port']}",
+                  f'server: {cfg["hostname"]}:{cfg["port"]}',
                   f'auth: "{cfg["auth"]}"',
                   "tls:",
-                  f"  sni: {cfg['sni']}",
-                  f"  insecure: {'true' if cfg['insecure'] else 'false'}",
+                  f'  sni: {cfg["sni"]}',
+                  f'  insecure: {"true" if cfg["insecure"] else "false"}',
                   "socks5:",
                   f"  listen: 127.0.0.1:{local_port}",
               ]
-              if cfg.get('obfs') == 'salamander':
+              if cfg.get("obfs") == "salamander":
                   lines += [
                       "obfs:",
                       "  type: salamander",
@@ -490,87 +503,115 @@ jobs:
                   try:
                       with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
                           sock.settimeout(0.4)
-                          if sock.connect_ex(('127.0.0.1', port)) == 0:
+                          if sock.connect_ex(("127.0.0.1", port)) == 0:
                               return True
                   except Exception:
                       pass
                   time.sleep(0.12)
               return False
 
+          def read_tail(path, n=1200):
+              try:
+                  with open(path, "r", encoding="utf-8", errors="replace") as f:
+                      return f.read()[-n:].strip()
+              except Exception:
+                  return ""
+
           def test_connectivity_via_socks(local_port, label=""):
-              """Fresh session per test – avoids pool / env proxy pollution."""
               proxy = f"socks5h://127.0.0.1:{local_port}"
               proxies = {"http": proxy, "https": proxy}
-
-              # Primary URL only – reduces total wait time dramatically
-              urls = [
-                  "https://api.ip.sb/geoip",
-                  "https://ipinfo.io/json",
+              # Keep 3 fast endpoints. First success wins.
+              tests = [
+                  ("http://ifconfig.me/ip", "plain"),
+                  ("https://api.ipify.org?format=json", "json"),
+                  ("https://api.ip.sb/geoip", "json"),
               ]
 
-              for url in urls:
+              for url, mode in tests:
                   try:
                       with requests.Session() as session:
                           session.trust_env = False
-                          resp = session.get(
+                          response = session.get(
                               url,
                               proxies=proxies,
                               timeout=(PROXY_CONNECT_TIMEOUT, PROXY_READ_TIMEOUT),
-                              headers={"User-Agent": "hy2-checker/1.0"}
+                              headers={"User-Agent": "Mozilla/5.0"},
                           )
-                      if resp.status_code != 200:
-                          print(f"[{label}] HTTP {resp.status_code} from {url}")
+
+                      if response.status_code != 200:
                           continue
-                      data = resp.json()
-                      value = data.get("ip") or data.get("origin")
-                      if isinstance(value, str) and value.strip():
-                          ip = value.split(",")[0].strip()
-                          print(f"[{label}] Exit IP via {url}: {ip}")
-                          return ip
+
+                      ip = None
+                      if mode == "plain":
+                          content = response.text.strip()
+                          m = re.search(r"\b(?:\d{1,3}\.){3}\d{1,3}\b", content)
+                          if m:
+                              ip = m.group(0)
+                      else:
+                          try:
+                              data = response.json()
+                              ip = data.get("ip") or data.get("origin")
+                              if isinstance(ip, str):
+                                  ip = ip.split(",")[0].strip()
+                          except Exception:
+                              pass
+
+                      if ip:
+                          try:
+                              ipaddress.ip_address(ip)
+                              print(f"[{label}] Success via {url}: {ip}")
+                              return ip
+                          except Exception:
+                              pass
                   except Exception as e:
-                      print(f"[{label}] {type(e).__name__}: {e}")
+                      err_msg = str(e)[:120]
+                      print(f"[{label}] Fail {url}: {err_msg}")
               return None
 
           def test_vless(cfg):
               if is_deadline_exceeded() or not os.path.exists(XRAY_BIN):
                   return None
 
-              local_port = 0
               with socket.socket() as s:
-                  s.bind(('', 0))
+                  s.bind(("", 0))
                   local_port = s.getsockname()[1]
 
               cfg_path = f"/tmp/xray_{local_port}.json"
-              label = f"VL {cfg['hostname']}"
+              log_path = f"/tmp/xray_{local_port}.log"
+              label = f'VL {cfg["hostname"]}'
               proc = None
 
               try:
-                  with open(cfg_path, 'w') as f:
+                  with open(cfg_path, "w", encoding="utf-8") as f:
                       f.write(build_xray_config_json(cfg, local_port))
 
-                  proc = subprocess.Popen(
-                      [XRAY_BIN, 'run', '-c', cfg_path],
-                      stdout=subprocess.DEVNULL,
-                      stderr=subprocess.DEVNULL
-                  )
+                  with open(log_path, "w", encoding="utf-8") as log_file:
+                      proc = subprocess.Popen(
+                          [XRAY_BIN, "run", "-c", cfg_path],
+                          stdout=log_file,
+                          stderr=subprocess.STDOUT,
+                      )
 
                   if not wait_for_port_open(local_port, TIMEOUT_PROCESS_START):
+                      tail = read_tail(log_path)
+                      if tail:
+                          print(f"[{label}] Startup fail: {tail}")
                       return None
 
                   exit_ip = test_connectivity_via_socks(local_port, label=label)
                   if not exit_ip:
+                      tail = read_tail(log_path)
+                      if tail:
+                          print(f"[{label}] No exit IP, log: {tail}")
                       return None
 
                   cc = get_country_code(exit_ip)
-                  if cc == 'RU':
-                      return None
-
                   flag = get_flag(cc)
-                  mark = f"{flag} {cc} [VLESS] | {cfg['hostname']}"
-                  return cfg['original_link'].split('#')[0] + '#' + mark
+                  mark = f'{flag} {cc} [VLESS] | {cfg["hostname"]}'
+                  return cfg["original_link"].split("#")[0] + "#" + mark
 
               except Exception as e:
-                  print(f"[ERROR-VL] {cfg['hostname']}: {e}")
+                  print(f'[ERROR-VL] {cfg["hostname"]}: {e}')
                   return None
               finally:
                   if proc is not None and proc.poll() is None:
@@ -579,71 +620,61 @@ jobs:
                           proc.wait(timeout=2)
                       except subprocess.TimeoutExpired:
                           proc.kill()
-                  if os.path.exists(cfg_path):
-                      try:
-                          os.remove(cfg_path)
-                      except Exception:
-                          pass
+                  for p in (cfg_path, log_path):
+                      if os.path.exists(p):
+                          try:
+                              os.remove(p)
+                          except Exception:
+                              pass
 
           def test_hy2(cfg):
               if is_deadline_exceeded() or not os.path.exists(HYSTERIA_BIN):
                   return None
 
-              local_port = 0
               with socket.socket() as s:
-                  s.bind(('', 0))
+                  s.bind(("", 0))
                   local_port = s.getsockname()[1]
 
               cfg_path = f"/tmp/hy2_{local_port}.yaml"
               log_path = f"/tmp/hy2_{local_port}.log"
-              label = f"HY2 {cfg['hostname']}"
+              label = f'HY2 {cfg["hostname"]}'
               proc = None
 
               try:
-                  with open(cfg_path, 'w', encoding='utf-8') as f:
+                  with open(cfg_path, "w", encoding="utf-8") as f:
                       f.write(build_hy2_config_yaml(cfg, local_port))
 
-                  with open(log_path, 'w', encoding='utf-8') as log_file:
+                  with open(log_path, "w", encoding="utf-8") as log_file:
                       proc = subprocess.Popen(
-                          [HYSTERIA_BIN, 'client', '-c', cfg_path],
+                          [HYSTERIA_BIN, "client", "-c", cfg_path],
                           stdout=log_file,
-                          stderr=subprocess.STDOUT
+                          stderr=subprocess.STDOUT,
                       )
 
                   if not wait_for_port_open(local_port, TIMEOUT_PROCESS_START_HY2):
-                      # Optional: show last lines of log for diagnosis
-                      if os.path.exists(log_path):
-                          try:
-                              with open(log_path, 'r', errors='ignore') as lf:
-                                  snippet = lf.read()[-400:].strip()
-                              if snippet and ("FATAL" in snippet or "error" in snippet.lower()):
-                                  print(f"[{label}] Startup fail: {snippet}")
-                          except Exception:
-                              pass
+                      tail = read_tail(log_path)
+                      if tail:
+                          print(f"[{label}] Startup fail: {tail}")
                       return None
 
                   print(f"[{label}] SOCKS5 ready on :{local_port}")
-
                   exit_ip = test_connectivity_via_socks(local_port, label=label)
                   if not exit_ip:
-                      print(f"[{label}] No exit IP")
+                      tail = read_tail(log_path)
+                      if tail:
+                          print(f"[{label}] No exit IP, log: {tail}")
                       return None
 
                   cc = get_country_code(exit_ip)
                   print(f"[{label}] GeoIP: {cc} ({exit_ip})")
-
-                  if cc == 'RU':
-                      print(f"[{label}] Rejected RU exit")
-                      return None
-
                   flag = get_flag(cc)
-                  mark = f"{flag} {cc} [HY2] | {cfg['hostname']}"
-                  result = cfg['original_link'].split('#')[0] + '#' + mark
+                  mark = f'{flag} {cc} [HY2] | {cfg["hostname"]}'
+                  result = cfg["original_link"].split("#")[0] + "#" + mark
                   print(f"[SUCCESS-HY2] {result[:70]}...")
                   return result
 
               except Exception as e:
-                  print(f"[ERROR-HY2] {cfg['hostname']}: {type(e).__name__}: {e}")
+                  print(f'[ERROR-HY2] {cfg["hostname"]}: {type(e).__name__}: {e}')
                   return None
               finally:
                   if proc is not None and proc.poll() is None:
@@ -652,17 +683,17 @@ jobs:
                           proc.wait(timeout=2)
                       except subprocess.TimeoutExpired:
                           proc.kill()
-                  for path in (cfg_path, log_path):
-                      if os.path.exists(path):
+                  for p in (cfg_path, log_path):
+                      if os.path.exists(p):
                           try:
-                              os.remove(path)
+                              os.remove(p)
                           except Exception:
                               pass
 
           def test_config(cfg):
-              if cfg['type'] == 'vless':
+              if cfg["type"] == "vless":
                   return test_vless(cfg)
-              if cfg['type'] == 'hy2':
+              if cfg["type"] == "hy2":
                   return test_hy2(cfg)
               return None
 
@@ -675,7 +706,7 @@ jobs:
                       print("[!] Global deadline reached – stopping batches")
                       break
 
-                  batch = configs[start:start + batch_size]
+                  batch = configs[start : start + batch_size]
                   rem = remaining_time()
                   print(f"=== Batch {start // batch_size + 1}: {len(batch)} configs, remaining={int(rem)}s ===")
 
@@ -688,13 +719,13 @@ jobs:
                               result = future.result(timeout=1)
                           except Exception as e:
                               cfg = futures[future]
-                              print(f"[TEST ERROR] {cfg['type']} {cfg['hostname']}: {type(e).__name__}")
+                              print(f'[TEST ERROR] {cfg["type"]} {cfg["hostname"]}: {type(e).__name__}')
                               continue
 
                           if result:
                               with results_lock:
                                   working.append(result)
-                              print(f"[+] Working: {result.split('#')[-1][:80]}")
+                              print(f'[+] Working: {result.split("#")[-1][:80]}')
                   except FuturesTimeoutError:
                       print("[!] Batch timeout – cancelling remaining futures")
                   finally:
@@ -722,7 +753,7 @@ jobs:
           print("Testing connectivity in batches...")
           working = test_in_batches(filtered, batch_size=BATCH_SIZE)
 
-          print(f"\n=== RESULTS ===")
+          print("\n=== RESULTS ===")
           print(f"Working configs: {len(working)}")
           print(f"DNS fails: {dns_fail_count}")
           print(f"Time elapsed: {int(time.time() - start_time)}s")
@@ -733,7 +764,7 @@ jobs:
                   f.write(line + "\n")
 
           with open("results/stats.txt", "w", encoding="utf-8") as f:
-              f.write(f"Updated: {time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime())}\n")
+              f.write(f'Updated: {time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime())}\n')
               f.write(f"Working: {len(working)}\n")
               f.write(f"DNS fails: {dns_fail_count}\n")
               f.write(f"Elapsed: {int(time.time() - start_time)}s\n")
