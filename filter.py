@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
 Whitelist Filter for Russia — VLESS + Hysteria2
-Только статическая фильтрация (DNS + CIDR + SNI + RKN + формат).
-Без TCP/TLS-проб.
+Статическая фильтрация + параллельный DNS.
+Два режима: STRICT (IP+SNI) и RELAXED (только SNI + формат).
 """
 
 from __future__ import annotations
@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Optional, Dict, List, Set, Tuple
 from collections import Counter
 from dataclasses import dataclass
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import requests
 import maxminddb
@@ -32,15 +33,15 @@ RESULTS_DIR = Path("results")
 CACHE_DIR.mkdir(exist_ok=True)
 RESULTS_DIR.mkdir(exist_ok=True)
 
-# Базы белых списков (hxehex — лучший на 2026)
-WHITE_SNI_URL   = "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/whitelist.txt"
-WHITE_CIDR_URL  = "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/cidrwhitelist.txt"
-WHITE_IP_URL    = "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/ipwhitelist.txt"
+# Строгий режим: IP обязательно должен быть в white-списке
+# False = только SNI + формат (получишь больше ключей, но не все будут работать в белых списках)
+STRICT_IP = True
 
-# RKN blocklist (обновляется каждые 6 часов)
-RKN_MMDB_URL = "https://cdn.jsdelivr.net/gh/runetfreedom/russia-blocked-geoip@release/Country-ru-only.mmdb"
+WHITE_SNI_URL  = "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/whitelist.txt"
+WHITE_CIDR_URL = "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/cidrwhitelist.txt"
+WHITE_IP_URL   = "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/ipwhitelist.txt"
+RKN_MMDB_URL   = "https://cdn.jsdelivr.net/gh/runetfreedom/russia-blocked-geoip@release/Country-ru-only.mmdb"
 
-# Эмпирически рабочие SNI (из замеров на мобильном интернете РФ)
 EMPIRIC_GOOD_SNI = {
     "vk.com", "ok.ru", "mail.ru", "yandex.ru", "ya.ru", "dzen.ru",
     "ozon.ru", "wildberries.ru", "avito.ru", "rutube.ru", "mts.ru",
@@ -48,7 +49,6 @@ EMPIRIC_GOOD_SNI = {
     "sberbank.ru", "alfabank.ru", "2gis.ru", "2gis.com", "rzd.ru",
 }
 
-# Ловушки и замедляемые
 BAD_SNI_HINTS = (
     "gosuslugi", "gov.ru", "kremlin", "wikipedia", "github",
     "stackoverflow", "twitter", "facebook", "instagram",
@@ -59,9 +59,11 @@ UUID_RE = re.compile(r"^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$")
 PBK_RE  = re.compile(r"^[A-Za-z0-9_\-]{42,44}={0,2}$")
 SID_RE  = re.compile(r"^([0-9a-fA-F]{2}){0,8}$")
 
-CDN_ASNS = {13335, 16509, 209242, 396982, 60068, 15169}  # CF, AWS, CloudFront, Fastly, Google
-
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)],
+)
 log = logging.getLogger("filter")
 
 # ──────────────────────────────────────────────
@@ -84,13 +86,11 @@ class Config:
     sid: str = ""
     fp: str = ""
     alpn: str = ""
-    # hy2
     hop: str = ""
     insecure: bool = False
     pin_sha256: str = ""
     obfs: str = ""
     obfs_password: str = ""
-    # meta
     source: str = ""
     original: str = ""
     resolved_ip: str = ""
@@ -102,39 +102,41 @@ class Config:
 # ──────────────────────────────────────────────
 # УТИЛИТЫ
 # ──────────────────────────────────────────────
-_dns_cache: Dict[str, str] = {}
+_dns_cache: Dict[str, Optional[str]] = {}
 _session = requests.Session()
-_session.headers["User-Agent"] = "WhitelistFilter/2.0"
+_session.headers["User-Agent"] = "WhitelistFilter/2.1"
 
 def resolve(host: str) -> Optional[str]:
     if host in _dns_cache:
         return _dns_cache[host]
     try:
-        infos = socket.getaddrinfo(host, None, socket.AF_INET)
+        infos = socket.getaddrinfo(host, None, socket.AF_INET, socket.SOCK_STREAM)
         if infos:
             ip = infos[0][4][0]
             _dns_cache[host] = ip
             return ip
     except Exception:
         pass
+    _dns_cache[host] = None
     return None
 
-def fetch(url: str, max_age_h: int = 6) -> str:
+def fetch(url: str, max_age_h: float = 3) -> str:
     key = hashlib.sha256(url.encode()).hexdigest()
     path = CACHE_DIR / key
     if path.exists() and (time.time() - path.stat().st_mtime) < max_age_h * 3600:
         return path.read_text(encoding="utf-8", errors="ignore")
     try:
-        r = _session.get(url, timeout=25)
+        r = _session.get(url, timeout=20)
         r.raise_for_status()
         text = r.text
         path.write_text(text, encoding="utf-8")
         return text
     except Exception as e:
         if path.exists():
-            log.warning(f"fetch fail {url}: {e} → cache")
+            log.warning(f"fetch fail {url[:60]}... → cache ({e})")
             return path.read_text(encoding="utf-8", errors="ignore")
-        raise
+        log.warning(f"fetch fail {url[:60]}... → empty ({e})")
+        return ""
 
 def fetch_mmdb(url: str) -> maxminddb.Reader:
     path = CACHE_DIR / "rkn.mmdb"
@@ -162,7 +164,7 @@ def parse_vless(link: str, source: str) -> Optional[Config]:
         return Config(
             type="vless",
             id=userinfo,
-            hostname=host,
+            hostname=host.strip(),
             port=port,
             security=g("security", "none"),
             sni=g("sni", host),
@@ -182,7 +184,6 @@ def parse_vless(link: str, source: str) -> Optional[Config]:
         return None
 
 def parse_hy2(link: str, source: str) -> Optional[Config]:
-    """Корректно обрабатывает port hopping: host:443,5000-6000"""
     try:
         for pfx in ("hysteria2://", "hy2://"):
             if link.startswith(pfx):
@@ -213,7 +214,7 @@ def parse_hy2(link: str, source: str) -> Optional[Config]:
         return Config(
             type="hy2",
             id=auth,
-            hostname=host,
+            hostname=host.strip(),
             port=port,
             security="tls",
             sni=g("sni", host),
@@ -236,7 +237,6 @@ def parse_line(line: str, source: str) -> Optional[Config]:
         return parse_vless(line, source)
     if line.startswith(("hysteria2://", "hy2://")):
         return parse_hy2(line, source)
-    # base64
     try:
         dec = base64.urlsafe_b64decode(line + "==").decode(errors="ignore")
         if dec.startswith("vless://"):
@@ -250,7 +250,7 @@ def parse_line(line: str, source: str) -> Optional[Config]:
 # ──────────────────────────────────────────────
 # ГЕЙТЫ
 # ──────────────────────────────────────────────
-def vless_ok(c: Config, white_sni: Set[str], bad_sni: Set[str]) -> Tuple[bool, str]:
+def vless_ok(c: Config, white_sni: Set[str]) -> Tuple[bool, str]:
     if not UUID_RE.match(c.id or ""):
         return False, "bad_uuid"
     if c.security == "reality":
@@ -273,10 +273,10 @@ def vless_ok(c: Config, white_sni: Set[str], bad_sni: Set[str]) -> Tuple[bool, s
     if c.net == "xhttp" and not c.path:
         return False, "xhttp_no_path"
 
-    sni = (c.sni or "").lower()
+    sni = (c.sni or "").lower().strip()
     if not sni:
         return False, "empty_sni"
-    if any(b in sni for b in BAD_SNI_HINTS) or sni in bad_sni:
+    if any(b in sni for b in BAD_SNI_HINTS):
         return False, "bad_sni"
     if sni not in white_sni and not any(sni.endswith("." + d) for d in white_sni):
         return False, "sni_not_white"
@@ -301,7 +301,7 @@ def score(c: Config, white_ips: Set[str]) -> int:
     if any(sni == d or sni.endswith("." + d) for d in EMPIRIC_GOOD_SNI):
         s += 400
     if c.resolved_ip in white_ips:
-        s += 200
+        s += 300
     if c.port == 443:
         s += 100
     if c.type == "hy2":
@@ -309,6 +309,7 @@ def score(c: Config, white_ips: Set[str]) -> int:
         if c.obfs: s += 50
     else:
         if c.flow: s += 50
+        if c.security == "reality": s += 30
     return s
 
 # ──────────────────────────────────────────────
@@ -316,12 +317,12 @@ def score(c: Config, white_ips: Set[str]) -> int:
 # ──────────────────────────────────────────────
 def main():
     log.info("=== Loading allowlists ===")
-    white_sni = set(
+    white_sni = {
         l.strip().lower()
         for l in fetch(WHITE_SNI_URL).splitlines()
         if l.strip() and not l.startswith("#")
-    )
-    networks = []
+    }
+    networks: List[ipaddress.IPv4Network] = []
     for line in fetch(WHITE_CIDR_URL).splitlines():
         line = line.strip()
         if line and not line.startswith("#"):
@@ -329,50 +330,52 @@ def main():
                 networks.append(ipaddress.IPv4Network(line, strict=False))
             except Exception:
                 pass
-    white_ips = set(
+    white_ips = {
         l.strip()
         for l in fetch(WHITE_IP_URL).splitlines()
         if l.strip() and not l.startswith("#")
-    )
-    bad_sni: Set[str] = set()  # можно добавить throttled-list при желании
-
+    }
     log.info(f"White SNI: {len(white_sni)}, CIDR: {len(networks)}, IPs: {len(white_ips)}")
 
-    rkn = fetch_mmdb(RKN_MMDB_URL)
-    log.info("RKN MMDB loaded")
+    try:
+        rkn = fetch_mmdb(RKN_MMDB_URL)
+        log.info("RKN MMDB loaded")
+    except Exception as e:
+        log.warning(f"RKN MMDB failed: {e} — пропускаем RKN-гейт")
+        rkn = None
 
     # Источники
     sources_file = Path("sources.txt")
-    urls = []
-    if sources_file.exists():
-        for line in sources_file.read_text().splitlines():
-            line = line.strip()
-            if line and not line.startswith("#"):
-                urls.append(line)
-    else:
+    if not sources_file.exists():
         log.error("sources.txt not found")
         sys.exit(1)
 
+    urls = [
+        line.strip()
+        for line in sources_file.read_text(encoding="utf-8").splitlines()
+        if line.strip() and not line.startswith("#")
+    ]
+
     all_cfgs: List[Config] = []
     for url in urls:
-        name = url.split("/")[-1][:40]
-        try:
-            text = fetch(url, max_age_h=2)
-            cnt = 0
-            for line in text.splitlines():
-                c = parse_line(line, name)
-                if c:
-                    all_cfgs.append(c)
-                    cnt += 1
-            log.info(f"{name}: {cnt} parsed")
-        except Exception as e:
-            log.warning(f"{name}: {e}")
+        name = url.rstrip("/").split("/")[-1][:50]
+        text = fetch(url, max_age_h=2)
+        if not text:
+            log.warning(f"{name}: empty / failed")
+            continue
+        cnt = 0
+        for line in text.splitlines():
+            c = parse_line(line, name)
+            if c:
+                all_cfgs.append(c)
+                cnt += 1
+        log.info(f"{name}: {cnt} parsed")
 
     log.info(f"Total parsed: {len(all_cfgs)}")
 
     # Дедуп
     seen = set()
-    unique = []
+    unique: List[Config] = []
     for c in all_cfgs:
         k = c.dedup_key()
         if k not in seen:
@@ -380,10 +383,22 @@ def main():
             unique.append(c)
     log.info(f"After dedup: {len(unique)}")
 
+    # Параллельный DNS
+    log.info("Resolving DNS (parallel)...")
+    hosts = list({c.hostname for c in unique})
+    with ThreadPoolExecutor(max_workers=40) as ex:
+        list(ex.map(resolve, hosts))
+    log.info(f"DNS done, cache size: {len(_dns_cache)}")
+
     # Фильтрация
-    passed = []
+    passed: List[Config] = []
     reasons = Counter()
-    for c in unique:
+    total = len(unique)
+
+    for i, c in enumerate(unique, 1):
+        if i % 1000 == 0 or i == total:
+            log.info(f"Filtering {i}/{total}...")
+
         ip = resolve(c.hostname)
         if not ip:
             reasons["no_dns"] += 1
@@ -391,21 +406,23 @@ def main():
         c.resolved_ip = ip
 
         # RKN
-        try:
-            if rkn.get(ip) is not None:
-                reasons["rkn_blocked"] += 1
-                continue
-        except Exception:
-            pass
+        if rkn is not None:
+            try:
+                if rkn.get(ip) is not None:
+                    reasons["rkn_blocked"] += 1
+                    continue
+            except Exception:
+                pass
 
-        # White IP/CIDR
-        if ip not in white_ips and not any(ipaddress.IPv4Address(ip) in n for n in networks):
+        # IP-гейт (строгий или мягкий)
+        ip_white = ip in white_ips or any(ipaddress.IPv4Address(ip) in n for n in networks)
+        if STRICT_IP and not ip_white:
             reasons["ip_not_white"] += 1
             continue
 
-        # Protocol gates
+        # Протокольные гейты
         if c.type == "vless":
-            ok, reason = vless_ok(c, white_sni, bad_sni)
+            ok, reason = vless_ok(c, white_sni)
         else:
             ok, reason = hy2_ok(c)
         if not ok:
@@ -413,6 +430,8 @@ def main():
             continue
 
         c.score = score(c, white_ips)
+        if ip_white:
+            c.score += 200  # бонус за белый IP
         passed.append(c)
 
     log.info(f"Passed: {len(passed)}")
@@ -453,14 +472,16 @@ def main():
 
     log.info(f"Written {len(passed)} configs → {out}")
 
-    # Статистика
     stats = {
+        "strict_ip": STRICT_IP,
         "total_passed": len(passed),
         "by_type": dict(Counter(c.type for c in passed)),
         "reject_reasons": dict(reasons),
         "top10": [(c.score, c.type, c.sni, c.resolved_ip) for c in passed[:10]],
     }
-    (RESULTS_DIR / "stats.json").write_text(json.dumps(stats, indent=2, ensure_ascii=False))
+    (RESULTS_DIR / "stats.json").write_text(
+        json.dumps(stats, indent=2, ensure_ascii=False), encoding="utf-8"
+    )
     log.info("Done.")
 
 if __name__ == "__main__":
