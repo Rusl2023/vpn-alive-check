@@ -2,9 +2,8 @@ name: Filter Whitelist VLESS + HY2
 
 on:
   schedule:
-    # каждые 2 часа
-    - cron: "0 */2 * * *"
-  workflow_dispatch:   # ручной запуск
+    - cron: "0 */2 * * *"   # каждые 2 часа
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -12,7 +11,7 @@ permissions:
 jobs:
   filter:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 20
 
     steps:
       - name: Checkout
@@ -25,19 +24,19 @@ jobs:
           cache: "pip"
 
       - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
+        run: pip install -r requirements.txt
 
       - name: Run filter
-        run: |
-          python filter.py
+        run: python filter.py
 
       - name: Commit & Push results
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add results/
-          git diff --quiet && git diff --staged --quiet || (
+          git add results/ || true
+          if git diff --staged --quiet; then
+            echo "No changes"
+          else
             git commit -m "chore: update whitelist configs $(date -u +%Y-%m-%dT%H:%MZ)"
             git push
-          )
+          fi
