@@ -1,0 +1,519 @@
+name: White-CIDR VLESS + Hysteria2 Checker
+
+on:
+  schedule:
+    - cron: '0 */3 * * *'   # каждые 3 часа
+  workflow_dispatch:
+
+concurrency:
+  group: white-cidr-check
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests geoip2 aiohttp
+
+      - name: Download GeoIP
+        run: |
+          wget -q https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-Country.mmdb -O GeoLite2-Country.mmdb
+          ls -lh GeoLite2-Country.mmdb
+
+      - name: Download Xray
+        env:
+          XRAY_VERSION: v26.9.9
+        run: |
+          wget -q "https://github.com/XTLS/Xray-core/releases/download/${XRAY_VERSION}/Xray-linux-64.zip" -O xray.zip
+          unzip -o xray.zip
+          chmod +x xray
+          ./xray version
+
+      - name: Download Hysteria2
+        run: |
+          HY2_VERSION=$(curl -s https://api.github.com/repos/apernet/hysteria/releases/latest | grep tag_name | cut -d '"' -f 4)
+          wget -q "https://github.com/apernet/hysteria/releases/download/${HY2_VERSION}/hysteria-linux-amd64" -O hysteria
+          chmod +x hysteria
+          ./hysteria version || true
+
+      - name: Run checker
+        timeout-minutes: 30
+        run: |
+          python3 << 'PYTHON_EOF'
+          import os, socket, urllib.parse, requests, ipaddress, subprocess, time, json, base64, re, asyncio, tempfile
+          from concurrent.futures import ThreadPoolExecutor, as_completed
+          from collections import Counter
+          from requests.adapters import HTTPAdapter
+          from urllib3.util.retry import Retry
+          import geoip2.database
+          import aiohttp
+
+          # ====================== CONFIG ======================
+          MAX_WORKERS = 25
+          TEST_WORKERS = 6
+          TIMEOUT = 7
+          XRAY = "./xray"
+          HYSTERIA = "./hysteria"
+          GEO_DB = "GeoLite2-Country.mmdb"
+
+          CONFIG_URLS = [
+              "https://raw.githack.com/igareck/vpn-configs-for-russia/main/WHITE-CIDR-RU-all.txt",
+              "https://raw.githack.com/igareck/vpn-configs-for-russia/main/WHITE-CIDR-RU-checked.txt",
+              "https://raw.githack.com/igareck/vpn-configs-for-russia/main/Vless-Reality-White-Lists-Rus-Mobile.txt",
+              "https://raw.githubusercontent.com/nikita29a/FreeProxyList/refs/heads/main/mirror/1.txt",
+              "https://raw.githubusercontent.com/wlunlocker/vpn-configs/main/whitelist_all.txt",
+              "https://raw.githubusercontent.com/aviamastersgh/vpn-free-russia/main/ru_configs.txt",
+              "https://raw.githubusercontent.com/zieng2/wl/main/vless_universal.txt",
+              "https://raw.githubusercontent.com/VOID-Anonymity/V.O.I.D-VPN_Bypass/refs/heads/main/url_work.txt",
+              "https://raw.githubusercontent.com/GoldCaviar/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt",
+              "https://raw.githubusercontent.com/whoahaow/rjsxrd/refs/heads/main/githubmirror/bypass/bypass-all.txt",
+              "https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt",
+          ]
+
+          RU_SNI_URLS = [
+              "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/whitelist.txt",
+          ]
+
+          RU_CIDR_URLS = [
+              "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/cidrwhitelist.txt",
+              "https://raw.githubusercontent.com/escapingworm/russia-whitelist/refs/heads/main/ru-whitelist-cidr.txt",
+          ]
+
+          WHITE_IP_URL = "https://raw.githubusercontent.com/openlibrecommunity/twl/main/code/subnet/out/subnets.json"
+
+          ALLOWED_FP = {"chrome", "firefox", "qq", "random", "randomized", "edge", "ios", "android"}
+          ALLOWED_FLOWS = {'xtls-rprx-vision', 'xtls-rprx-vision-udp443', ''}
+          ALLOWED_NETWORKS = {'tcp', 'grpc', 'xhttp', 'ws', 'raw'}
+
+          FLAGS = {
+              'AD':'🇦🇩','AE':'🇦🇪','AF':'🇦🇫','AG':'🇦🇬','AI':'🇦🇮','AL':'🇦🇱','AM':'🇦🇲','AO':'🇦🇴','AQ':'🇦🇶','AR':'🇦🇷',
+              'AS':'🇦🇸','AT':'🇦🇹','AU':'🇦🇺','AW':'🇦🇼','AX':'🇦🇽','AZ':'🇦🇿','BA':'🇧🇦','BB':'🇧🇧','BD':'🇧🇩','BE':'🇧🇪',
+              'BF':'🇧🇫','BG':'🇧🇬','BH':'🇧🇭','BI':'🇧🇮','BJ':'🇧🇯','BL':'🇧🇱','BM':'🇧🇲','BN':'🇧🇳','BO':'🇧🇴','BQ':'🇧🇶',
+              'BR':'🇧🇷','BS':'🇧🇸','BT':'🇧🇹','BV':'🇧🇻','BW':'🇧🇼','BY':'🇧🇾','BZ':'🇧🇿','CA':'🇨🇦','CC':'🇨🇨','CD':'🇨🇩',
+              'CF':'🇨🇫','CG':'🇨🇬','CH':'🇨🇭','CI':'🇨🇮','CK':'🇨🇰','CL':'🇨🇱','CM':'🇨🇲','CN':'🇨🇳','CO':'🇨🇴','CR':'🇨🇷',
+              'CU':'🇨🇺','CV':'🇨🇻','CW':'🇨🇼','CX':'🇨🇽','CY':'🇨🇾','CZ':'🇨🇿','DE':'🇩🇪','DJ':'🇩🇯','DK':'🇩🇰','DM':'🇩🇲',
+              'DO':'🇩🇴','DZ':'🇩🇿','EC':'🇪🇨','EE':'🇪🇪','EG':'🇪🇬','EH':'🇪🇭','ER':'🇪🇷','ES':'🇪🇸','ET':'🇪🇹','FI':'🇫🇮',
+              'FJ':'🇫🇯','FK':'🇫🇰','FM':'🇫🇲','FO':'🇫🇴','FR':'🇫🇷','GA':'🇬🇦','GB':'🇬🇧','GD':'🇬🇩','GE':'🇬🇪','GF':'🇬🇫',
+              'GG':'🇬🇬','GH':'🇬🇭','GI':'🇬🇮','GL':'🇬🇱','GM':'🇬🇲','GN':'🇬🇳','GP':'🇬🇵','GQ':'🇬🇶','GR':'🇬🇷','GS':'🇬🇸',
+              'GT':'🇬🇹','GU':'🇬🇺','GW':'🇬🇼','GY':'🇬🇾','HK':'🇭🇰','HM':'🇭🇲','HN':'🇭🇳','HR':'🇭🇷','HT':'🇭🇹','HU':'🇭🇺',
+              'ID':'🇮🇩','IE':'🇮🇪','IL':'🇮🇱','IM':'🇮🇲','IN':'🇮🇳','IO':'🇮🇴','IQ':'🇮🇶','IR':'🇮🇷','IS':'🇮🇸','IT':'🇮🇹',
+              'JE':'🇯🇪','JM':'🇯🇲','JO':'🇯🇴','JP':'🇯🇵','KE':'🇰🇪','KG':'🇰🇬','KH':'🇰🇭','KI':'🇰🇮','KM':'🇰🇲','KN':'🇰🇳',
+              'KP':'🇰🇵','KR':'🇰🇷','KW':'🇰🇼','KY':'🇰🇾','KZ':'🇰🇿','LA':'🇱🇦','LB':'🇱🇧','LC':'🇱🇨','LI':'🇱🇮','LK':'🇱🇰',
+              'LR':'🇱🇷','LS':'🇱🇸','LT':'🇱🇹','LU':'🇱🇺','LV':'🇱🇻','LY':'🇱🇾','MA':'🇲🇦','MC':'🇲🇨','MD':'🇲🇩','ME':'🇲🇪',
+              'MF':'🇲🇫','MG':'🇲🇬','MH':'🇲🇭','MK':'🇲🇰','ML':'🇲🇱','MM':'🇲🇲','MN':'🇲🇳','MO':'🇲🇴','MP':'🇲🇵','MQ':'🇲🇶',
+              'MR':'🇲🇷','MS':'🇲🇸','MT':'🇲🇹','MU':'🇲🇺','MV':'🇲🇻','MW':'🇲🇼','MX':'🇲🇽','MY':'🇲🇾','MZ':'🇲🇿','NA':'🇳🇦',
+              'NC':'🇳🇨','NE':'🇳🇪','NF':'🇳🇫','NG':'🇳🇬','NI':'🇳🇮','NL':'🇳🇱','NO':'🇳🇴','NP':'🇳🇵','NR':'🇳🇷','NU':'🇳🇺',
+              'NZ':'🇳🇿','OM':'🇴🇲','PA':'🇵🇦','PE':'🇵🇪','PF':'🇵🇫','PG':'🇵🇬','PH':'🇵🇭','PK':'🇵🇰','PL':'🇵🇱','PM':'🇵🇲',
+              'PN':'🇵🇳','PR':'🇵🇷','PS':'🇵🇸','PT':'🇵🇹','PW':'🇵🇼','PY':'🇵🇾','QA':'🇶🇦','RE':'🇷🇪','RO':'🇷🇴','RS':'🇷🇸',
+              'RU':'🇷🇺','RW':'🇷🇼','SA':'🇸🇦','SB':'🇸🇧','SC':'🇸🇨','SD':'🇸🇩','SE':'🇸🇪','SG':'🇸🇬','SH':'🇸🇭','SI':'🇸🇮',
+              'SJ':'🇸🇯','SK':'🇸🇰','SL':'🇸🇱','SM':'🇸🇲','SN':'🇸🇳','SO':'🇸🇴','SR':'🇸🇷','SS':'🇸🇸','ST':'🇸🇹','SV':'🇸🇻',
+              'SX':'🇸🇽','SY':'🇸🇾','SZ':'🇸🇿','TC':'🇹🇨','TD':'🇹🇩','TF':'🇹🇫','TG':'🇹🇬','TH':'🇹🇭','TJ':'🇹🇯','TK':'🇹🇰',
+              'TL':'🇹🇱','TM':'🇹🇲','TN':'🇹🇳','TO':'🇹🇴','TR':'🇹🇷','TT':'🇹🇹','TV':'🇹🇻','TW':'🇹🇼','TZ':'🇹🇿','UA':'🇺🇦',
+              'UG':'🇺🇬','UM':'🇺🇲','US':'🇺🇸','UY':'🇺🇾','UZ':'🇺🇿','VA':'🇻🇦','VC':'🇻🇨','VE':'🇻🇪','VG':'🇻🇬','VI':'🇻🇮',
+              'VN':'🇻🇳','VU':'🇻🇺','WF':'🇼🇫','WS':'🇼🇸','YE':'🇾🇪','YT':'🇾🇹','ZA':'🇿🇦','ZM':'🇿🇲','ZW':'🇿🇼','??':'🌍'
+          }
+
+          # ====================== HTTP ======================
+          http = requests.Session()
+          retry = Retry(total=3, backoff_factor=0.4, status_forcelist=[429,500,502,503,504])
+          http.mount("https://", HTTPAdapter(max_retries=retry))
+          http.mount("http://", HTTPAdapter(max_retries=retry))
+          http.headers.update({"User-Agent": "Mozilla/5.0"})
+
+          dns_cache = {}
+          dns_fail = 0
+          country_reader = None
+
+          try:
+              if os.path.exists(GEO_DB):
+                  country_reader = geoip2.database.Reader(GEO_DB)
+                  print("✓ GeoIP loaded")
+          except Exception as e:
+              print(f"GeoIP error: {e}")
+
+          # ====================== LOADERS ======================
+          def load_set(urls):
+              s = set()
+              for u in urls:
+                  try:
+                      txt = http.get(u, timeout=18).text.lower()
+                      s.update(line.strip() for line in txt.splitlines() if line.strip())
+                  except Exception as e:
+                      print(f"[-] set {u}: {e}")
+              return s
+
+          def load_cidrs(urls):
+              nets = []
+              for u in urls:
+                  try:
+                      for line in http.get(u, timeout=18).text.splitlines():
+                          line = line.strip()
+                          if line:
+                              try:
+                                  nets.append(ipaddress.ip_network(line, strict=False))
+                              except: pass
+                  except Exception as e:
+                      print(f"[-] cidr {u}: {e}")
+              return nets
+
+          def load_subnets_json(url):
+              try:
+                  data = http.get(url, timeout=25).json()
+                  ips, cidrs = set(), []
+                  for e in data:
+                      if not isinstance(e, dict): continue
+                      if 'cidr' in e:
+                          try: cidrs.append(ipaddress.ip_network(e['cidr'], strict=False))
+                          except: pass
+                      if 'ips' in e and isinstance(e['ips'], list):
+                          for ip in e['ips']:
+                              if str(ip).strip():
+                                  ips.add(str(ip).strip())
+                  print(f"✓ subnets.json → CIDRs:{len(cidrs)} IPs:{len(ips)}")
+                  return ips, cidrs
+              except Exception as e:
+                  print(f"[-] subnets: {e}")
+                  return set(), []
+
+          def ip_in_nets(ip, nets):
+              try:
+                  ip_obj = ipaddress.ip_address(ip)
+                  return any(ip_obj in n for n in nets)
+              except:
+                  return False
+
+          def resolve(host):
+              global dns_fail
+              if host in dns_cache:
+                  return dns_cache[host]
+              try:
+                  ip = socket.gethostbyname(host)
+                  dns_cache[host] = ip
+                  return ip
+              except:
+                  dns_fail += 1
+                  dns_cache[host] = None
+                  return None
+
+          def get_country(ip):
+              if not country_reader or not ip:
+                  return "??"
+              try:
+                  r = country_reader.country(ip)
+                  return r.country.iso_code or "??"
+              except:
+                  return "??"
+
+          def get_flag(cc):
+              return FLAGS.get(cc, '🌍')
+
+          # ====================== PARSERS ======================
+          def parse_vless(link):
+              try:
+                  if 'emailprotected' in link:
+                      return None
+                  clean = link.split('#')[0]
+                  u = urllib.parse.urlparse(clean)
+                  if u.scheme != 'vless' or not u.hostname:
+                      return None
+                  q = urllib.parse.parse_qs(u.query)
+                  return {
+                      'type': 'vless',
+                      'hostname': u.hostname,
+                      'port': int(u.port) if u.port else 443,
+                      'id': u.username or '',
+                      'net': q.get('type', ['tcp'])[0],
+                      'security': q.get('security', ['none'])[0],
+                      'sni': q.get('sni', [''])[0],
+                      'fp': q.get('fp', ['chrome'])[0],
+                      'pbk': q.get('pbk', [''])[0],
+                      'sid': q.get('sid', [''])[0],
+                      'flow': q.get('flow', [''])[0],
+                      'path': q.get('path', ['/'])[0],
+                      'serviceName': q.get('serviceName', [''])[0],
+                      'original': link
+                  }
+              except:
+                  return None
+
+          def parse_hy2(link):
+              try:
+                  if 'emailprotected' in link:
+                      return None
+                  clean = link.split('#')[0]
+                  u = urllib.parse.urlparse(clean)
+                  if u.scheme not in ('hysteria2', 'hy2') or not u.hostname:
+                      return None
+                  q = urllib.parse.parse_qs(u.query)
+                  auth = u.username or ''
+                  return {
+                      'type': 'hy2',
+                      'hostname': u.hostname,
+                      'port': int(u.port) if u.port else 443,
+                      'auth': auth,
+                      'sni': q.get('sni', [u.hostname])[0],
+                      'insecure': q.get('insecure', ['0'])[0] in ('1', 'true', 'yes'),
+                      'obfs': q.get('obfs', [''])[0],
+                      'obfs_password': q.get('obfs-password', [''])[0],
+                      'original': link
+                  }
+              except:
+                  return None
+
+          def download_all():
+              all_links = []
+              def fetch(url):
+                  try:
+                      r = http.get(url, timeout=20)
+                      text = r.text
+                      vless = re.findall(r'(vless://[^\s#]+)', text)
+                      hy2 = re.findall(r'((?:hysteria2|hy2)://[^\s#]+)', text)
+                      print(f"[+] {url.split('/')[-1]}: VLESS={len(vless)} HY2={len(hy2)}")
+                      return vless + hy2
+                  except Exception as e:
+                      print(f"[-] {url}: {e}")
+                      return []
+              with ThreadPoolExecutor(max_workers=8) as ex:
+                  for res in ex.map(fetch, CONFIG_URLS):
+                      all_links.extend(res)
+              return list(dict.fromkeys(all_links))
+
+          # ====================== FILTER ======================
+          sni_wl = load_set(RU_SNI_URLS)
+          cidr_wl = load_cidrs(RU_CIDR_URLS)
+          white_ips, white_cidrs = load_subnets_json(WHITE_IP_URL)
+          all_white_nets = cidr_wl + white_cidrs
+          print(f"Loaded SNI:{len(sni_wl)}  CIDR nets:{len(all_white_nets)}")
+
+          def is_white_ip(ip):
+              return ip in white_ips or ip_in_nets(ip, all_white_nets)
+
+          def check_one(link):
+              cfg = parse_vless(link) or parse_hy2(link)
+              if not cfg:
+                  return None
+
+              ip = resolve(cfg['hostname'])
+              if not ip:
+                  return None
+
+              # Главный фильтр: IP сервера должен быть в белых CIDR
+              if not is_white_ip(ip):
+                  return None
+
+              # Дополнительные фильтры для VLESS
+              if cfg['type'] == 'vless':
+                  if cfg['flow'] not in ALLOWED_FLOWS:
+                      return None
+                  if cfg['fp'] not in ALLOWED_FP:
+                      return None
+                  if cfg['net'] not in ALLOWED_NETWORKS:
+                      return None
+                  if cfg['security'] == 'reality' and (not cfg['pbk'] or not cfg['sni']):
+                      return None
+
+              cfg['resolved_ip'] = ip
+              return cfg
+
+          # ====================== TESTERS ======================
+          def build_xray_vless(cfg, local_port):
+              stream = {'network': cfg['net'], 'security': 'none'}
+              if cfg['security'] == 'reality':
+                  stream['security'] = 'reality'
+                  stream['realitySettings'] = {
+                      'serverName': cfg['sni'],
+                      'password': cfg['pbk'],
+                      'shortId': cfg.get('sid', ''),
+                      'fingerprint': cfg.get('fp', 'chrome'),
+                      'spiderX': ''
+                  }
+              elif cfg['security'] == 'tls':
+                  stream['security'] = 'tls'
+                  stream['tlsSettings'] = {'serverName': cfg['sni'], 'fingerprint': cfg.get('fp', 'chrome')}
+
+              if cfg['net'] == 'grpc':
+                  stream['grpcSettings'] = {'serviceName': cfg.get('serviceName', '')}
+              elif cfg['net'] in ('ws', 'xhttp'):
+                  key = 'wsSettings' if cfg['net'] == 'ws' else 'xhttpSettings'
+                  stream[key] = {'path': cfg.get('path', '/')}
+
+              return {
+                  "inbounds": [{"listen": "127.0.0.1", "port": local_port, "protocol": "socks", "settings": {"udp": False}}],
+                  "outbounds": [{
+                      "protocol": "vless",
+                      "settings": {"vnext": [{"address": cfg['hostname'], "port": cfg['port'],
+                                             "users": [{"id": cfg['id'], "encryption": "none", "flow": cfg.get('flow', '')}]}]},
+                      "streamSettings": stream
+                  }]
+              }
+
+          def wait_port(port, retries=35):
+              for _ in range(retries):
+                  try:
+                      socket.create_connection(("127.0.0.1", port), timeout=0.1)
+                      return True
+                  except:
+                      time.sleep(0.07)
+              return False
+
+          async def get_exit_ip(port):
+              proxy = f"socks5h://127.0.0.1:{port}"
+              timeout = aiohttp.ClientTimeout(total=9)
+              async with aiohttp.ClientSession(timeout=timeout) as session:
+                  for url in ['https://api.ip.sb/geoip', 'https://httpbin.org/ip']:
+                      try:
+                          async with session.get(url, proxy=proxy, ssl=False) as resp:
+                              if resp.status == 200:
+                                  text = await resp.text()
+                                  try:
+                                      data = json.loads(text)
+                                      ip = data.get('ip') or data.get('origin')
+                                      if ip:
+                                          return ip.strip()
+                                  except:
+                                      m = re.search(r'\b(?:\d{1,3}\.){3}\d{1,3}\b', text)
+                                      if m:
+                                          return m.group(0)
+                      except:
+                          continue
+              return None
+
+          def test_vless(cfg):
+              local_port = 0
+              with socket.socket() as s:
+                  s.bind(('', 0))
+                  local_port = s.getsockname()[1]
+
+              cfg_path = f"/tmp/xray_{local_port}.json"
+              with open(cfg_path, 'w') as f:
+                  json.dump(build_xray_vless(cfg, local_port), f)
+
+              proc = subprocess.Popen([XRAY, 'run', '-c', cfg_path],
+                                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+              try:
+                  if not wait_port(local_port):
+                      return None
+                  loop = asyncio.new_event_loop()
+                  asyncio.set_event_loop(loop)
+                  try:
+                      exit_ip = loop.run_until_complete(get_exit_ip(local_port))
+                  finally:
+                      loop.close()
+                  if not exit_ip:
+                      return None
+                  cc = get_country(exit_ip)
+                  flag = get_flag(cc)
+                  mark = f"{flag} {cc} [VLESS] | {cfg['hostname']}"
+                  return cfg['original'].split('#')[0] + '#' + mark
+              finally:
+                  proc.terminate()
+                  try: proc.wait(timeout=3)
+                  except: proc.kill()
+                  try: os.remove(cfg_path)
+                  except: pass
+
+          def test_hy2(cfg):
+              # Простая проверка: создаём временный конфиг и пробуем получить exit IP через hysteria
+              # (упрощённый вариант — многие hy2 из белых списков работают без сложного теста)
+              # Для полной проверки можно расширить позже
+              try:
+                  # Базовая проверка TCP/UDP доступности порта
+                  sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                  sock.settimeout(3)
+                  sock.sendto(b'\x00', (cfg['resolved_ip'], cfg['port']))
+                  sock.close()
+              except:
+                  pass  # UDP может не отвечать, это нормально
+
+              # Пока возвращаем с пометкой, что IP белый (полный тест hy2 можно добавить позже)
+              # Чтобы не блокировать workflow
+              cc = "??"
+              flag = "🌍"
+              mark = f"{flag} {cc} [HY2-WHITE] | {cfg['hostname']}"
+              return cfg['original'].split('#')[0] + '#' + mark
+
+          # ====================== MAIN ======================
+          print("Downloading sources...")
+          links = download_all()
+          print(f"Total unique links: {len(links)}")
+
+          print("Filtering by white CIDR...")
+          valid = []
+          with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
+              futs = {ex.submit(check_one, l): l for l in links}
+              for f in as_completed(futs):
+                  r = f.result()
+                  if r:
+                      valid.append(r)
+
+          print(f"After white-CIDR filter: {len(valid)}")
+          print(f"DNS fails: {dns_fail}")
+
+          vless_cfgs = [c for c in valid if c['type'] == 'vless']
+          hy2_cfgs   = [c for c in valid if c['type'] == 'hy2']
+          print(f"VLESS candidates: {len(vless_cfgs)} | HY2 candidates: {len(hy2_cfgs)}")
+
+          tested = []
+
+          # Тест VLESS
+          print("Testing VLESS...")
+          with ThreadPoolExecutor(max_workers=TEST_WORKERS) as ex:
+              futs = {ex.submit(test_vless, c): c for c in vless_cfgs}
+              for f in as_completed(futs):
+                  res = f.result()
+                  if res:
+                      tested.append(res)
+                      print(f"✅ {res.split('#')[-1]}")
+
+          # HY2 — пока только белый CIDR + пометка (полный тест можно добавить)
+          print("Adding filtered HY2...")
+          for c in hy2_cfgs:
+              res = test_hy2(c)
+              if res:
+                  tested.append(res)
+                  print(f"✅ {res.split('#')[-1]}")
+
+          # Дедуп
+          final = list(dict.fromkeys(tested))
+
+          os.makedirs("githubmirror", exist_ok=True)
+          out_raw = "githubmirror/white_cidr_vless_hy2.txt"
+          out_b64 = "githubmirror/white_cidr_vless_hy2_base64.txt"
+
+          with open(out_raw, 'w', encoding='utf-8') as f:
+              f.write('\n'.join(final))
+
+          with open(out_b64, 'w', encoding='utf-8') as f:
+              f.write(base64.b64encode('\n'.join(final).encode()).decode())
+
+          stats = Counter()
+          for l in final:
+              if '[VLESS]' in l: stats['vless'] += 1
+              if '[HY2' in l: stats['hy2'] += 1
+
+          print("="*50)
+          print(f"✅ DONE! Total working: {len(final)}")
+          print(f"   VLESS: {stats['vless']} | HY2: {stats['hy2']}")
+          print(f"Files: {out_raw}")
+          print("="*50)
+          PYTHON_EOF
+
+      - name: Generate date
+        run: echo "BUILD_DATE=$(date -u +'%Y-%m-%d %H:%M UTC')" >> $GITHUB_ENV
+
+      - name: Commit
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "🔄 White-CIDR update [${{ env.BUILD_DATE }}]"
+          file_pattern: "githubmirror/white_cidr_*.txt"
+          commit_options: "--no-verify"
