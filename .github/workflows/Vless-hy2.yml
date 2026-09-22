@@ -41,8 +41,8 @@ jobs:
 
       - name: Download Hysteria2
         run: |
-          HY2_VERSION=$(curl -s https://api.github.com/repos/apernet/hysteria/releases/latest | grep tag_name | cut -d '"' -f 4)
-          wget -q "https://github.com/apernet/hysteria/releases/download/${HY2_VERSION}/hysteria-linux-amd64" -O hysteria
+          # Самый надёжный способ — официальный redirect на latest
+          wget -q https://download.hysteria.network/app/latest/hysteria-linux-amd64 -O hysteria
           chmod +x hysteria
           ./hysteria version || true
 
