@@ -16,6 +16,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # чтобы потом можно было пушить
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -33,10 +37,16 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
           git add results/ || true
+
           if git diff --staged --quiet; then
-            echo "No changes"
-          else
-            git commit -m "chore: update whitelist configs $(date -u +%Y-%m-%dT%H:%MZ)"
-            git push
+            echo "No changes to commit"
+            exit 0
           fi
+
+          git commit -m "chore: update whitelist configs $(date -u +%Y-%m-%dT%H:%MZ)"
+
+          # подтягиваем возможные изменения с remote и пушим
+          git pull --rebase origin main || git pull --rebase origin master || true
+          git push origin HEAD:main || git push origin HEAD:master
