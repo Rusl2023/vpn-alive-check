@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """
 Whitelist Filter for Russia — VLESS + Hysteria2
-Статическая фильтрация + параллельный DNS.
-Два режима: STRICT (IP+SNI) и RELAXED (только SNI + формат).
+Создаёт два файла:
+  - working_strict.txt   (IP + SNI)
+  - working_relaxed.txt  (только SNI + формат)
 """
 
 from __future__ import annotations
@@ -20,22 +21,16 @@ from pathlib import Path
 from typing import Optional, Dict, List, Set, Tuple
 from collections import Counter
 from dataclasses import dataclass
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor
 
 import requests
 import maxminddb
 
 # ──────────────────────────────────────────────
-# КОНФИГ
-# ──────────────────────────────────────────────
 CACHE_DIR = Path("cache")
 RESULTS_DIR = Path("results")
 CACHE_DIR.mkdir(exist_ok=True)
 RESULTS_DIR.mkdir(exist_ok=True)
-
-# Строгий режим: IP обязательно должен быть в white-списке
-# False = только SNI + формат (получишь больше ключей, но не все будут работать в белых списках)
-STRICT_IP = True
 
 WHITE_SNI_URL  = "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/whitelist.txt"
 WHITE_CIDR_URL = "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/cidrwhitelist.txt"
@@ -67,8 +62,6 @@ logging.basicConfig(
 log = logging.getLogger("filter")
 
 # ──────────────────────────────────────────────
-# DATA
-# ──────────────────────────────────────────────
 @dataclass
 class Config:
     type: str
@@ -95,16 +88,15 @@ class Config:
     original: str = ""
     resolved_ip: str = ""
     score: int = 0
+    ip_white: bool = False
 
     def dedup_key(self) -> str:
         return f"{self.type}:{self.id}@{self.hostname}:{self.port}"
 
 # ──────────────────────────────────────────────
-# УТИЛИТЫ
-# ──────────────────────────────────────────────
 _dns_cache: Dict[str, Optional[str]] = {}
 _session = requests.Session()
-_session.headers["User-Agent"] = "WhitelistFilter/2.1"
+_session.headers["User-Agent"] = "WhitelistFilter/2.2"
 
 def resolve(host: str) -> Optional[str]:
     if host in _dns_cache:
@@ -133,21 +125,23 @@ def fetch(url: str, max_age_h: float = 3) -> str:
         return text
     except Exception as e:
         if path.exists():
-            log.warning(f"fetch fail {url[:60]}... → cache ({e})")
+            log.warning(f"fetch fail {url[:60]}... → cache")
             return path.read_text(encoding="utf-8", errors="ignore")
-        log.warning(f"fetch fail {url[:60]}... → empty ({e})")
+        log.warning(f"fetch fail {url[:60]}... → empty")
         return ""
 
-def fetch_mmdb(url: str) -> maxminddb.Reader:
+def fetch_mmdb(url: str) -> Optional[maxminddb.Reader]:
     path = CACHE_DIR / "rkn.mmdb"
-    if not path.exists() or (time.time() - path.stat().st_mtime) > 6 * 3600:
-        r = _session.get(url, timeout=40)
-        r.raise_for_status()
-        path.write_bytes(r.content)
-    return maxminddb.open_database(str(path))
+    try:
+        if not path.exists() or (time.time() - path.stat().st_mtime) > 6 * 3600:
+            r = _session.get(url, timeout=40)
+            r.raise_for_status()
+            path.write_bytes(r.content)
+        return maxminddb.open_database(str(path))
+    except Exception as e:
+        log.warning(f"RKN MMDB error: {e}")
+        return None
 
-# ──────────────────────────────────────────────
-# ПАРСЕРЫ
 # ──────────────────────────────────────────────
 def parse_vless(link: str, source: str) -> Optional[Config]:
     try:
@@ -248,8 +242,6 @@ def parse_line(line: str, source: str) -> Optional[Config]:
     return None
 
 # ──────────────────────────────────────────────
-# ГЕЙТЫ
-# ──────────────────────────────────────────────
 def vless_ok(c: Config, white_sni: Set[str]) -> Tuple[bool, str]:
     if not UUID_RE.match(c.id or ""):
         return False, "bad_uuid"
@@ -295,12 +287,12 @@ def hy2_ok(c: Config) -> Tuple[bool, str]:
         return False, "no_sni"
     return True, ""
 
-def score(c: Config, white_ips: Set[str]) -> int:
+def score(c: Config) -> int:
     s = 0
     sni = (c.sni or "").lower()
     if any(sni == d or sni.endswith("." + d) for d in EMPIRIC_GOOD_SNI):
         s += 400
-    if c.resolved_ip in white_ips:
+    if c.ip_white:
         s += 300
     if c.port == 443:
         s += 100
@@ -312,8 +304,33 @@ def score(c: Config, white_ips: Set[str]) -> int:
         if c.security == "reality": s += 30
     return s
 
-# ──────────────────────────────────────────────
-# MAIN
+def make_link(c: Config) -> str:
+    if c.type == "vless":
+        params = []
+        if c.security: params.append(f"security={c.security}")
+        if c.sni: params.append(f"sni={urllib.parse.quote(c.sni)}")
+        if c.flow: params.append(f"flow={c.flow}")
+        if c.net != "tcp": params.append(f"type={c.net}")
+        if c.path: params.append(f"path={urllib.parse.quote(c.path)}")
+        if c.host_header: params.append(f"host={urllib.parse.quote(c.host_header)}")
+        if c.service_name: params.append(f"serviceName={urllib.parse.quote(c.service_name)}")
+        if c.pbk: params.append(f"pbk={c.pbk}")
+        if c.sid: params.append(f"sid={c.sid}")
+        if c.fp: params.append(f"fp={c.fp}")
+        if c.alpn: params.append(f"alpn={urllib.parse.quote(c.alpn)}")
+        q = "?" + "&".join(params) if params else ""
+        return f"vless://{c.id}@{c.hostname}:{c.port}{q}#[VLESS] {c.sni} {c.resolved_ip}"
+    else:
+        params = []
+        if c.obfs: params.append(f"obfs={c.obfs}")
+        if c.obfs_password: params.append(f"obfs-password={urllib.parse.quote(c.obfs_password)}")
+        if c.sni: params.append(f"sni={urllib.parse.quote(c.sni)}")
+        if c.insecure: params.append("insecure=1")
+        if c.pin_sha256: params.append(f"pinSHA256={c.pin_sha256}")
+        q = "?" + "&".join(params) if params else ""
+        hop = f",{c.hop}" if c.hop else ""
+        return f"hysteria2://{c.id}@{c.hostname}:{c.port}{hop}{q}#[HY2] {c.sni} {c.resolved_ip}"
+
 # ──────────────────────────────────────────────
 def main():
     log.info("=== Loading allowlists ===")
@@ -337,14 +354,12 @@ def main():
     }
     log.info(f"White SNI: {len(white_sni)}, CIDR: {len(networks)}, IPs: {len(white_ips)}")
 
-    try:
-        rkn = fetch_mmdb(RKN_MMDB_URL)
+    rkn = fetch_mmdb(RKN_MMDB_URL)
+    if rkn:
         log.info("RKN MMDB loaded")
-    except Exception as e:
-        log.warning(f"RKN MMDB failed: {e} — пропускаем RKN-гейт")
-        rkn = None
+    else:
+        log.warning("RKN MMDB not available — skipping RKN gate")
 
-    # Источники
     sources_file = Path("sources.txt")
     if not sources_file.exists():
         log.error("sources.txt not found")
@@ -361,7 +376,7 @@ def main():
         name = url.rstrip("/").split("/")[-1][:50]
         text = fetch(url, max_age_h=2)
         if not text:
-            log.warning(f"{name}: empty / failed")
+            log.warning(f"{name}: empty")
             continue
         cnt = 0
         for line in text.splitlines():
@@ -373,7 +388,6 @@ def main():
 
     log.info(f"Total parsed: {len(all_cfgs)}")
 
-    # Дедуп
     seen = set()
     unique: List[Config] = []
     for c in all_cfgs:
@@ -383,15 +397,14 @@ def main():
             unique.append(c)
     log.info(f"After dedup: {len(unique)}")
 
-    # Параллельный DNS
     log.info("Resolving DNS (parallel)...")
     hosts = list({c.hostname for c in unique})
     with ThreadPoolExecutor(max_workers=40) as ex:
         list(ex.map(resolve, hosts))
     log.info(f"DNS done, cache size: {len(_dns_cache)}")
 
-    # Фильтрация
-    passed: List[Config] = []
+    strict_list: List[Config] = []
+    relaxed_list: List[Config] = []
     reasons = Counter()
     total = len(unique)
 
@@ -414,70 +427,58 @@ def main():
             except Exception:
                 pass
 
-        # IP-гейт (строгий или мягкий)
-        ip_white = ip in white_ips or any(ipaddress.IPv4Address(ip) in n for n in networks)
-        if STRICT_IP and not ip_white:
-            reasons["ip_not_white"] += 1
-            continue
+        # IP white?
+        c.ip_white = ip in white_ips or any(ipaddress.IPv4Address(ip) in n for n in networks)
 
-        # Протокольные гейты
+        # Protocol + SNI gates
         if c.type == "vless":
             ok, reason = vless_ok(c, white_sni)
         else:
             ok, reason = hy2_ok(c)
+
         if not ok:
             reasons[reason] += 1
             continue
 
-        c.score = score(c, white_ips)
-        if ip_white:
-            c.score += 200  # бонус за белый IP
-        passed.append(c)
+        c.score = score(c)
 
-    log.info(f"Passed: {len(passed)}")
+        # Relaxed — всё, что прошло SNI + формат
+        relaxed_list.append(c)
+
+        # Strict — только с белым IP
+        if c.ip_white:
+            strict_list.append(c)
+        else:
+            reasons["ip_not_white"] += 1
+
+    strict_list.sort(key=lambda x: x.score, reverse=True)
+    relaxed_list.sort(key=lambda x: x.score, reverse=True)
+
+    log.info(f"Strict (IP+SNI): {len(strict_list)}")
+    log.info(f"Relaxed (SNI only): {len(relaxed_list)}")
     log.info(f"Reject reasons: {dict(reasons)}")
 
-    # Сортировка
-    passed.sort(key=lambda x: x.score, reverse=True)
+    # Пишем оба файла
+    with (RESULTS_DIR / "working_strict.txt").open("w", encoding="utf-8") as f:
+        for c in strict_list:
+            f.write(make_link(c) + "\n")
 
-    # Вывод
-    out = RESULTS_DIR / "working_vless_hy2.txt"
-    with out.open("w", encoding="utf-8") as f:
-        for c in passed:
-            if c.type == "vless":
-                params = []
-                if c.security: params.append(f"security={c.security}")
-                if c.sni: params.append(f"sni={urllib.parse.quote(c.sni)}")
-                if c.flow: params.append(f"flow={c.flow}")
-                if c.net != "tcp": params.append(f"type={c.net}")
-                if c.path: params.append(f"path={urllib.parse.quote(c.path)}")
-                if c.host_header: params.append(f"host={urllib.parse.quote(c.host_header)}")
-                if c.service_name: params.append(f"serviceName={urllib.parse.quote(c.service_name)}")
-                if c.pbk: params.append(f"pbk={c.pbk}")
-                if c.sid: params.append(f"sid={c.sid}")
-                if c.fp: params.append(f"fp={c.fp}")
-                if c.alpn: params.append(f"alpn={urllib.parse.quote(c.alpn)}")
-                q = "?" + "&".join(params) if params else ""
-                f.write(f"vless://{c.id}@{c.hostname}:{c.port}{q}#[VLESS] {c.sni} {c.resolved_ip}\n")
-            else:
-                params = []
-                if c.obfs: params.append(f"obfs={c.obfs}")
-                if c.obfs_password: params.append(f"obfs-password={urllib.parse.quote(c.obfs_password)}")
-                if c.sni: params.append(f"sni={urllib.parse.quote(c.sni)}")
-                if c.insecure: params.append("insecure=1")
-                if c.pin_sha256: params.append(f"pinSHA256={c.pin_sha256}")
-                q = "?" + "&".join(params) if params else ""
-                hop = f",{c.hop}" if c.hop else ""
-                f.write(f"hysteria2://{c.id}@{c.hostname}:{c.port}{hop}{q}#[HY2] {c.sni} {c.resolved_ip}\n")
+    with (RESULTS_DIR / "working_relaxed.txt").open("w", encoding="utf-8") as f:
+        for c in relaxed_list:
+            f.write(make_link(c) + "\n")
 
-    log.info(f"Written {len(passed)} configs → {out}")
+    # Старый файл для совместимости = relaxed
+    with (RESULTS_DIR / "working_vless_hy2.txt").open("w", encoding="utf-8") as f:
+        for c in relaxed_list:
+            f.write(make_link(c) + "\n")
 
     stats = {
-        "strict_ip": STRICT_IP,
-        "total_passed": len(passed),
-        "by_type": dict(Counter(c.type for c in passed)),
+        "strict_count": len(strict_list),
+        "relaxed_count": len(relaxed_list),
+        "by_type_strict": dict(Counter(c.type for c in strict_list)),
+        "by_type_relaxed": dict(Counter(c.type for c in relaxed_list)),
         "reject_reasons": dict(reasons),
-        "top10": [(c.score, c.type, c.sni, c.resolved_ip) for c in passed[:10]],
+        "top10_relaxed": [(c.score, c.type, c.sni, c.resolved_ip, c.ip_white) for c in relaxed_list[:10]],
     }
     (RESULTS_DIR / "stats.json").write_text(
         json.dumps(stats, indent=2, ensure_ascii=False), encoding="utf-8"
