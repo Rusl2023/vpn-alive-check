@@ -35,7 +35,7 @@ proxies:
     public-key: gyVm1AWjn649wcSvTmyS12lsmecJFjm51BjUSWOjkxM
     short-id: 35debf0dc757d053
   servername: max.ru
-  client-fingerprint: firefox
+  client-fingerprint: chrome
   grpc-opts:
     grpc-service-name: grpc
 - name: 🇸🇰 SK [R] | 5.35.103.120
@@ -101,19 +101,19 @@ proxies:
   servername: max.ru
   flow: xtls-rprx-vision
   client-fingerprint: qq
-- name: 🇵🇱 PL [R] | av513u.sysopnova.art
+- name: 🇷🇴 RO [R] | 193.163.203.253
   type: vless
-  server: av513u.sysopnova.art
+  server: 193.163.203.253
   port: 443
-  uuid: 3710fc0f-5f0c-4b9c-a5d4-40cb419e943a
+  uuid: 441afe11-a180-4516-bb80-80a8a6b38705
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: WKN5yaRN05O2WdCURXRmS-yBVYaabaFWOvGudX6ohWc
-    short-id: b97e7d4582b6fa6e
+    public-key: gE8LUmGFXik94SoDXNiAG5KprGyhjoRwDuhGebgAVWk
+    short-id: 5ee019e02e6ed99a
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
@@ -133,9 +133,25 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇷🇴 RO [R] | 193.163.203.253
+- name: 🇵🇱 PL [R] | av513u.sysopnova.art
   type: vless
-  server: 193.163.203.253
+  server: av513u.sysopnova.art
+  port: 443
+  uuid: 3710fc0f-5f0c-4b9c-a5d4-40cb419e943a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: WKN5yaRN05O2WdCURXRmS-yBVYaabaFWOvGudX6ohWc
+    short-id: b97e7d4582b6fa6e
+  servername: yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇷🇴 RO [R] | bl3fk52.sysopnova.art
+  type: vless
+  server: bl3fk52.sysopnova.art
   port: 443
   uuid: 441afe11-a180-4516-bb80-80a8a6b38705
   udp: true
@@ -149,38 +165,6 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇬🇧 GB [R] | 193.163.203.170
-  type: vless
-  server: 193.163.203.170
-  port: 443
-  uuid: 11aabba0-5fd1-4f15-8068-74c1a466cefc
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: GCCZ1ZZjB_nj7yxqFi22bIIWWr_G6rnWUzDcssN_40o
-    short-id: b28db60d77c50b4f
-  servername: yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇩🇪 DE [R] | 64.188.79.106
-  type: vless
-  server: 64.188.79.106
-  port: 443
-  uuid: 94006a20-6cd6-4751-a14d-c5a0bacb68bb
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: dBvFkg2zny545Ws6H_LXKEohOYV2MW_zACRrRQE1IUg
-    short-id: 992e5a9a
-  servername: yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
 - name: 🇩🇪 DE [R] | 91.240.87.166
   type: vless
   server: 91.240.87.166
@@ -197,6 +181,37 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
+- name: 🇩🇪 DE [R] | 64.188.79.106
+  type: vless
+  server: 64.188.79.106
+  port: 443
+  uuid: 94006a20-6cd6-4751-a14d-c5a0bacb68bb
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: dBvFkg2zny545Ws6H_LXKEohOYV2MW_zACRrRQE1IUg
+    short-id: 992e5a9a
+  servername: yandex.ru
+  flow: xtls-rprx-vision
+- name: 🇬🇧 GB [R] | 193.163.203.170
+  type: vless
+  server: 193.163.203.170
+  port: 443
+  uuid: 11aabba0-5fd1-4f15-8068-74c1a466cefc
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: GCCZ1ZZjB_nj7yxqFi22bIIWWr_G6rnWUzDcssN_40o
+    short-id: b28db60d77c50b4f
+  servername: yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
 - name: 🇩🇪 DE [R] | 91.240.86.12
   type: vless
   server: 91.240.86.12
@@ -213,21 +228,22 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇷🇴 RO [R] | bl3fk52.sysopnova.art
+- name: 🇩🇪 DE [R] | 91.240.86.186
   type: vless
-  server: bl3fk52.sysopnova.art
+  server: 91.240.86.186
   port: 443
-  uuid: 441afe11-a180-4516-bb80-80a8a6b38705
+  uuid: c5694dc5-39fd-4a92-8430-3837baa522a3
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: gE8LUmGFXik94SoDXNiAG5KprGyhjoRwDuhGebgAVWk
-    short-id: 5ee019e02e6ed99a
+    public-key: 2ZUQYIhUijdJ1vRL8iR8RxjmJvRVHYp-JoWevQ2LyR4
+    short-id: 7bb730e3e6616d31
   servername: yandex.ru
   flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇩🇪 DE [R][grpc] | 77.90.27.164
   type: vless
   server: 77.90.27.164
@@ -245,22 +261,6 @@ proxies:
   client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: ''
-- name: 🇩🇪 DE [R] | 91.240.86.186
-  type: vless
-  server: 91.240.86.186
-  port: 443
-  uuid: c5694dc5-39fd-4a92-8430-3837baa522a3
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: 2ZUQYIhUijdJ1vRL8iR8RxjmJvRVHYp-JoWevQ2LyR4
-    short-id: 7bb730e3e6616d31
-  servername: yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
 - name: 🇵🇱 PL [R] | 179.198.49.43
   type: vless
   server: 179.198.49.43
@@ -357,37 +357,38 @@ proxies:
   servername: dzen.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇫🇮 FI [R] | 13.143.164.40
+- name: 🇩🇪 DE [ws] | dostavitos.stroymatdv.cc
   type: vless
-  server: 13.143.164.40
+  server: dostavitos.stroymatdv.cc
   port: 443
-  uuid: 933eb45b-0e97-4ed1-bfb9-e34bd0b4342c
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: f6lqLBe6F_9QDEn8G7v58Wxq8qqTKgEAfuyMxn6_2Qk
-    short-id: dbf867415845f0ac
-  servername: ads.vk.ru
-  client-fingerprint: firefox
-- name: 🇸🇪 SE [ws] | 95.129.236.239
-  type: vless
-  server: 95.129.236.239
-  port: 443
-  uuid: a880ddf5-9dc1-4c1b-a1c5-862b79e8371f
+  uuid: 365de9e9-ba29-4819-af2d-766f9638e3be
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: login.opendns.stream
-  client-fingerprint: firefox
+  servername: dostavitos.stroymatdv.cc
+  client-fingerprint: chrome
   ws-opts:
-    path: /stream/615428/socket
+    path: /e9ws
     headers:
-      Host: login.opendns.stream
+      Host: dostavitos.stroymatdv.cc
+- name: 🇩🇪 DE [ws] | 37.139.42.138
+  type: vless
+  server: 37.139.42.138
+  port: 443
+  uuid: 365de9e9-ba29-4819-af2d-766f9638e3be
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: dostavitos.stroymatdv.cc
+  client-fingerprint: qq
+  ws-opts:
+    path: /e9ws
+    headers:
+      Host: dostavitos.stroymatdv.cc
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
@@ -397,11 +398,11 @@ proxy-groups:
   - 🇸🇨 SC [R] | 144.31.50.236
   - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
   - 🇬🇧 GB [R] | 95.85.224.51
-  - 🇵🇱 PL [R] | av513u.sysopnova.art
-  - 🇵🇱 PL [R] | 144.31.93.231
   - 🇷🇴 RO [R] | 193.163.203.253
-  - 🇬🇧 GB [R] | 193.163.203.170
-  - 🇩🇪 DE [R] | 64.188.79.106
+  - 🇵🇱 PL [R] | 144.31.93.231
+  - 🇵🇱 PL [R] | av513u.sysopnova.art
+  - 🇷🇴 RO [R] | bl3fk52.sysopnova.art
+  - 🇩🇪 DE [R] | 91.240.87.166
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -414,24 +415,24 @@ proxy-groups:
   - 🇸🇨 SC [R] | 144.31.50.236
   - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
   - 🇬🇧 GB [R] | 95.85.224.51
-  - 🇵🇱 PL [R] | av513u.sysopnova.art
-  - 🇵🇱 PL [R] | 144.31.93.231
   - 🇷🇴 RO [R] | 193.163.203.253
-  - 🇬🇧 GB [R] | 193.163.203.170
-  - 🇩🇪 DE [R] | 64.188.79.106
-  - 🇩🇪 DE [R] | 91.240.87.166
-  - 🇩🇪 DE [R] | 91.240.86.12
+  - 🇵🇱 PL [R] | 144.31.93.231
+  - 🇵🇱 PL [R] | av513u.sysopnova.art
   - 🇷🇴 RO [R] | bl3fk52.sysopnova.art
-  - 🇩🇪 DE [R][grpc] | 77.90.27.164
+  - 🇩🇪 DE [R] | 91.240.87.166
+  - 🇩🇪 DE [R] | 64.188.79.106
+  - 🇬🇧 GB [R] | 193.163.203.170
+  - 🇩🇪 DE [R] | 91.240.86.12
   - 🇩🇪 DE [R] | 91.240.86.186
+  - 🇩🇪 DE [R][grpc] | 77.90.27.164
   - 🇵🇱 PL [R] | 179.198.49.43
   - 🇦🇪 AE [R] | 94.183.224.45
   - 🇩🇪 DE [R] | 31.76.100.41
   - 🇺🇸 US [R] | 31.76.101.39
   - 🇺🇸 US [R] | 88.218.248.89
   - 🇺🇸 US [R] | 31.76.245.63
-  - 🇫🇮 FI [R] | 13.143.164.40
-  - 🇸🇪 SE [ws] | 95.129.236.239
+  - 🇩🇪 DE [ws] | dostavitos.stroymatdv.cc
+  - 🇩🇪 DE [ws] | 37.139.42.138
 - name: 🎯 Direct
   type: select
   proxies:
