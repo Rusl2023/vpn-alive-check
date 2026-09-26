@@ -35,12 +35,12 @@ proxies:
     public-key: gyVm1AWjn649wcSvTmyS12lsmecJFjm51BjUSWOjkxM
     short-id: 35debf0dc757d053
   servername: max.ru
-  client-fingerprint: firefox
+  client-fingerprint: chrome
   grpc-opts:
     grpc-service-name: grpc
-- name: 🇸🇨 SC [R] | prep.wwwinternetvideo.click
+- name: 🇸🇨 SC [R] | 144.31.50.236
   type: vless
-  server: prep.wwwinternetvideo.click
+  server: 144.31.50.236
   port: 443
   uuid: 1c332eae-7e02-4acd-996d-4eb3e652401c
   udp: true
@@ -54,9 +54,9 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇸🇨 SC [R] | 144.31.50.236
+- name: 🇸🇨 SC [R] | prep.wwwinternetvideo.click
   type: vless
-  server: 144.31.50.236
+  server: prep.wwwinternetvideo.click
   port: 443
   uuid: 1c332eae-7e02-4acd-996d-4eb3e652401c
   udp: true
@@ -165,6 +165,7 @@ proxies:
     short-id: 5ee019e02e6ed99a
   servername: yandex.ru
   flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇩🇪 DE [R][grpc] | 77.90.27.164
   type: vless
   server: 77.90.27.164
@@ -186,7 +187,7 @@ proxies:
   type: vless
   server: 188.225.57.223
   port: 443
-  uuid: 28ad12d9-80ec-4898-882c-a42576d0c5ca
+  uuid: b71b23dd-a2b4-48dc-b39d-3418cd63c5c3
   udp: true
   skip-cert-verify: true
   network: grpc
@@ -202,6 +203,22 @@ proxies:
 - name: 🇵🇱 PL [R] | 179.198.49.43
   type: vless
   server: 179.198.49.43
+  port: 443
+  uuid: d72f05b0-b182-4783-a6f2-21cecc7d841a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: SibLV5WBGdljTiUCmKx77KhHQfErCwjDMD_ZLoha3js
+    short-id: a1b2c3d4e5f67890
+  servername: dzen.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇩🇪 DE [R] | 31.76.100.41
+  type: vless
+  server: 31.76.100.41
   port: 443
   uuid: d72f05b0-b182-4783-a6f2-21cecc7d841a
   udp: true
@@ -231,6 +248,22 @@ proxies:
   servername: dzen.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
+- name: 🇺🇸 US [R] | 31.76.245.63
+  type: vless
+  server: 31.76.245.63
+  port: 443
+  uuid: d72f05b0-b182-4783-a6f2-21cecc7d841a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: SibLV5WBGdljTiUCmKx77KhHQfErCwjDMD_ZLoha3js
+    short-id: a1b2c3d4e5f67890
+  servername: dzen.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇺🇸 US [R] | 31.76.101.39
   type: vless
   server: 31.76.101.39
@@ -263,27 +296,11 @@ proxies:
   servername: dzen.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇹🇷 TR [R] | tr.datanode-internal.net
-  type: vless
-  server: tr.datanode-internal.net
-  port: 443
-  uuid: 93996a55-febe-4183-9366-df6cb11a34dd
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: r6lN34m1nN-xQZ458j5NPD5xJ3_QBF2bGzY4KJEo4ic
-    short-id: abbcd128
-  servername: sun9-38.userapi.com
-  flow: xtls-rprx-vision
-  client-fingerprint: qq
-- name: 🇸🇪 SE [ws] | 95.129.236.239
+- name: 🇩🇪 DE [ws] | 95.129.236.239
   type: vless
   server: 95.129.236.239
   port: 443
-  uuid: 3039594b-c8fe-44b7-b382-a249bc42f803
+  uuid: 25cdeb75-6300-406c-afe2-3339001a71d5
   udp: true
   skip-cert-verify: true
   network: ws
@@ -300,8 +317,8 @@ proxy-groups:
   type: url-test
   proxies:
   - 🇩🇪 DE [R][grpc] | 31.56.189.147
-  - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
   - 🇸🇨 SC [R] | 144.31.50.236
+  - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇵🇱 PL [R] | 144.31.93.231
   - 🇷🇴 RO [R] | 193.163.203.253
@@ -317,8 +334,8 @@ proxy-groups:
   proxies:
   - 🚀 Auto
   - 🇩🇪 DE [R][grpc] | 31.56.189.147
-  - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
   - 🇸🇨 SC [R] | 144.31.50.236
+  - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇵🇱 PL [R] | 144.31.93.231
   - 🇷🇴 RO [R] | 193.163.203.253
@@ -328,11 +345,12 @@ proxy-groups:
   - 🇩🇪 DE [R][grpc] | 77.90.27.164
   - 🇩🇪 DE [R][grpc] | 188.225.57.223
   - 🇵🇱 PL [R] | 179.198.49.43
+  - 🇩🇪 DE [R] | 31.76.100.41
   - 🇦🇪 AE [R] | 94.183.224.45
+  - 🇺🇸 US [R] | 31.76.245.63
   - 🇺🇸 US [R] | 31.76.101.39
   - 🇺🇸 US [R] | 144.31.243.240
-  - 🇹🇷 TR [R] | tr.datanode-internal.net
-  - 🇸🇪 SE [ws] | 95.129.236.239
+  - 🇩🇪 DE [ws] | 95.129.236.239
 - name: 🎯 Direct
   type: select
   proxies:
