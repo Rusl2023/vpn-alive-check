@@ -35,28 +35,12 @@ proxies:
     public-key: gyVm1AWjn649wcSvTmyS12lsmecJFjm51BjUSWOjkxM
     short-id: 35debf0dc757d053
   servername: max.ru
-  client-fingerprint: chrome
+  client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: grpc
 - name: 🇸🇨 SC [R] | 144.31.50.236
   type: vless
   server: 144.31.50.236
-  port: 443
-  uuid: 1c332eae-7e02-4acd-996d-4eb3e652401c
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: uitO4Z8t9TplwwYaqwLqh5rfxDh_X8bOBiNuPbzvaEM
-    short-id: bbe46bd8f6b96839
-  servername: yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇸🇨 SC [R] | prep.wwwinternetvideo.click
-  type: vless
-  server: prep.wwwinternetvideo.click
   port: 443
   uuid: 1c332eae-7e02-4acd-996d-4eb3e652401c
   udp: true
@@ -86,35 +70,19 @@ proxies:
   servername: max.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇵🇱 PL [R] | 144.31.93.231
+- name: 🇸🇨 SC [R] | prep.wwwinternetvideo.click
   type: vless
-  server: 144.31.93.231
+  server: prep.wwwinternetvideo.click
   port: 443
-  uuid: 3710fc0f-5f0c-4b9c-a5d4-40cb419e943a
+  uuid: 1c332eae-7e02-4acd-996d-4eb3e652401c
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: WKN5yaRN05O2WdCURXRmS-yBVYaabaFWOvGudX6ohWc
-    short-id: b97e7d4582b6fa6e
-  servername: yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇵🇱 PL [R] | av513u.sysopnova.art
-  type: vless
-  server: av513u.sysopnova.art
-  port: 443
-  uuid: 3710fc0f-5f0c-4b9c-a5d4-40cb419e943a
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: WKN5yaRN05O2WdCURXRmS-yBVYaabaFWOvGudX6ohWc
-    short-id: b97e7d4582b6fa6e
+    public-key: uitO4Z8t9TplwwYaqwLqh5rfxDh_X8bOBiNuPbzvaEM
+    short-id: bbe46bd8f6b96839
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
@@ -155,7 +123,7 @@ proxies:
   type: vless
   server: 188.225.57.223
   port: 443
-  uuid: c50f2b85-b14b-4737-b1e7-931e3ce75d50
+  uuid: 4fbcd67a-1af6-4b82-b8f6-73d0a61c554e
   udp: true
   skip-cert-verify: true
   network: grpc
@@ -168,6 +136,54 @@ proxies:
   client-fingerprint: qq
   grpc-opts:
     grpc-service-name: grpc_vless
+- name: 🇩🇪 DE [R][grpc] | 188.225.57.223 (2)
+  type: vless
+  server: 188.225.57.223
+  port: 443
+  uuid: 211fb55f-4f33-4e7c-b28f-e175589ca566
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 9YcV-gA7iaXFnI0HXQa624OIqm4zxO_U2eMCWXQAiCQ
+    short-id: 8375b32501373f41
+  servername: cloudcdn-m9-12.cdn.yandex.net
+  client-fingerprint: qq
+  grpc-opts:
+    grpc-service-name: grpc_vless
+- name: 🇩🇪 DE [R][grpc] | 188.225.57.223 (3)
+  type: vless
+  server: 188.225.57.223
+  port: 443
+  uuid: 0e3f9fd8-6acd-4d5a-9ae3-8c80f8f7833a
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 9YcV-gA7iaXFnI0HXQa624OIqm4zxO_U2eMCWXQAiCQ
+    short-id: 8375b32501373f41
+  servername: cloudcdn-m9-12.cdn.yandex.net
+  client-fingerprint: qq
+  grpc-opts:
+    grpc-service-name: grpc_vless
+- name: 🇳🇱 NL [R][xhttp] | 84.201.180.13
+  type: vless
+  server: 84.201.180.13
+  port: 443
+  uuid: 1e2b9c0c-4f9b-56f5-a062-1c4f2d2aa200
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: DuxQy3KWEZTU_sBhXSfeo_1Q0-0lMcSnx21bWvUi5hQ
+  servername: api-maps.yandex.ru
+  client-fingerprint: firefox
 - name: 🇵🇱 PL [R] | 179.198.49.43
   type: vless
   server: 179.198.49.43
@@ -187,22 +203,6 @@ proxies:
 - name: 🇩🇪 DE [R] | 31.76.100.41
   type: vless
   server: 31.76.100.41
-  port: 443
-  uuid: d72f05b0-b182-4783-a6f2-21cecc7d841a
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: SibLV5WBGdljTiUCmKx77KhHQfErCwjDMD_ZLoha3js
-    short-id: a1b2c3d4e5f67890
-  servername: dzen.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇺🇸 US [R] | 31.76.245.63
-  type: vless
-  server: 31.76.245.63
   port: 443
   uuid: d72f05b0-b182-4783-a6f2-21cecc7d841a
   udp: true
@@ -248,6 +248,22 @@ proxies:
   servername: dzen.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
+- name: 🇺🇸 US [R] | 31.76.245.63
+  type: vless
+  server: 31.76.245.63
+  port: 443
+  uuid: d72f05b0-b182-4783-a6f2-21cecc7d841a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: SibLV5WBGdljTiUCmKx77KhHQfErCwjDMD_ZLoha3js
+    short-id: a1b2c3d4e5f67890
+  servername: dzen.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇺🇸 US [R] | 144.31.243.240
   type: vless
   server: 144.31.243.240
@@ -264,11 +280,58 @@ proxies:
   servername: dzen.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇩🇪 DE [ws] | 95.129.236.239
+- name: 🇱🇹 LT [R] | 194.87.239.50
+  type: vless
+  server: 194.87.239.50
+  port: 443
+  uuid: 25284368-40d5-4abe-9f56-54a07e88a7af
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: RE8_xTgxCN-ZHuYHBVpXjS6_X-2jfiurSl5CF0ATLxs
+    short-id: 701c4492fe75c46b
+  servername: dating.ok.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇸🇪 SE [ws] | 95.129.236.239
   type: vless
   server: 95.129.236.239
   port: 443
-  uuid: 2631d9bf-e420-40ae-9644-d2c026069bec
+  uuid: 0d7a54ef-b653-45c3-b536-ef9505f4a879
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: login.opendns.stream
+  client-fingerprint: firefox
+  ws-opts:
+    path: /stream/615428/socket
+    headers:
+      Host: login.opendns.stream
+- name: 🇩🇪 DE [ws] | 188.225.34.155
+  type: vless
+  server: 188.225.34.155
+  port: 443
+  uuid: 58112e44-a0d8-4ec7-87df-52fd34d150f4
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: dsfadfasdfwse87474.lllcc.top
+  client-fingerprint: firefox
+  ws-opts:
+    headers:
+      Host: dsfadfasdfwse87474.lllcc.top
+- name: 🇸🇪 SE [ws] | 95.129.236.239 (2)
+  type: vless
+  server: 95.129.236.239
+  port: 443
+  uuid: d2f5224a-9a26-4de7-b69a-9e06276c7b11
   udp: true
   skip-cert-verify: true
   network: ws
@@ -286,14 +349,14 @@ proxy-groups:
   proxies:
   - 🇩🇪 DE [R][grpc] | 31.56.189.147
   - 🇸🇨 SC [R] | 144.31.50.236
-  - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
   - 🇬🇧 GB [R] | 95.85.224.51
-  - 🇵🇱 PL [R] | 144.31.93.231
-  - 🇵🇱 PL [R] | av513u.sysopnova.art
+  - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇩🇪 DE [R][grpc] | 77.90.27.164
   - 🇩🇪 DE [R][grpc] | 188.225.57.223
-  - 🇵🇱 PL [R] | 179.198.49.43
+  - 🇩🇪 DE [R][grpc] | 188.225.57.223 (2)
+  - 🇩🇪 DE [R][grpc] | 188.225.57.223 (3)
+  - 🇳🇱 NL [R][xhttp] | 84.201.180.13
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -303,20 +366,24 @@ proxy-groups:
   - 🚀 Auto
   - 🇩🇪 DE [R][grpc] | 31.56.189.147
   - 🇸🇨 SC [R] | 144.31.50.236
-  - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
   - 🇬🇧 GB [R] | 95.85.224.51
-  - 🇵🇱 PL [R] | 144.31.93.231
-  - 🇵🇱 PL [R] | av513u.sysopnova.art
+  - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇩🇪 DE [R][grpc] | 77.90.27.164
   - 🇩🇪 DE [R][grpc] | 188.225.57.223
+  - 🇩🇪 DE [R][grpc] | 188.225.57.223 (2)
+  - 🇩🇪 DE [R][grpc] | 188.225.57.223 (3)
+  - 🇳🇱 NL [R][xhttp] | 84.201.180.13
   - 🇵🇱 PL [R] | 179.198.49.43
   - 🇩🇪 DE [R] | 31.76.100.41
-  - 🇺🇸 US [R] | 31.76.245.63
   - 🇺🇸 US [R] | 31.76.101.39
   - 🇦🇪 AE [R] | 94.183.224.45
+  - 🇺🇸 US [R] | 31.76.245.63
   - 🇺🇸 US [R] | 144.31.243.240
-  - 🇩🇪 DE [ws] | 95.129.236.239
+  - 🇱🇹 LT [R] | 194.87.239.50
+  - 🇸🇪 SE [ws] | 95.129.236.239
+  - 🇩🇪 DE [ws] | 188.225.34.155
+  - 🇸🇪 SE [ws] | 95.129.236.239 (2)
 - name: 🎯 Direct
   type: select
   proxies:
