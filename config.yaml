@@ -86,22 +86,6 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇵🇱 PL [R] | 144.31.93.231
-  type: vless
-  server: 144.31.93.231
-  port: 443
-  uuid: 3710fc0f-5f0c-4b9c-a5d4-40cb419e943a
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: WKN5yaRN05O2WdCURXRmS-yBVYaabaFWOvGudX6ohWc
-    short-id: b97e7d4582b6fa6e
-  servername: yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 95.85.224.51
   type: vless
   server: 95.85.224.51
@@ -118,6 +102,22 @@ proxies:
   servername: max.ru
   flow: xtls-rprx-vision
   client-fingerprint: qq
+- name: 🇵🇱 PL [R] | 144.31.93.231
+  type: vless
+  server: 144.31.93.231
+  port: 443
+  uuid: 3710fc0f-5f0c-4b9c-a5d4-40cb419e943a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: WKN5yaRN05O2WdCURXRmS-yBVYaabaFWOvGudX6ohWc
+    short-id: b97e7d4582b6fa6e
+  servername: yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇵🇱 PL [R] | av513u.sysopnova.art
   type: vless
   server: av513u.sysopnova.art
@@ -134,22 +134,23 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇫🇮 FI [R] | 45.149.147.97
+- name: 🇩🇪 DE [R][grpc] | 188.225.57.223
   type: vless
-  server: 45.149.147.97
+  server: 188.225.57.223
   port: 443
-  uuid: f28e0ce1-ed75-4e90-b069-5215a80dfb4a
+  uuid: e5607dd3-5cda-45b0-81c0-a8d03dfa2e4e
   udp: true
   skip-cert-verify: true
-  network: tcp
+  network: grpc
   encryption: none
   tls: true
   reality-opts:
-    public-key: AcuvO982QLzf76fVydfSuJIiF5520rmj7AxpaxyRwUg
-    short-id: d345ad4657adeef9
-  servername: google.com
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
+    public-key: 9YcV-gA7iaXFnI0HXQa624OIqm4zxO_U2eMCWXQAiCQ
+    short-id: 8375b32501373f41
+  servername: cloudcdn-m9-12.cdn.yandex.net
+  client-fingerprint: qq
+  grpc-opts:
+    grpc-service-name: grpc_vless
 - name: 🇵🇱 PL [R] | 179.198.49.43
   type: vless
   server: 179.198.49.43
@@ -182,38 +183,6 @@ proxies:
   servername: dzen.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇦🇪 AE [R] | 94.183.224.45
-  type: vless
-  server: 94.183.224.45
-  port: 443
-  uuid: d72f05b0-b182-4783-a6f2-21cecc7d841a
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: SibLV5WBGdljTiUCmKx77KhHQfErCwjDMD_ZLoha3js
-    short-id: a1b2c3d4e5f67890
-  servername: dzen.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇺🇸 US [R] | 31.76.101.39
-  type: vless
-  server: 31.76.101.39
-  port: 443
-  uuid: d72f05b0-b182-4783-a6f2-21cecc7d841a
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: SibLV5WBGdljTiUCmKx77KhHQfErCwjDMD_ZLoha3js
-    short-id: a1b2c3d4e5f67890
-  servername: dzen.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇺🇸 US [R] | 31.76.245.63
   type: vless
   server: 31.76.245.63
@@ -230,6 +199,22 @@ proxies:
   servername: dzen.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
+- name: 🇦🇪 AE [R] | 94.183.224.45
+  type: vless
+  server: 94.183.224.45
+  port: 443
+  uuid: d72f05b0-b182-4783-a6f2-21cecc7d841a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: SibLV5WBGdljTiUCmKx77KhHQfErCwjDMD_ZLoha3js
+    short-id: a1b2c3d4e5f67890
+  servername: dzen.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
 - name: 🇺🇸 US [R] | 144.31.243.240
   type: vless
   server: 144.31.243.240
@@ -246,6 +231,34 @@ proxies:
   servername: dzen.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
+- name: 🇺🇸 US [R] | 31.76.101.39
+  type: vless
+  server: 31.76.101.39
+  port: 443
+  uuid: d72f05b0-b182-4783-a6f2-21cecc7d841a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: SibLV5WBGdljTiUCmKx77KhHQfErCwjDMD_ZLoha3js
+    short-id: a1b2c3d4e5f67890
+  servername: dzen.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇬🇧 GB [xhttp] | 37.220.86.155
+  type: vless
+  server: 37.220.86.155
+  port: 443
+  uuid: 8f2a6194-1748-4ec7-9c5f-8ad504818aa3
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  servername: uk-cf.aba-hum.store
+  client-fingerprint: random
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
@@ -254,10 +267,10 @@ proxy-groups:
   - 🇸🇨 SC [R] | 144.31.50.236
   - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
   - 🇬🇧 GB [R] | 193.163.203.170
-  - 🇵🇱 PL [R] | 144.31.93.231
   - 🇬🇧 GB [R] | 95.85.224.51
+  - 🇵🇱 PL [R] | 144.31.93.231
   - 🇵🇱 PL [R] | av513u.sysopnova.art
-  - 🇫🇮 FI [R] | 45.149.147.97
+  - 🇩🇪 DE [R][grpc] | 188.225.57.223
   - 🇵🇱 PL [R] | 179.198.49.43
   - 🇩🇪 DE [R] | 31.76.100.41
   url: https://www.google.com/generate_204
@@ -271,16 +284,17 @@ proxy-groups:
   - 🇸🇨 SC [R] | 144.31.50.236
   - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
   - 🇬🇧 GB [R] | 193.163.203.170
-  - 🇵🇱 PL [R] | 144.31.93.231
   - 🇬🇧 GB [R] | 95.85.224.51
+  - 🇵🇱 PL [R] | 144.31.93.231
   - 🇵🇱 PL [R] | av513u.sysopnova.art
-  - 🇫🇮 FI [R] | 45.149.147.97
+  - 🇩🇪 DE [R][grpc] | 188.225.57.223
   - 🇵🇱 PL [R] | 179.198.49.43
   - 🇩🇪 DE [R] | 31.76.100.41
-  - 🇦🇪 AE [R] | 94.183.224.45
-  - 🇺🇸 US [R] | 31.76.101.39
   - 🇺🇸 US [R] | 31.76.245.63
+  - 🇦🇪 AE [R] | 94.183.224.45
   - 🇺🇸 US [R] | 144.31.243.240
+  - 🇺🇸 US [R] | 31.76.101.39
+  - 🇬🇧 GB [xhttp] | 37.220.86.155
 - name: 🎯 Direct
   type: select
   proxies:
