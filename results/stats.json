@@ -1,27 +1,27 @@
 {
   "strict_count": 0,
-  "relaxed_count": 846,
+  "relaxed_count": 861,
   "by_type_strict": {},
   "by_type_relaxed": {
-    "vless": 783,
+    "vless": 798,
     "hy2": 63
   },
   "reject_reasons": {
-    "sni_not_white": 3606,
-    "no_dns": 672,
+    "sni_not_white": 3608,
+    "rkn_blocked": 1263,
+    "no_insecure_pin": 39,
+    "ip_not_white": 861,
     "bad_uuid": 31,
-    "xhttp_no_path": 28,
-    "rkn_blocked": 1316,
-    "ip_not_white": 846,
-    "no_insecure_pin": 38,
-    "bad_sni": 122,
-    "grpc_no_svc": 36,
-    "no_vision": 303,
-    "ws_no_path": 6,
+    "no_dns": 670,
+    "bad_sni": 125,
+    "grpc_no_svc": 35,
+    "no_vision": 296,
+    "ws_no_path": 8,
     "no_sni": 2,
     "empty_sni": 1,
     "flow_net_mismatch": 2,
-    "bad_pbk": 3
+    "bad_pbk": 4,
+    "xhttp_no_path": 28
   },
   "top10_relaxed": [
     [
@@ -43,13 +43,6 @@
       "vless",
       "yandex.ru",
       "193.163.203.170",
-      false
-    ],
-    [
-      580,
-      "vless",
-      "web.max.ru",
-      "93.114.194.131",
       false
     ],
     [
@@ -92,6 +85,13 @@
       "vless",
       "api-maps.yandex.ru",
       "152.233.66.68",
+      false
+    ],
+    [
+      580,
+      "vless",
+      "api-maps.yandex.ru",
+      "87.121.86.251",
       false
     ]
   ]
