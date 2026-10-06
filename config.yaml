@@ -69,6 +69,22 @@ proxies:
   servername: max.ru
   flow: xtls-rprx-vision
   client-fingerprint: qq
+- name: 🇸🇨 SC [R] | prep.wwwinternetvideo.click
+  type: vless
+  server: prep.wwwinternetvideo.click
+  port: 443
+  uuid: 1c332eae-7e02-4acd-996d-4eb3e652401c
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: uitO4Z8t9TplwwYaqwLqh5rfxDh_X8bOBiNuPbzvaEM
+    short-id: bbe46bd8f6b96839
+  servername: yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇵🇱 PL [R] | 144.31.93.231
   type: vless
   server: 144.31.93.231
@@ -84,7 +100,7 @@ proxies:
     short-id: b97e7d4582b6fa6e
   servername: yandex.ru
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
+  client-fingerprint: chrome
 - name: 🇵🇱 PL [R] | av513u.sysopnova.art
   type: vless
   server: av513u.sysopnova.art
@@ -117,38 +133,6 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇸🇨 SC [R] | 144.31.50.236
-  type: vless
-  server: 144.31.50.236
-  port: 443
-  uuid: 1c332eae-7e02-4acd-996d-4eb3e652401c
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: uitO4Z8t9TplwwYaqwLqh5rfxDh_X8bOBiNuPbzvaEM
-    short-id: bbe46bd8f6b96839
-  servername: yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇸🇨 SC [R] | prep.wwwinternetvideo.click
-  type: vless
-  server: prep.wwwinternetvideo.click
-  port: 443
-  uuid: 1c332eae-7e02-4acd-996d-4eb3e652401c
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: uitO4Z8t9TplwwYaqwLqh5rfxDh_X8bOBiNuPbzvaEM
-    short-id: bbe46bd8f6b96839
-  servername: yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
 - name: 🇵🇱 PL [R] | 83.168.107.220
   type: vless
   server: 83.168.107.220
@@ -162,22 +146,6 @@ proxies:
   reality-opts:
     public-key: s0lbZ5BO3ctZjE8DzsXkNL0NvLl6FgLG6532NQzXigo
     short-id: c56d4f1c
-  servername: google.com
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇵🇱 PL [R] | 83.168.95.145
-  type: vless
-  server: 83.168.95.145
-  port: 443
-  uuid: f28e0ce1-ed75-4e90-b069-5215a80dfb4a
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: AcuvO982QLzf76fVydfSuJIiF5520rmj7AxpaxyRwUg
-    short-id: d345ad4657adeef9
   servername: google.com
   flow: xtls-rprx-vision
   client-fingerprint: chrome
@@ -196,6 +164,37 @@ proxies:
     short-id: 5ee019e02e6ed99a
   servername: yandex.ru
   flow: xtls-rprx-vision
+- name: 🇨🇭 CH [R][xhttp] | 13.143.137.98
+  type: vless
+  server: 13.143.137.98
+  port: 443
+  uuid: 7f99eb58-5983-006e-9c02-d8cea49f7074
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 0omtLHQHyKnV7w05maiOqvL5PvxdCQKw_zDqqgR28X8
+    short-id: 8d0ff3d6ec629371
+  servername: ozon.ru
+  client-fingerprint: firefox
+- name: 🇩🇪 DE [R] | 5.129.242.110
+  type: vless
+  server: 5.129.242.110
+  port: 443
+  uuid: 3d3cc1bc-3d6f-03e9-a531-19a1797952bc
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: Bz5EbrFHttwOTc1VWhPBAOeoIMDMMZcM02PTZs5AgD4
+    short-id: 1aa948f94316b975
+  servername: rutube.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: random
 - name: 🇳🇴 NO [R][xhttp] | 185.90.61.12
   type: vless
   server: 185.90.61.12
@@ -211,21 +210,66 @@ proxies:
     short-id: 4164bb3d830b817f
   servername: sberbank.ru
   client-fingerprint: chrome
-- name: 🇩🇪 DE [R][xhttp] | 13.143.137.98
+- name: 🇱🇹 LT  | lt.cdn.mynetcloud.online
   type: vless
-  server: 13.143.137.98
+  server: lt.cdn.mynetcloud.online
   port: 443
-  uuid: 7f99eb58-5983-006e-9c02-d8cea49f7074
+  uuid: 361d17b2-cafc-4cd8-996c-347f34bc159f
   udp: true
   skip-cert-verify: true
-  network: xhttp
+  network: tcp
   encryption: none
   tls: true
-  reality-opts:
-    public-key: 0omtLHQHyKnV7w05maiOqvL5PvxdCQKw_zDqqgR28X8
-    short-id: 8d0ff3d6ec629371
-  servername: ozon.ru
-  client-fingerprint: firefox
+  servername: lt.cdn.mynetcloud.online
+  client-fingerprint: qq
+- name: 🇨🇭 CH  | ch.cdn.mynetcloud.online
+  type: vless
+  server: ch.cdn.mynetcloud.online
+  port: 443
+  uuid: 361d17b2-cafc-4cd8-996c-347f34bc159f
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  servername: ch.cdn.mynetcloud.online
+  client-fingerprint: qq
+- name: 🇸🇪 SE  | se.cdn.mynetcloud.online
+  type: vless
+  server: se.cdn.mynetcloud.online
+  port: 443
+  uuid: 361d17b2-cafc-4cd8-996c-347f34bc159f
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  servername: se.cdn.mynetcloud.online
+  client-fingerprint: chrome
+- name: 🇬🇧 GB  | uk.cdn.mynetcloud.online
+  type: vless
+  server: uk.cdn.mynetcloud.online
+  port: 443
+  uuid: 361d17b2-cafc-4cd8-996c-347f34bc159f
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  servername: uk.cdn.mynetcloud.online
+  client-fingerprint: chrome
+- name: 🇫🇮 FI  | fi.cdn.mynetcloud.online
+  type: vless
+  server: fi.cdn.mynetcloud.online
+  port: 443
+  uuid: 361d17b2-cafc-4cd8-996c-347f34bc159f
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  servername: fi.cdn.mynetcloud.online
+  client-fingerprint: chrome
 - name: 🇫🇷 FR [ws] | 81.95.4.189
   type: vless
   server: 81.95.4.189
@@ -242,45 +286,6 @@ proxies:
     path: /vws/
     headers:
       Host: bab-6.site
-- name: 🇳🇱 NL  | s170.gogocs.xyz
-  type: vless
-  server: s170.gogocs.xyz
-  port: 443
-  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: u695098u7dae9c0cs220.gogocs.xyz
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇳🇱 NL  | 62.105.220.106
-  type: vless
-  server: 62.105.220.106
-  port: 443
-  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: u695098u7dae9c0cs220.gogocs.xyz
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇳🇱 NL  | s171.wagahaha.xyz
-  type: vless
-  server: s171.wagahaha.xyz
-  port: 443
-  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: u695098u7dae9c0cs220.gogocs.xyz
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
@@ -288,13 +293,13 @@ proxy-groups:
   - 🇳🇱 NL [R] | 72.56.85.221
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇬🇧 GB [R] | 95.85.224.51
+  - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
   - 🇵🇱 PL [R] | 144.31.93.231
   - 🇵🇱 PL [R] | av513u.sysopnova.art
   - 🇷🇴 RO [R] | 193.163.203.253
-  - 🇸🇨 SC [R] | 144.31.50.236
-  - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
   - 🇵🇱 PL [R] | 83.168.107.220
-  - 🇵🇱 PL [R] | 83.168.95.145
+  - 🇷🇴 RO [R] | bl3fk52.sysopnova.art
+  - 🇨🇭 CH [R][xhttp] | 13.143.137.98
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -305,20 +310,21 @@ proxy-groups:
   - 🇳🇱 NL [R] | 72.56.85.221
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇬🇧 GB [R] | 95.85.224.51
+  - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
   - 🇵🇱 PL [R] | 144.31.93.231
   - 🇵🇱 PL [R] | av513u.sysopnova.art
   - 🇷🇴 RO [R] | 193.163.203.253
-  - 🇸🇨 SC [R] | 144.31.50.236
-  - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
   - 🇵🇱 PL [R] | 83.168.107.220
-  - 🇵🇱 PL [R] | 83.168.95.145
   - 🇷🇴 RO [R] | bl3fk52.sysopnova.art
+  - 🇨🇭 CH [R][xhttp] | 13.143.137.98
+  - 🇩🇪 DE [R] | 5.129.242.110
   - 🇳🇴 NO [R][xhttp] | 185.90.61.12
-  - 🇩🇪 DE [R][xhttp] | 13.143.137.98
+  - 🇱🇹 LT  | lt.cdn.mynetcloud.online
+  - 🇨🇭 CH  | ch.cdn.mynetcloud.online
+  - 🇸🇪 SE  | se.cdn.mynetcloud.online
+  - 🇬🇧 GB  | uk.cdn.mynetcloud.online
+  - 🇫🇮 FI  | fi.cdn.mynetcloud.online
   - 🇫🇷 FR [ws] | 81.95.4.189
-  - 🇳🇱 NL  | s170.gogocs.xyz
-  - 🇳🇱 NL  | 62.105.220.106
-  - 🇳🇱 NL  | s171.wagahaha.xyz
 - name: 🎯 Direct
   type: select
   proxies:
