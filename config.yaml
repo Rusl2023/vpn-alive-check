@@ -53,7 +53,7 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇺🇸 US [R] | 193.163.203.170
+- name: 🇬🇧 GB [R] | 193.163.203.170
   type: vless
   server: 193.163.203.170
   port: 443
@@ -68,6 +68,23 @@ proxies:
     short-id: b28db60d77c50b4f
   servername: yandex.ru
   flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇬🇧 GB [R] | 95.85.224.51
+  type: vless
+  server: 95.85.224.51
+  port: 443
+  uuid: 342ab7e4-5a89-0001-8809-304120d4aa83
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: WWeAHWUVD-phmnjNJ823cer0c4CMIbEs08AhsuEZmDc
+    short-id: a696de84963656de
+  servername: max.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: qq
 - name: 🇸🇨 SC [R] | prep.wwwinternetvideo.click
   type: vless
   server: prep.wwwinternetvideo.click
@@ -84,23 +101,23 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇬🇧 GB [R] | 95.85.224.51
+- name: 🇵🇱 PL [R] | 144.31.93.231
   type: vless
-  server: 95.85.224.51
+  server: 144.31.93.231
   port: 443
-  uuid: 342ab7e4-5a89-0001-8809-304120d4aa83
+  uuid: 3710fc0f-5f0c-4b9c-a5d4-40cb419e943a
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: WWeAHWUVD-phmnjNJ823cer0c4CMIbEs08AhsuEZmDc
-    short-id: a696de84963656de
-  servername: max.ru
+    public-key: WKN5yaRN05O2WdCURXRmS-yBVYaabaFWOvGudX6ohWc
+    short-id: b97e7d4582b6fa6e
+  servername: yandex.ru
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇩🇪 DE [R][xhttp] | 13.143.137.98
+  client-fingerprint: firefox
+- name: 🇨🇭 CH [R][xhttp] | 13.143.137.98
   type: vless
   server: 13.143.137.98
   port: 443
@@ -115,40 +132,22 @@ proxies:
     short-id: 8d0ff3d6ec629371
   servername: ozon.ru
   client-fingerprint: firefox
-- name: 🇬🇧 GB [R][grpc] | 188.225.25.14
+- name: 🇳🇱 NL [ws] | apis.stroymatdv.cc
   type: vless
-  server: 188.225.25.14
+  server: apis.stroymatdv.cc
   port: 443
-  uuid: 84ad57a7-a605-423f-8c9a-d0c8b3aa298e
+  uuid: 3a8b464f-3701-40ed-b6b6-b612019e34c1
   udp: true
   skip-cert-verify: true
-  network: grpc
+  network: ws
   encryption: none
   tls: true
-  reality-opts:
-    public-key: 9YcV-gA7iaXFnI0HXQa624OIqm4zxO_U2eMCWXQAiCQ
-    short-id: 8375b32501373f41
-  servername: cloudcdn-m9-13.cdn.yandex.net
-  client-fingerprint: qq
-  grpc-opts:
-    grpc-service-name: grpc_vless
-- name: 🇩🇪 DE [R][grpc] | 188.225.77.178
-  type: vless
-  server: 188.225.77.178
-  port: 443
-  uuid: 84ad57a7-a605-423f-8c9a-d0c8b3aa298e
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: 9YcV-gA7iaXFnI0HXQa624OIqm4zxO_U2eMCWXQAiCQ
-    short-id: 8375b32501373f41
-  servername: cloudcdn-m9-12.cdn.yandex.net
-  client-fingerprint: qq
-  grpc-opts:
-    grpc-service-name: grpc_vless
+  servername: apis.stroymatdv.cc
+  client-fingerprint: firefox
+  ws-opts:
+    path: /amsws
+    headers:
+      Host: apis.stroymatdv.cc
 - name: 🇺🇸 US  | 31.131.251.17
   type: vless
   server: 31.131.251.17
@@ -161,19 +160,20 @@ proxies:
   tls: true
   servername: quatro.lmstream.org
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇳🇱 NL  | s170.gogocs.xyz
+  client-fingerprint: qq
+- name: 🇺🇸 US  | 31.131.251.17 (2)
   type: vless
-  server: s170.gogocs.xyz
+  server: 31.131.251.17
   port: 443
-  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
+  uuid: 9ea8b000-58ce-0050-b108-989dd4f248f1
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
+  servername: quatro.lmstream.org
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
+  client-fingerprint: qq
 - name: 🇳🇱 NL  | 62.105.220.106
   type: vless
   server: 62.105.220.106
@@ -186,9 +186,51 @@ proxies:
   tls: true
   servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
-- name: 🇳🇱 NL [ws] | apis.stroymatdv.cc
+  client-fingerprint: chrome
+- name: 🇳🇱 NL [ws] | 185.86.145.37
   type: vless
-  server: apis.stroymatdv.cc
+  server: 185.86.145.37
+  port: 443
+  uuid: 3a8b464f-3701-40ed-b6b6-b612019e34c1
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: apis.stroymatdv.cc
+  client-fingerprint: firefox
+  ws-opts:
+    path: /amsws
+    headers:
+      Host: apis.stroymatdv.cc
+- name: 🇳🇱 NL  | s170.gogocs.xyz
+  type: vless
+  server: s170.gogocs.xyz
+  port: 443
+  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇳🇱 NL  | s171.wagahaha.xyz
+  type: vless
+  server: s171.wagahaha.xyz
+  port: 443
+  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  servername: u695098u7dae9c0cs220.gogocs.xyz
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇳🇱 NL [ws] | 37.139.42.221
+  type: vless
+  server: 37.139.42.221
   port: 443
   uuid: 3a8b464f-3701-40ed-b6b6-b612019e34c1
   udp: true
@@ -218,38 +260,6 @@ proxies:
     path: /vws/
     headers:
       Host: bab-6.site
-- name: 🇫🇷 FR [ws] | 85.192.60.46
-  type: vless
-  server: 85.192.60.46
-  port: 443
-  uuid: b585dc5e-55bf-4a8b-913a-27c9ccac05c3
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: bab-6.site
-  client-fingerprint: chrome
-  ws-opts:
-    path: /vws/
-    headers:
-      Host: bab-6.site
-- name: 🇫🇷 FR [ws] | 217.19.4.61
-  type: vless
-  server: 217.19.4.61
-  port: 443
-  uuid: b585dc5e-55bf-4a8b-913a-27c9ccac05c3
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: bab-6.site
-  client-fingerprint: chrome
-  ws-opts:
-    path: /vws/
-    headers:
-      Host: bab-6.site
 - name: 🇵🇱 PL [ws] | 91.215.43.248
   type: vless
   server: 91.215.43.248
@@ -266,36 +276,36 @@ proxies:
     path: /gateway/v1/ws/a64eb463966ba9c4bfd628f1de0362ae
     headers:
       Host: my.kempekl.online
-- name: 🇳🇱 NL [ws] | 37.139.42.221
+- name: 🇫🇷 FR [ws] | 217.19.4.61
   type: vless
-  server: 37.139.42.221
+  server: 217.19.4.61
   port: 443
-  uuid: 3a8b464f-3701-40ed-b6b6-b612019e34c1
+  uuid: b585dc5e-55bf-4a8b-913a-27c9ccac05c3
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: apis.stroymatdv.cc
-  client-fingerprint: firefox
+  servername: bab-6.site
+  client-fingerprint: chrome
   ws-opts:
-    path: /amsws
+    path: /vws/
     headers:
-      Host: apis.stroymatdv.cc
+      Host: bab-6.site
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
   - 🇳🇱 NL [R] | 72.56.85.221
   - 🇸🇨 SC [R] | 144.31.50.236
-  - 🇺🇸 US [R] | 193.163.203.170
-  - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
+  - 🇬🇧 GB [R] | 193.163.203.170
   - 🇬🇧 GB [R] | 95.85.224.51
-  - 🇩🇪 DE [R][xhttp] | 13.143.137.98
-  - 🇬🇧 GB [R][grpc] | 188.225.25.14
-  - 🇩🇪 DE [R][grpc] | 188.225.77.178
+  - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
+  - 🇵🇱 PL [R] | 144.31.93.231
+  - 🇨🇭 CH [R][xhttp] | 13.143.137.98
+  - 🇳🇱 NL [ws] | apis.stroymatdv.cc
   - 🇺🇸 US  | 31.131.251.17
-  - 🇳🇱 NL  | s170.gogocs.xyz
+  - 🇺🇸 US  | 31.131.251.17 (2)
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -305,21 +315,22 @@ proxy-groups:
   - 🚀 Auto
   - 🇳🇱 NL [R] | 72.56.85.221
   - 🇸🇨 SC [R] | 144.31.50.236
-  - 🇺🇸 US [R] | 193.163.203.170
-  - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
+  - 🇬🇧 GB [R] | 193.163.203.170
   - 🇬🇧 GB [R] | 95.85.224.51
-  - 🇩🇪 DE [R][xhttp] | 13.143.137.98
-  - 🇬🇧 GB [R][grpc] | 188.225.25.14
-  - 🇩🇪 DE [R][grpc] | 188.225.77.178
-  - 🇺🇸 US  | 31.131.251.17
-  - 🇳🇱 NL  | s170.gogocs.xyz
-  - 🇳🇱 NL  | 62.105.220.106
+  - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
+  - 🇵🇱 PL [R] | 144.31.93.231
+  - 🇨🇭 CH [R][xhttp] | 13.143.137.98
   - 🇳🇱 NL [ws] | apis.stroymatdv.cc
-  - 🇫🇷 FR [ws] | 81.95.4.189
-  - 🇫🇷 FR [ws] | 85.192.60.46
-  - 🇫🇷 FR [ws] | 217.19.4.61
-  - 🇵🇱 PL [ws] | 91.215.43.248
+  - 🇺🇸 US  | 31.131.251.17
+  - 🇺🇸 US  | 31.131.251.17 (2)
+  - 🇳🇱 NL  | 62.105.220.106
+  - 🇳🇱 NL [ws] | 185.86.145.37
+  - 🇳🇱 NL  | s170.gogocs.xyz
+  - 🇳🇱 NL  | s171.wagahaha.xyz
   - 🇳🇱 NL [ws] | 37.139.42.221
+  - 🇫🇷 FR [ws] | 81.95.4.189
+  - 🇵🇱 PL [ws] | 91.215.43.248
+  - 🇫🇷 FR [ws] | 217.19.4.61
 - name: 🎯 Direct
   type: select
   proxies:
