@@ -21,22 +21,6 @@ dns:
   - tls://8.8.8.8
   - tls://1.1.1.1
 proxies:
-- name: 🇳🇱 NL [R] | 72.56.85.221
-  type: vless
-  server: 72.56.85.221
-  port: 443
-  uuid: ca990a85-cb33-44af-bb17-61b30b43d51e
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: uTOxHZkQuw_YnO3GEIV0jDkVNOsOPQrTIPdRb2Rk8DQ
-    short-id: 00353c
-  servername: apple.com
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
 - name: 🇸🇨 SC [R] | prep.wwwinternetvideo.click
   type: vless
   server: prep.wwwinternetvideo.click
@@ -68,7 +52,7 @@ proxies:
     short-id: a696de84963656de
   servername: max.ru
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
+  client-fingerprint: qq
 - name: 🇵🇱 PL [R] | 144.31.93.231
   type: vless
   server: 144.31.93.231
@@ -82,22 +66,6 @@ proxies:
   reality-opts:
     public-key: WKN5yaRN05O2WdCURXRmS-yBVYaabaFWOvGudX6ohWc
     short-id: b97e7d4582b6fa6e
-  servername: yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇬🇧 GB [R] | 193.163.203.170
-  type: vless
-  server: 193.163.203.170
-  port: 443
-  uuid: 11aabba0-5fd1-4f15-8068-74c1a466cefc
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: GCCZ1ZZjB_nj7yxqFi22bIIWWr_G6rnWUzDcssN_40o
-    short-id: b28db60d77c50b4f
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
@@ -117,6 +85,22 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
+- name: 🇳🇱 NL [R] | 72.56.85.221
+  type: vless
+  server: 72.56.85.221
+  port: 443
+  uuid: ca990a85-cb33-44af-bb17-61b30b43d51e
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: uTOxHZkQuw_YnO3GEIV0jDkVNOsOPQrTIPdRb2Rk8DQ
+    short-id: 00353c
+  servername: apple.com
+  flow: xtls-rprx-vision
+  client-fingerprint: qq
 - name: 🇳🇱 NL [R] | 94.183.206.84
   type: vless
   server: 94.183.206.84
@@ -147,6 +131,68 @@ proxies:
     short-id: 8d0ff3d6ec629371
   servername: ozon.ru
   client-fingerprint: firefox
+- name: 🇩🇪 DE [R][grpc] | 188.225.77.178
+  type: vless
+  server: 188.225.77.178
+  port: 443
+  uuid: ac357756-bddc-45fa-b332-63cf9a3187f5
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 9YcV-gA7iaXFnI0HXQa624OIqm4zxO_U2eMCWXQAiCQ
+    short-id: 8375b32501373f41
+  servername: cloudcdn-m9-12.cdn.yandex.net
+  client-fingerprint: qq
+  grpc-opts:
+    grpc-service-name: grpc_vless
+- name: 🇺🇸 US [R] | 13.143.137.206
+  type: vless
+  server: 13.143.137.206
+  port: 443
+  uuid: 8ff3db5a-5f41-4f25-a8a4-7fbf00f1c319
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 1MLoHw7RVkGefh7XUyuGg4ndxwv4vDU9en-f9JxpXRQ
+    short-id: d2061bb1
+  servername: ya.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇫🇮 FI [ws] | ap2.directly.chat
+  type: vless
+  server: ap2.directly.chat
+  port: 443
+  uuid: cb3fecdd-6236-4370-b3e4-d1c5b95b48f1
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: ap2.directly.chat
+  client-fingerprint: firefox
+  ws-opts:
+    path: /fi/4
+    headers:
+      Host: ap2.directly.chat
+- name: 🇳🇱 NL  | s171.wagahaha.xyz
+  type: vless
+  server: s171.wagahaha.xyz
+  port: 443
+  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  servername: u695098u7dae9c0cs220.gogocs.xyz
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇵🇱 PL [ws] | 91.215.43.248
   type: vless
   server: 91.215.43.248
@@ -158,37 +204,11 @@ proxies:
   encryption: none
   tls: true
   servername: my.kempekl.online
-  client-fingerprint: firefox
+  client-fingerprint: chrome
   ws-opts:
     path: /gateway/v1/ws/a64eb463966ba9c4bfd628f1de0362ae
     headers:
       Host: my.kempekl.online
-- name: 🇺🇸 US  | 31.131.251.17
-  type: vless
-  server: 31.131.251.17
-  port: 443
-  uuid: 9ea8b000-58ce-005a-b108-989dd4f248f1
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: quatro.lmstream.org
-  flow: xtls-rprx-vision
-  client-fingerprint: qq
-- name: 🇺🇸 US  | 31.131.251.17 (2)
-  type: vless
-  server: 31.131.251.17
-  port: 443
-  uuid: 9ea8b000-58ce-0050-b108-989dd4f248f1
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: quatro.lmstream.org
-  flow: xtls-rprx-vision-udp443
-  client-fingerprint: qq
 - name: 🇳🇱 NL  | s170.gogocs.xyz
   type: vless
   server: s170.gogocs.xyz
@@ -212,22 +232,25 @@ proxies:
   tls: true
   servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
-- name: 🇳🇱 NL  | s171.wagahaha.xyz
-  type: vless
-  server: s171.wagahaha.xyz
-  port: 443
-  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: u695098u7dae9c0cs220.gogocs.xyz
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇺🇸 US [ws] | 185.237.225.47
   type: vless
   server: 185.237.225.47
+  port: 443
+  uuid: 489f1717-d3c7-4940-ad68-bdbdbab857f4
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: x.m-90.xyz
+  client-fingerprint: firefox
+  ws-opts:
+    path: t.me/TEAMNETGRATISCOL
+    headers:
+      Host: x.m-90.xyz
+- name: 🇺🇸 US [ws] | 46.30.47.125
+  type: vless
+  server: 46.30.47.125
   port: 443
   uuid: 489f1717-d3c7-4940-ad68-bdbdbab857f4
   udp: true
@@ -245,16 +268,16 @@ proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
-  - 🇳🇱 NL [R] | 72.56.85.221
   - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇵🇱 PL [R] | 144.31.93.231
-  - 🇬🇧 GB [R] | 193.163.203.170
   - 🇵🇱 PL [R] | av513u.sysopnova.art
+  - 🇳🇱 NL [R] | 72.56.85.221
   - 🇳🇱 NL [R] | 94.183.206.84
   - 🇩🇪 DE [R][xhttp] | 13.143.137.98
-  - 🇵🇱 PL [ws] | 91.215.43.248
-  - 🇺🇸 US  | 31.131.251.17
+  - 🇩🇪 DE [R][grpc] | 188.225.77.178
+  - 🇺🇸 US [R] | 13.143.137.206
+  - 🇫🇮 FI [ws] | ap2.directly.chat
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -262,21 +285,22 @@ proxy-groups:
   type: select
   proxies:
   - 🚀 Auto
-  - 🇳🇱 NL [R] | 72.56.85.221
   - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
   - 🇬🇧 GB [R] | 95.85.224.51
   - 🇵🇱 PL [R] | 144.31.93.231
-  - 🇬🇧 GB [R] | 193.163.203.170
   - 🇵🇱 PL [R] | av513u.sysopnova.art
+  - 🇳🇱 NL [R] | 72.56.85.221
   - 🇳🇱 NL [R] | 94.183.206.84
   - 🇩🇪 DE [R][xhttp] | 13.143.137.98
+  - 🇩🇪 DE [R][grpc] | 188.225.77.178
+  - 🇺🇸 US [R] | 13.143.137.206
+  - 🇫🇮 FI [ws] | ap2.directly.chat
+  - 🇳🇱 NL  | s171.wagahaha.xyz
   - 🇵🇱 PL [ws] | 91.215.43.248
-  - 🇺🇸 US  | 31.131.251.17
-  - 🇺🇸 US  | 31.131.251.17 (2)
   - 🇳🇱 NL  | s170.gogocs.xyz
   - 🇳🇱 NL  | 62.105.220.106
-  - 🇳🇱 NL  | s171.wagahaha.xyz
   - 🇺🇸 US [ws] | 185.237.225.47
+  - 🇺🇸 US [ws] | 46.30.47.125
 - name: 🎯 Direct
   type: select
   proxies:
