@@ -37,22 +37,6 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇬🇧 GB [R] | 95.85.224.51
-  type: vless
-  server: 95.85.224.51
-  port: 443
-  uuid: 342ab7e4-5a89-0001-8809-304120d4aa83
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: WWeAHWUVD-phmnjNJ823cer0c4CMIbEs08AhsuEZmDc
-    short-id: a696de84963656de
-  servername: max.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
 - name: 🇸🇨 SC [R] | prep.wwwinternetvideo.click
   type: vless
   server: prep.wwwinternetvideo.click
@@ -68,10 +52,26 @@ proxies:
     short-id: bbe46bd8f6b96839
   servername: yandex.ru
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇩🇪 DE [R] | 217.60.99.135
+  client-fingerprint: firefox
+- name: 🇬🇧 GB [R] | 95.85.224.51
   type: vless
-  server: 217.60.99.135
+  server: 95.85.224.51
+  port: 443
+  uuid: 342ab7e4-5a89-0001-8809-304120d4aa83
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: WWeAHWUVD-phmnjNJ823cer0c4CMIbEs08AhsuEZmDc
+    short-id: a696de84963656de
+  servername: max.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: qq
+- name: 🇸🇪 SE [R] | 31.77.18.220
+  type: vless
+  server: 31.77.18.220
   port: 443
   uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
   udp: true
@@ -99,24 +99,25 @@ proxies:
   servername: google.com
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇳🇱 NL [R] | 72.56.85.221
+- name: 🇺🇸 US [R] | 193.163.203.170
   type: vless
-  server: 72.56.85.221
+  server: 193.163.203.170
   port: 443
-  uuid: ca990a85-cb33-44af-bb17-61b30b43d51e
+  uuid: 11aabba0-5fd1-4f15-8068-74c1a466cefc
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: uTOxHZkQuw_YnO3GEIV0jDkVNOsOPQrTIPdRb2Rk8DQ
-    short-id: 00353c
-  servername: apple.com
+    public-key: GCCZ1ZZjB_nj7yxqFi22bIIWWr_G6rnWUzDcssN_40o
+    short-id: b28db60d77c50b4f
+  servername: yandex.ru
   flow: xtls-rprx-vision
-- name: 🇸🇪 SE [R] | 31.77.18.220
+  client-fingerprint: chrome
+- name: 🇩🇪 DE [R] | 217.60.99.135
   type: vless
-  server: 31.77.18.220
+  server: 217.60.99.135
   port: 443
   uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
   udp: true
@@ -144,6 +145,21 @@ proxies:
   servername: google.com
   flow: xtls-rprx-vision
   client-fingerprint: firefox
+- name: 🇳🇱 NL [R] | 72.56.85.221
+  type: vless
+  server: 72.56.85.221
+  port: 443
+  uuid: ca990a85-cb33-44af-bb17-61b30b43d51e
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: uTOxHZkQuw_YnO3GEIV0jDkVNOsOPQrTIPdRb2Rk8DQ
+    short-id: 00353c
+  servername: apple.com
+  flow: xtls-rprx-vision
 - name: 🇦🇪 AE [R] | 94.183.167.34
   type: vless
   server: 94.183.167.34
@@ -159,6 +175,23 @@ proxies:
   servername: google.com
   flow: xtls-rprx-vision
   client-fingerprint: firefox
+- name: 🇩🇪 DE [R][grpc] | 188.225.77.178
+  type: vless
+  server: 188.225.77.178
+  port: 443
+  uuid: 650f65fe-1c5b-47d3-8b05-646bf7b70713
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 9YcV-gA7iaXFnI0HXQa624OIqm4zxO_U2eMCWXQAiCQ
+    short-id: 8375b32501373f41
+  servername: cloudcdn-m9-12.cdn.yandex.net
+  client-fingerprint: qq
+  grpc-opts:
+    grpc-service-name: grpc_vless
 - name: 🇵🇱 PL [R] | 13.143.137.206
   type: vless
   server: 13.143.137.206
@@ -175,29 +208,6 @@ proxies:
   servername: ya.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇧🇾 BY [xhttp] | 89.208.230.123
-  type: vless
-  server: 89.208.230.123
-  port: 443
-  uuid: d1004cfe-c279-e865-d865-71964dbdf85d
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  servername: vimdes.save-files.online
-- name: 🇧🇾 BY [xhttp] | 109.120.188.152
-  type: vless
-  server: 109.120.188.152
-  port: 443
-  uuid: d1004cfe-c279-e865-d865-71964dbdf85d
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  servername: ws188152.mypaneltest.online
-  client-fingerprint: qq
 - name: 🇵🇱 PL [ws] | 91.215.43.248
   type: vless
   server: 91.215.43.248
@@ -209,41 +219,27 @@ proxies:
   encryption: none
   tls: true
   servername: my.kempekl.online
-  client-fingerprint: chrome
+  client-fingerprint: qq
   ws-opts:
     path: /gateway/v1/ws/a64eb463966ba9c4bfd628f1de0362ae
     headers:
       Host: my.kempekl.online
-- name: 🇺🇸 US [ws] | 84.23.52.65
+- name: 🇩🇪 DE [ws] | msk.ai-boost.tech
   type: vless
-  server: 84.23.52.65
+  server: msk.ai-boost.tech
   port: 443
-  uuid: d1004cfe-c279-e865-d865-71964dbdf85d
+  uuid: 513e7ad9-318b-4495-8f5b-d88c4302fdc1
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: seo.video-save.online
+  servername: msk.ai-boost.tech
+  client-fingerprint: qq
   ws-opts:
-    path: /api/v3/stream/manifest/54dea6bc
+    path: /3a7lzIHlgUuz2QnV1CaQ
     headers:
-      Host: seo.video-save.online
-- name: 🇫🇮 FI [ws] | video.save-files.online
-  type: vless
-  server: video.save-files.online
-  port: 443
-  uuid: d1004cfe-c279-e865-d865-71964dbdf85d
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: video.save-files.online
-  ws-opts:
-    path: /live/hls/channel/7c4b8e13
-    headers:
-      Host: video.save-files.online
+      Host: msk.ai-boost.tech
 - name: 🇳🇱 NL  | 62.105.220.106
   type: vless
   server: 62.105.220.106
@@ -257,38 +253,6 @@ proxies:
   servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇳🇱 NL [ws] | cosmo-pulse.ru
-  type: vless
-  server: cosmo-pulse.ru
-  port: 443
-  uuid: 7ec9f26a-edec-4bf1-addd-700626df27c1
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: cosmo-pulse.ru
-  client-fingerprint: qq
-  ws-opts:
-    path: /nl7ws
-    headers:
-      Host: cosmo-pulse.ru
-- name: 🇳🇱 NL [ws] | 185.86.145.183
-  type: vless
-  server: 185.86.145.183
-  port: 443
-  uuid: 7ec9f26a-edec-4bf1-addd-700626df27c1
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: cosmo-pulse.ru
-  client-fingerprint: qq
-  ws-opts:
-    path: /nl7ws
-    headers:
-      Host: cosmo-pulse.ru
 - name: 🇳🇱 NL  | s170.gogocs.xyz
   type: vless
   server: s170.gogocs.xyz
@@ -301,6 +265,19 @@ proxies:
   tls: true
   flow: xtls-rprx-vision
   client-fingerprint: chrome
+- name: 🇲🇩 MD [ws] | ap2.directly.chat
+  type: vless
+  server: ap2.directly.chat
+  port: 443
+  uuid: 2f9107cb-9af0-4c94-a89d-50437218e5fa
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  client-fingerprint: chrome
+  ws-opts:
+    path: /md/1
 - name: 🇳🇱 NL  | s171.wagahaha.xyz
   type: vless
   server: s171.wagahaha.xyz
@@ -314,67 +291,52 @@ proxies:
   servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇧🇾 BY [ws] | ost.tmk-videos.online
+- name: 🇲🇩 MD [ws] | ap2.directly.chat (2)
   type: vless
-  server: ost.tmk-videos.online
+  server: ap2.directly.chat
   port: 443
-  uuid: d1004cfe-c279-e865-d865-71964dbdf85d
+  uuid: 2f9107cb-9af0-4c94-a89d-50437218e5fa
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: ost.tmk-videos.online
-  client-fingerprint: firefox
+  servername: ap2.directly.chat
+  client-fingerprint: chrome
   ws-opts:
-    path: /hls/live/broadcast/e75ebceb
+    path: /md/1
     headers:
-      Host: ost.tmk-videos.online
-- name: 🇺🇸 US [ws] | seo.video-save.online
+      Host: ap2.directly.chat
+- name: 🇧🇬 BG [ws] | drive.korroh.com
   type: vless
-  server: seo.video-save.online
+  server: drive.korroh.com
   port: 443
-  uuid: d1004cfe-c279-e865-d865-71964dbdf85d
+  uuid: ec6f8131-7a5d-4117-9627-6fb2b39ae0da
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: seo.video-save.online
-  client-fingerprint: firefox
+  servername: drive.korroh.com
+  client-fingerprint: chrome
   ws-opts:
-    path: /api/v3/stream/manifest/54dea6bc
+    path: /remote.php/dav/89f7661a0011ce46
     headers:
-      Host: seo.video-save.online
-- name: 🇫🇮 FI [ws] | osa.video-save.online
-  type: vless
-  server: osa.video-save.online
-  port: 443
-  uuid: d1004cfe-c279-e865-d865-71964dbdf85d
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: osa.video-save.online
-  ws-opts:
-    path: /hls/stream/live/a5517ec3
-    headers:
-      Host: osa.video-save.online
+      Host: drive.korroh.com
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
   - 🇸🇨 SC [R] | 144.31.50.236
-  - 🇬🇧 GB [R] | 95.85.224.51
   - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
-  - 🇩🇪 DE [R] | 217.60.99.135
-  - 🇳🇱 NL [R] | 94.183.206.84
-  - 🇳🇱 NL [R] | 72.56.85.221
+  - 🇬🇧 GB [R] | 95.85.224.51
   - 🇸🇪 SE [R] | 31.77.18.220
+  - 🇳🇱 NL [R] | 94.183.206.84
+  - 🇺🇸 US [R] | 193.163.203.170
+  - 🇩🇪 DE [R] | 217.60.99.135
   - 🇫🇮 FI [R] | 13.143.173.15
+  - 🇳🇱 NL [R] | 72.56.85.221
   - 🇦🇪 AE [R] | 94.183.167.34
-  - 🇵🇱 PL [R] | 13.143.137.206
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -383,28 +345,25 @@ proxy-groups:
   proxies:
   - 🚀 Auto
   - 🇸🇨 SC [R] | 144.31.50.236
-  - 🇬🇧 GB [R] | 95.85.224.51
   - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
-  - 🇩🇪 DE [R] | 217.60.99.135
-  - 🇳🇱 NL [R] | 94.183.206.84
-  - 🇳🇱 NL [R] | 72.56.85.221
+  - 🇬🇧 GB [R] | 95.85.224.51
   - 🇸🇪 SE [R] | 31.77.18.220
+  - 🇳🇱 NL [R] | 94.183.206.84
+  - 🇺🇸 US [R] | 193.163.203.170
+  - 🇩🇪 DE [R] | 217.60.99.135
   - 🇫🇮 FI [R] | 13.143.173.15
+  - 🇳🇱 NL [R] | 72.56.85.221
   - 🇦🇪 AE [R] | 94.183.167.34
+  - 🇩🇪 DE [R][grpc] | 188.225.77.178
   - 🇵🇱 PL [R] | 13.143.137.206
-  - 🇧🇾 BY [xhttp] | 89.208.230.123
-  - 🇧🇾 BY [xhttp] | 109.120.188.152
   - 🇵🇱 PL [ws] | 91.215.43.248
-  - 🇺🇸 US [ws] | 84.23.52.65
-  - 🇫🇮 FI [ws] | video.save-files.online
+  - 🇩🇪 DE [ws] | msk.ai-boost.tech
   - 🇳🇱 NL  | 62.105.220.106
-  - 🇳🇱 NL [ws] | cosmo-pulse.ru
-  - 🇳🇱 NL [ws] | 185.86.145.183
   - 🇳🇱 NL  | s170.gogocs.xyz
+  - 🇲🇩 MD [ws] | ap2.directly.chat
   - 🇳🇱 NL  | s171.wagahaha.xyz
-  - 🇧🇾 BY [ws] | ost.tmk-videos.online
-  - 🇺🇸 US [ws] | seo.video-save.online
-  - 🇫🇮 FI [ws] | osa.video-save.online
+  - 🇲🇩 MD [ws] | ap2.directly.chat (2)
+  - 🇧🇬 BG [ws] | drive.korroh.com
 - name: 🎯 Direct
   type: select
   proxies:
