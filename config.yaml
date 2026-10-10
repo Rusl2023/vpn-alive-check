@@ -52,7 +52,7 @@ proxies:
     short-id: bbe46bd8f6b96839
   servername: yandex.ru
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
+  client-fingerprint: chrome
 - name: 🇬🇧 GB [R] | 95.85.224.51
   type: vless
   server: 95.85.224.51
@@ -69,55 +69,24 @@ proxies:
   servername: max.ru
   flow: xtls-rprx-vision
   client-fingerprint: qq
-- name: 🇸🇪 SE [R] | 31.77.18.220
-  type: vless
-  server: 31.77.18.220
-  port: 443
-  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
-  servername: google.com
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇳🇱 NL [R] | 94.183.206.84
-  type: vless
-  server: 94.183.206.84
-  port: 443
-  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
-  servername: google.com
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇺🇸 US [R] | 193.163.203.170
-  type: vless
-  server: 193.163.203.170
-  port: 443
-  uuid: 11aabba0-5fd1-4f15-8068-74c1a466cefc
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: GCCZ1ZZjB_nj7yxqFi22bIIWWr_G6rnWUzDcssN_40o
-    short-id: b28db60d77c50b4f
-  servername: yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
 - name: 🇩🇪 DE [R] | 217.60.99.135
   type: vless
   server: 217.60.99.135
+  port: 443
+  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
+  servername: google.com
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇸🇪 SE [R] | 31.77.18.220
+  type: vless
+  server: 31.77.18.220
   port: 443
   uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
   udp: true
@@ -145,21 +114,21 @@ proxies:
   servername: google.com
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇳🇱 NL [R] | 72.56.85.221
+- name: 🇳🇱 NL [R] | 94.183.206.84
   type: vless
-  server: 72.56.85.221
+  server: 94.183.206.84
   port: 443
-  uuid: ca990a85-cb33-44af-bb17-61b30b43d51e
+  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: uTOxHZkQuw_YnO3GEIV0jDkVNOsOPQrTIPdRb2Rk8DQ
-    short-id: 00353c
-  servername: apple.com
+    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
+  servername: google.com
   flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇦🇪 AE [R] | 94.183.167.34
   type: vless
   server: 94.183.167.34
@@ -179,7 +148,7 @@ proxies:
   type: vless
   server: 188.225.77.178
   port: 443
-  uuid: 650f65fe-1c5b-47d3-8b05-646bf7b70713
+  uuid: 813fc70f-3a50-4409-9b80-30e304991b1e
   udp: true
   skip-cert-verify: true
   network: grpc
@@ -192,7 +161,7 @@ proxies:
   client-fingerprint: qq
   grpc-opts:
     grpc-service-name: grpc_vless
-- name: 🇵🇱 PL [R] | 13.143.137.206
+- name: 🇧🇬 BG [R] | 13.143.137.206
   type: vless
   server: 13.143.137.206
   port: 443
@@ -219,7 +188,7 @@ proxies:
   encryption: none
   tls: true
   servername: my.kempekl.online
-  client-fingerprint: qq
+  client-fingerprint: firefox
   ws-opts:
     path: /gateway/v1/ws/a64eb463966ba9c4bfd628f1de0362ae
     headers:
@@ -235,7 +204,7 @@ proxies:
   encryption: none
   tls: true
   servername: msk.ai-boost.tech
-  client-fingerprint: qq
+  client-fingerprint: random
   ws-opts:
     path: /3a7lzIHlgUuz2QnV1CaQ
     headers:
@@ -264,20 +233,6 @@ proxies:
   encryption: none
   tls: true
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇲🇩 MD [ws] | ap2.directly.chat
-  type: vless
-  server: ap2.directly.chat
-  port: 443
-  uuid: 2f9107cb-9af0-4c94-a89d-50437218e5fa
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  client-fingerprint: chrome
-  ws-opts:
-    path: /md/1
 - name: 🇳🇱 NL  | s171.wagahaha.xyz
   type: vless
   server: s171.wagahaha.xyz
@@ -291,25 +246,9 @@ proxies:
   servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇲🇩 MD [ws] | ap2.directly.chat (2)
+- name: 🇧🇬 BG [ws] | cloud.korroh.com
   type: vless
-  server: ap2.directly.chat
-  port: 443
-  uuid: 2f9107cb-9af0-4c94-a89d-50437218e5fa
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: ap2.directly.chat
-  client-fingerprint: chrome
-  ws-opts:
-    path: /md/1
-    headers:
-      Host: ap2.directly.chat
-- name: 🇧🇬 BG [ws] | drive.korroh.com
-  type: vless
-  server: drive.korroh.com
+  server: cloud.korroh.com
   port: 443
   uuid: ec6f8131-7a5d-4117-9627-6fb2b39ae0da
   udp: true
@@ -317,12 +256,12 @@ proxies:
   network: ws
   encryption: none
   tls: true
-  servername: drive.korroh.com
+  servername: cloud.korroh.com
   client-fingerprint: chrome
   ws-opts:
     path: /remote.php/dav/89f7661a0011ce46
     headers:
-      Host: drive.korroh.com
+      Host: cloud.korroh.com
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
@@ -330,13 +269,13 @@ proxy-groups:
   - 🇸🇨 SC [R] | 144.31.50.236
   - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
   - 🇬🇧 GB [R] | 95.85.224.51
-  - 🇸🇪 SE [R] | 31.77.18.220
-  - 🇳🇱 NL [R] | 94.183.206.84
-  - 🇺🇸 US [R] | 193.163.203.170
   - 🇩🇪 DE [R] | 217.60.99.135
+  - 🇸🇪 SE [R] | 31.77.18.220
   - 🇫🇮 FI [R] | 13.143.173.15
-  - 🇳🇱 NL [R] | 72.56.85.221
+  - 🇳🇱 NL [R] | 94.183.206.84
   - 🇦🇪 AE [R] | 94.183.167.34
+  - 🇩🇪 DE [R][grpc] | 188.225.77.178
+  - 🇧🇬 BG [R] | 13.143.137.206
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -347,23 +286,19 @@ proxy-groups:
   - 🇸🇨 SC [R] | 144.31.50.236
   - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
   - 🇬🇧 GB [R] | 95.85.224.51
-  - 🇸🇪 SE [R] | 31.77.18.220
-  - 🇳🇱 NL [R] | 94.183.206.84
-  - 🇺🇸 US [R] | 193.163.203.170
   - 🇩🇪 DE [R] | 217.60.99.135
+  - 🇸🇪 SE [R] | 31.77.18.220
   - 🇫🇮 FI [R] | 13.143.173.15
-  - 🇳🇱 NL [R] | 72.56.85.221
+  - 🇳🇱 NL [R] | 94.183.206.84
   - 🇦🇪 AE [R] | 94.183.167.34
   - 🇩🇪 DE [R][grpc] | 188.225.77.178
-  - 🇵🇱 PL [R] | 13.143.137.206
+  - 🇧🇬 BG [R] | 13.143.137.206
   - 🇵🇱 PL [ws] | 91.215.43.248
   - 🇩🇪 DE [ws] | msk.ai-boost.tech
   - 🇳🇱 NL  | 62.105.220.106
   - 🇳🇱 NL  | s170.gogocs.xyz
-  - 🇲🇩 MD [ws] | ap2.directly.chat
   - 🇳🇱 NL  | s171.wagahaha.xyz
-  - 🇲🇩 MD [ws] | ap2.directly.chat (2)
-  - 🇧🇬 BG [ws] | drive.korroh.com
+  - 🇧🇬 BG [ws] | cloud.korroh.com
 - name: 🎯 Direct
   type: select
   proxies:
