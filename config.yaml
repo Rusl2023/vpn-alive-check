@@ -21,22 +21,6 @@ dns:
   - tls://8.8.8.8
   - tls://1.1.1.1
 proxies:
-- name: 🇸🇨 SC [R] | 144.31.50.236
-  type: vless
-  server: 144.31.50.236
-  port: 443
-  uuid: 1c332eae-7e02-4acd-996d-4eb3e652401c
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: uitO4Z8t9TplwwYaqwLqh5rfxDh_X8bOBiNuPbzvaEM
-    short-id: bbe46bd8f6b96839
-  servername: yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
 - name: 🇸🇨 SC [R] | prep.wwwinternetvideo.click
   type: vless
   server: prep.wwwinternetvideo.click
@@ -52,7 +36,7 @@ proxies:
     short-id: bbe46bd8f6b96839
   servername: yandex.ru
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
+  client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 95.85.224.51
   type: vless
   server: 95.85.224.51
@@ -69,21 +53,6 @@ proxies:
   servername: max.ru
   flow: xtls-rprx-vision
   client-fingerprint: qq
-- name: 🇩🇪 DE [R] | 217.60.99.135
-  type: vless
-  server: 217.60.99.135
-  port: 443
-  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
-  servername: google.com
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇸🇪 SE [R] | 31.77.18.220
   type: vless
   server: 31.77.18.220
@@ -98,10 +67,10 @@ proxies:
     public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
   servername: google.com
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇫🇮 FI [R] | 13.143.173.15
+  client-fingerprint: chrome
+- name: 🇳🇱 NL [R] | 94.183.206.84
   type: vless
-  server: 13.143.173.15
+  server: 94.183.206.84
   port: 443
   uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
   udp: true
@@ -114,9 +83,9 @@ proxies:
   servername: google.com
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇳🇱 NL [R] | 94.183.206.84
+- name: 🇩🇪 DE [R] | 217.60.99.135
   type: vless
-  server: 94.183.206.84
+  server: 217.60.99.135
   port: 443
   uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
   udp: true
@@ -144,11 +113,58 @@ proxies:
   servername: google.com
   flow: xtls-rprx-vision
   client-fingerprint: firefox
+- name: 🇫🇮 FI [R] | 13.143.173.15
+  type: vless
+  server: 13.143.173.15
+  port: 443
+  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
+  servername: google.com
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇳🇱 NL [R] | 72.56.85.221
+  type: vless
+  server: 72.56.85.221
+  port: 443
+  uuid: ca990a85-cb33-44af-bb17-61b30b43d51e
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: uTOxHZkQuw_YnO3GEIV0jDkVNOsOPQrTIPdRb2Rk8DQ
+    short-id: 00353c
+  servername: apple.com
+  flow: xtls-rprx-vision
+  client-fingerprint: qq
+- name: 🇵🇱 PL [R] | 144.31.93.231
+  type: vless
+  server: 144.31.93.231
+  port: 443
+  uuid: 3710fc0f-5f0c-4b9c-a5d4-40cb419e943a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: WKN5yaRN05O2WdCURXRmS-yBVYaabaFWOvGudX6ohWc
+    short-id: b97e7d4582b6fa6e
+  servername: yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇩🇪 DE [R][grpc] | 188.225.77.178
   type: vless
   server: 188.225.77.178
   port: 443
-  uuid: 813fc70f-3a50-4409-9b80-30e304991b1e
+  uuid: 271fd0c9-129d-4d82-a509-19ea600a71a2
   udp: true
   skip-cert-verify: true
   network: grpc
@@ -161,20 +177,36 @@ proxies:
   client-fingerprint: qq
   grpc-opts:
     grpc-service-name: grpc_vless
-- name: 🇧🇬 BG [R] | 13.143.137.206
+- name: 🇳🇱 NL [R] | 168.222.143.254
   type: vless
-  server: 13.143.137.206
+  server: 168.222.143.254
   port: 443
-  uuid: 8ff3db5a-5f41-4f25-a8a4-7fbf00f1c319
+  uuid: ebdf87e8-4f75-4b84-94e0-65ce4894993a
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: 1MLoHw7RVkGefh7XUyuGg4ndxwv4vDU9en-f9JxpXRQ
-    short-id: d2061bb1
-  servername: ya.ru
+    public-key: 3_Qy1SAtWfbiQbznyhlXxJtqB-5QQ46VF1Uz2h5A7Q4
+    short-id: 2dc17935
+  servername: st.avito.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇩🇪 DE [R] | 64.188.124.143
+  type: vless
+  server: 64.188.124.143
+  port: 443
+  uuid: fce27c3a-629e-411b-92cc-8822d655ff91
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: CxjnGHCI3HXN2RAXwytela7jXyOGDCBqzMAqTfm60D0
+    short-id: 766ef89e321597e5
+  servername: dzen.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
 - name: 🇵🇱 PL [ws] | 91.215.43.248
@@ -188,12 +220,44 @@ proxies:
   encryption: none
   tls: true
   servername: my.kempekl.online
-  client-fingerprint: firefox
+  client-fingerprint: chrome
   ws-opts:
     path: /gateway/v1/ws/a64eb463966ba9c4bfd628f1de0362ae
     headers:
       Host: my.kempekl.online
-- name: 🇩🇪 DE [ws] | msk.ai-boost.tech
+- name: 🇩🇪 DE [ws] | 45.67.215.233
+  type: vless
+  server: 45.67.215.233
+  port: 443
+  uuid: 20e295db-a6af-4006-bfd6-91453f169968
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: 057.ElecTRocElLco-Cf-057.wOrKeRs.dEv
+  client-fingerprint: chrome
+  ws-opts:
+    path: /eyJqdW5rIjoiSFM1N0lLQmx2UU1qRzlnTiIsInByb3RvY29sIjoidmwiLCJtb2RlIjoicHJveHlpcCIsInBhbmVsSVBzIjpbXX0=
+    headers:
+      Host: 057.electrocellco-cf-057.workers.dev
+- name: 🇳🇱 NL [ws] | 141.105.68.164
+  type: vless
+  server: 141.105.68.164
+  port: 443
+  uuid: 513e7ad9-318b-4495-8f5b-d88c4302fdc1
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: msk.ai-boost.tech
+  client-fingerprint: random
+  ws-opts:
+    path: /3a7lzIHlgUuz2QnV1CaQ
+    headers:
+      Host: msk.ai-boost.tech
+- name: 🇳🇱 NL [ws] | msk.ai-boost.tech
   type: vless
   server: msk.ai-boost.tech
   port: 443
@@ -204,7 +268,7 @@ proxies:
   encryption: none
   tls: true
   servername: msk.ai-boost.tech
-  client-fingerprint: random
+  client-fingerprint: qq
   ws-opts:
     path: /3a7lzIHlgUuz2QnV1CaQ
     headers:
@@ -222,17 +286,6 @@ proxies:
   servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇳🇱 NL  | s170.gogocs.xyz
-  type: vless
-  server: s170.gogocs.xyz
-  port: 443
-  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  flow: xtls-rprx-vision
 - name: 🇳🇱 NL  | s171.wagahaha.xyz
   type: vless
   server: s171.wagahaha.xyz
@@ -246,6 +299,33 @@ proxies:
   servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
   client-fingerprint: firefox
+- name: 🇳🇱 NL  | s170.gogocs.xyz
+  type: vless
+  server: s170.gogocs.xyz
+  port: 443
+  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  flow: xtls-rprx-vision
+- name: 🇧🇬 BG [ws] | drive.korroh.com
+  type: vless
+  server: drive.korroh.com
+  port: 443
+  uuid: ec6f8131-7a5d-4117-9627-6fb2b39ae0da
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: drive.korroh.com
+  client-fingerprint: chrome
+  ws-opts:
+    path: /remote.php/dav/89f7661a0011ce46
+    headers:
+      Host: drive.korroh.com
 - name: 🇧🇬 BG [ws] | cloud.korroh.com
   type: vless
   server: cloud.korroh.com
@@ -262,20 +342,52 @@ proxies:
     path: /remote.php/dav/89f7661a0011ce46
     headers:
       Host: cloud.korroh.com
+- name: 🇺🇸 US [ws] | 185.129.100.252
+  type: vless
+  server: 185.129.100.252
+  port: 443
+  uuid: 0d33aa6d-b806-46ab-803c-5930caea5ab7
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: lk.nehtar.ru
+  client-fingerprint: firefox
+  ws-opts:
+    path: /gateway/v1/ws/5b7c5fd35f56064c0a9d7f020fc64481
+    headers:
+      Host: lk.nehtar.ru
+- name: 🇵🇱 PL [ws] | 95.129.236.54
+  type: vless
+  server: 95.129.236.54
+  port: 443
+  uuid: a5893c8b-28a2-4947-9a1c-708db25506c3
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: client.lk.nehtar.online
+  client-fingerprint: firefox
+  ws-opts:
+    path: /gateway/v1/ws/7b101e2ddcdc731ab25531e04f964444
+    headers:
+      Host: client.lk.nehtar.online
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
-  - 🇸🇨 SC [R] | 144.31.50.236
   - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
   - 🇬🇧 GB [R] | 95.85.224.51
-  - 🇩🇪 DE [R] | 217.60.99.135
   - 🇸🇪 SE [R] | 31.77.18.220
-  - 🇫🇮 FI [R] | 13.143.173.15
   - 🇳🇱 NL [R] | 94.183.206.84
+  - 🇩🇪 DE [R] | 217.60.99.135
   - 🇦🇪 AE [R] | 94.183.167.34
+  - 🇫🇮 FI [R] | 13.143.173.15
+  - 🇳🇱 NL [R] | 72.56.85.221
+  - 🇵🇱 PL [R] | 144.31.93.231
   - 🇩🇪 DE [R][grpc] | 188.225.77.178
-  - 🇧🇬 BG [R] | 13.143.137.206
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -283,22 +395,29 @@ proxy-groups:
   type: select
   proxies:
   - 🚀 Auto
-  - 🇸🇨 SC [R] | 144.31.50.236
   - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
   - 🇬🇧 GB [R] | 95.85.224.51
-  - 🇩🇪 DE [R] | 217.60.99.135
   - 🇸🇪 SE [R] | 31.77.18.220
-  - 🇫🇮 FI [R] | 13.143.173.15
   - 🇳🇱 NL [R] | 94.183.206.84
+  - 🇩🇪 DE [R] | 217.60.99.135
   - 🇦🇪 AE [R] | 94.183.167.34
+  - 🇫🇮 FI [R] | 13.143.173.15
+  - 🇳🇱 NL [R] | 72.56.85.221
+  - 🇵🇱 PL [R] | 144.31.93.231
   - 🇩🇪 DE [R][grpc] | 188.225.77.178
-  - 🇧🇬 BG [R] | 13.143.137.206
+  - 🇳🇱 NL [R] | 168.222.143.254
+  - 🇩🇪 DE [R] | 64.188.124.143
   - 🇵🇱 PL [ws] | 91.215.43.248
-  - 🇩🇪 DE [ws] | msk.ai-boost.tech
+  - 🇩🇪 DE [ws] | 45.67.215.233
+  - 🇳🇱 NL [ws] | 141.105.68.164
+  - 🇳🇱 NL [ws] | msk.ai-boost.tech
   - 🇳🇱 NL  | 62.105.220.106
-  - 🇳🇱 NL  | s170.gogocs.xyz
   - 🇳🇱 NL  | s171.wagahaha.xyz
+  - 🇳🇱 NL  | s170.gogocs.xyz
+  - 🇧🇬 BG [ws] | drive.korroh.com
   - 🇧🇬 BG [ws] | cloud.korroh.com
+  - 🇺🇸 US [ws] | 185.129.100.252
+  - 🇵🇱 PL [ws] | 95.129.236.54
 - name: 🎯 Direct
   type: select
   proxies:
