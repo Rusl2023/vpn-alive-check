@@ -36,6 +36,7 @@ proxies:
     short-id: b28db60d77c50b4f
   servername: yandex.ru
   flow: xtls-rprx-vision
+  client-fingerprint: chrome
 - name: 🇬🇧 GB [R] | 95.85.224.51
   type: vless
   server: 95.85.224.51
@@ -51,10 +52,57 @@ proxies:
     short-id: a696de84963656de
   servername: max.ru
   flow: xtls-rprx-vision
-  client-fingerprint: qq
+  client-fingerprint: chrome
+- name: 🇸🇨 SC [R] | 144.31.50.236
+  type: vless
+  server: 144.31.50.236
+  port: 443
+  uuid: 1c332eae-7e02-4acd-996d-4eb3e652401c
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: uitO4Z8t9TplwwYaqwLqh5rfxDh_X8bOBiNuPbzvaEM
+    short-id: bbe46bd8f6b96839
+  servername: yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇸🇨 SC [R] | prep.wwwinternetvideo.click
+  type: vless
+  server: prep.wwwinternetvideo.click
+  port: 443
+  uuid: 1c332eae-7e02-4acd-996d-4eb3e652401c
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: uitO4Z8t9TplwwYaqwLqh5rfxDh_X8bOBiNuPbzvaEM
+    short-id: bbe46bd8f6b96839
+  servername: yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇸🇪 SE [R] | 31.77.18.220
   type: vless
   server: 31.77.18.220
+  port: 443
+  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
+  servername: google.com
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇫🇮 FI [R] | 13.143.173.15
+  type: vless
+  server: 13.143.173.15
   port: 443
   uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
   udp: true
@@ -82,37 +130,52 @@ proxies:
     short-id: 00353c
   servername: apple.com
   flow: xtls-rprx-vision
-- name: 🇫🇮 FI [R] | 13.143.173.15
+- name: 🇮🇹 IT [R] | it.nodes.wagvpn.club
   type: vless
-  server: 13.143.173.15
+  server: it.nodes.wagvpn.club
   port: 443
-  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
+  uuid: d07290cc-f70d-44e2-9be6-6473d3480c0b
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
-  servername: google.com
+    public-key: li5NH6qQUDgYest2daHfYUeMjqwADWCkk2jh0s7P1lw
+    short-id: 9267bf2c26bb92b0
+  servername: apple.com
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇵🇱 PL [R] | 144.31.93.231
+  client-fingerprint: qq
+- name: 🇺🇸 US [R][xhttp] | 159.194.248.11
   type: vless
-  server: 144.31.93.231
+  server: 159.194.248.11
   port: 443
-  uuid: 3710fc0f-5f0c-4b9c-a5d4-40cb419e943a
+  uuid: a80674d8-c4e8-4af8-914b-9aa919ae7054
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: yQfhPYAXsz1EqKpOglHh72NzJsf9YoPuD1bjMC-DDiM
+  servername: api-maps.yandex.ru
+  client-fingerprint: random
+- name: 🇹🇷 TR [R] | tr.datanode-internal.net
+  type: vless
+  server: tr.datanode-internal.net
+  port: 443
+  uuid: 93996a55-febe-4183-9366-df6cb11a34dd
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: WKN5yaRN05O2WdCURXRmS-yBVYaabaFWOvGudX6ohWc
-    short-id: b97e7d4582b6fa6e
-  servername: yandex.ru
+    public-key: r6lN34m1nN-xQZ458j5NPD5xJ3_QBF2bGzY4KJEo4ic
+    short-id: abbcd128
+  servername: sun9-38.userapi.com
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
+  client-fingerprint: random
 - name: 🇩🇪 DE [xhttp] | 91.215.41.42
   type: vless
   server: 91.215.41.42
@@ -124,31 +187,7 @@ proxies:
   encryption: none
   tls: true
   servername: rwyisq.edge-assets.ru
-  client-fingerprint: chrome
-- name: 🇩🇪 DE [xhttp] | rwyisq.edge-assets.ru
-  type: vless
-  server: rwyisq.edge-assets.ru
-  port: 443
-  uuid: 6e58f644-bc22-4dae-824a-4c3a760dc7a1
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  servername: rwyisq.edge-assets.ru
-  client-fingerprint: qq
-- name: 🇩🇪 DE [xhttp] | 91.215.41.42 (2)
-  type: vless
-  server: 91.215.41.42
-  port: 443
-  uuid: 6e58f644-bc22-4dae-824a-4c3a760dc7a1
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  servername: dzv5pi.edge-assets.ru
-  client-fingerprint: chrome
+  client-fingerprint: firefox
 - name: 🇳🇱 NL  | 62.105.220.106
   type: vless
   server: 62.105.220.106
@@ -162,6 +201,37 @@ proxies:
   servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
   client-fingerprint: chrome
+- name: 🇩🇪 DE [ws] | 185.178.208.140
+  type: vless
+  server: 185.178.208.140
+  port: 443
+  uuid: bc075e9c-e3fb-4e8d-8b04-cd558ed4d2d6
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: wbmoll.top
+  client-fingerprint: firefox
+  ws-opts:
+    path: /service/events/968f8ddbfcaf/
+    headers:
+      Host: wbmoll.top
+- name: 🇩🇪 DE [ws] | wbmoll.top
+  type: vless
+  server: wbmoll.top
+  port: 443
+  uuid: bc075e9c-e3fb-4e8d-8b04-cd558ed4d2d6
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: wbmoll.top
+  ws-opts:
+    path: /service/events/968f8ddbfcaf/
+    headers:
+      Host: wbmoll.top
 - name: 🇳🇱 NL  | s170.gogocs.xyz
   type: vless
   server: s170.gogocs.xyz
@@ -186,20 +256,116 @@ proxies:
   servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
   client-fingerprint: firefox
+- name: 🇩🇪 DE [ws] | n2.185-86-145-142.sslip.io
+  type: vless
+  server: n2.185-86-145-142.sslip.io
+  port: 443
+  uuid: 7832b450-d561-45d6-b425-8527fa8babe0
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: n2.185-86-145-142.sslip.io
+  client-fingerprint: random
+  ws-opts:
+    path: /e7ws
+    headers:
+      Host: n2.185-86-145-142.sslip.io
+- name: 🇬🇧 GB [ws] | 185.17.123.114
+  type: vless
+  server: 185.17.123.114
+  port: 443
+  uuid: b0a100ee-c397-43f2-bdae-2adfb7a0d4e5
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: rnxq-1lpi3m.linmeisoft.com
+  client-fingerprint: chrome
+  ws-opts:
+    path: /b0a100ee-c397-43f2-bdae-2adfb7a0d4e5
+    headers:
+      Host: rnxq-1lpi3m.linmeisoft.com
+- name: 🇬🇧 GB [ws] | 185.250.180.145
+  type: vless
+  server: 185.250.180.145
+  port: 443
+  uuid: b0a100ee-c397-43f2-bdae-2adfb7a0d4e5
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: rnxq-1lpi3m.linmeisoft.com
+  client-fingerprint: firefox
+  ws-opts:
+    path: /b0a100ee-c397-43f2-bdae-2adfb7a0d4e5
+    headers:
+      Host: rnxq-1lpi3m.linmeisoft.com
+- name: 🇩🇪 DE [ws] | 185.86.145.142
+  type: vless
+  server: 185.86.145.142
+  port: 443
+  uuid: 7832b450-d561-45d6-b425-8527fa8babe0
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: n2.185-86-145-142.sslip.io
+  client-fingerprint: random
+  ws-opts:
+    path: /e7ws
+    headers:
+      Host: n2.185-86-145-142.sslip.io
+- name: 🇩🇪 DE [ws] | 95.129.236.149
+  type: vless
+  server: 95.129.236.149
+  port: 443
+  uuid: be8b7297-509f-48c8-b1c1-dea9b53fcfa7
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: d.nehtar.ru
+  client-fingerprint: firefox
+  ws-opts:
+    path: /gateway/v1/ws/74c4d5e82a8e50ccf09fc628c17dc9be
+    headers:
+      Host: d.nehtar.ru
+- name: 🇩🇪 DE [ws] | 31.177.111.140
+  type: vless
+  server: 31.177.111.140
+  port: 443
+  uuid: be8b7297-509f-48c8-b1c1-dea9b53fcfa7
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: cdn.rucdncomp.pro
+  client-fingerprint: firefox
+  ws-opts:
+    path: /client/collect/6b3a32fb9f37/
+    headers:
+      Host: cdn.rucdncomp.pro
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇬🇧 GB [R] | 95.85.224.51
+  - 🇸🇨 SC [R] | 144.31.50.236
+  - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
   - 🇸🇪 SE [R] | 31.77.18.220
-  - 🇳🇱 NL [R] | 72.56.85.221
   - 🇫🇮 FI [R] | 13.143.173.15
-  - 🇵🇱 PL [R] | 144.31.93.231
-  - 🇩🇪 DE [xhttp] | 91.215.41.42
-  - 🇩🇪 DE [xhttp] | rwyisq.edge-assets.ru
-  - 🇩🇪 DE [xhttp] | 91.215.41.42 (2)
-  - 🇳🇱 NL  | 62.105.220.106
+  - 🇳🇱 NL [R] | 72.56.85.221
+  - 🇮🇹 IT [R] | it.nodes.wagvpn.club
+  - 🇺🇸 US [R][xhttp] | 159.194.248.11
+  - 🇹🇷 TR [R] | tr.datanode-internal.net
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -209,16 +375,26 @@ proxy-groups:
   - 🚀 Auto
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇬🇧 GB [R] | 95.85.224.51
+  - 🇸🇨 SC [R] | 144.31.50.236
+  - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
   - 🇸🇪 SE [R] | 31.77.18.220
-  - 🇳🇱 NL [R] | 72.56.85.221
   - 🇫🇮 FI [R] | 13.143.173.15
-  - 🇵🇱 PL [R] | 144.31.93.231
+  - 🇳🇱 NL [R] | 72.56.85.221
+  - 🇮🇹 IT [R] | it.nodes.wagvpn.club
+  - 🇺🇸 US [R][xhttp] | 159.194.248.11
+  - 🇹🇷 TR [R] | tr.datanode-internal.net
   - 🇩🇪 DE [xhttp] | 91.215.41.42
-  - 🇩🇪 DE [xhttp] | rwyisq.edge-assets.ru
-  - 🇩🇪 DE [xhttp] | 91.215.41.42 (2)
   - 🇳🇱 NL  | 62.105.220.106
+  - 🇩🇪 DE [ws] | 185.178.208.140
+  - 🇩🇪 DE [ws] | wbmoll.top
   - 🇳🇱 NL  | s170.gogocs.xyz
   - 🇳🇱 NL  | s171.wagahaha.xyz
+  - 🇩🇪 DE [ws] | n2.185-86-145-142.sslip.io
+  - 🇬🇧 GB [ws] | 185.17.123.114
+  - 🇬🇧 GB [ws] | 185.250.180.145
+  - 🇩🇪 DE [ws] | 185.86.145.142
+  - 🇩🇪 DE [ws] | 95.129.236.149
+  - 🇩🇪 DE [ws] | 31.177.111.140
 - name: 🎯 Direct
   type: select
   proxies:
