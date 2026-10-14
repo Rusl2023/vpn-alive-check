@@ -51,22 +51,6 @@ proxies:
     short-id: bbe46bd8f6b96839
   servername: yandex.ru
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇸🇨 SC [R] | 144.31.50.236
-  type: vless
-  server: 144.31.50.236
-  port: 443
-  uuid: 1c332eae-7e02-4acd-996d-4eb3e652401c
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: uitO4Z8t9TplwwYaqwLqh5rfxDh_X8bOBiNuPbzvaEM
-    short-id: bbe46bd8f6b96839
-  servername: yandex.ru
-  flow: xtls-rprx-vision
   client-fingerprint: chrome
 - name: 🇸🇪 SE [R] | 31.77.18.220
   type: vless
@@ -144,7 +128,7 @@ proxies:
     short-id: abbcd128
   servername: sun9-38.userapi.com
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
+  client-fingerprint: random
 - name: 🇳🇱 NL  | 62.105.220.106
   type: vless
   server: 62.105.220.106
@@ -168,6 +152,7 @@ proxies:
   encryption: none
   tls: true
   flow: xtls-rprx-vision
+  client-fingerprint: chrome
 - name: 🇳🇱 NL  | s171.wagahaha.xyz
   type: vless
   server: s171.wagahaha.xyz
@@ -187,7 +172,6 @@ proxy-groups:
   proxies:
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
-  - 🇸🇨 SC [R] | 144.31.50.236
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇳🇱 NL [R] | 72.56.85.221
   - 🇫🇮 FI [R] | 13.143.173.15
@@ -195,6 +179,7 @@ proxy-groups:
   - 🇹🇷 TR [R] | tr.datanode-internal.net
   - 🇳🇱 NL  | 62.105.220.106
   - 🇳🇱 NL  | s170.gogocs.xyz
+  - 🇳🇱 NL  | s171.wagahaha.xyz
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -204,7 +189,6 @@ proxy-groups:
   - 🚀 Auto
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
-  - 🇸🇨 SC [R] | 144.31.50.236
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇳🇱 NL [R] | 72.56.85.221
   - 🇫🇮 FI [R] | 13.143.173.15
