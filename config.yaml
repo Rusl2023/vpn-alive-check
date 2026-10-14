@@ -36,23 +36,38 @@ proxies:
     short-id: b28db60d77c50b4f
   servername: yandex.ru
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇳🇱 NL [R][grpc] | 46.182.24.240
+- name: 🇸🇨 SC [R] | 144.31.50.236
   type: vless
-  server: 46.182.24.240
+  server: 144.31.50.236
   port: 443
-  uuid: 4330a14e-455d-4b89-82d1-179efb3d0a32
+  uuid: 1c332eae-7e02-4acd-996d-4eb3e652401c
   udp: true
   skip-cert-verify: true
-  network: grpc
+  network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: Ed29G1bO6isJRo8iGPm7W_9c4mVFqHUilPmDP0llJW8
-  servername: max.ru
-  client-fingerprint: random
-  grpc-opts:
-    grpc-service-name: grpc-32d2699be001e4f1
+    public-key: uitO4Z8t9TplwwYaqwLqh5rfxDh_X8bOBiNuPbzvaEM
+    short-id: bbe46bd8f6b96839
+  servername: yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇸🇨 SC [R] | prep.wwwinternetvideo.click
+  type: vless
+  server: prep.wwwinternetvideo.click
+  port: 443
+  uuid: 1c332eae-7e02-4acd-996d-4eb3e652401c
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: uitO4Z8t9TplwwYaqwLqh5rfxDh_X8bOBiNuPbzvaEM
+    short-id: bbe46bd8f6b96839
+  servername: yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
 - name: 🇬🇧 GB [R] | 95.85.224.51
   type: vless
   server: 95.85.224.51
@@ -69,21 +84,6 @@ proxies:
   servername: max.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇫🇮 FI [R] | 13.143.173.15
-  type: vless
-  server: 13.143.173.15
-  port: 443
-  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
-  servername: google.com
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇸🇪 SE [R] | 31.77.18.220
   type: vless
   server: 31.77.18.220
@@ -98,7 +98,7 @@ proxies:
     public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
   servername: google.com
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
+  client-fingerprint: chrome
 - name: 🇳🇱 NL [R] | 72.56.85.221
   type: vless
   server: 72.56.85.221
@@ -114,21 +114,21 @@ proxies:
     short-id: 00353c
   servername: apple.com
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇺🇸 US [R][xhttp] | 159.194.248.11
+- name: 🇫🇮 FI [R] | 13.143.173.15
   type: vless
-  server: 159.194.248.11
+  server: 13.143.173.15
   port: 443
-  uuid: a80674d8-c4e8-4af8-914b-9aa919ae7054
+  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
   udp: true
   skip-cert-verify: true
-  network: xhttp
+  network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: yQfhPYAXsz1EqKpOglHh72NzJsf9YoPuD1bjMC-DDiM
-  servername: api-maps.yandex.ru
-  client-fingerprint: random
+    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
+  servername: google.com
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇹🇷 TR [R] | tr.datanode-internal.net
   type: vless
   server: tr.datanode-internal.net
@@ -145,19 +145,18 @@ proxies:
   servername: sun9-38.userapi.com
   flow: xtls-rprx-vision
   client-fingerprint: random
-- name: 🇩🇪 DE [grpc] | 193.124.125.183
+- name: 🇳🇱 NL  | s170.gogocs.xyz
   type: vless
-  server: 193.124.125.183
+  server: s170.gogocs.xyz
   port: 443
-  uuid: a80674d8-c4e8-4af8-914b-9aa919ae7054
+  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
   udp: true
   skip-cert-verify: true
-  network: grpc
+  network: tcp
   encryption: none
   tls: true
-  servername: vds.promts-ai.cloud
-  grpc-opts:
-    grpc-service-name: trgrpc
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
 - name: 🇳🇱 NL  | 62.105.220.106
   type: vless
   server: 62.105.220.106
@@ -170,31 +169,6 @@ proxies:
   tls: true
   servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇳🇱 NL  | s170.gogocs.xyz
-  type: vless
-  server: s170.gogocs.xyz
-  port: 443
-  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  flow: xtls-rprx-vision
-- name: 🇩🇪 DE [grpc] | vds.promts-ai.cloud
-  type: vless
-  server: vds.promts-ai.cloud
-  port: 443
-  uuid: a80674d8-c4e8-4af8-914b-9aa919ae7054
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  servername: vds.promts-ai.cloud
-  grpc-opts:
-    grpc-service-name: trgrpc
 - name: 🇳🇱 NL  | s171.wagahaha.xyz
   type: vless
   server: s171.wagahaha.xyz
@@ -208,97 +182,19 @@ proxies:
   servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇩🇪 DE [ws] | 185.86.145.142
-  type: vless
-  server: 185.86.145.142
-  port: 443
-  uuid: 7832b450-d561-45d6-b425-8527fa8babe0
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: n2.185-86-145-142.sslip.io
-  client-fingerprint: random
-  ws-opts:
-    path: /e7ws
-    headers:
-      Host: n2.185-86-145-142.sslip.io
-- name: 🇦🇹 AT [ws] | 78.159.240.47
-  type: vless
-  server: 78.159.240.47
-  port: 443
-  uuid: a80674d8-c4e8-4af8-914b-9aa919ae7054
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: z2ycf.guardora.pro
-  ws-opts:
-    path: /d9dae2bff26d97d2
-    headers:
-      Host: z2ycf.guardora.pro
-- name: 🇳🇱 NL [ws] | 91.215.42.205
-  type: vless
-  server: 91.215.42.205
-  port: 443
-  uuid: d5e20bad-6779-4f16-9363-a1fc44f55e11
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: lk.stream-pk.online
-  client-fingerprint: chrome
-  ws-opts:
-    path: /gateway/v1/ws/78c903ed62a493521f3a51df668fc042
-    headers:
-      Host: lk.stream-pk.online
-- name: 🇳🇱 NL [ws] | lk.stream-pk.online
-  type: vless
-  server: lk.stream-pk.online
-  port: 443
-  uuid: d5e20bad-6779-4f16-9363-a1fc44f55e11
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: lk.stream-pk.online
-  client-fingerprint: chrome
-  ws-opts:
-    path: /gateway/v1/ws/78c903ed62a493521f3a51df668fc042
-    headers:
-      Host: lk.stream-pk.online
-- name: 🇦🇹 AT [ws] | z2ycf.guardora.pro
-  type: vless
-  server: z2ycf.guardora.pro
-  port: 443
-  uuid: a80674d8-c4e8-4af8-914b-9aa919ae7054
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: z2ycf.guardora.pro
-  ws-opts:
-    path: /d9dae2bff26d97d2
-    headers:
-      Host: z2ycf.guardora.pro
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
   - 🇬🇧 GB [R] | 193.163.203.170
-  - 🇳🇱 NL [R][grpc] | 46.182.24.240
+  - 🇸🇨 SC [R] | 144.31.50.236
+  - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
   - 🇬🇧 GB [R] | 95.85.224.51
-  - 🇫🇮 FI [R] | 13.143.173.15
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇳🇱 NL [R] | 72.56.85.221
-  - 🇺🇸 US [R][xhttp] | 159.194.248.11
+  - 🇫🇮 FI [R] | 13.143.173.15
   - 🇹🇷 TR [R] | tr.datanode-internal.net
-  - 🇩🇪 DE [grpc] | 193.124.125.183
+  - 🇳🇱 NL  | s170.gogocs.xyz
   - 🇳🇱 NL  | 62.105.220.106
   url: https://www.google.com/generate_204
   interval: 300
@@ -308,23 +204,16 @@ proxy-groups:
   proxies:
   - 🚀 Auto
   - 🇬🇧 GB [R] | 193.163.203.170
-  - 🇳🇱 NL [R][grpc] | 46.182.24.240
+  - 🇸🇨 SC [R] | 144.31.50.236
+  - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
   - 🇬🇧 GB [R] | 95.85.224.51
-  - 🇫🇮 FI [R] | 13.143.173.15
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇳🇱 NL [R] | 72.56.85.221
-  - 🇺🇸 US [R][xhttp] | 159.194.248.11
+  - 🇫🇮 FI [R] | 13.143.173.15
   - 🇹🇷 TR [R] | tr.datanode-internal.net
-  - 🇩🇪 DE [grpc] | 193.124.125.183
-  - 🇳🇱 NL  | 62.105.220.106
   - 🇳🇱 NL  | s170.gogocs.xyz
-  - 🇩🇪 DE [grpc] | vds.promts-ai.cloud
+  - 🇳🇱 NL  | 62.105.220.106
   - 🇳🇱 NL  | s171.wagahaha.xyz
-  - 🇩🇪 DE [ws] | 185.86.145.142
-  - 🇦🇹 AT [ws] | 78.159.240.47
-  - 🇳🇱 NL [ws] | 91.215.42.205
-  - 🇳🇱 NL [ws] | lk.stream-pk.online
-  - 🇦🇹 AT [ws] | z2ycf.guardora.pro
 - name: 🎯 Direct
   type: select
   proxies:
