@@ -36,22 +36,22 @@ proxies:
     short-id: b28db60d77c50b4f
   servername: yandex.ru
   flow: xtls-rprx-vision
-- name: 🇸🇨 SC [R] | prep.wwwinternetvideo.click
+  client-fingerprint: chrome
+- name: 🇫🇮 FI [R] | 13.143.173.15
   type: vless
-  server: prep.wwwinternetvideo.click
+  server: 13.143.173.15
   port: 443
-  uuid: 1c332eae-7e02-4acd-996d-4eb3e652401c
+  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: uitO4Z8t9TplwwYaqwLqh5rfxDh_X8bOBiNuPbzvaEM
-    short-id: bbe46bd8f6b96839
-  servername: yandex.ru
+    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
+  servername: google.com
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
+  client-fingerprint: firefox
 - name: 🇸🇪 SE [R] | 31.77.18.220
   type: vless
   server: 31.77.18.220
@@ -66,7 +66,7 @@ proxies:
     public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
   servername: google.com
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
+  client-fingerprint: chrome
 - name: 🇳🇱 NL [R] | 72.56.85.221
   type: vless
   server: 72.56.85.221
@@ -82,19 +82,20 @@ proxies:
     short-id: 00353c
   servername: apple.com
   flow: xtls-rprx-vision
-- name: 🇫🇮 FI [R] | 13.143.173.15
+- name: 🇸🇨 SC [R] | 144.31.50.236
   type: vless
-  server: 13.143.173.15
+  server: 144.31.50.236
   port: 443
-  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
+  uuid: 1c332eae-7e02-4acd-996d-4eb3e652401c
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
-  servername: google.com
+    public-key: uitO4Z8t9TplwwYaqwLqh5rfxDh_X8bOBiNuPbzvaEM
+    short-id: bbe46bd8f6b96839
+  servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
 - name: 🇹🇷 TR [R] | 201.34.148.44
@@ -129,6 +130,48 @@ proxies:
   servername: sun9-38.userapi.com
   flow: xtls-rprx-vision
   client-fingerprint: random
+- name: 🇺🇸 US [R] | 78.17.178.125
+  type: vless
+  server: 78.17.178.125
+  port: 443
+  uuid: 6c713691-3ca2-4446-ad25-113d1bed6b03
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: jcp4Lj_qYzxtkalm_XFjrmvqEMGRG7sb19yMwLe16WE
+    short-id: e0215064d8d1fd7c
+  servername: cdn.tbank.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: qq
+- name: 🇪🇪 EE [grpc] | 188.225.38.216
+  type: vless
+  server: 188.225.38.216
+  port: 443
+  uuid: 30292475-4666-4c26-bcb2-338a0919958b
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  servername: lalibobi.online
+  grpc-opts:
+    grpc-service-name: lalibobi.orbit.v3.Connect
+- name: 🇪🇪 EE [grpc] | lalibobi.online
+  type: vless
+  server: lalibobi.online
+  port: 443
+  uuid: 30292475-4666-4c26-bcb2-338a0919958b
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  servername: lalibobi.online
+  grpc-opts:
+    grpc-service-name: lalibobi.orbit.v3.Connect
 - name: 🇳🇱 NL  | 62.105.220.106
   type: vless
   server: 62.105.220.106
@@ -141,18 +184,19 @@ proxies:
   tls: true
   servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
-- name: 🇳🇱 NL  | s170.gogocs.xyz
+  client-fingerprint: chrome
+- name: 🇹🇷 TR  | 5.129.223.99
   type: vless
-  server: s170.gogocs.xyz
+  server: 5.129.223.99
   port: 443
-  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
+  uuid: 5b5482bf-e4c8-4495-888e-050f59b0beec
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
+  servername: asset-cache.ozonvideo.com
+  client-fingerprint: qq
 - name: 🇳🇱 NL  | s171.wagahaha.xyz
   type: vless
   server: s171.wagahaha.xyz
@@ -166,20 +210,75 @@ proxies:
   servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
   client-fingerprint: firefox
+- name: 🇳🇱 NL  | s170.gogocs.xyz
+  type: vless
+  server: s170.gogocs.xyz
+  port: 443
+  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  flow: xtls-rprx-vision
+- name: 🇹🇷 TR  | asset-cache.ozonvideo.com
+  type: vless
+  server: asset-cache.ozonvideo.com
+  port: 443
+  uuid: 5b5482bf-e4c8-4495-888e-050f59b0beec
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  servername: asset-cache.ozonvideo.com
+  client-fingerprint: qq
+- name: 🇩🇪 DE [ws] | 31.177.111.140
+  type: vless
+  server: 31.177.111.140
+  port: 443
+  uuid: 763e7a42-1050-4030-b2ba-9c51164b3f58
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: cdn.rucdncomp.pro
+  client-fingerprint: firefox
+  ws-opts:
+    path: /client/collect/6b3a32fb9f37/
+    headers:
+      Host: cdn.rucdncomp.pro
+- name: 🇩🇪 DE [ws] | 95.129.236.149
+  type: vless
+  server: 95.129.236.149
+  port: 443
+  uuid: 763e7a42-1050-4030-b2ba-9c51164b3f58
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: d.nehtar.ru
+  client-fingerprint: firefox
+  ws-opts:
+    path: /gateway/v1/ws/74c4d5e82a8e50ccf09fc628c17dc9be
+    headers:
+      Host: d.nehtar.ru
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
   - 🇬🇧 GB [R] | 193.163.203.170
-  - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
+  - 🇫🇮 FI [R] | 13.143.173.15
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇳🇱 NL [R] | 72.56.85.221
-  - 🇫🇮 FI [R] | 13.143.173.15
+  - 🇸🇨 SC [R] | 144.31.50.236
   - 🇹🇷 TR [R] | 201.34.148.44
   - 🇹🇷 TR [R] | tr.datanode-internal.net
-  - 🇳🇱 NL  | 62.105.220.106
-  - 🇳🇱 NL  | s170.gogocs.xyz
-  - 🇳🇱 NL  | s171.wagahaha.xyz
+  - 🇺🇸 US [R] | 78.17.178.125
+  - 🇪🇪 EE [grpc] | 188.225.38.216
+  - 🇪🇪 EE [grpc] | lalibobi.online
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -188,15 +287,22 @@ proxy-groups:
   proxies:
   - 🚀 Auto
   - 🇬🇧 GB [R] | 193.163.203.170
-  - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
+  - 🇫🇮 FI [R] | 13.143.173.15
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇳🇱 NL [R] | 72.56.85.221
-  - 🇫🇮 FI [R] | 13.143.173.15
+  - 🇸🇨 SC [R] | 144.31.50.236
   - 🇹🇷 TR [R] | 201.34.148.44
   - 🇹🇷 TR [R] | tr.datanode-internal.net
+  - 🇺🇸 US [R] | 78.17.178.125
+  - 🇪🇪 EE [grpc] | 188.225.38.216
+  - 🇪🇪 EE [grpc] | lalibobi.online
   - 🇳🇱 NL  | 62.105.220.106
-  - 🇳🇱 NL  | s170.gogocs.xyz
+  - 🇹🇷 TR  | 5.129.223.99
   - 🇳🇱 NL  | s171.wagahaha.xyz
+  - 🇳🇱 NL  | s170.gogocs.xyz
+  - 🇹🇷 TR  | asset-cache.ozonvideo.com
+  - 🇩🇪 DE [ws] | 31.177.111.140
+  - 🇩🇪 DE [ws] | 95.129.236.149
 - name: 🎯 Direct
   type: select
   proxies:
