@@ -36,6 +36,22 @@ proxies:
     short-id: b28db60d77c50b4f
   servername: yandex.ru
   flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇫🇮 FI [R] | 13.143.173.15
+  type: vless
+  server: 13.143.173.15
+  port: 443
+  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
+  servername: google.com
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇸🇪 SE [R] | 31.77.18.220
   type: vless
   server: 31.77.18.220
@@ -66,38 +82,22 @@ proxies:
     short-id: 00353c
   servername: apple.com
   flow: xtls-rprx-vision
-  client-fingerprint: qq
-- name: 🇫🇮 FI [R] | 13.143.173.15
+- name: 🇹🇷 TR [R] | tr.datanode-internal.net
   type: vless
-  server: 13.143.173.15
+  server: tr.datanode-internal.net
   port: 443
-  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
+  uuid: 93996a55-febe-4183-9366-df6cb11a34dd
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
-  servername: google.com
+    public-key: r6lN34m1nN-xQZ458j5NPD5xJ3_QBF2bGzY4KJEo4ic
+    short-id: abbcd128
+  servername: sun9-38.userapi.com
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇸🇨 SC [R] | 144.31.50.236
-  type: vless
-  server: 144.31.50.236
-  port: 443
-  uuid: 1c332eae-7e02-4acd-996d-4eb3e652401c
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: uitO4Z8t9TplwwYaqwLqh5rfxDh_X8bOBiNuPbzvaEM
-    short-id: bbe46bd8f6b96839
-  servername: yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
+  client-fingerprint: chrome
 - name: 🇺🇸 US [R] | 78.17.178.125
   type: vless
   server: 78.17.178.125
@@ -129,54 +129,17 @@ proxies:
     short-id: 29c2dd1e3ef7c4d4
   servername: strm.yandex.net
   client-fingerprint: chrome
-- name: 🇹🇷 TR [R] | tr.datanode-internal.net
+- name: 🇳🇱 NL  | s170.gogocs.xyz
   type: vless
-  server: tr.datanode-internal.net
+  server: s170.gogocs.xyz
   port: 443
-  uuid: 93996a55-febe-4183-9366-df6cb11a34dd
+  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
-  reality-opts:
-    public-key: r6lN34m1nN-xQZ458j5NPD5xJ3_QBF2bGzY4KJEo4ic
-    short-id: abbcd128
-  servername: sun9-38.userapi.com
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇹🇷 TR [R] | 201.34.148.44
-  type: vless
-  server: 201.34.148.44
-  port: 443
-  uuid: 93996a55-febe-4183-9366-df6cb11a34dd
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: r6lN34m1nN-xQZ458j5NPD5xJ3_QBF2bGzY4KJEo4ic
-    short-id: abbcd128
-  servername: sun9-38.userapi.com
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇳🇱 NL [ws] | api.wyre-file.ru
-  type: vless
-  server: api.wyre-file.ru
-  port: 443
-  uuid: bcf7fc76-83ad-419c-91c9-d192797ce7a4
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: api.wyre-file.ru
-  client-fingerprint: qq
-  ws-opts:
-    path: /nl7ws
-    headers:
-      Host: api.wyre-file.ru
 - name: 🇳🇱 NL  | 62.105.220.106
   type: vless
   server: 62.105.220.106
@@ -188,34 +151,6 @@ proxies:
   encryption: none
   tls: true
   servername: u695098u7dae9c0cs220.gogocs.xyz
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇳🇱 NL [ws] | 185.86.145.183
-  type: vless
-  server: 185.86.145.183
-  port: 443
-  uuid: bcf7fc76-83ad-419c-91c9-d192797ce7a4
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: api.wyre-file.ru
-  client-fingerprint: random
-  ws-opts:
-    path: /nl7ws
-    headers:
-      Host: api.wyre-file.ru
-- name: 🇳🇱 NL  | s170.gogocs.xyz
-  type: vless
-  server: s170.gogocs.xyz
-  port: 443
-  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
   flow: xtls-rprx-vision
 - name: 🇳🇱 NL  | s171.wagahaha.xyz
   type: vless
@@ -230,36 +165,20 @@ proxies:
   servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇦🇪 AE [ws] | fitnesshall.org
-  type: vless
-  server: fitnesshall.org
-  port: 443
-  uuid: d3e53f03-0e2b-441c-89f4-bd4602c29587
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: fitnesshall.org
-  client-fingerprint: qq
-  ws-opts:
-    path: /api/v3/cart/events
-    headers:
-      Host: fitnesshall.org
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
   - 🇬🇧 GB [R] | 193.163.203.170
+  - 🇫🇮 FI [R] | 13.143.173.15
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇳🇱 NL [R] | 72.56.85.221
-  - 🇫🇮 FI [R] | 13.143.173.15
-  - 🇸🇨 SC [R] | 144.31.50.236
+  - 🇹🇷 TR [R] | tr.datanode-internal.net
   - 🇺🇸 US [R] | 78.17.178.125
   - 🇦🇪 AE [R] | 45.59.120.217
-  - 🇹🇷 TR [R] | tr.datanode-internal.net
-  - 🇹🇷 TR [R] | 201.34.148.44
-  - 🇳🇱 NL [ws] | api.wyre-file.ru
+  - 🇳🇱 NL  | s170.gogocs.xyz
+  - 🇳🇱 NL  | 62.105.220.106
+  - 🇳🇱 NL  | s171.wagahaha.xyz
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -268,20 +187,15 @@ proxy-groups:
   proxies:
   - 🚀 Auto
   - 🇬🇧 GB [R] | 193.163.203.170
+  - 🇫🇮 FI [R] | 13.143.173.15
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇳🇱 NL [R] | 72.56.85.221
-  - 🇫🇮 FI [R] | 13.143.173.15
-  - 🇸🇨 SC [R] | 144.31.50.236
+  - 🇹🇷 TR [R] | tr.datanode-internal.net
   - 🇺🇸 US [R] | 78.17.178.125
   - 🇦🇪 AE [R] | 45.59.120.217
-  - 🇹🇷 TR [R] | tr.datanode-internal.net
-  - 🇹🇷 TR [R] | 201.34.148.44
-  - 🇳🇱 NL [ws] | api.wyre-file.ru
-  - 🇳🇱 NL  | 62.105.220.106
-  - 🇳🇱 NL [ws] | 185.86.145.183
   - 🇳🇱 NL  | s170.gogocs.xyz
+  - 🇳🇱 NL  | 62.105.220.106
   - 🇳🇱 NL  | s171.wagahaha.xyz
-  - 🇦🇪 AE [ws] | fitnesshall.org
 - name: 🎯 Direct
   type: select
   proxies:
