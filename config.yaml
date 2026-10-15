@@ -67,7 +67,7 @@ proxies:
     public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
   servername: google.com
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
+  client-fingerprint: firefox
 - name: 🇫🇮 FI [R] | 13.143.173.15
   type: vless
   server: 13.143.173.15
@@ -83,20 +83,20 @@ proxies:
   servername: google.com
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇹🇷 TR [R] | tr.datanode-internal.net
+- name: 🇺🇸 US [R] | 78.17.178.125
   type: vless
-  server: tr.datanode-internal.net
+  server: 78.17.178.125
   port: 443
-  uuid: 93996a55-febe-4183-9366-df6cb11a34dd
+  uuid: 6c713691-3ca2-4446-ad25-113d1bed6b03
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: r6lN34m1nN-xQZ458j5NPD5xJ3_QBF2bGzY4KJEo4ic
-    short-id: abbcd128
-  servername: sun9-38.userapi.com
+    public-key: jcp4Lj_qYzxtkalm_XFjrmvqEMGRG7sb19yMwLe16WE
+    short-id: e0215064d8d1fd7c
+  servername: cdn.tbank.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
 - name: 🇦🇪 AE [R] | 45.59.120.217
@@ -114,33 +114,6 @@ proxies:
     short-id: 29c2dd1e3ef7c4d4
   servername: strm.yandex.net
   client-fingerprint: chrome
-- name: 🇺🇸 US [R] | 78.17.178.125
-  type: vless
-  server: 78.17.178.125
-  port: 443
-  uuid: 6c713691-3ca2-4446-ad25-113d1bed6b03
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: jcp4Lj_qYzxtkalm_XFjrmvqEMGRG7sb19yMwLe16WE
-    short-id: e0215064d8d1fd7c
-  servername: cdn.tbank.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: qq
-- name: 🇳🇱 NL  | s170.gogocs.xyz
-  type: vless
-  server: s170.gogocs.xyz
-  port: 443
-  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  flow: xtls-rprx-vision
 - name: 🇳🇱 NL  | 62.105.220.106
   type: vless
   server: 62.105.220.106
@@ -152,6 +125,17 @@ proxies:
   encryption: none
   tls: true
   servername: u695098u7dae9c0cs220.gogocs.xyz
+  flow: xtls-rprx-vision
+- name: 🇳🇱 NL  | s170.gogocs.xyz
+  type: vless
+  server: s170.gogocs.xyz
+  port: 443
+  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
   flow: xtls-rprx-vision
 - name: 🇳🇱 NL  | s171.wagahaha.xyz
   type: vless
@@ -174,11 +158,10 @@ proxy-groups:
   - 🇫🇮 FI [R] | 158.160.243.46
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇫🇮 FI [R] | 13.143.173.15
-  - 🇹🇷 TR [R] | tr.datanode-internal.net
-  - 🇦🇪 AE [R] | 45.59.120.217
   - 🇺🇸 US [R] | 78.17.178.125
-  - 🇳🇱 NL  | s170.gogocs.xyz
+  - 🇦🇪 AE [R] | 45.59.120.217
   - 🇳🇱 NL  | 62.105.220.106
+  - 🇳🇱 NL  | s170.gogocs.xyz
   - 🇳🇱 NL  | s171.wagahaha.xyz
   url: https://www.google.com/generate_204
   interval: 300
@@ -191,11 +174,10 @@ proxy-groups:
   - 🇫🇮 FI [R] | 158.160.243.46
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇫🇮 FI [R] | 13.143.173.15
-  - 🇹🇷 TR [R] | tr.datanode-internal.net
-  - 🇦🇪 AE [R] | 45.59.120.217
   - 🇺🇸 US [R] | 78.17.178.125
-  - 🇳🇱 NL  | s170.gogocs.xyz
+  - 🇦🇪 AE [R] | 45.59.120.217
   - 🇳🇱 NL  | 62.105.220.106
+  - 🇳🇱 NL  | s170.gogocs.xyz
   - 🇳🇱 NL  | s171.wagahaha.xyz
 - name: 🎯 Direct
   type: select
