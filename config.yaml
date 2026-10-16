@@ -52,7 +52,7 @@ proxies:
     short-id: bbe46bd8f6b96839
   servername: yandex.ru
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
+  client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 193.163.203.170
   type: vless
   server: 193.163.203.170
@@ -69,6 +69,22 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
+- name: 🇫🇮 FI [R] | 158.160.243.46
+  type: vless
+  server: 158.160.243.46
+  port: 443
+  uuid: 0477e879-f2a7-4b76-aa29-28f36b45d4b6
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: y3dqCRYQO7GM7DIdQRG1uDjBNRK2vyXd8RJL160WZz4
+    short-id: 8a1f9479
+  servername: rutube.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇸🇪 SE [R] | 31.77.18.220
   type: vless
   server: 31.77.18.220
@@ -99,22 +115,6 @@ proxies:
   servername: google.com
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇫🇮 FI [R] | 158.160.243.46
-  type: vless
-  server: 158.160.243.46
-  port: 443
-  uuid: 0477e879-f2a7-4b76-aa29-28f36b45d4b6
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: y3dqCRYQO7GM7DIdQRG1uDjBNRK2vyXd8RJL160WZz4
-    short-id: 8a1f9479
-  servername: rutube.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇺🇸 US [R] | 78.17.178.125
   type: vless
   server: 78.17.178.125
@@ -130,7 +130,7 @@ proxies:
     short-id: e0215064d8d1fd7c
   servername: cdn.tbank.ru
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
+  client-fingerprint: qq
 - name: 🇦🇪 AE [R] | 45.59.120.217
   type: vless
   server: 45.59.120.217
@@ -183,20 +183,6 @@ proxies:
   encryption: none
   tls: true
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇳🇱 NL  | s170.gogocs.xyz (2)
-  type: vless
-  server: s170.gogocs.xyz
-  port: 443
-  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: u695098u7dae9c0cs220.gogocs.xyz
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
@@ -204,9 +190,9 @@ proxy-groups:
   - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
   - 🇸🇨 SC [R] | 144.31.50.236
   - 🇬🇧 GB [R] | 193.163.203.170
+  - 🇫🇮 FI [R] | 158.160.243.46
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇫🇮 FI [R] | 13.143.173.15
-  - 🇫🇮 FI [R] | 158.160.243.46
   - 🇺🇸 US [R] | 78.17.178.125
   - 🇦🇪 AE [R] | 45.59.120.217
   - 🇳🇱 NL  | 62.105.220.106
@@ -221,15 +207,14 @@ proxy-groups:
   - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
   - 🇸🇨 SC [R] | 144.31.50.236
   - 🇬🇧 GB [R] | 193.163.203.170
+  - 🇫🇮 FI [R] | 158.160.243.46
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇫🇮 FI [R] | 13.143.173.15
-  - 🇫🇮 FI [R] | 158.160.243.46
   - 🇺🇸 US [R] | 78.17.178.125
   - 🇦🇪 AE [R] | 45.59.120.217
   - 🇳🇱 NL  | 62.105.220.106
   - 🇳🇱 NL  | s171.wagahaha.xyz
   - 🇳🇱 NL  | s170.gogocs.xyz
-  - 🇳🇱 NL  | s170.gogocs.xyz (2)
 - name: 🎯 Direct
   type: select
   proxies:
