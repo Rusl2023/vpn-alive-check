@@ -52,6 +52,7 @@ proxies:
     short-id: b28db60d77c50b4f
   servername: yandex.ru
   flow: xtls-rprx-vision
+  client-fingerprint: chrome
 - name: 🇸🇪 SE [R] | 31.77.18.220
   type: vless
   server: 31.77.18.220
@@ -66,7 +67,7 @@ proxies:
     public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
   servername: google.com
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
+  client-fingerprint: firefox
 - name: 🇫🇮 FI [R] | 13.143.173.15
   type: vless
   server: 13.143.173.15
@@ -97,7 +98,7 @@ proxies:
     short-id: e0215064d8d1fd7c
   servername: cdn.tbank.ru
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
+  client-fingerprint: qq
 - name: 🇦🇪 AE [R] | 45.59.120.217
   type: vless
   server: 45.59.120.217
@@ -129,6 +130,20 @@ proxies:
     path: /useraction/events/b892639b7195/
     headers:
       Host: z1q3pv4g78.rucdncomp.pro
+- name: 🇪🇪 EE [grpc] | edge-lab-relay-c.10media.top
+  type: vless
+  server: edge-lab-relay-c.10media.top
+  port: 443
+  uuid: 9cb8d71c-fe06-4402-a591-eaa1f173b890
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  servername: edge-lab-relay-c.10media.top
+  client-fingerprint: firefox
+  grpc-opts:
+    grpc-service-name: merafeed
 - name: 🇳🇱 NL  | 62.105.220.106
   type: vless
   server: 62.105.220.106
@@ -165,7 +180,23 @@ proxies:
   tls: true
   servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇸🇪 SE [ws] | 121.127.37.211
+  type: vless
+  server: 121.127.37.211
+  port: 443
+  uuid: 495c7195-85b8-498a-bf20-2ea9ce9175b5
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: snip.edgeoneai.cc.cd
   client-fingerprint: chrome
+  ws-opts:
+    path: /
+    headers:
+      Host: snip.edgeoneai.cc.cd
 - name: 🇩🇪 DE [ws] | 185.141.227.223 (2)
   type: vless
   server: 185.141.227.223
@@ -193,9 +224,9 @@ proxy-groups:
   - 🇺🇸 US [R] | 78.17.178.125
   - 🇦🇪 AE [R] | 45.59.120.217
   - 🇩🇪 DE [ws] | 185.141.227.223
+  - 🇪🇪 EE [grpc] | edge-lab-relay-c.10media.top
   - 🇳🇱 NL  | 62.105.220.106
   - 🇳🇱 NL  | s170.gogocs.xyz
-  - 🇳🇱 NL  | s171.wagahaha.xyz
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -210,9 +241,11 @@ proxy-groups:
   - 🇺🇸 US [R] | 78.17.178.125
   - 🇦🇪 AE [R] | 45.59.120.217
   - 🇩🇪 DE [ws] | 185.141.227.223
+  - 🇪🇪 EE [grpc] | edge-lab-relay-c.10media.top
   - 🇳🇱 NL  | 62.105.220.106
   - 🇳🇱 NL  | s170.gogocs.xyz
   - 🇳🇱 NL  | s171.wagahaha.xyz
+  - 🇸🇪 SE [ws] | 121.127.37.211
   - 🇩🇪 DE [ws] | 185.141.227.223 (2)
 - name: 🎯 Direct
   type: select
