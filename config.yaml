@@ -21,22 +21,22 @@ dns:
   - tls://8.8.8.8
   - tls://1.1.1.1
 proxies:
-- name: 🇳🇱 NL [R][grpc] | 46.182.24.240
+- name: 🇫🇮 FI [R] | 158.160.243.46
   type: vless
-  server: 46.182.24.240
+  server: 158.160.243.46
   port: 443
-  uuid: 7285eb6f-6fef-4f15-9e74-da442d0f826a
+  uuid: 0477e879-f2a7-4b76-aa29-28f36b45d4b6
   udp: true
   skip-cert-verify: true
-  network: grpc
+  network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: Ed29G1bO6isJRo8iGPm7W_9c4mVFqHUilPmDP0llJW8
-  servername: max.ru
-  client-fingerprint: random
-  grpc-opts:
-    grpc-service-name: grpc-32d2699be001e4f1
+    public-key: y3dqCRYQO7GM7DIdQRG1uDjBNRK2vyXd8RJL160WZz4
+    short-id: 8a1f9479
+  servername: rutube.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 193.163.203.170
   type: vless
   server: 193.163.203.170
@@ -52,6 +52,7 @@ proxies:
     short-id: b28db60d77c50b4f
   servername: yandex.ru
   flow: xtls-rprx-vision
+  client-fingerprint: chrome
 - name: 🇸🇨 SC [R] | 144.31.50.236
   type: vless
   server: 144.31.50.236
@@ -66,22 +67,6 @@ proxies:
     public-key: uitO4Z8t9TplwwYaqwLqh5rfxDh_X8bOBiNuPbzvaEM
     short-id: bbe46bd8f6b96839
   servername: yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇫🇮 FI [R] | 158.160.243.46
-  type: vless
-  server: 158.160.243.46
-  port: 443
-  uuid: 0477e879-f2a7-4b76-aa29-28f36b45d4b6
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: y3dqCRYQO7GM7DIdQRG1uDjBNRK2vyXd8RJL160WZz4
-    short-id: 8a1f9479
-  servername: rutube.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
 - name: 🇸🇨 SC [R] | prep.wwwinternetvideo.click
@@ -99,7 +84,7 @@ proxies:
     short-id: bbe46bd8f6b96839
   servername: yandex.ru
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
+  client-fingerprint: firefox
 - name: 🇸🇪 SE [R] | 31.77.18.220
   type: vless
   server: 31.77.18.220
@@ -186,7 +171,7 @@ proxies:
   encryption: none
   tls: true
   servername: u.srilankangrill.online
-  client-fingerprint: qq
+  client-fingerprint: chrome
   ws-opts:
     path: /
     headers:
@@ -203,6 +188,7 @@ proxies:
   tls: true
   servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
+  client-fingerprint: chrome
 - name: 🇳🇱 NL  | s170.gogocs.xyz
   type: vless
   server: s170.gogocs.xyz
@@ -226,24 +212,8 @@ proxies:
   tls: true
   servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇩🇪 DE [ws] | 185.141.227.223
-  type: vless
-  server: 185.141.227.223
-  port: 443
-  uuid: a443d7bf-f506-46ce-b64d-cf8891c0a9f7
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: z1q3pv4g78.rucdncomp.pro
   client-fingerprint: firefox
-  ws-opts:
-    path: /useraction/events/b892639b7195/
-    headers:
-      Host: z1q3pv4g78.rucdncomp.pro
-- name: 🇩🇪 DE [ws] | 185.141.227.223 (2)
+- name: 🇩🇪 DE [ws] | 185.141.227.223
   type: vless
   server: 185.141.227.223
   port: 443
@@ -259,20 +229,52 @@ proxies:
     path: /useraction/events/b892639b7195/
     headers:
       Host: z1q3pv4g78.rucdncomp.pro
+- name: 🇩🇪 DE [ws] | 185.141.227.223 (2)
+  type: vless
+  server: 185.141.227.223
+  port: 443
+  uuid: a443d7bf-f506-46ce-b64d-cf8891c0a9f7
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: z1q3pv4g78.rucdncomp.pro
+  client-fingerprint: firefox
+  ws-opts:
+    path: /useraction/events/b892639b7195/
+    headers:
+      Host: z1q3pv4g78.rucdncomp.pro
+- name: 🇸🇪 SE [ws] | 121.127.37.211
+  type: vless
+  server: 121.127.37.211
+  port: 443
+  uuid: 495c7195-85b8-498a-bf20-2ea9ce9175b5
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: snip.edgeoneai.cc.cd
+  client-fingerprint: chrome
+  ws-opts:
+    path: /
+    headers:
+      Host: snip.edgeoneai.cc.cd
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
-  - 🇳🇱 NL [R][grpc] | 46.182.24.240
+  - 🇫🇮 FI [R] | 158.160.243.46
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇸🇨 SC [R] | 144.31.50.236
-  - 🇫🇮 FI [R] | 158.160.243.46
   - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇫🇮 FI [R] | 13.143.173.15
   - 🇺🇸 US [R] | 78.17.178.125
   - 🇦🇪 AE [R] | 45.59.120.217
   - 🇪🇪 EE [grpc] | edge-lab-relay-c.10media.top
+  - 🇸🇬 SG [ws] | 121.127.37.211
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -280,10 +282,9 @@ proxy-groups:
   type: select
   proxies:
   - 🚀 Auto
-  - 🇳🇱 NL [R][grpc] | 46.182.24.240
+  - 🇫🇮 FI [R] | 158.160.243.46
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇸🇨 SC [R] | 144.31.50.236
-  - 🇫🇮 FI [R] | 158.160.243.46
   - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇫🇮 FI [R] | 13.143.173.15
@@ -296,6 +297,7 @@ proxy-groups:
   - 🇳🇱 NL  | s171.wagahaha.xyz
   - 🇩🇪 DE [ws] | 185.141.227.223
   - 🇩🇪 DE [ws] | 185.141.227.223 (2)
+  - 🇸🇪 SE [ws] | 121.127.37.211
 - name: 🎯 Direct
   type: select
   proxies:
