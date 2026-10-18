@@ -21,20 +21,6 @@ dns:
   - tls://8.8.8.8
   - tls://1.1.1.1
 proxies:
-- name: 🇳🇱 NL [R][xhttp] | 84.201.146.8
-  type: vless
-  server: 84.201.146.8
-  port: 443
-  uuid: 1e2b9c0c-4f9b-56f5-a062-1c4f2d2aa200
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: biyXF3Egpu0ul4Jyf04Vh1Zl6u3JGXJ2k5y5y7pDjgo
-  servername: max.ru
-  client-fingerprint: firefox
 - name: 🇸🇨 SC [R][grpc] | 45.145.12.148
   type: vless
   server: 45.145.12.148
@@ -49,7 +35,7 @@ proxies:
     public-key: OOI0p2vKjr8xdwcVCzxcd3rAxmMr7XRA0wMk14IXaFM
     short-id: 35debf0dc757d053
   servername: max.ru
-  client-fingerprint: chrome
+  client-fingerprint: qq
   grpc-opts:
     grpc-service-name: grpc
 - name: 🇫🇮 FI [R] | 158.160.243.46
@@ -188,51 +174,6 @@ proxies:
   servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇩🇪 DE [ws] | 185.141.227.223
-  type: vless
-  server: 185.141.227.223
-  port: 443
-  uuid: c720cb74-4c84-4fce-b8ae-637dbaa16199
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: z1q3pv4g78.rucdncomp.pro
-  client-fingerprint: chrome
-  ws-opts:
-    path: /useraction/events/b892639b7195/
-    headers:
-      Host: z1q3pv4g78.rucdncomp.pro
-- name: 🇳🇱 NL  | s171.wagahaha.xyz
-  type: vless
-  server: s171.wagahaha.xyz
-  port: 443
-  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: u695098u7dae9c0cs220.gogocs.xyz
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇺🇸 US [ws] | api.downloader-pet.xyz
-  type: vless
-  server: api.downloader-pet.xyz
-  port: 443
-  uuid: b094e370-baed-4758-9ef9-1f25925c408f
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: api.downloader-pet.xyz
-  client-fingerprint: random
-  ws-opts:
-    path: /gateway/v1/ws/7bebe0812148f4f995efee31902f9e2e
-    headers:
-      Host: api.downloader-pet.xyz
 - name: 🇳🇱 NL  | s170.gogocs.xyz
   type: vless
   server: s170.gogocs.xyz
@@ -256,22 +197,34 @@ proxies:
   tls: true
   servername: s170.gogocs.xyz
   flow: xtls-rprx-vision
-- name: 🇸🇪 SE [ws] | 121.127.37.211
+- name: 🇳🇱 NL  | s171.wagahaha.xyz
   type: vless
-  server: 121.127.37.211
+  server: s171.wagahaha.xyz
   port: 443
-  uuid: 495c7195-85b8-498a-bf20-2ea9ce9175b5
+  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  servername: u695098u7dae9c0cs220.gogocs.xyz
+  flow: xtls-rprx-vision
+- name: 🇩🇪 DE [ws] | 185.141.227.223
+  type: vless
+  server: 185.141.227.223
+  port: 443
+  uuid: c720cb74-4c84-4fce-b8ae-637dbaa16199
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: snip.edgeoneai.cc.cd
+  servername: z1q3pv4g78.rucdncomp.pro
   client-fingerprint: chrome
   ws-opts:
-    path: /
+    path: /useraction/events/b892639b7195/
     headers:
-      Host: snip.edgeoneai.cc.cd
+      Host: z1q3pv4g78.rucdncomp.pro
 - name: 🇩🇪 DE [ws] | 185.141.227.223 (2)
   type: vless
   server: 185.141.227.223
@@ -288,41 +241,57 @@ proxies:
     path: /useraction/events/b892639b7195/
     headers:
       Host: z1q3pv4g78.rucdncomp.pro
-- name: 🇳🇱 NL  | 62.105.220.106 (2)
+- name: 🇨🇿 CZ [ws] | 1f0c1c7297521d51.wgse.info
   type: vless
-  server: 62.105.220.106
+  server: 1f0c1c7297521d51.wgse.info
   port: 443
-  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
+  uuid: d78d6815-5f00-4fe3-8aae-3344aeb7783f
   udp: true
   skip-cert-verify: true
-  network: tcp
+  network: ws
   encryption: none
   tls: true
-  servername: s170.gogocs.xyz
-  flow: xtls-rprx-vision
+  servername: 1f0c1c7297521d51.wgse.info
   client-fingerprint: firefox
+  ws-opts:
+    path: /ws
+    headers:
+      Host: 1f0c1c7297521d51.wgse.info
+- name: 🇩🇪 DE [ws] | z1q3pv4g78.rucdncomp.pro
+  type: vless
+  server: z1q3pv4g78.rucdncomp.pro
+  port: 443
+  uuid: c720cb74-4c84-4fce-b8ae-637dbaa16199
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: z1q3pv4g78.rucdncomp.pro
+  client-fingerprint: firefox
+  ws-opts:
+    path: /useraction/events/b892639b7195/
+    headers:
+      Host: z1q3pv4g78.rucdncomp.pro
+- name: 🇸🇪 SE [ws] | 121.127.37.211
+  type: vless
+  server: 121.127.37.211
+  port: 443
+  uuid: 495c7195-85b8-498a-bf20-2ea9ce9175b5
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: snip.edgeoneai.cc.cd
+  ws-opts:
+    path: /fp=chrome
+    headers:
+      Host: snip.edgeoneai.cc.cd
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
-  - 🇳🇱 NL [R][xhttp] | 84.201.146.8
-  - 🇸🇨 SC [R][grpc] | 45.145.12.148
-  - 🇫🇮 FI [R] | 158.160.243.46
-  - 🇬🇧 GB [R] | 193.163.203.170
-  - 🇸🇪 SE [R] | 31.77.18.220
-  - 🇫🇮 FI [R] | 13.143.173.15
-  - 🇺🇸 US [R] | 78.17.178.125
-  - 🇦🇪 AE [R] | 45.59.120.217
-  - 🇧🇬 BG [R] | 5.188.117.45
-  - 🇪🇪 EE [grpc] | edge-lab-relay-c.10media.top
-  url: https://www.google.com/generate_204
-  interval: 300
-  tolerance: 50
-- name: 🌍 Proxy
-  type: select
-  proxies:
-  - 🚀 Auto
-  - 🇳🇱 NL [R][xhttp] | 84.201.146.8
   - 🇸🇨 SC [R][grpc] | 45.145.12.148
   - 🇫🇮 FI [R] | 158.160.243.46
   - 🇬🇧 GB [R] | 193.163.203.170
@@ -333,14 +302,31 @@ proxy-groups:
   - 🇧🇬 BG [R] | 5.188.117.45
   - 🇪🇪 EE [grpc] | edge-lab-relay-c.10media.top
   - 🇳🇱 NL  | 62.105.220.106
-  - 🇩🇪 DE [ws] | 185.141.227.223
-  - 🇳🇱 NL  | s171.wagahaha.xyz
-  - 🇺🇸 US [ws] | api.downloader-pet.xyz
+  url: https://www.google.com/generate_204
+  interval: 300
+  tolerance: 50
+- name: 🌍 Proxy
+  type: select
+  proxies:
+  - 🚀 Auto
+  - 🇸🇨 SC [R][grpc] | 45.145.12.148
+  - 🇫🇮 FI [R] | 158.160.243.46
+  - 🇬🇧 GB [R] | 193.163.203.170
+  - 🇸🇪 SE [R] | 31.77.18.220
+  - 🇫🇮 FI [R] | 13.143.173.15
+  - 🇺🇸 US [R] | 78.17.178.125
+  - 🇦🇪 AE [R] | 45.59.120.217
+  - 🇧🇬 BG [R] | 5.188.117.45
+  - 🇪🇪 EE [grpc] | edge-lab-relay-c.10media.top
+  - 🇳🇱 NL  | 62.105.220.106
   - 🇳🇱 NL  | s170.gogocs.xyz
   - 🇳🇱 NL  | s170.gogocs.xyz (2)
-  - 🇸🇪 SE [ws] | 121.127.37.211
+  - 🇳🇱 NL  | s171.wagahaha.xyz
+  - 🇩🇪 DE [ws] | 185.141.227.223
   - 🇩🇪 DE [ws] | 185.141.227.223 (2)
-  - 🇳🇱 NL  | 62.105.220.106 (2)
+  - 🇨🇿 CZ [ws] | 1f0c1c7297521d51.wgse.info
+  - 🇩🇪 DE [ws] | z1q3pv4g78.rucdncomp.pro
+  - 🇸🇪 SE [ws] | 121.127.37.211
 - name: 🎯 Direct
   type: select
   proxies:
