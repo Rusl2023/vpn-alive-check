@@ -34,7 +34,24 @@ proxies:
   reality-opts:
     public-key: biyXF3Egpu0ul4Jyf04Vh1Zl6u3JGXJ2k5y5y7pDjgo
   servername: max.ru
-  client-fingerprint: qq
+  client-fingerprint: firefox
+- name: 🇸🇨 SC [R][grpc] | 45.145.12.148
+  type: vless
+  server: 45.145.12.148
+  port: 443
+  uuid: b869a8d0-0733-4346-8d1c-c1230a78651c
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: OOI0p2vKjr8xdwcVCzxcd3rAxmMr7XRA0wMk14IXaFM
+    short-id: 35debf0dc757d053
+  servername: max.ru
+  client-fingerprint: chrome
+  grpc-opts:
+    grpc-service-name: grpc
 - name: 🇫🇮 FI [R] | 158.160.243.46
   type: vless
   server: 158.160.243.46
@@ -128,6 +145,22 @@ proxies:
     short-id: 29c2dd1e3ef7c4d4
   servername: strm.yandex.net
   client-fingerprint: chrome
+- name: 🇧🇬 BG [R] | 5.188.117.45
+  type: vless
+  server: 5.188.117.45
+  port: 443
+  uuid: 9ebf4fda-7395-4800-b42f-b2dda649880a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 1MLoHw7RVkGefh7XUyuGg4ndxwv4vDU9en-f9JxpXRQ
+    short-id: d2061bb1
+  servername: ya.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇪🇪 EE [grpc] | edge-lab-relay-c.10media.top
   type: vless
   server: edge-lab-relay-c.10media.top
@@ -142,22 +175,6 @@ proxies:
   client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: merafeed
-- name: 🇩🇪 DE [ws] | 185.141.227.223
-  type: vless
-  server: 185.141.227.223
-  port: 443
-  uuid: c720cb74-4c84-4fce-b8ae-637dbaa16199
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: z1q3pv4g78.rucdncomp.pro
-  client-fingerprint: firefox
-  ws-opts:
-    path: /useraction/events/b892639b7195/
-    headers:
-      Host: z1q3pv4g78.rucdncomp.pro
 - name: 🇳🇱 NL  | 62.105.220.106
   type: vless
   server: 62.105.220.106
@@ -170,17 +187,23 @@ proxies:
   tls: true
   servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
-- name: 🇳🇱 NL  | s170.gogocs.xyz
+  client-fingerprint: chrome
+- name: 🇩🇪 DE [ws] | 185.141.227.223
   type: vless
-  server: s170.gogocs.xyz
+  server: 185.141.227.223
   port: 443
-  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
+  uuid: c720cb74-4c84-4fce-b8ae-637dbaa16199
   udp: true
   skip-cert-verify: true
-  network: tcp
+  network: ws
   encryption: none
   tls: true
-  flow: xtls-rprx-vision
+  servername: z1q3pv4g78.rucdncomp.pro
+  client-fingerprint: chrome
+  ws-opts:
+    path: /useraction/events/b892639b7195/
+    headers:
+      Host: z1q3pv4g78.rucdncomp.pro
 - name: 🇳🇱 NL  | s171.wagahaha.xyz
   type: vless
   server: s171.wagahaha.xyz
@@ -194,6 +217,45 @@ proxies:
   servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
   client-fingerprint: chrome
+- name: 🇺🇸 US [ws] | api.downloader-pet.xyz
+  type: vless
+  server: api.downloader-pet.xyz
+  port: 443
+  uuid: b094e370-baed-4758-9ef9-1f25925c408f
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: api.downloader-pet.xyz
+  client-fingerprint: random
+  ws-opts:
+    path: /gateway/v1/ws/7bebe0812148f4f995efee31902f9e2e
+    headers:
+      Host: api.downloader-pet.xyz
+- name: 🇳🇱 NL  | s170.gogocs.xyz
+  type: vless
+  server: s170.gogocs.xyz
+  port: 443
+  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  flow: xtls-rprx-vision
+- name: 🇳🇱 NL  | s170.gogocs.xyz (2)
+  type: vless
+  server: s170.gogocs.xyz
+  port: 443
+  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  servername: s170.gogocs.xyz
+  flow: xtls-rprx-vision
 - name: 🇸🇪 SE [ws] | 121.127.37.211
   type: vless
   server: 121.127.37.211
@@ -226,68 +288,33 @@ proxies:
     path: /useraction/events/b892639b7195/
     headers:
       Host: z1q3pv4g78.rucdncomp.pro
-- name: 🇩🇪 DE [ws] | 95.129.236.149
+- name: 🇳🇱 NL  | 62.105.220.106 (2)
   type: vless
-  server: 95.129.236.149
+  server: 62.105.220.106
   port: 443
-  uuid: 12ed401b-acb5-4c39-accb-ede49715f322
+  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
   udp: true
   skip-cert-verify: true
-  network: ws
+  network: tcp
   encryption: none
   tls: true
-  servername: d.nehtar.ru
+  servername: s170.gogocs.xyz
+  flow: xtls-rprx-vision
   client-fingerprint: firefox
-  ws-opts:
-    path: /gateway/v1/ws/74c4d5e82a8e50ccf09fc628c17dc9be
-    headers:
-      Host: d.nehtar.ru
-- name: 🇩🇪 DE [ws] | 31.177.111.121
-  type: vless
-  server: 31.177.111.121
-  port: 443
-  uuid: 12ed401b-acb5-4c39-accb-ede49715f322
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: api.cdnrt.net
-  client-fingerprint: firefox
-  ws-opts:
-    path: /client/telemetry/0fc51861c60c/
-    headers:
-      Host: api.cdnrt.net
-- name: 🇨🇿 CZ [ws] | 1f0c1c7297521d51.wgse.info
-  type: vless
-  server: 1f0c1c7297521d51.wgse.info
-  port: 443
-  uuid: d78d6815-5f00-4fe3-8aae-3344aeb7783f
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: 1f0c1c7297521d51.wgse.info
-  client-fingerprint: firefox
-  ws-opts:
-    path: /ws
-    headers:
-      Host: 1f0c1c7297521d51.wgse.info
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
   - 🇳🇱 NL [R][xhttp] | 84.201.146.8
+  - 🇸🇨 SC [R][grpc] | 45.145.12.148
   - 🇫🇮 FI [R] | 158.160.243.46
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇫🇮 FI [R] | 13.143.173.15
   - 🇺🇸 US [R] | 78.17.178.125
   - 🇦🇪 AE [R] | 45.59.120.217
+  - 🇧🇬 BG [R] | 5.188.117.45
   - 🇪🇪 EE [grpc] | edge-lab-relay-c.10media.top
-  - 🇩🇪 DE [ws] | 185.141.227.223
-  - 🇳🇱 NL  | 62.105.220.106
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -296,22 +323,24 @@ proxy-groups:
   proxies:
   - 🚀 Auto
   - 🇳🇱 NL [R][xhttp] | 84.201.146.8
+  - 🇸🇨 SC [R][grpc] | 45.145.12.148
   - 🇫🇮 FI [R] | 158.160.243.46
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇫🇮 FI [R] | 13.143.173.15
   - 🇺🇸 US [R] | 78.17.178.125
   - 🇦🇪 AE [R] | 45.59.120.217
+  - 🇧🇬 BG [R] | 5.188.117.45
   - 🇪🇪 EE [grpc] | edge-lab-relay-c.10media.top
-  - 🇩🇪 DE [ws] | 185.141.227.223
   - 🇳🇱 NL  | 62.105.220.106
-  - 🇳🇱 NL  | s170.gogocs.xyz
+  - 🇩🇪 DE [ws] | 185.141.227.223
   - 🇳🇱 NL  | s171.wagahaha.xyz
+  - 🇺🇸 US [ws] | api.downloader-pet.xyz
+  - 🇳🇱 NL  | s170.gogocs.xyz
+  - 🇳🇱 NL  | s170.gogocs.xyz (2)
   - 🇸🇪 SE [ws] | 121.127.37.211
   - 🇩🇪 DE [ws] | 185.141.227.223 (2)
-  - 🇩🇪 DE [ws] | 95.129.236.149
-  - 🇩🇪 DE [ws] | 31.177.111.121
-  - 🇨🇿 CZ [ws] | 1f0c1c7297521d51.wgse.info
+  - 🇳🇱 NL  | 62.105.220.106 (2)
 - name: 🎯 Direct
   type: select
   proxies:
