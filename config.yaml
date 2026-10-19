@@ -35,7 +35,7 @@ proxies:
     public-key: OOI0p2vKjr8xdwcVCzxcd3rAxmMr7XRA0wMk14IXaFM
     short-id: 35debf0dc757d053
   servername: max.ru
-  client-fingerprint: qq
+  client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: grpc
 - name: 🇫🇮 FI [R] | 158.160.243.46
@@ -147,6 +147,30 @@ proxies:
   servername: ya.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
+- name: 🇦🇪 AE [xhttp] | 185.178.208.140
+  type: vless
+  server: 185.178.208.140
+  port: 443
+  uuid: ccd0671b-a168-4151-8bc2-37dce0c5738c
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  servername: bakarova-top.ru
+  client-fingerprint: chrome
+- name: 🇦🇪 AE [xhttp] | 185.178.208.140 (2)
+  type: vless
+  server: 185.178.208.140
+  port: 443
+  uuid: c31589ca-9d14-4044-a732-bb810bad0bcc
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  servername: bakarova-top.ru
+  client-fingerprint: firefox
 - name: 🇪🇪 EE [grpc] | edge-lab-relay-c.10media.top
   type: vless
   server: edge-lab-relay-c.10media.top
@@ -158,9 +182,57 @@ proxies:
   encryption: none
   tls: true
   servername: edge-lab-relay-c.10media.top
-  client-fingerprint: firefox
+  client-fingerprint: chrome
   grpc-opts:
     grpc-service-name: merafeed
+- name: 🇫🇷 FR [ws] | cdn-01.funvideos.video
+  type: vless
+  server: cdn-01.funvideos.video
+  port: 443
+  uuid: aca886aa-9b51-4eb2-8d7a-12d6b89caf4d
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: cdn-01.funvideos.video
+  client-fingerprint: qq
+  ws-opts:
+    path: /api/53d53ac3/a7fa61/096357bebc62
+    headers:
+      Host: cdn-01.funvideos.video
+- name: 🇨🇿 CZ [ws] | 1f0c1c7297521d51.wgse.info
+  type: vless
+  server: 1f0c1c7297521d51.wgse.info
+  port: 443
+  uuid: d78d6815-5f00-4fe3-8aae-3344aeb7783f
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: 1f0c1c7297521d51.wgse.info
+  client-fingerprint: qq
+  ws-opts:
+    path: /ws
+    headers:
+      Host: 1f0c1c7297521d51.wgse.info
+- name: 🇩🇪 DE [ws] | 185.141.227.223
+  type: vless
+  server: 185.141.227.223
+  port: 443
+  uuid: c720cb74-4c84-4fce-b8ae-637dbaa16199
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: z1q3pv4g78.rucdncomp.pro
+  client-fingerprint: chrome
+  ws-opts:
+    path: /useraction/events/b892639b7195/
+    headers:
+      Host: z1q3pv4g78.rucdncomp.pro
 - name: 🇳🇱 NL  | 62.105.220.106
   type: vless
   server: 62.105.220.106
@@ -185,6 +257,7 @@ proxies:
   encryption: none
   tls: true
   flow: xtls-rprx-vision
+  client-fingerprint: chrome
 - name: 🇳🇱 NL  | s170.gogocs.xyz (2)
   type: vless
   server: s170.gogocs.xyz
@@ -209,22 +282,23 @@ proxies:
   tls: true
   servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
-- name: 🇩🇪 DE [ws] | 185.141.227.223
+  client-fingerprint: chrome
+- name: 🇸🇪 SE [ws] | 121.127.37.211
   type: vless
-  server: 185.141.227.223
+  server: 121.127.37.211
   port: 443
-  uuid: c720cb74-4c84-4fce-b8ae-637dbaa16199
+  uuid: 495c7195-85b8-498a-bf20-2ea9ce9175b5
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: z1q3pv4g78.rucdncomp.pro
+  servername: snip.edgeoneai.cc.cd
   client-fingerprint: chrome
   ws-opts:
-    path: /useraction/events/b892639b7195/
+    path: /
     headers:
-      Host: z1q3pv4g78.rucdncomp.pro
+      Host: snip.edgeoneai.cc.cd
 - name: 🇩🇪 DE [ws] | 185.141.227.223 (2)
   type: vless
   server: 185.141.227.223
@@ -241,22 +315,6 @@ proxies:
     path: /useraction/events/b892639b7195/
     headers:
       Host: z1q3pv4g78.rucdncomp.pro
-- name: 🇨🇿 CZ [ws] | 1f0c1c7297521d51.wgse.info
-  type: vless
-  server: 1f0c1c7297521d51.wgse.info
-  port: 443
-  uuid: d78d6815-5f00-4fe3-8aae-3344aeb7783f
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: 1f0c1c7297521d51.wgse.info
-  client-fingerprint: firefox
-  ws-opts:
-    path: /ws
-    headers:
-      Host: 1f0c1c7297521d51.wgse.info
 - name: 🇩🇪 DE [ws] | z1q3pv4g78.rucdncomp.pro
   type: vless
   server: z1q3pv4g78.rucdncomp.pro
@@ -273,21 +331,22 @@ proxies:
     path: /useraction/events/b892639b7195/
     headers:
       Host: z1q3pv4g78.rucdncomp.pro
-- name: 🇸🇪 SE [ws] | 121.127.37.211
+- name: 🇫🇷 FR [ws] | 188.225.57.92
   type: vless
-  server: 121.127.37.211
+  server: 188.225.57.92
   port: 443
-  uuid: 495c7195-85b8-498a-bf20-2ea9ce9175b5
+  uuid: aca886aa-9b51-4eb2-8d7a-12d6b89caf4d
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: snip.edgeoneai.cc.cd
+  servername: cdn-01.funvideos.video
+  client-fingerprint: qq
   ws-opts:
-    path: /fp=chrome
+    path: /api/53d53ac3/a7fa61/096357bebc62
     headers:
-      Host: snip.edgeoneai.cc.cd
+      Host: cdn-01.funvideos.video
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
@@ -300,8 +359,8 @@ proxy-groups:
   - 🇺🇸 US [R] | 78.17.178.125
   - 🇦🇪 AE [R] | 45.59.120.217
   - 🇧🇬 BG [R] | 5.188.117.45
-  - 🇪🇪 EE [grpc] | edge-lab-relay-c.10media.top
-  - 🇳🇱 NL  | 62.105.220.106
+  - 🇦🇪 AE [xhttp] | 185.178.208.140
+  - 🇦🇪 AE [xhttp] | 185.178.208.140 (2)
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -317,16 +376,20 @@ proxy-groups:
   - 🇺🇸 US [R] | 78.17.178.125
   - 🇦🇪 AE [R] | 45.59.120.217
   - 🇧🇬 BG [R] | 5.188.117.45
+  - 🇦🇪 AE [xhttp] | 185.178.208.140
+  - 🇦🇪 AE [xhttp] | 185.178.208.140 (2)
   - 🇪🇪 EE [grpc] | edge-lab-relay-c.10media.top
+  - 🇫🇷 FR [ws] | cdn-01.funvideos.video
+  - 🇨🇿 CZ [ws] | 1f0c1c7297521d51.wgse.info
+  - 🇩🇪 DE [ws] | 185.141.227.223
   - 🇳🇱 NL  | 62.105.220.106
   - 🇳🇱 NL  | s170.gogocs.xyz
   - 🇳🇱 NL  | s170.gogocs.xyz (2)
   - 🇳🇱 NL  | s171.wagahaha.xyz
-  - 🇩🇪 DE [ws] | 185.141.227.223
-  - 🇩🇪 DE [ws] | 185.141.227.223 (2)
-  - 🇨🇿 CZ [ws] | 1f0c1c7297521d51.wgse.info
-  - 🇩🇪 DE [ws] | z1q3pv4g78.rucdncomp.pro
   - 🇸🇪 SE [ws] | 121.127.37.211
+  - 🇩🇪 DE [ws] | 185.141.227.223 (2)
+  - 🇩🇪 DE [ws] | z1q3pv4g78.rucdncomp.pro
+  - 🇫🇷 FR [ws] | 188.225.57.92
 - name: 🎯 Direct
   type: select
   proxies:
