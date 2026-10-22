@@ -35,7 +35,7 @@ proxies:
     public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
   servername: google.com
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
+  client-fingerprint: chrome
 - name: 🇫🇮 FI [R] | 158.160.243.46
   type: vless
   server: 158.160.243.46
@@ -52,22 +52,22 @@ proxies:
   servername: rutube.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇬🇧 GB [R] | 193.163.203.170
+- name: 🇸🇨 SC [R] | 144.31.50.236
   type: vless
-  server: 193.163.203.170
+  server: 144.31.50.236
   port: 443
-  uuid: 11aabba0-5fd1-4f15-8068-74c1a466cefc
+  uuid: 1c332eae-7e02-4acd-996d-4eb3e652401c
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: GCCZ1ZZjB_nj7yxqFi22bIIWWr_G6rnWUzDcssN_40o
-    short-id: b28db60d77c50b4f
+    public-key: uitO4Z8t9TplwwYaqwLqh5rfxDh_X8bOBiNuPbzvaEM
+    short-id: bbe46bd8f6b96839
   servername: yandex.ru
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
+  client-fingerprint: firefox
 - name: 🇸🇨 SC [R] | prep.wwwinternetvideo.click
   type: vless
   server: prep.wwwinternetvideo.click
@@ -83,20 +83,20 @@ proxies:
     short-id: bbe46bd8f6b96839
   servername: yandex.ru
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇸🇨 SC [R] | 144.31.50.236
+  client-fingerprint: firefox
+- name: 🇬🇧 GB [R] | 193.163.203.170
   type: vless
-  server: 144.31.50.236
+  server: 193.163.203.170
   port: 443
-  uuid: 1c332eae-7e02-4acd-996d-4eb3e652401c
+  uuid: 11aabba0-5fd1-4f15-8068-74c1a466cefc
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: uitO4Z8t9TplwwYaqwLqh5rfxDh_X8bOBiNuPbzvaEM
-    short-id: bbe46bd8f6b96839
+    public-key: GCCZ1ZZjB_nj7yxqFi22bIIWWr_G6rnWUzDcssN_40o
+    short-id: b28db60d77c50b4f
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
@@ -130,7 +130,7 @@ proxies:
     short-id: e0215064d8d1fd7c
   servername: cdn.tbank.ru
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
+  client-fingerprint: qq
 - name: 🇦🇪 AE [R] | 45.59.120.217
   type: vless
   server: 45.59.120.217
@@ -169,7 +169,6 @@ proxies:
   encryption: none
   tls: true
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
 - name: 🇳🇱 NL  | s171.wagahaha.xyz
   type: vless
   server: s171.wagahaha.xyz
@@ -182,6 +181,22 @@ proxies:
   tls: true
   servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
+- name: 🇸🇪 SE [ws] | 109.122.194.61
+  type: vless
+  server: 109.122.194.61
+  port: 443
+  uuid: 495c7195-85b8-498a-bf20-2ea9ce9175b5
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: snip.edgeoneai.cc.cd
+  client-fingerprint: chrome
+  ws-opts:
+    path: /
+    headers:
+      Host: snip.edgeoneai.cc.cd
 - name: 🇺🇸 US [ws] | 216.238.79.164
   type: vless
   server: 216.238.79.164
@@ -197,25 +212,9 @@ proxies:
     path: /
     headers:
       Host: snip.edgeoneai.cc.cd
-- name: 🇩🇪 DE [ws] | 94.159.100.154
+- name: 🇭🇰 HK [ws] | 103.242.15.87
   type: vless
-  server: 94.159.100.154
-  port: 443
-  uuid: 495c7195-85b8-498a-bf20-2ea9ce9175b5
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: snip.edgeoneai.cc.cd
-  client-fingerprint: chrome
-  ws-opts:
-    path: /
-    headers:
-      Host: snip.edgeoneai.cc.cd
-- name: 🇨🇭 CH [ws] | 91.245.225.69
-  type: vless
-  server: 91.245.225.69
+  server: 103.242.15.87
   port: 443
   uuid: 495c7195-85b8-498a-bf20-2ea9ce9175b5
   udp: true
@@ -245,9 +244,9 @@ proxies:
     path: /
     headers:
       Host: snip.edgeoneai.cc.cd
-- name: 🇭🇰 HK [ws] | 103.242.15.87
+- name: 🇨🇭 CH [ws] | 91.245.225.69
   type: vless
-  server: 103.242.15.87
+  server: 91.245.225.69
   port: 443
   uuid: 495c7195-85b8-498a-bf20-2ea9ce9175b5
   udp: true
@@ -259,6 +258,37 @@ proxies:
   client-fingerprint: chrome
   ws-opts:
     path: /
+    headers:
+      Host: snip.edgeoneai.cc.cd
+- name: 🇩🇪 DE [ws] | 94.159.100.154
+  type: vless
+  server: 94.159.100.154
+  port: 443
+  uuid: 495c7195-85b8-498a-bf20-2ea9ce9175b5
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: snip.edgeoneai.cc.cd
+  client-fingerprint: chrome
+  ws-opts:
+    path: /
+    headers:
+      Host: snip.edgeoneai.cc.cd
+- name: 🇸🇪 SE [ws] | 109.69.22.15
+  type: vless
+  server: 109.69.22.15
+  port: 443
+  uuid: 495c7195-85b8-498a-bf20-2ea9ce9175b5
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: snip.edgeoneai.cc.cd
+  ws-opts:
+    path: /fp=chrome
     headers:
       Host: snip.edgeoneai.cc.cd
 - name: 🇩🇪 DE [ws] | 185.80.131.40
@@ -277,19 +307,6 @@ proxies:
     path: /fdip=sstp://vpn:vpn@public-vpn-200.opengw.net:443
     headers:
       Host: snip.edgeoneai.cc.cd
-- name: 🇳🇱 NL  | s170.gogocs.xyz (2)
-  type: vless
-  server: s170.gogocs.xyz
-  port: 443
-  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: u695098u7dae9c0cs220.gogocs.xyz
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇷🇸 RS [ws] | 178.208.86.182
   type: vless
   server: 178.208.86.182
@@ -322,19 +339,6 @@ proxies:
     path: /fdip=sstp://vpn:vpn@public-vpn-200.opengw.net:443
     headers:
       Host: snip.edgeoneai.cc.cd
-- name: 🇳🇱 NL  | 62.105.220.106 (2)
-  type: vless
-  server: 62.105.220.106
-  port: 443
-  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: s170.gogocs.xyz
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇦🇲 AM [ws] | 88.218.92.205
   type: vless
   server: 88.218.92.205
@@ -350,21 +354,32 @@ proxies:
     path: /fdip=sstp://vpn:vpn@public-vpn-200.opengw.net:443
     headers:
       Host: snip.edgeoneai.cc.cd
-- name: 🇸🇪 SE [ws] | 109.122.194.61
+- name: 🇳🇱 NL  | s170.gogocs.xyz (2)
   type: vless
-  server: 109.122.194.61
+  server: s170.gogocs.xyz
   port: 443
-  uuid: 495c7195-85b8-498a-bf20-2ea9ce9175b5
+  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
   udp: true
   skip-cert-verify: true
-  network: ws
+  network: tcp
   encryption: none
   tls: true
-  servername: snip.edgeoneai.cc.cd
+  servername: u695098u7dae9c0cs220.gogocs.xyz
+  flow: xtls-rprx-vision
   client-fingerprint: firefox
-  ws-opts:
-    headers:
-      Host: snip.edgeoneai.cc.cd
+- name: 🇳🇱 NL  | 62.105.220.106 (2)
+  type: vless
+  server: 62.105.220.106
+  port: 443
+  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  servername: s170.gogocs.xyz
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇨🇭 CH [ws] | 185.241.7.178
   type: vless
   server: 185.241.7.178
@@ -392,8 +407,8 @@ proxies:
   encryption: none
   tls: true
   servername: snip.edgeoneai.cc.cd
-  client-fingerprint: firefox
   ws-opts:
+    path: /
     headers:
       Host: snip.edgeoneai.cc.cd
 proxy-groups:
@@ -402,9 +417,9 @@ proxy-groups:
   proxies:
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇫🇮 FI [R] | 158.160.243.46
-  - 🇬🇧 GB [R] | 193.163.203.170
-  - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
   - 🇸🇨 SC [R] | 144.31.50.236
+  - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
+  - 🇬🇧 GB [R] | 193.163.203.170
   - 🇫🇮 FI [R] | 13.143.173.15
   - 🇺🇸 US [R] | 78.17.178.125
   - 🇦🇪 AE [R] | 45.59.120.217
@@ -419,27 +434,28 @@ proxy-groups:
   - 🚀 Auto
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇫🇮 FI [R] | 158.160.243.46
-  - 🇬🇧 GB [R] | 193.163.203.170
-  - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
   - 🇸🇨 SC [R] | 144.31.50.236
+  - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
+  - 🇬🇧 GB [R] | 193.163.203.170
   - 🇫🇮 FI [R] | 13.143.173.15
   - 🇺🇸 US [R] | 78.17.178.125
   - 🇦🇪 AE [R] | 45.59.120.217
   - 🇳🇱 NL  | 62.105.220.106
   - 🇳🇱 NL  | s170.gogocs.xyz
   - 🇳🇱 NL  | s171.wagahaha.xyz
+  - 🇸🇪 SE [ws] | 109.122.194.61
   - 🇺🇸 US [ws] | 216.238.79.164
-  - 🇩🇪 DE [ws] | 94.159.100.154
-  - 🇨🇭 CH [ws] | 91.245.225.69
-  - 🇩🇪 DE [ws] | 185.230.44.200
   - 🇭🇰 HK [ws] | 103.242.15.87
+  - 🇩🇪 DE [ws] | 185.230.44.200
+  - 🇨🇭 CH [ws] | 91.245.225.69
+  - 🇩🇪 DE [ws] | 94.159.100.154
+  - 🇸🇪 SE [ws] | 109.69.22.15
   - 🇩🇪 DE [ws] | 185.80.131.40
-  - 🇳🇱 NL  | s170.gogocs.xyz (2)
   - 🇷🇸 RS [ws] | 178.208.86.182
   - 🇺🇸 US [ws] | 216.238.78.167
-  - 🇳🇱 NL  | 62.105.220.106 (2)
   - 🇦🇲 AM [ws] | 88.218.92.205
-  - 🇸🇪 SE [ws] | 109.122.194.61
+  - 🇳🇱 NL  | s170.gogocs.xyz (2)
+  - 🇳🇱 NL  | 62.105.220.106 (2)
   - 🇨🇭 CH [ws] | 185.241.7.178
   - 🇩🇪 DE [ws] | 185.230.44.140
 - name: 🎯 Direct
