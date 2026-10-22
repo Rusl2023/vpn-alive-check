@@ -21,6 +21,22 @@ dns:
   - tls://8.8.8.8
   - tls://1.1.1.1
 proxies:
+- name: 🇫🇮 FI [R] | 158.160.243.46
+  type: vless
+  server: 158.160.243.46
+  port: 443
+  uuid: 0477e879-f2a7-4b76-aa29-28f36b45d4b6
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: y3dqCRYQO7GM7DIdQRG1uDjBNRK2vyXd8RJL160WZz4
+    short-id: 8a1f9479
+  servername: rutube.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇸🇪 SE [R] | 31.77.18.220
   type: vless
   server: 31.77.18.220
@@ -51,37 +67,6 @@ proxies:
   servername: google.com
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇫🇮 FI [R] | 158.160.243.46
-  type: vless
-  server: 158.160.243.46
-  port: 443
-  uuid: 0477e879-f2a7-4b76-aa29-28f36b45d4b6
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: y3dqCRYQO7GM7DIdQRG1uDjBNRK2vyXd8RJL160WZz4
-    short-id: 8a1f9479
-  servername: rutube.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇮🇶 IQ [R][xhttp] | 132.243.230.251
-  type: vless
-  server: 132.243.230.251
-  port: 443
-  uuid: 0bf8538b-6299-46b0-9775-8b00939dccb5
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: Uz1UbBDf84n7oNfFIhFvXbuFcj1nbNEroiKC_Ud4ajg
-    short-id: b2f9bb426426e0e7
-  servername: www.kinopoisk.ru
-  client-fingerprint: firefox
 - name: 🇺🇸 US [R] | 78.17.178.125
   type: vless
   server: 78.17.178.125
@@ -97,7 +82,7 @@ proxies:
     short-id: e0215064d8d1fd7c
   servername: cdn.tbank.ru
   flow: xtls-rprx-vision
-  client-fingerprint: qq
+  client-fingerprint: firefox
 - name: 🇦🇪 AE [R] | 45.59.120.217
   type: vless
   server: 45.59.120.217
@@ -113,9 +98,50 @@ proxies:
     short-id: 29c2dd1e3ef7c4d4
   servername: strm.yandex.net
   client-fingerprint: chrome
+- name: 🇧🇬 BG [R] | e1-ee.edgemedia.lol
+  type: vless
+  server: e1-ee.edgemedia.lol
+  port: 443
+  uuid: 9ebf4fda-7395-4800-b42f-b2dda649880a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 1MLoHw7RVkGefh7XUyuGg4ndxwv4vDU9en-f9JxpXRQ
+    short-id: d2061bb1
+  servername: ya.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇪🇪 EE [grpc] | 188.225.38.216
+  type: vless
+  server: 188.225.38.216
+  port: 443
+  uuid: 21ffcccd-8fbe-43fb-9dd1-24452fdfa8ad
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  servername: lalibobi.online
+  grpc-opts:
+    grpc-service-name: lalibobi.orbit.v3.Connect
 - name: 🇳🇱 NL  | 62.105.220.106
   type: vless
   server: 62.105.220.106
+  port: 443
+  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  servername: u695098u7dae9c0cs220.gogocs.xyz
+  flow: xtls-rprx-vision
+- name: 🇳🇱 NL  | s171.wagahaha.xyz
+  type: vless
+  server: s171.wagahaha.xyz
   port: 443
   uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
   udp: true
@@ -136,22 +162,40 @@ proxies:
   encryption: none
   tls: true
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇳🇱 NL  | s171.wagahaha.xyz
-  type: vless
-  server: s171.wagahaha.xyz
-  port: 443
-  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: u695098u7dae9c0cs220.gogocs.xyz
-  flow: xtls-rprx-vision
 - name: 🇩🇪 DE [ws] | 185.230.44.200
   type: vless
   server: 185.230.44.200
+  port: 443
+  uuid: 495c7195-85b8-498a-bf20-2ea9ce9175b5
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: snip.edgeoneai.cc.cd
+  client-fingerprint: chrome
+  ws-opts:
+    path: /
+    headers:
+      Host: snip.edgeoneai.cc.cd
+- name: 🇺🇸 US [ws] | 216.238.79.164
+  type: vless
+  server: 216.238.79.164
+  port: 443
+  uuid: 495c7195-85b8-498a-bf20-2ea9ce9175b5
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: snip.edgeoneai.cc.cd
+  ws-opts:
+    path: /
+    headers:
+      Host: snip.edgeoneai.cc.cd
+- name: 🇩🇪 DE [ws] | 94.159.100.154
+  type: vless
+  server: 94.159.100.154
   port: 443
   uuid: 495c7195-85b8-498a-bf20-2ea9ce9175b5
   udp: true
@@ -181,24 +225,9 @@ proxies:
     path: /
     headers:
       Host: snip.edgeoneai.cc.cd
-- name: 🇺🇸 US [ws] | 216.238.79.164
+- name: 🇱🇹 LT [ws] | 185.80.131.40
   type: vless
-  server: 216.238.79.164
-  port: 443
-  uuid: 495c7195-85b8-498a-bf20-2ea9ce9175b5
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: snip.edgeoneai.cc.cd
-  ws-opts:
-    path: /
-    headers:
-      Host: snip.edgeoneai.cc.cd
-- name: 🇯🇵 JP [ws] | 217.142.225.47
-  type: vless
-  server: 217.142.225.47
+  server: 185.80.131.40
   port: 443
   uuid: 495c7195-85b8-498a-bf20-2ea9ce9175b5
   udp: true
@@ -209,23 +238,7 @@ proxies:
   servername: snip.edgeoneai.cc.cd
   client-fingerprint: chrome
   ws-opts:
-    path: /
-    headers:
-      Host: snip.edgeoneai.cc.cd
-- name: 🇩🇪 DE [ws] | 94.159.100.154
-  type: vless
-  server: 94.159.100.154
-  port: 443
-  uuid: 495c7195-85b8-498a-bf20-2ea9ce9175b5
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: snip.edgeoneai.cc.cd
-  client-fingerprint: chrome
-  ws-opts:
-    path: /
+    path: /fdip=sstp://vpn:vpn@public-vpn-200.opengw.net:443
     headers:
       Host: snip.edgeoneai.cc.cd
 - name: 🇩🇪 DE [ws] | 185.230.44.140
@@ -244,6 +257,19 @@ proxies:
     path: /
     headers:
       Host: snip.edgeoneai.cc.cd
+- name: 🇳🇱 NL  | s170.gogocs.xyz (2)
+  type: vless
+  server: s170.gogocs.xyz
+  port: 443
+  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  servername: u695098u7dae9c0cs220.gogocs.xyz
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇷🇸 RS [ws] | 178.208.86.182
   type: vless
   server: 178.208.86.182
@@ -276,19 +302,6 @@ proxies:
     path: /fdip=sstp://vpn:vpn@public-vpn-200.opengw.net:443
     headers:
       Host: snip.edgeoneai.cc.cd
-- name: 🇳🇱 NL  | s170.gogocs.xyz (2)
-  type: vless
-  server: s170.gogocs.xyz
-  port: 443
-  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: u695098u7dae9c0cs220.gogocs.xyz
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇦🇲 AM [ws] | 88.218.92.205
   type: vless
   server: 88.218.92.205
@@ -304,6 +317,35 @@ proxies:
     path: /fdip=sstp://vpn:vpn@public-vpn-200.opengw.net:443
     headers:
       Host: snip.edgeoneai.cc.cd
+- name: 🇨🇭 CH [ws] | 109.122.198.57
+  type: vless
+  server: 109.122.198.57
+  port: 443
+  uuid: 5e12bc12-6da2-4a86-bbfe-144419d0e0e3
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: buffergrowth.dramatorg.net
+  client-fingerprint: firefox
+  ws-opts:
+    path: /media/ws/
+    headers:
+      Host: buffergrowth.dramatorg.net
+- name: 🇳🇱 NL  | 62.105.220.106 (2)
+  type: vless
+  server: 62.105.220.106
+  port: 443
+  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  servername: s170.gogocs.xyz
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇮🇱 IL [ws] | 185.241.7.178
   type: vless
   server: 185.241.7.178
@@ -320,33 +362,100 @@ proxies:
     path: /
     headers:
       Host: snip.edgeoneai.cc.cd
-- name: 🇳🇱 NL  | 62.105.220.106 (2)
+- name: 🇹🇷 TR [ws] | 185.39.204.7
   type: vless
-  server: 62.105.220.106
+  server: 185.39.204.7
   port: 443
-  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
+  uuid: 5e12bc12-6da2-4a86-bbfe-144419d0e0e3
   udp: true
   skip-cert-verify: true
-  network: tcp
+  network: ws
   encryption: none
   tls: true
-  servername: s170.gogocs.xyz
-  flow: xtls-rprx-vision
+  servername: sigmacreek.cleanfoodshop.org
   client-fingerprint: firefox
+  ws-opts:
+    path: /media/ws/
+    headers:
+      Host: sigmacreek.cleanfoodshop.org
+- name: 🇰🇿 KZ [ws] | 185.99.96.81
+  type: vless
+  server: 185.99.96.81
+  port: 443
+  uuid: 5e12bc12-6da2-0002-bbfe-144419d0e0e3
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: blocksection.lucheeebezlimitnoekino.stream
+  client-fingerprint: firefox
+  ws-opts:
+    path: /media/ws/
+    headers:
+      Host: blocksection.lucheeebezlimitnoekino.stream
+- name: 🇨🇭 CH [ws] | buffergrowth.dramatorg.net
+  type: vless
+  server: buffergrowth.dramatorg.net
+  port: 443
+  uuid: 5e12bc12-6da2-4a86-bbfe-144419d0e0e3
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: buffergrowth.dramatorg.net
+  client-fingerprint: firefox
+  ws-opts:
+    path: /media/ws/
+    headers:
+      Host: buffergrowth.dramatorg.net
+- name: 🇹🇷 TR [ws] | sigmacreek.cleanfoodshop.org
+  type: vless
+  server: sigmacreek.cleanfoodshop.org
+  port: 443
+  uuid: 5e12bc12-6da2-4a86-bbfe-144419d0e0e3
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: sigmacreek.cleanfoodshop.org
+  client-fingerprint: firefox
+  ws-opts:
+    path: /media/ws/
+    headers:
+      Host: sigmacreek.cleanfoodshop.org
+- name: 🇰🇿 KZ [ws] | blocksection.lucheeebezlimitnoekino.stream
+  type: vless
+  server: blocksection.lucheeebezlimitnoekino.stream
+  port: 443
+  uuid: 5e12bc12-6da2-0002-bbfe-144419d0e0e3
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: blocksection.lucheeebezlimitnoekino.stream
+  client-fingerprint: firefox
+  ws-opts:
+    path: /media/ws/
+    headers:
+      Host: blocksection.lucheeebezlimitnoekino.stream
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
+  - 🇫🇮 FI [R] | 158.160.243.46
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇫🇮 FI [R] | 13.143.173.15
-  - 🇫🇮 FI [R] | 158.160.243.46
-  - 🇮🇶 IQ [R][xhttp] | 132.243.230.251
   - 🇺🇸 US [R] | 78.17.178.125
   - 🇦🇪 AE [R] | 45.59.120.217
+  - 🇧🇬 BG [R] | e1-ee.edgemedia.lol
+  - 🇪🇪 EE [grpc] | 188.225.38.216
   - 🇳🇱 NL  | 62.105.220.106
-  - 🇳🇱 NL  | s170.gogocs.xyz
   - 🇳🇱 NL  | s171.wagahaha.xyz
-  - 🇩🇪 DE [ws] | 185.230.44.200
+  - 🇳🇱 NL  | s170.gogocs.xyz
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -354,27 +463,34 @@ proxy-groups:
   type: select
   proxies:
   - 🚀 Auto
+  - 🇫🇮 FI [R] | 158.160.243.46
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇫🇮 FI [R] | 13.143.173.15
-  - 🇫🇮 FI [R] | 158.160.243.46
-  - 🇮🇶 IQ [R][xhttp] | 132.243.230.251
   - 🇺🇸 US [R] | 78.17.178.125
   - 🇦🇪 AE [R] | 45.59.120.217
+  - 🇧🇬 BG [R] | e1-ee.edgemedia.lol
+  - 🇪🇪 EE [grpc] | 188.225.38.216
   - 🇳🇱 NL  | 62.105.220.106
-  - 🇳🇱 NL  | s170.gogocs.xyz
   - 🇳🇱 NL  | s171.wagahaha.xyz
+  - 🇳🇱 NL  | s170.gogocs.xyz
   - 🇩🇪 DE [ws] | 185.230.44.200
-  - 🇭🇰 HK [ws] | 103.242.15.87
   - 🇺🇸 US [ws] | 216.238.79.164
-  - 🇯🇵 JP [ws] | 217.142.225.47
   - 🇩🇪 DE [ws] | 94.159.100.154
+  - 🇭🇰 HK [ws] | 103.242.15.87
+  - 🇱🇹 LT [ws] | 185.80.131.40
   - 🇩🇪 DE [ws] | 185.230.44.140
+  - 🇳🇱 NL  | s170.gogocs.xyz (2)
   - 🇷🇸 RS [ws] | 178.208.86.182
   - 🇺🇸 US [ws] | 216.238.78.167
-  - 🇳🇱 NL  | s170.gogocs.xyz (2)
   - 🇦🇲 AM [ws] | 88.218.92.205
-  - 🇮🇱 IL [ws] | 185.241.7.178
+  - 🇨🇭 CH [ws] | 109.122.198.57
   - 🇳🇱 NL  | 62.105.220.106 (2)
+  - 🇮🇱 IL [ws] | 185.241.7.178
+  - 🇹🇷 TR [ws] | 185.39.204.7
+  - 🇰🇿 KZ [ws] | 185.99.96.81
+  - 🇨🇭 CH [ws] | buffergrowth.dramatorg.net
+  - 🇹🇷 TR [ws] | sigmacreek.cleanfoodshop.org
+  - 🇰🇿 KZ [ws] | blocksection.lucheeebezlimitnoekino.stream
 - name: 🎯 Direct
   type: select
   proxies:
