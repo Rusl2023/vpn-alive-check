@@ -84,7 +84,7 @@ proxies:
     short-id: bbe46bd8f6b96839
   servername: yandex.ru
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
+  client-fingerprint: chrome
 - name: 🇸🇪 SE [R] | 31.77.18.220
   type: vless
   server: 31.77.18.220
@@ -99,7 +99,7 @@ proxies:
     public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
   servername: google.com
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
+  client-fingerprint: firefox
 - name: 🇫🇮 FI [R] | 13.143.173.15
   type: vless
   server: 13.143.173.15
@@ -115,20 +115,51 @@ proxies:
   servername: google.com
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇮🇶 IQ [R][xhttp] | 132.243.230.251
+- name: 🇺🇸 US [R][xhttp] | 159.194.248.11
   type: vless
-  server: 132.243.230.251
+  server: 159.194.248.11
   port: 443
-  uuid: 0bf8538b-6299-46b0-9775-8b00939dccb5
+  uuid: d40fdcdb-8d6f-406d-a050-12e196fe8804
   udp: true
   skip-cert-verify: true
   network: xhttp
   encryption: none
   tls: true
   reality-opts:
-    public-key: Uz1UbBDf84n7oNfFIhFvXbuFcj1nbNEroiKC_Ud4ajg
-    short-id: b2f9bb426426e0e7
-  servername: www.kinopoisk.ru
+    public-key: yQfhPYAXsz1EqKpOglHh72NzJsf9YoPuD1bjMC-DDiM
+  servername: api-maps.yandex.ru
+  client-fingerprint: chrome
+- name: 🇺🇸 US [R] | 78.17.178.125
+  type: vless
+  server: 78.17.178.125
+  port: 443
+  uuid: 6c713691-3ca2-4446-ad25-113d1bed6b03
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: jcp4Lj_qYzxtkalm_XFjrmvqEMGRG7sb19yMwLe16WE
+    short-id: e0215064d8d1fd7c
+  servername: cdn.tbank.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇨🇾 CY [R] | 2.56.175.91
+  type: vless
+  server: 2.56.175.91
+  port: 443
+  uuid: 3cd95e58-9f0a-47e1-9937-64a58e949aa5
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 6eN2NciEaZis5J4muRRqpfLQ1OglI3A8lNSTmAGo6Do
+    short-id: 3c6fc84d
+  servername: stats.vk-portal.net
+  flow: xtls-rprx-vision
   client-fingerprint: firefox
 - name: 🇫🇷 FR [R] | 194.33.34.108
   type: vless
@@ -146,22 +177,6 @@ proxies:
   servername: stats.vk-portal.net
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇺🇸 US [R] | 78.17.178.125
-  type: vless
-  server: 78.17.178.125
-  port: 443
-  uuid: 6c713691-3ca2-4446-ad25-113d1bed6b03
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: jcp4Lj_qYzxtkalm_XFjrmvqEMGRG7sb19yMwLe16WE
-    short-id: e0215064d8d1fd7c
-  servername: cdn.tbank.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: qq
 - name: 🇨🇦 CA [R] | 148.113.179.73
   type: vless
   server: 148.113.179.73
@@ -178,20 +193,34 @@ proxies:
   servername: stats.vk-portal.net
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇨🇾 CY [R] | 2.56.175.91
+- name: 🇫🇮 FI [R] | 168.222.143.254
   type: vless
-  server: 2.56.175.91
+  server: 168.222.143.254
   port: 443
-  uuid: 3cd95e58-9f0a-47e1-9937-64a58e949aa5
+  uuid: ebdf87e8-4f75-4b84-94e0-65ce4894993a
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: 6eN2NciEaZis5J4muRRqpfLQ1OglI3A8lNSTmAGo6Do
-    short-id: 3c6fc84d
-  servername: stats.vk-portal.net
+    public-key: 3_Qy1SAtWfbiQbznyhlXxJtqB-5QQ46VF1Uz2h5A7Q4
+    short-id: 2dc17935
+  servername: st.avito.ru
+  flow: xtls-rprx-vision
+- name: 🇺🇸 US [R] | 31.76.75.218
+  type: vless
+  server: 31.76.75.218
+  port: 443
+  uuid: 3d0a1a17-a0a4-41d5-8b6c-37f76ba3ed41
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: bkQ2euy5Ls1EELvms1JGr4Bwey673s5CAvSs6b3XzwA
+  servername: ya.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
 - name: 🇰🇿 KZ [R] | 31.130.153.101
@@ -221,27 +250,11 @@ proxies:
   encryption: none
   tls: true
   servername: deliverya.online
-  client-fingerprint: firefox
+  client-fingerprint: chrome
   ws-opts:
     path: /adrws
     headers:
       Host: deliverya.online
-- name: 🇩🇪 DE [ws] | 31.177.111.121
-  type: vless
-  server: 31.177.111.121
-  port: 443
-  uuid: 22d6aeac-771d-4a02-8237-3004d947e91e
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: api.cdnrt.net
-  client-fingerprint: qq
-  ws-opts:
-    path: /static/metrics/7c9b509840ad/
-    headers:
-      Host: api.cdnrt.net
 - name: 🇵🇱 PL [ws] | deliverya.online
   type: vless
   server: deliverya.online
@@ -270,18 +283,7 @@ proxies:
   tls: true
   servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
-- name: 🇳🇱 NL  | s171.wagahaha.xyz
-  type: vless
-  server: s171.wagahaha.xyz
-  port: 443
-  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: u695098u7dae9c0cs220.gogocs.xyz
-  flow: xtls-rprx-vision
+  client-fingerprint: chrome
 - name: 🇳🇱 NL  | s170.gogocs.xyz
   type: vless
   server: s170.gogocs.xyz
@@ -307,6 +309,19 @@ proxies:
   servername: s170.gogocs.xyz
   flow: xtls-rprx-vision
   client-fingerprint: chrome
+- name: 🇳🇱 NL  | s171.wagahaha.xyz
+  type: vless
+  server: s171.wagahaha.xyz
+  port: 443
+  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  servername: u695098u7dae9c0cs220.gogocs.xyz
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇩🇪 DE [ws] | 217.19.122.156
   type: vless
   server: 217.19.122.156
@@ -381,6 +396,22 @@ proxies:
   servername: s170.gogocs.xyz
   flow: xtls-rprx-vision
   client-fingerprint: firefox
+- name: 🇫🇮 FI [ws] | cdn.cubeland.top
+  type: vless
+  server: cdn.cubeland.top
+  port: 443
+  uuid: 3d0a1a17-a0a4-41d5-8b6c-37f76ba3ed41
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: cdn.cubeland.top
+  client-fingerprint: firefox
+  ws-opts:
+    path: /ws/generate/positions
+    headers:
+      Host: cdn.cubeland.top
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
@@ -391,10 +422,10 @@ proxy-groups:
   - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇫🇮 FI [R] | 13.143.173.15
-  - 🇮🇶 IQ [R][xhttp] | 132.243.230.251
-  - 🇫🇷 FR [R] | 194.33.34.108
+  - 🇺🇸 US [R][xhttp] | 159.194.248.11
   - 🇺🇸 US [R] | 78.17.178.125
-  - 🇨🇦 CA [R] | 148.113.179.73
+  - 🇨🇾 CY [R] | 2.56.175.91
+  - 🇫🇷 FR [R] | 194.33.34.108
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -408,24 +439,26 @@ proxy-groups:
   - 🇸🇨 SC [R] | prep.wwwinternetvideo.click
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇫🇮 FI [R] | 13.143.173.15
-  - 🇮🇶 IQ [R][xhttp] | 132.243.230.251
-  - 🇫🇷 FR [R] | 194.33.34.108
+  - 🇺🇸 US [R][xhttp] | 159.194.248.11
   - 🇺🇸 US [R] | 78.17.178.125
-  - 🇨🇦 CA [R] | 148.113.179.73
   - 🇨🇾 CY [R] | 2.56.175.91
+  - 🇫🇷 FR [R] | 194.33.34.108
+  - 🇨🇦 CA [R] | 148.113.179.73
+  - 🇫🇮 FI [R] | 168.222.143.254
+  - 🇺🇸 US [R] | 31.76.75.218
   - 🇰🇿 KZ [R] | 31.130.153.101
   - 🇵🇱 PL [ws] | 185.86.145.142
-  - 🇩🇪 DE [ws] | 31.177.111.121
   - 🇵🇱 PL [ws] | deliverya.online
   - 🇳🇱 NL  | 62.105.220.106
-  - 🇳🇱 NL  | s171.wagahaha.xyz
   - 🇳🇱 NL  | s170.gogocs.xyz
   - 🇳🇱 NL  | s170.gogocs.xyz (2)
+  - 🇳🇱 NL  | s171.wagahaha.xyz
   - 🇩🇪 DE [ws] | 217.19.122.156
   - 🇩🇪 DE [ws] | 217.19.122.156 (2)
   - 🇩🇪 DE [ws] | z1q3pv4g78.rucdncomp.pro
   - 🇳🇱 NL  | s170.gogocs.xyz (3)
   - 🇳🇱 NL  | 62.105.220.106 (2)
+  - 🇫🇮 FI [ws] | cdn.cubeland.top
 - name: 🎯 Direct
   type: select
   proxies:
