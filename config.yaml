@@ -69,21 +69,6 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇸🇪 SE [R] | 31.77.18.220
-  type: vless
-  server: 31.77.18.220
-  port: 443
-  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
-  servername: google.com
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
 - name: 🇫🇮 FI [R] | 13.143.173.15
   type: vless
   server: 13.143.173.15
@@ -99,20 +84,36 @@ proxies:
   servername: google.com
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇳🇱 NL [R][xhttp] | 13.143.172.34
+- name: 🇸🇪 SE [R] | 31.77.18.220
   type: vless
-  server: 13.143.172.34
+  server: 31.77.18.220
   port: 443
-  uuid: fafc7c16-f890-45ee-a856-02df225172dd
+  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
   udp: true
   skip-cert-verify: true
-  network: xhttp
+  network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: cHJfClQkyUnSxMCi9kmfC8j5OpMrUpyvrjVboO50YXM
-    short-id: 4f135b9a6e5da9c5
-  servername: yastatic.net
+    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
+  servername: google.com
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇺🇸 US [R] | 78.17.178.125
+  type: vless
+  server: 78.17.178.125
+  port: 443
+  uuid: 6c713691-3ca2-4446-ad25-113d1bed6b03
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: jcp4Lj_qYzxtkalm_XFjrmvqEMGRG7sb19yMwLe16WE
+    short-id: e0215064d8d1fd7c
+  servername: cdn.tbank.ru
+  flow: xtls-rprx-vision
   client-fingerprint: firefox
 - name: 🇨🇦 CA [R] | 148.113.179.73
   type: vless
@@ -146,33 +147,21 @@ proxies:
   servername: stats.vk-portal.net
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇺🇸 US [R] | 78.17.178.125
+- name: 🇺🇿 UZ [R] | 82.148.6.146
   type: vless
-  server: 78.17.178.125
+  server: 82.148.6.146
   port: 443
-  uuid: 6c713691-3ca2-4446-ad25-113d1bed6b03
+  uuid: 3cd95e58-9f0a-47e1-9937-64a58e949aa5
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: jcp4Lj_qYzxtkalm_XFjrmvqEMGRG7sb19yMwLe16WE
-    short-id: e0215064d8d1fd7c
-  servername: cdn.tbank.ru
+    public-key: 6eN2NciEaZis5J4muRRqpfLQ1OglI3A8lNSTmAGo6Do
+    short-id: 3c6fc84d
+  servername: stats.vk-portal.net
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇺🇦 UA [xhttp] | 185.178.208.140
-  type: vless
-  server: 185.178.208.140
-  port: 443
-  uuid: ea277838-a188-44f1-a2e8-94aa110c4f27
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  servername: static.bakarova-top.ru
   client-fingerprint: firefox
 - name: 🇺🇿 UZ [R] | 185.76.14.21
   type: vless
@@ -190,31 +179,17 @@ proxies:
   servername: stats.vk-portal.net
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇳🇱 NL [grpc] | renderer-bridge-1-881.mirra.now
+- name: 🇺🇦 UA [xhttp] | 185.178.208.140
   type: vless
-  server: renderer-bridge-1-881.mirra.now
+  server: 185.178.208.140
   port: 443
-  uuid: 27653b37-603c-4c90-b1f5-25c4d23f8932
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  servername: renderer-bridge-1-881.mirra.now
-  grpc-opts:
-    grpc-service-name: VideoRenderer
-- name: 🇺🇸 US [xhttp] | 1e626999.con.metricdraft.tech
-  type: vless
-  server: 1e626999.con.metricdraft.tech
-  port: 443
-  uuid: abca037b-bee5-41cc-a888-0668e4c66176
+  uuid: ea277838-a188-44f1-a2e8-94aa110c4f27
   udp: true
   skip-cert-verify: true
   network: xhttp
   encryption: none
   tls: true
-  servername: 1e626999.con.metricdraft.tech
-  client-fingerprint: firefox
+  servername: static.bakarova-top.ru
 - name: 🇳🇱 NL [grpc] | 72.56.242.232
   type: vless
   server: 72.56.242.232
@@ -229,38 +204,44 @@ proxies:
   client-fingerprint: chrome
   grpc-opts:
     grpc-service-name: VideoRenderer
-- name: 🇫🇷 FR [ws] | 194.55.239.89
+- name: 🇳🇱 NL [grpc] | renderer-bridge-1-881.mirra.now
   type: vless
-  server: 194.55.239.89
+  server: renderer-bridge-1-881.mirra.now
   port: 443
-  uuid: 073b7df7-5527-45a2-ba29-183b85c39071
+  uuid: 27653b37-603c-4c90-b1f5-25c4d23f8932
   udp: true
   skip-cert-verify: true
-  network: ws
+  network: grpc
   encryption: none
   tls: true
-  servername: broadcast.liveflow.space
+  servername: renderer-bridge-1-881.mirra.now
   client-fingerprint: chrome
-  ws-opts:
-    path: /live.stream.v1.Broadcast/
-    headers:
-      Host: broadcast.liveflow.space
-- name: 🇪🇪 EE [ws] | dropstyle.lol
+  grpc-opts:
+    grpc-service-name: VideoRenderer
+- name: 🇺🇸 US [xhttp] | 46.16.34.234
   type: vless
-  server: dropstyle.lol
+  server: 46.16.34.234
   port: 443
-  uuid: d49f7cc7-0c15-4a49-9644-ef72e00d8e56
+  uuid: abca037b-bee5-41cc-a888-0668e4c66176
   udp: true
   skip-cert-verify: true
-  network: ws
+  network: xhttp
   encryption: none
   tls: true
-  servername: dropstyle.lol
+  servername: 1e626999.con.metricdraft.tech
   client-fingerprint: firefox
-  ws-opts:
-    path: /player/metrics/97662863db53/
-    headers:
-      Host: dropstyle.lol
+- name: 🇺🇸 US [xhttp] | 1e626999.con.metricdraft.tech
+  type: vless
+  server: 1e626999.con.metricdraft.tech
+  port: 443
+  uuid: abca037b-bee5-41cc-a888-0668e4c66176
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  servername: 1e626999.con.metricdraft.tech
+  client-fingerprint: firefox
 - name: 🇳🇱 NL  | 62.105.220.106
   type: vless
   server: 62.105.220.106
@@ -273,7 +254,22 @@ proxies:
   tls: true
   servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
+- name: 🇫🇷 FR [ws] | 194.55.239.89
+  type: vless
+  server: 194.55.239.89
+  port: 443
+  uuid: 073b7df7-5527-45a2-ba29-183b85c39071
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: broadcast.liveflow.space
+  client-fingerprint: firefox
+  ws-opts:
+    path: /live.stream.v1.Broadcast/
+    headers:
+      Host: broadcast.liveflow.space
 - name: 🇳🇱 NL  | s170.gogocs.xyz
   type: vless
   server: s170.gogocs.xyz
@@ -284,7 +280,9 @@ proxies:
   network: tcp
   encryption: none
   tls: true
+  servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
+  client-fingerprint: chrome
 - name: 🇳🇱 NL  | s170.gogocs.xyz (2)
   type: vless
   server: s170.gogocs.xyz
@@ -295,7 +293,6 @@ proxies:
   network: tcp
   encryption: none
   tls: true
-  servername: s170.gogocs.xyz
   flow: xtls-rprx-vision
   client-fingerprint: chrome
 - name: 🇳🇱 NL  | s170.gogocs.xyz (3)
@@ -308,7 +305,7 @@ proxies:
   network: tcp
   encryption: none
   tls: true
-  servername: u695098u7dae9c0cs220.gogocs.xyz
+  servername: s170.gogocs.xyz
   flow: xtls-rprx-vision
   client-fingerprint: chrome
 - name: 🇳🇱 NL  | s171.wagahaha.xyz
@@ -323,6 +320,7 @@ proxies:
   tls: true
   servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇩🇪 DE [ws] | 217.19.122.156
   type: vless
   server: 217.19.122.156
@@ -334,7 +332,7 @@ proxies:
   encryption: none
   tls: true
   servername: z1q3pv4g78.rucdncomp.pro
-  client-fingerprint: chrome
+  client-fingerprint: firefox
   ws-opts:
     path: /useraction/events/b892639b7195/
     headers:
@@ -350,27 +348,11 @@ proxies:
   encryption: none
   tls: true
   servername: z1q3pv4g78.rucdncomp.pro
-  client-fingerprint: firefox
+  client-fingerprint: random
   ws-opts:
     path: /useraction/events/b892639b7195/
     headers:
       Host: z1q3pv4g78.rucdncomp.pro
-- name: 🇪🇪 EE [ws] | 185.178.208.167
-  type: vless
-  server: 185.178.208.167
-  port: 443
-  uuid: d49f7cc7-0c15-4a49-9644-ef72e00d8e56
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: dropstyle.lol
-  client-fingerprint: firefox
-  ws-opts:
-    path: /service/metrics/51dec2df3071/
-    headers:
-      Host: dropstyle.lol
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
@@ -378,13 +360,13 @@ proxy-groups:
   - 🇩🇪 DE [R] | 69100f81.xyz
   - 🇩🇪 DE [R] | 69100f81.xyz (2)
   - 🇬🇧 GB [R] | 193.163.203.170
-  - 🇸🇪 SE [R] | 31.77.18.220
   - 🇫🇮 FI [R] | 13.143.173.15
-  - 🇳🇱 NL [R][xhttp] | 13.143.172.34
+  - 🇸🇪 SE [R] | 31.77.18.220
+  - 🇺🇸 US [R] | 78.17.178.125
   - 🇨🇦 CA [R] | 148.113.179.73
   - 🇫🇷 FR [R] | 194.33.34.108
-  - 🇺🇸 US [R] | 78.17.178.125
-  - 🇺🇦 UA [xhttp] | 185.178.208.140
+  - 🇺🇿 UZ [R] | 82.148.6.146
+  - 🇺🇿 UZ [R] | 185.76.14.21
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -395,27 +377,26 @@ proxy-groups:
   - 🇩🇪 DE [R] | 69100f81.xyz
   - 🇩🇪 DE [R] | 69100f81.xyz (2)
   - 🇬🇧 GB [R] | 193.163.203.170
-  - 🇸🇪 SE [R] | 31.77.18.220
   - 🇫🇮 FI [R] | 13.143.173.15
-  - 🇳🇱 NL [R][xhttp] | 13.143.172.34
+  - 🇸🇪 SE [R] | 31.77.18.220
+  - 🇺🇸 US [R] | 78.17.178.125
   - 🇨🇦 CA [R] | 148.113.179.73
   - 🇫🇷 FR [R] | 194.33.34.108
-  - 🇺🇸 US [R] | 78.17.178.125
-  - 🇺🇦 UA [xhttp] | 185.178.208.140
+  - 🇺🇿 UZ [R] | 82.148.6.146
   - 🇺🇿 UZ [R] | 185.76.14.21
-  - 🇳🇱 NL [grpc] | renderer-bridge-1-881.mirra.now
-  - 🇺🇸 US [xhttp] | 1e626999.con.metricdraft.tech
+  - 🇺🇦 UA [xhttp] | 185.178.208.140
   - 🇳🇱 NL [grpc] | 72.56.242.232
-  - 🇫🇷 FR [ws] | 194.55.239.89
-  - 🇪🇪 EE [ws] | dropstyle.lol
+  - 🇳🇱 NL [grpc] | renderer-bridge-1-881.mirra.now
+  - 🇺🇸 US [xhttp] | 46.16.34.234
+  - 🇺🇸 US [xhttp] | 1e626999.con.metricdraft.tech
   - 🇳🇱 NL  | 62.105.220.106
+  - 🇫🇷 FR [ws] | 194.55.239.89
   - 🇳🇱 NL  | s170.gogocs.xyz
   - 🇳🇱 NL  | s170.gogocs.xyz (2)
   - 🇳🇱 NL  | s170.gogocs.xyz (3)
   - 🇳🇱 NL  | s171.wagahaha.xyz
   - 🇩🇪 DE [ws] | 217.19.122.156
   - 🇩🇪 DE [ws] | z1q3pv4g78.rucdncomp.pro
-  - 🇪🇪 EE [ws] | 185.178.208.167
 - name: 🎯 Direct
   type: select
   proxies:
