@@ -25,7 +25,7 @@ proxies:
   type: vless
   server: 69100f81.xyz
   port: 443
-  uuid: 25551a89-b4f8-4fa4-a970-3978a608b738
+  uuid: 74085a5f-c822-4ade-bb35-28ff8af87b5d
   udp: true
   skip-cert-verify: true
   network: tcp
@@ -41,7 +41,7 @@ proxies:
   type: vless
   server: 69100f81.xyz
   port: 443
-  uuid: 74085a5f-c822-4ade-bb35-28ff8af87b5d
+  uuid: 25551a89-b4f8-4fa4-a970-3978a608b738
   udp: true
   skip-cert-verify: true
   network: tcp
@@ -68,7 +68,7 @@ proxies:
     short-id: b28db60d77c50b4f
   servername: yandex.ru
   flow: xtls-rprx-vision
-  client-fingerprint: random
+  client-fingerprint: chrome
 - name: 🇸🇪 SE [R] | 31.77.18.220
   type: vless
   server: 31.77.18.220
@@ -99,6 +99,21 @@ proxies:
   servername: google.com
   flow: xtls-rprx-vision
   client-fingerprint: firefox
+- name: 🇮🇶 IQ [R][xhttp] | 132.243.230.251
+  type: vless
+  server: 132.243.230.251
+  port: 443
+  uuid: 0bf8538b-6299-46b0-9775-8b00939dccb5
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: Uz1UbBDf84n7oNfFIhFvXbuFcj1nbNEroiKC_Ud4ajg
+    short-id: b2f9bb426426e0e7
+  servername: www.kinopoisk.ru
+  client-fingerprint: chrome
 - name: 🇩🇪 DE [R] | 193.23.218.107
   type: vless
   server: 193.23.218.107
@@ -115,22 +130,7 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇮🇶 IQ [R][xhttp] | 132.243.230.251
-  type: vless
-  server: 132.243.230.251
-  port: 443
-  uuid: 0bf8538b-6299-46b0-9775-8b00939dccb5
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: Uz1UbBDf84n7oNfFIhFvXbuFcj1nbNEroiKC_Ud4ajg
-    short-id: b2f9bb426426e0e7
-  servername: www.kinopoisk.ru
-  client-fingerprint: chrome
-- name: 🇩🇪 DE [R][xhttp] | 132.243.230.251
+- name: 🇮🇶 IQ [R][xhttp] | 132.243.230.251 (2)
   type: vless
   server: 132.243.230.251
   port: 443
@@ -144,7 +144,7 @@ proxies:
     public-key: Uz1UbBDf84n7oNfFIhFvXbuFcj1nbNEroiKC_Ud4ajg
     short-id: b2f9bb426426e0e7
   servername: www.kinopoisk.ru
-  client-fingerprint: qq
+  client-fingerprint: firefox
 - name: 🇺🇸 US [R] | 78.17.178.125
   type: vless
   server: 78.17.178.125
@@ -160,7 +160,22 @@ proxies:
     short-id: e0215064d8d1fd7c
   servername: cdn.tbank.ru
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
+  client-fingerprint: chrome
+- name: 🇳🇱 NL [R] | 5.180.181.113
+  type: vless
+  server: 5.180.181.113
+  port: 443
+  uuid: b1da2601-ff93-46d6-af87-04af3f541fde
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: wY_MYPJUx849su3BlowuxnwnUaj25iLfRw2LooQfPAY
+  servername: sun1-19.userapi.com
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
 - name: 🇺🇦 UA [xhttp] | 185.178.208.140
   type: vless
   server: 185.178.208.140
@@ -172,7 +187,21 @@ proxies:
   encryption: none
   tls: true
   servername: static.bakarova-top.ru
-  client-fingerprint: qq
+  client-fingerprint: chrome
+- name: 🇲🇩 MD [grpc] | 94.103.2.55
+  type: vless
+  server: 94.103.2.55
+  port: 443
+  uuid: 76ef5ab3-7075-4e23-b445-f3b1bd05d431
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  servername: rus.play-cat.uk
+  client-fingerprint: firefox
+  grpc-opts:
+    grpc-service-name: assets
 - name: 🇳🇱 NL [grpc] | 72.56.242.232
   type: vless
   server: 72.56.242.232
@@ -184,7 +213,7 @@ proxies:
   encryption: none
   tls: true
   servername: renderer-bridge-1-881.mirra.now
-  client-fingerprint: chrome
+  client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: VideoRenderer
 - name: 🇳🇱 NL [grpc] | renderer-bridge-1-881.mirra.now
@@ -225,22 +254,19 @@ proxies:
   tls: true
   servername: 1e626999.con.metricdraft.tech
   client-fingerprint: firefox
-- name: 🇫🇷 FR [ws] | 194.55.239.89
+- name: 🇲🇩 MD [grpc] | rus.play-cat.uk
   type: vless
-  server: 194.55.239.89
+  server: rus.play-cat.uk
   port: 443
-  uuid: 073b7df7-5527-45a2-ba29-183b85c39071
+  uuid: 76ef5ab3-7075-4e23-b445-f3b1bd05d431
   udp: true
   skip-cert-verify: true
-  network: ws
+  network: grpc
   encryption: none
   tls: true
-  servername: broadcast.liveflow.space
-  client-fingerprint: firefox
-  ws-opts:
-    path: /live.stream.v1.Broadcast/
-    headers:
-      Host: broadcast.liveflow.space
+  servername: rus.play-cat.uk
+  grpc-opts:
+    grpc-service-name: assets
 - name: 🇳🇱 NL  | 62.105.220.106
   type: vless
   server: 62.105.220.106
@@ -266,7 +292,21 @@ proxies:
   tls: true
   servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
+  client-fingerprint: chrome
 - name: 🇳🇱 NL  | s170.gogocs.xyz (2)
+  type: vless
+  server: s170.gogocs.xyz
+  port: 443
+  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  servername: s170.gogocs.xyz
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇳🇱 NL  | s170.gogocs.xyz (3)
   type: vless
   server: s170.gogocs.xyz
   port: 443
@@ -290,35 +330,22 @@ proxies:
   tls: true
   servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
-- name: 🇳🇱 NL  | s170.gogocs.xyz (3)
+- name: 🇫🇷 FR [ws] | 194.55.239.89
   type: vless
-  server: s170.gogocs.xyz
+  server: 194.55.239.89
   port: 443
-  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: s170.gogocs.xyz
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇨🇦 CA [ws] | 194.156.26.6
-  type: vless
-  server: 194.156.26.6
-  port: 443
-  uuid: 50414e45-4c5f-5a45-5553-10609203787d
+  uuid: 073b7df7-5527-45a2-ba29-183b85c39071
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: rqzt0xexu5ms.rwf5sggee1geeewwrfg.workers.dev
+  servername: broadcast.liveflow.space
   client-fingerprint: chrome
   ws-opts:
-    path: /stream/PANEL_ZEUS/10609203787d/loc-1
+    path: /live.stream.v1.Broadcast/
     headers:
-      Host: rqzt0xexu5ms.rwf5sggee1geeewwrfg.workers.dev
+      Host: broadcast.liveflow.space
 - name: 🇩🇪 DE [ws] | 217.19.122.156
   type: vless
   server: 217.19.122.156
@@ -346,11 +373,25 @@ proxies:
   encryption: none
   tls: true
   servername: z1q3pv4g78.rucdncomp.pro
-  client-fingerprint: random
   ws-opts:
     path: /useraction/events/b892639b7195/
     headers:
       Host: z1q3pv4g78.rucdncomp.pro
+- name: 🇳🇱 NL [ws] | 185.86.145.37
+  type: vless
+  server: 185.86.145.37
+  port: 443
+  uuid: 34ec30ca-c499-46c5-a0b9-20638e5197e9
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: pulse-resume.pro
+  ws-opts:
+    path: /amws
+    headers:
+      Host: pulse-resume.pro
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
@@ -360,11 +401,11 @@ proxy-groups:
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇫🇮 FI [R] | 13.143.173.15
-  - 🇩🇪 DE [R] | 193.23.218.107
   - 🇮🇶 IQ [R][xhttp] | 132.243.230.251
-  - 🇩🇪 DE [R][xhttp] | 132.243.230.251
+  - 🇩🇪 DE [R] | 193.23.218.107
+  - 🇮🇶 IQ [R][xhttp] | 132.243.230.251 (2)
   - 🇺🇸 US [R] | 78.17.178.125
-  - 🇺🇦 UA [xhttp] | 185.178.208.140
+  - 🇳🇱 NL [R] | 5.180.181.113
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -377,24 +418,27 @@ proxy-groups:
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇫🇮 FI [R] | 13.143.173.15
-  - 🇩🇪 DE [R] | 193.23.218.107
   - 🇮🇶 IQ [R][xhttp] | 132.243.230.251
-  - 🇩🇪 DE [R][xhttp] | 132.243.230.251
+  - 🇩🇪 DE [R] | 193.23.218.107
+  - 🇮🇶 IQ [R][xhttp] | 132.243.230.251 (2)
   - 🇺🇸 US [R] | 78.17.178.125
+  - 🇳🇱 NL [R] | 5.180.181.113
   - 🇺🇦 UA [xhttp] | 185.178.208.140
+  - 🇲🇩 MD [grpc] | 94.103.2.55
   - 🇳🇱 NL [grpc] | 72.56.242.232
   - 🇳🇱 NL [grpc] | renderer-bridge-1-881.mirra.now
   - 🇺🇸 US [xhttp] | 1e626999.con.metricdraft.tech
   - 🇺🇸 US [xhttp] | 46.16.34.234
-  - 🇫🇷 FR [ws] | 194.55.239.89
+  - 🇲🇩 MD [grpc] | rus.play-cat.uk
   - 🇳🇱 NL  | 62.105.220.106
   - 🇳🇱 NL  | s170.gogocs.xyz
   - 🇳🇱 NL  | s170.gogocs.xyz (2)
-  - 🇳🇱 NL  | s171.wagahaha.xyz
   - 🇳🇱 NL  | s170.gogocs.xyz (3)
-  - 🇨🇦 CA [ws] | 194.156.26.6
+  - 🇳🇱 NL  | s171.wagahaha.xyz
+  - 🇫🇷 FR [ws] | 194.55.239.89
   - 🇩🇪 DE [ws] | 217.19.122.156
   - 🇩🇪 DE [ws] | z1q3pv4g78.rucdncomp.pro
+  - 🇳🇱 NL [ws] | 185.86.145.37
 - name: 🎯 Direct
   type: select
   proxies:
