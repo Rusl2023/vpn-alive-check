@@ -21,38 +21,6 @@ dns:
   - tls://8.8.8.8
   - tls://1.1.1.1
 proxies:
-- name: 🇩🇪 DE [R] | 69100f81.xyz
-  type: vless
-  server: 69100f81.xyz
-  port: 443
-  uuid: 74085a5f-c822-4ade-bb35-28ff8af87b5d
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: ZMnBpp2Hz-Vh9eMy9aJhWl7SQeNqLDmYOGns-rfltRc
-    short-id: c4782d8c87733895
-  servername: max.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇩🇪 DE [R] | 69100f81.xyz (2)
-  type: vless
-  server: 69100f81.xyz
-  port: 443
-  uuid: 25551a89-b4f8-4fa4-a970-3978a608b738
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: ZMnBpp2Hz-Vh9eMy9aJhWl7SQeNqLDmYOGns-rfltRc
-    short-id: c4782d8c87733895
-  servername: max.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇸🇪 SE [R] | 31.77.18.220
   type: vless
   server: 31.77.18.220
@@ -83,7 +51,7 @@ proxies:
     short-id: b28db60d77c50b4f
   servername: yandex.ru
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
+  client-fingerprint: random
 - name: 🇫🇮 FI [R] | 13.143.173.15
   type: vless
   server: 13.143.173.15
@@ -130,10 +98,10 @@ proxies:
     short-id: e0215064d8d1fd7c
   servername: cdn.tbank.ru
   flow: xtls-rprx-vision
-  client-fingerprint: qq
-- name: 🇳🇱 NL [R] | 5.180.181.113
+  client-fingerprint: firefox
+- name: 🇳🇱 NL [R] | server15.duckvpn.app
   type: vless
-  server: 5.180.181.113
+  server: server15.duckvpn.app
   port: 443
   uuid: b1da2601-ff93-46d6-af87-04af3f541fde
   udp: true
@@ -143,7 +111,7 @@ proxies:
   tls: true
   reality-opts:
     public-key: wY_MYPJUx849su3BlowuxnwnUaj25iLfRw2LooQfPAY
-  servername: sun1-19.userapi.com
+  servername: sun1-16.userapi.com
   flow: xtls-rprx-vision
   client-fingerprint: chrome
 - name: 🇺🇦 UA [xhttp] | 185.178.208.140
@@ -157,67 +125,23 @@ proxies:
   encryption: none
   tls: true
   servername: static.bakarova-top.ru
-  client-fingerprint: firefox
-- name: 🇳🇱 NL [grpc] | 72.56.242.232
-  type: vless
-  server: 72.56.242.232
-  port: 443
-  uuid: 27653b37-603c-4c90-b1f5-25c4d23f8932
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  servername: renderer-bridge-1-881.mirra.now
   client-fingerprint: chrome
-  grpc-opts:
-    grpc-service-name: VideoRenderer
-- name: 🇳🇱 NL [grpc] | renderer-bridge-1-881.mirra.now
+- name: 🇳🇱 NL [ws] | ararat.rtkdvbr.cc
   type: vless
-  server: renderer-bridge-1-881.mirra.now
+  server: ararat.rtkdvbr.cc
   port: 443
-  uuid: 27653b37-603c-4c90-b1f5-25c4d23f8932
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  servername: renderer-bridge-1-881.mirra.now
-  client-fingerprint: firefox
-  grpc-opts:
-    grpc-service-name: VideoRenderer
-- name: 🇳🇱 NL [ws] | pulse-resume.pro
-  type: vless
-  server: pulse-resume.pro
-  port: 443
-  uuid: 34ec30ca-c499-46c5-a0b9-20638e5197e9
+  uuid: 04b7c62b-762e-4a8c-ba37-8328d25c8d74
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: pulse-resume.pro
+  servername: ararat.rtkdvbr.cc
   client-fingerprint: qq
   ws-opts:
     path: /amws
     headers:
-      Host: pulse-resume.pro
-- name: 🇫🇷 FR [ws] | 194.55.239.89
-  type: vless
-  server: 194.55.239.89
-  port: 443
-  uuid: 073b7df7-5527-45a2-ba29-183b85c39071
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: broadcast.liveflow.space
-  client-fingerprint: chrome
-  ws-opts:
-    path: /live.stream.v1.Broadcast/
-    headers:
-      Host: broadcast.liveflow.space
+      Host: ararat.rtkdvbr.cc
 - name: 🇳🇱 NL  | 62.105.220.106
   type: vless
   server: 62.105.220.106
@@ -230,18 +154,7 @@ proxies:
   tls: true
   servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
-- name: 🇳🇱 NL  | 62.105.220.106 (2)
-  type: vless
-  server: 62.105.220.106
-  port: 443
-  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: s170.gogocs.xyz
-  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇳🇱 NL  | s170.gogocs.xyz
   type: vless
   server: s170.gogocs.xyz
@@ -252,7 +165,6 @@ proxies:
   network: tcp
   encryption: none
   tls: true
-  servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
   client-fingerprint: chrome
 - name: 🇳🇱 NL  | s170.gogocs.xyz (2)
@@ -265,7 +177,9 @@ proxies:
   network: tcp
   encryption: none
   tls: true
+  servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
+  client-fingerprint: chrome
 - name: 🇳🇱 NL  | s171.wagahaha.xyz
   type: vless
   server: s171.wagahaha.xyz
@@ -278,21 +192,32 @@ proxies:
   tls: true
   servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
-- name: 🇳🇱 NL [ws] | 185.86.145.37
+  client-fingerprint: chrome
+- name: 🇳🇱 NL  | s170.gogocs.xyz (3)
   type: vless
-  server: 185.86.145.37
+  server: s170.gogocs.xyz
   port: 443
-  uuid: 34ec30ca-c499-46c5-a0b9-20638e5197e9
+  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
   udp: true
   skip-cert-verify: true
-  network: ws
+  network: tcp
   encryption: none
   tls: true
-  servername: pulse-resume.pro
-  ws-opts:
-    path: /amws
-    headers:
-      Host: pulse-resume.pro
+  servername: s170.gogocs.xyz
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇳🇱 NL  | 62.105.220.106 (2)
+  type: vless
+  server: 62.105.220.106
+  port: 443
+  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  servername: s170.gogocs.xyz
+  flow: xtls-rprx-vision
 - name: 🇩🇪 DE [ws] | 217.19.122.156
   type: vless
   server: 217.19.122.156
@@ -320,25 +245,41 @@ proxies:
   encryption: none
   tls: true
   servername: z1q3pv4g78.rucdncomp.pro
-  client-fingerprint: chrome
+  client-fingerprint: firefox
   ws-opts:
     path: /useraction/events/b892639b7195/
     headers:
       Host: z1q3pv4g78.rucdncomp.pro
+- name: 🇳🇱 NL [ws] | 185.86.145.37
+  type: vless
+  server: 185.86.145.37
+  port: 443
+  uuid: 04b7c62b-762e-4a8c-ba37-8328d25c8d74
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: ararat.rtkdvbr.cc
+  client-fingerprint: qq
+  ws-opts:
+    path: /amws
+    headers:
+      Host: ararat.rtkdvbr.cc
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
-  - 🇩🇪 DE [R] | 69100f81.xyz
-  - 🇩🇪 DE [R] | 69100f81.xyz (2)
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇫🇮 FI [R] | 13.143.173.15
   - 🇩🇪 DE [R] | 193.23.218.107
   - 🇺🇸 US [R] | 78.17.178.125
-  - 🇳🇱 NL [R] | 5.180.181.113
+  - 🇳🇱 NL [R] | server15.duckvpn.app
   - 🇺🇦 UA [xhttp] | 185.178.208.140
-  - 🇳🇱 NL [grpc] | 72.56.242.232
+  - 🇳🇱 NL [ws] | ararat.rtkdvbr.cc
+  - 🇳🇱 NL  | 62.105.220.106
+  - 🇳🇱 NL  | s170.gogocs.xyz
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -346,27 +287,23 @@ proxy-groups:
   type: select
   proxies:
   - 🚀 Auto
-  - 🇩🇪 DE [R] | 69100f81.xyz
-  - 🇩🇪 DE [R] | 69100f81.xyz (2)
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇫🇮 FI [R] | 13.143.173.15
   - 🇩🇪 DE [R] | 193.23.218.107
   - 🇺🇸 US [R] | 78.17.178.125
-  - 🇳🇱 NL [R] | 5.180.181.113
+  - 🇳🇱 NL [R] | server15.duckvpn.app
   - 🇺🇦 UA [xhttp] | 185.178.208.140
-  - 🇳🇱 NL [grpc] | 72.56.242.232
-  - 🇳🇱 NL [grpc] | renderer-bridge-1-881.mirra.now
-  - 🇳🇱 NL [ws] | pulse-resume.pro
-  - 🇫🇷 FR [ws] | 194.55.239.89
+  - 🇳🇱 NL [ws] | ararat.rtkdvbr.cc
   - 🇳🇱 NL  | 62.105.220.106
-  - 🇳🇱 NL  | 62.105.220.106 (2)
   - 🇳🇱 NL  | s170.gogocs.xyz
   - 🇳🇱 NL  | s170.gogocs.xyz (2)
   - 🇳🇱 NL  | s171.wagahaha.xyz
-  - 🇳🇱 NL [ws] | 185.86.145.37
+  - 🇳🇱 NL  | s170.gogocs.xyz (3)
+  - 🇳🇱 NL  | 62.105.220.106 (2)
   - 🇩🇪 DE [ws] | 217.19.122.156
   - 🇩🇪 DE [ws] | z1q3pv4g78.rucdncomp.pro
+  - 🇳🇱 NL [ws] | 185.86.145.37
 - name: 🎯 Direct
   type: select
   proxies:
