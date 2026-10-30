@@ -21,6 +21,35 @@ dns:
   - tls://8.8.8.8
   - tls://1.1.1.1
 proxies:
+- name: 🇩🇪 DE [R][xhttp] | 45.38.190.101
+  type: vless
+  server: 45.38.190.101
+  port: 443
+  uuid: 55ad002b-6cdf-4d76-81bb-91f3f605afc5
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: BwvlA1kuzTnXLIVO4AbvYMgbLG87MWPcwoodcZc_8S0
+    short-id: 6e8a5b8428df2c7b
+  servername: google.com
+  client-fingerprint: firefox
+- name: 🇳🇱 NL [R][xhttp] | 84.201.146.8
+  type: vless
+  server: 84.201.146.8
+  port: 443
+  uuid: 1e2b9c0c-4f9b-56f5-a062-1c4f2d2aa200
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: biyXF3Egpu0ul4Jyf04Vh1Zl6u3JGXJ2k5y5y7pDjgo
+  servername: max.ru
+  client-fingerprint: chrome
 - name: 🇬🇧 GB [R] | 193.163.203.170
   type: vless
   server: 193.163.203.170
@@ -36,22 +65,7 @@ proxies:
     short-id: b28db60d77c50b4f
   servername: yandex.ru
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇸🇪 SE [R] | 31.77.18.220
-  type: vless
-  server: 31.77.18.220
-  port: 443
-  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
-  servername: google.com
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
+  client-fingerprint: random
 - name: 🇫🇮 FI [R] | 13.143.173.15
   type: vless
   server: 13.143.173.15
@@ -67,6 +81,52 @@ proxies:
   servername: google.com
   flow: xtls-rprx-vision
   client-fingerprint: firefox
+- name: 🇸🇪 SE [R] | 31.77.18.220
+  type: vless
+  server: 31.77.18.220
+  port: 443
+  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
+  servername: google.com
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇩🇪 DE [R] | 193.23.218.107
+  type: vless
+  server: 193.23.218.107
+  port: 443
+  uuid: 6f433cf6-4221-48b2-ad29-01121952ef8a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: cBTZdCBwrYTTarw6B_lu2TN1M6_Lku68FfWCQT9svhc
+    short-id: cb620aa2f04bce33
+  servername: yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇮🇶 IQ [R][xhttp] | 132.243.230.251
+  type: vless
+  server: 132.243.230.251
+  port: 443
+  uuid: 6da2c981-8c77-4340-bda3-93399b7aea26
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: Uz1UbBDf84n7oNfFIhFvXbuFcj1nbNEroiKC_Ud4ajg
+    short-id: b2f9bb426426e0e7
+  servername: www.kinopoisk.ru
+  client-fingerprint: qq
 - name: 🇺🇸 US [R] | 78.17.178.125
   type: vless
   server: 78.17.178.125
@@ -82,22 +142,7 @@ proxies:
     short-id: e0215064d8d1fd7c
   servername: cdn.tbank.ru
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇳🇱 NL [R] | server15.duckvpn.app
-  type: vless
-  server: server15.duckvpn.app
-  port: 443
-  uuid: b1da2601-ff93-46d6-af87-04af3f541fde
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: wY_MYPJUx849su3BlowuxnwnUaj25iLfRw2LooQfPAY
-  servername: sun1-16.userapi.com
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
+  client-fingerprint: qq
 - name: 🇺🇦 UA [xhttp] | 185.178.208.140
   type: vless
   server: 185.178.208.140
@@ -109,7 +154,30 @@ proxies:
   encryption: none
   tls: true
   servername: static.bakarova-top.ru
-  client-fingerprint: firefox
+  client-fingerprint: chrome
+- name: 🇺🇸 US [xhttp] | snowy-peak.vercel.app
+  type: vless
+  server: snowy-peak.vercel.app
+  port: 443
+  uuid: 48c944c2-b61d-4644-811a-5921d59b90dd
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  servername: snowy-peak.vercel.app
+  client-fingerprint: chrome
+- name: 🇺🇸 US [xhttp] | snowy-peak.vercel.app (2)
+  type: vless
+  server: snowy-peak.vercel.app
+  port: 443
+  uuid: 48c944c2-b61d-4644-811a-5921d59b90dd
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  client-fingerprint: chrome
 - name: 🇳🇱 NL [ws] | 185.86.145.37
   type: vless
   server: 185.86.145.37
@@ -121,40 +189,26 @@ proxies:
   encryption: none
   tls: true
   servername: ararat.rtkdvbr.cc
-  client-fingerprint: firefox
   ws-opts:
     path: /amws
     headers:
       Host: ararat.rtkdvbr.cc
-- name: 🇳🇱 NL [ws] | ararat.rtkdvbr.cc
+- name: 🇩🇪 DE [ws] | 138.124.254.141
   type: vless
-  server: ararat.rtkdvbr.cc
+  server: 138.124.254.141
   port: 443
-  uuid: 04b7c62b-762e-4a8c-ba37-8328d25c8d74
+  uuid: 66a754b4-28fe-41a6-90c4-bf4e8b35484c
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: ararat.rtkdvbr.cc
-  client-fingerprint: qq
+  servername: crt.onecloudstream.com
   ws-opts:
-    path: /amws
+    path: /vless-ws
     headers:
-      Host: ararat.rtkdvbr.cc
+      Host: crt.onecloudstream.com
 - name: 🇳🇱 NL  | 62.105.220.106
-  type: vless
-  server: 62.105.220.106
-  port: 443
-  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: s170.gogocs.xyz
-  flow: xtls-rprx-vision
-- name: 🇳🇱 NL  | 62.105.220.106 (2)
   type: vless
   server: 62.105.220.106
   port: 443
@@ -166,7 +220,18 @@ proxies:
   tls: true
   servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
+- name: 🇳🇱 NL  | s171.wagahaha.xyz
+  type: vless
+  server: s171.wagahaha.xyz
+  port: 443
+  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  servername: u695098u7dae9c0cs220.gogocs.xyz
+  flow: xtls-rprx-vision
 - name: 🇳🇱 NL  | s170.gogocs.xyz
   type: vless
   server: s170.gogocs.xyz
@@ -204,9 +269,10 @@ proxies:
   encryption: none
   tls: true
   flow: xtls-rprx-vision
-- name: 🇳🇱 NL  | s171.wagahaha.xyz
+  client-fingerprint: chrome
+- name: 🇳🇱 NL  | 62.105.220.106 (2)
   type: vless
-  server: s171.wagahaha.xyz
+  server: 62.105.220.106
   port: 443
   uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
   udp: true
@@ -214,8 +280,24 @@ proxies:
   network: tcp
   encryption: none
   tls: true
-  servername: u695098u7dae9c0cs220.gogocs.xyz
+  servername: s170.gogocs.xyz
   flow: xtls-rprx-vision
+- name: 🇨🇦 CA [ws] | 194.156.26.6
+  type: vless
+  server: 194.156.26.6
+  port: 443
+  uuid: 50414e45-4c5f-5a45-5553-10609203787d
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: rqzt0xexu5ms.rwf5sggee1geeewwrfg.workers.dev
+  client-fingerprint: chrome
+  ws-opts:
+    path: /stream/PANEL_ZEUS/10609203787d/loc-1
+    headers:
+      Host: rqzt0xexu5ms.rwf5sggee1geeewwrfg.workers.dev
 - name: 🇩🇪 DE [ws] | 217.19.122.156
   type: vless
   server: 217.19.122.156
@@ -243,25 +325,57 @@ proxies:
   encryption: none
   tls: true
   servername: z1q3pv4g78.rucdncomp.pro
-  client-fingerprint: random
+  client-fingerprint: chrome
   ws-opts:
     path: /useraction/events/b892639b7195/
     headers:
       Host: z1q3pv4g78.rucdncomp.pro
+- name: 🇨🇿 CZ [ws] | 185.78.76.166
+  type: vless
+  server: 185.78.76.166
+  port: 443
+  uuid: f27b6f65-6e59-4f89-b929-afa397ca587f
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: n.bitpulse.me
+  client-fingerprint: firefox
+  ws-opts:
+    path: /019bcbad-3813-7cce-8786-3ac0e418f128
+    headers:
+      Host: n.bitpulse.me
+- name: 🇺🇸 US [ws] | 89.191.226.252
+  type: vless
+  server: 89.191.226.252
+  port: 443
+  uuid: 49996e29-93c5-4975-b56f-792acbbf3444
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: jyfrj1cims.dev.onappjet.com
+  client-fingerprint: firefox
+  ws-opts:
+    path: /jx-yjkteysq815pzp
+    headers:
+      Host: jyfrj1cims.dev.onappjet.com
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
+  - 🇩🇪 DE [R][xhttp] | 45.38.190.101
+  - 🇳🇱 NL [R][xhttp] | 84.201.146.8
   - 🇬🇧 GB [R] | 193.163.203.170
-  - 🇸🇪 SE [R] | 31.77.18.220
   - 🇫🇮 FI [R] | 13.143.173.15
+  - 🇸🇪 SE [R] | 31.77.18.220
+  - 🇩🇪 DE [R] | 193.23.218.107
+  - 🇮🇶 IQ [R][xhttp] | 132.243.230.251
   - 🇺🇸 US [R] | 78.17.178.125
-  - 🇳🇱 NL [R] | server15.duckvpn.app
   - 🇺🇦 UA [xhttp] | 185.178.208.140
-  - 🇳🇱 NL [ws] | 185.86.145.37
-  - 🇳🇱 NL [ws] | ararat.rtkdvbr.cc
-  - 🇳🇱 NL  | 62.105.220.106
-  - 🇳🇱 NL  | 62.105.220.106 (2)
+  - 🇺🇸 US [xhttp] | snowy-peak.vercel.app
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -269,22 +383,30 @@ proxy-groups:
   type: select
   proxies:
   - 🚀 Auto
+  - 🇩🇪 DE [R][xhttp] | 45.38.190.101
+  - 🇳🇱 NL [R][xhttp] | 84.201.146.8
   - 🇬🇧 GB [R] | 193.163.203.170
-  - 🇸🇪 SE [R] | 31.77.18.220
   - 🇫🇮 FI [R] | 13.143.173.15
+  - 🇸🇪 SE [R] | 31.77.18.220
+  - 🇩🇪 DE [R] | 193.23.218.107
+  - 🇮🇶 IQ [R][xhttp] | 132.243.230.251
   - 🇺🇸 US [R] | 78.17.178.125
-  - 🇳🇱 NL [R] | server15.duckvpn.app
   - 🇺🇦 UA [xhttp] | 185.178.208.140
+  - 🇺🇸 US [xhttp] | snowy-peak.vercel.app
+  - 🇺🇸 US [xhttp] | snowy-peak.vercel.app (2)
   - 🇳🇱 NL [ws] | 185.86.145.37
-  - 🇳🇱 NL [ws] | ararat.rtkdvbr.cc
+  - 🇩🇪 DE [ws] | 138.124.254.141
   - 🇳🇱 NL  | 62.105.220.106
-  - 🇳🇱 NL  | 62.105.220.106 (2)
+  - 🇳🇱 NL  | s171.wagahaha.xyz
   - 🇳🇱 NL  | s170.gogocs.xyz
   - 🇳🇱 NL  | s170.gogocs.xyz (2)
   - 🇳🇱 NL  | s170.gogocs.xyz (3)
-  - 🇳🇱 NL  | s171.wagahaha.xyz
+  - 🇳🇱 NL  | 62.105.220.106 (2)
+  - 🇨🇦 CA [ws] | 194.156.26.6
   - 🇩🇪 DE [ws] | 217.19.122.156
   - 🇩🇪 DE [ws] | z1q3pv4g78.rucdncomp.pro
+  - 🇨🇿 CZ [ws] | 185.78.76.166
+  - 🇺🇸 US [ws] | 89.191.226.252
 - name: 🎯 Direct
   type: select
   proxies:
