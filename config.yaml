@@ -66,7 +66,7 @@ proxies:
     short-id: b28db60d77c50b4f
   servername: yandex.ru
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
+  client-fingerprint: random
 - name: 🇸🇪 SE [R] | 31.77.18.220
   type: vless
   server: 31.77.18.220
@@ -97,22 +97,6 @@ proxies:
   servername: google.com
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇩🇪 DE [R] | 193.23.218.107
-  type: vless
-  server: 193.23.218.107
-  port: 443
-  uuid: 6f433cf6-4221-48b2-ad29-01121952ef8a
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: cBTZdCBwrYTTarw6B_lu2TN1M6_Lku68FfWCQT9svhc
-    short-id: cb620aa2f04bce33
-  servername: yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
 - name: 🇩🇪 DE [R][xhttp] | 132.243.230.251
   type: vless
   server: 132.243.230.251
@@ -143,7 +127,7 @@ proxies:
     short-id: e0215064d8d1fd7c
   servername: cdn.tbank.ru
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
+  client-fingerprint: chrome
 - name: 🇺🇦 UA [xhttp] | 185.178.208.140
   type: vless
   server: 185.178.208.140
@@ -155,7 +139,23 @@ proxies:
   encryption: none
   tls: true
   servername: static.bakarova-top.ru
-  client-fingerprint: chrome
+  client-fingerprint: qq
+- name: 🇳🇱 NL [ws] | 185.86.145.37
+  type: vless
+  server: 185.86.145.37
+  port: 443
+  uuid: e37ebf3b-ac32-48a8-8f56-d113967eaf29
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: ara.rtkdvbr.cc
+  client-fingerprint: qq
+  ws-opts:
+    path: /amws
+    headers:
+      Host: ara.rtkdvbr.cc
 - name: 🇳🇱 NL  | 62.105.220.106
   type: vless
   server: 62.105.220.106
@@ -166,9 +166,8 @@ proxies:
   network: tcp
   encryption: none
   tls: true
-  servername: u695098u7dae9c0cs220.gogocs.xyz
+  servername: s170.gogocs.xyz
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
 - name: 🇳🇱 NL  | 62.105.220.106 (2)
   type: vless
   server: 62.105.220.106
@@ -179,43 +178,7 @@ proxies:
   network: tcp
   encryption: none
   tls: true
-  servername: s170.gogocs.xyz
-  flow: xtls-rprx-vision
-- name: 🇳🇱 NL  | s170.gogocs.xyz
-  type: vless
-  server: s170.gogocs.xyz
-  port: 443
-  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇳🇱 NL  | s170.gogocs.xyz (2)
-  type: vless
-  server: s170.gogocs.xyz
-  port: 443
-  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
   servername: u695098u7dae9c0cs220.gogocs.xyz
-  flow: xtls-rprx-vision
-- name: 🇳🇱 NL  | s170.gogocs.xyz (3)
-  type: vless
-  server: s170.gogocs.xyz
-  port: 443
-  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: s170.gogocs.xyz
   flow: xtls-rprx-vision
   client-fingerprint: chrome
 - name: 🇫🇷 FR [ws] | 194.55.239.89
@@ -233,6 +196,44 @@ proxies:
     path: /live.stream.v1.Broadcast/
     headers:
       Host: broadcast.liveflow.space
+- name: 🇳🇱 NL  | s170.gogocs.xyz
+  type: vless
+  server: s170.gogocs.xyz
+  port: 443
+  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  servername: u695098u7dae9c0cs220.gogocs.xyz
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇳🇱 NL  | s170.gogocs.xyz (2)
+  type: vless
+  server: s170.gogocs.xyz
+  port: 443
+  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇳🇱 NL  | s170.gogocs.xyz (3)
+  type: vless
+  server: s170.gogocs.xyz
+  port: 443
+  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  servername: s170.gogocs.xyz
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
 - name: 🇳🇱 NL  | s171.wagahaha.xyz
   type: vless
   server: s171.wagahaha.xyz
@@ -245,7 +246,6 @@ proxies:
   tls: true
   servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
 - name: 🇩🇪 DE [ws] | 194.156.26.6
   type: vless
   server: 194.156.26.6
@@ -262,6 +262,21 @@ proxies:
     path: /stream/PANEL_ZEUS/10609203787d/loc-1
     headers:
       Host: rqzt0xexu5ms.rwf5sggee1geeewwrfg.workers.dev
+- name: 🇺🇸 US [ws] | 89.191.226.252
+  type: vless
+  server: 89.191.226.252
+  port: 443
+  uuid: 49996e29-93c5-4975-b56f-792acbbf3444
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: jyfrj1cims.dev.onappjet.com
+  ws-opts:
+    path: /jx-yjkteysq815pzp
+    headers:
+      Host: jyfrj1cims.dev.onappjet.com
 - name: 🇩🇪 DE [ws] | 217.19.122.156
   type: vless
   server: 217.19.122.156
@@ -273,7 +288,21 @@ proxies:
   encryption: none
   tls: true
   servername: z1q3pv4g78.rucdncomp.pro
-  client-fingerprint: chrome
+  ws-opts:
+    path: /useraction/events/b892639b7195/
+    headers:
+      Host: z1q3pv4g78.rucdncomp.pro
+- name: 🇩🇪 DE [ws] | z1q3pv4g78.rucdncomp.pro
+  type: vless
+  server: z1q3pv4g78.rucdncomp.pro
+  port: 443
+  uuid: c720cb74-4c84-4fce-b8ae-637dbaa16199
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: z1q3pv4g78.rucdncomp.pro
   ws-opts:
     path: /useraction/events/b892639b7195/
     headers:
@@ -294,53 +323,18 @@ proxies:
     path: /019bcbad-3813-7cce-8786-3ac0e418f128?ed=2560
     headers:
       Host: n.bitpulse.me
-- name: 🇩🇪 DE [ws] | z1q3pv4g78.rucdncomp.pro
+- name: 🇵🇱 PL  | 87.242.119.253
   type: vless
-  server: z1q3pv4g78.rucdncomp.pro
+  server: 87.242.119.253
   port: 443
-  uuid: c720cb74-4c84-4fce-b8ae-637dbaa16199
+  uuid: aba9cdd4-026c-0001-87a9-9b3e5f24dd82
   udp: true
   skip-cert-verify: true
-  network: ws
+  network: tcp
   encryption: none
   tls: true
-  servername: z1q3pv4g78.rucdncomp.pro
-  ws-opts:
-    path: /useraction/events/b892639b7195/
-    headers:
-      Host: z1q3pv4g78.rucdncomp.pro
-- name: 🇩🇪 DE [ws] | vivozim.vyvoz-musora.cc
-  type: vless
-  server: vivozim.vyvoz-musora.cc
-  port: 443
-  uuid: a0052f4f-4c63-485a-a16f-ab2d5d718cd3
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: vivozim.vyvoz-musora.cc
-  client-fingerprint: firefox
-  ws-opts:
-    path: /e8ws
-    headers:
-      Host: vivozim.vyvoz-musora.cc
-- name: 🇺🇸 US [ws] | 89.191.226.252
-  type: vless
-  server: 89.191.226.252
-  port: 443
-  uuid: 49996e29-93c5-4975-b56f-792acbbf3444
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: jyfrj1cims.dev.onappjet.com
-  client-fingerprint: firefox
-  ws-opts:
-    path: /jx-yjkteysq815pzp
-    headers:
-      Host: jyfrj1cims.dev.onappjet.com
+  servername: hvtlr-ru-47sb.fade.mom
+  client-fingerprint: qq
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
@@ -350,10 +344,10 @@ proxy-groups:
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇫🇮 FI [R] | 13.143.173.15
-  - 🇩🇪 DE [R] | 193.23.218.107
   - 🇩🇪 DE [R][xhttp] | 132.243.230.251
   - 🇺🇸 US [R] | 78.17.178.125
   - 🇺🇦 UA [xhttp] | 185.178.208.140
+  - 🇳🇱 NL [ws] | 185.86.145.37
   - 🇳🇱 NL  | 62.105.220.106
   url: https://www.google.com/generate_204
   interval: 300
@@ -367,23 +361,23 @@ proxy-groups:
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇫🇮 FI [R] | 13.143.173.15
-  - 🇩🇪 DE [R] | 193.23.218.107
   - 🇩🇪 DE [R][xhttp] | 132.243.230.251
   - 🇺🇸 US [R] | 78.17.178.125
   - 🇺🇦 UA [xhttp] | 185.178.208.140
+  - 🇳🇱 NL [ws] | 185.86.145.37
   - 🇳🇱 NL  | 62.105.220.106
   - 🇳🇱 NL  | 62.105.220.106 (2)
+  - 🇫🇷 FR [ws] | 194.55.239.89
   - 🇳🇱 NL  | s170.gogocs.xyz
   - 🇳🇱 NL  | s170.gogocs.xyz (2)
   - 🇳🇱 NL  | s170.gogocs.xyz (3)
-  - 🇫🇷 FR [ws] | 194.55.239.89
   - 🇳🇱 NL  | s171.wagahaha.xyz
   - 🇩🇪 DE [ws] | 194.156.26.6
-  - 🇩🇪 DE [ws] | 217.19.122.156
-  - 🇨🇿 CZ [ws] | 185.78.76.166
-  - 🇩🇪 DE [ws] | z1q3pv4g78.rucdncomp.pro
-  - 🇩🇪 DE [ws] | vivozim.vyvoz-musora.cc
   - 🇺🇸 US [ws] | 89.191.226.252
+  - 🇩🇪 DE [ws] | 217.19.122.156
+  - 🇩🇪 DE [ws] | z1q3pv4g78.rucdncomp.pro
+  - 🇨🇿 CZ [ws] | 185.78.76.166
+  - 🇵🇱 PL  | 87.242.119.253
 - name: 🎯 Direct
   type: select
   proxies:
