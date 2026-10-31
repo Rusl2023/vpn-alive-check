@@ -21,6 +21,21 @@ dns:
   - tls://8.8.8.8
   - tls://1.1.1.1
 proxies:
+- name: 🇩🇪 DE [R][xhttp] | 45.38.190.101
+  type: vless
+  server: 45.38.190.101
+  port: 443
+  uuid: 55ad002b-6cdf-4d76-81bb-91f3f605afc5
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: BwvlA1kuzTnXLIVO4AbvYMgbLG87MWPcwoodcZc_8S0
+    short-id: 6e8a5b8428df2c7b
+  servername: google.com
+  client-fingerprint: firefox
 - name: 🇹🇷 TR [R][xhttp] | 185.255.95.226
   type: vless
   server: 185.255.95.226
@@ -36,20 +51,6 @@ proxies:
     short-id: 6e8a5b8428df2c7b
   servername: google.com
   client-fingerprint: firefox
-- name: 🇩🇪 DE [R][xhttp] | 45.38.190.101
-  type: vless
-  server: 45.38.190.101
-  port: 443
-  uuid: 55ad002b-6cdf-4d76-81bb-91f3f605afc5
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: BwvlA1kuzTnXLIVO4AbvYMgbLG87MWPcwoodcZc_8S0
-    short-id: 6e8a5b8428df2c7b
-  servername: google.com
 - name: 🇬🇧 GB [R] | 193.163.203.170
   type: vless
   server: 193.163.203.170
@@ -65,7 +66,7 @@ proxies:
     short-id: b28db60d77c50b4f
   servername: yandex.ru
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
+  client-fingerprint: random
 - name: 🇸🇪 SE [R] | 31.77.18.220
   type: vless
   server: 31.77.18.220
@@ -148,6 +149,18 @@ proxies:
   tls: true
   servername: nld.centermass.net
   client-fingerprint: firefox
+- name: 🇩🇪 DE [xhttp] | 5.42.118.163
+  type: vless
+  server: 5.42.118.163
+  port: 443
+  uuid: 4777d90d-265b-4927-a0d1-63f36ed1421c
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  servername: 5.42.118.163
+  client-fingerprint: firefox
 - name: 🇳🇱 NL [ws] | 185.86.145.37
   type: vless
   server: 185.86.145.37
@@ -159,7 +172,7 @@ proxies:
   encryption: none
   tls: true
   servername: ara.rtkdvbr.cc
-  client-fingerprint: qq
+  client-fingerprint: firefox
   ws-opts:
     path: /amws
     headers:
@@ -174,9 +187,8 @@ proxies:
   network: tcp
   encryption: none
   tls: true
-  servername: u695098u7dae9c0cs220.gogocs.xyz
+  servername: s170.gogocs.xyz
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
 - name: 🇳🇱 NL  | 62.105.220.106 (2)
   type: vless
   server: 62.105.220.106
@@ -187,21 +199,10 @@ proxies:
   network: tcp
   encryption: none
   tls: true
-  servername: s170.gogocs.xyz
-  flow: xtls-rprx-vision
-- name: 🇳🇱 NL  | s170.gogocs.xyz
-  type: vless
-  server: s170.gogocs.xyz
-  port: 443
-  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
+  servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇳🇱 NL  | s170.gogocs.xyz (2)
+- name: 🇳🇱 NL  | s170.gogocs.xyz
   type: vless
   server: s170.gogocs.xyz
   port: 443
@@ -213,7 +214,7 @@ proxies:
   tls: true
   servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
-- name: 🇳🇱 NL  | s170.gogocs.xyz (3)
+- name: 🇳🇱 NL  | s170.gogocs.xyz (2)
   type: vless
   server: s170.gogocs.xyz
   port: 443
@@ -226,6 +227,17 @@ proxies:
   servername: s170.gogocs.xyz
   flow: xtls-rprx-vision
   client-fingerprint: chrome
+- name: 🇳🇱 NL  | s170.gogocs.xyz (3)
+  type: vless
+  server: s170.gogocs.xyz
+  port: 443
+  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  flow: xtls-rprx-vision
 - name: 🇳🇱 NL  | s171.wagahaha.xyz
   type: vless
   server: s171.wagahaha.xyz
@@ -238,7 +250,6 @@ proxies:
   tls: true
   servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
 - name: 🇩🇪 DE [ws] | 217.19.122.156
   type: vless
   server: 217.19.122.156
@@ -287,40 +298,12 @@ proxies:
     path: /019bcbad-3813-7cce-8786-3ac0e418f128?ed=2560
     headers:
       Host: n.bitpulse.me
-- name: 🇵🇱 PL  | 87.242.119.253
-  type: vless
-  server: 87.242.119.253
-  port: 443
-  uuid: aba9cdd4-026c-0001-87a9-9b3e5f24dd82
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: hvtlr-ru-47sb.fade.mom
-  client-fingerprint: qq
-- name: 🇳🇱 NL [ws] | 95.81.102.121
-  type: vless
-  server: 95.81.102.121
-  port: 443
-  uuid: 48eb49ce-38b5-4ed1-b6ab-8eaf37cde710
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: nodeam.easyvpn.dev
-  client-fingerprint: firefox
-  ws-opts:
-    path: /easyvpn-ws
-    headers:
-      Host: nodeam.easyvpn.dev
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
-  - 🇹🇷 TR [R][xhttp] | 185.255.95.226
   - 🇩🇪 DE [R][xhttp] | 45.38.190.101
+  - 🇹🇷 TR [R][xhttp] | 185.255.95.226
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇩🇪 DE [R] | 193.23.218.107
@@ -328,7 +311,7 @@ proxy-groups:
   - 🇺🇦 UA [xhttp] | 185.178.208.140
   - 🇱🇺 LU [xhttp] | 176.108.242.55
   - 🇳🇱 NL [xhttp] | 5.42.113.181
-  - 🇳🇱 NL [ws] | 185.86.145.37
+  - 🇩🇪 DE [xhttp] | 5.42.118.163
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -336,8 +319,8 @@ proxy-groups:
   type: select
   proxies:
   - 🚀 Auto
-  - 🇹🇷 TR [R][xhttp] | 185.255.95.226
   - 🇩🇪 DE [R][xhttp] | 45.38.190.101
+  - 🇹🇷 TR [R][xhttp] | 185.255.95.226
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇩🇪 DE [R] | 193.23.218.107
@@ -345,6 +328,7 @@ proxy-groups:
   - 🇺🇦 UA [xhttp] | 185.178.208.140
   - 🇱🇺 LU [xhttp] | 176.108.242.55
   - 🇳🇱 NL [xhttp] | 5.42.113.181
+  - 🇩🇪 DE [xhttp] | 5.42.118.163
   - 🇳🇱 NL [ws] | 185.86.145.37
   - 🇳🇱 NL  | 62.105.220.106
   - 🇳🇱 NL  | 62.105.220.106 (2)
@@ -355,8 +339,6 @@ proxy-groups:
   - 🇩🇪 DE [ws] | 217.19.122.156
   - 🇩🇪 DE [ws] | z1q3pv4g78.rucdncomp.pro
   - 🇨🇿 CZ [ws] | 185.78.76.166
-  - 🇵🇱 PL  | 87.242.119.253
-  - 🇳🇱 NL [ws] | 95.81.102.121
 - name: 🎯 Direct
   type: select
   proxies:
