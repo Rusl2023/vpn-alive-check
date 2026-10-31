@@ -66,10 +66,25 @@ proxies:
     short-id: b28db60d77c50b4f
   servername: yandex.ru
   flow: xtls-rprx-vision
-  client-fingerprint: random
+  client-fingerprint: chrome
 - name: 🇸🇪 SE [R] | 31.77.18.220
   type: vless
   server: 31.77.18.220
+  port: 443
+  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
+  servername: google.com
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇫🇮 FI [R] | 13.143.173.15
+  type: vless
+  server: 13.143.173.15
   port: 443
   uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
   udp: true
@@ -98,21 +113,6 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇫🇮 FI [R] | 13.143.173.15
-  type: vless
-  server: 13.143.173.15
-  port: 443
-  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
-  servername: google.com
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇩🇪 DE [R][xhttp] | 132.243.230.251
   type: vless
   server: 132.243.230.251
@@ -143,7 +143,7 @@ proxies:
     short-id: e0215064d8d1fd7c
   servername: cdn.tbank.ru
   flow: xtls-rprx-vision
-  client-fingerprint: qq
+  client-fingerprint: firefox
 - name: 🇺🇦 UA [xhttp] | 185.178.208.140
   type: vless
   server: 185.178.208.140
@@ -155,20 +155,8 @@ proxies:
   encryption: none
   tls: true
   servername: static.bakarova-top.ru
-  client-fingerprint: qq
+  client-fingerprint: chrome
 - name: 🇳🇱 NL  | 62.105.220.106
-  type: vless
-  server: 62.105.220.106
-  port: 443
-  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: s170.gogocs.xyz
-  flow: xtls-rprx-vision
-- name: 🇳🇱 NL  | 62.105.220.106 (2)
   type: vless
   server: 62.105.220.106
   port: 443
@@ -181,6 +169,18 @@ proxies:
   servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
   client-fingerprint: chrome
+- name: 🇳🇱 NL  | 62.105.220.106 (2)
+  type: vless
+  server: 62.105.220.106
+  port: 443
+  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  servername: s170.gogocs.xyz
+  flow: xtls-rprx-vision
 - name: 🇳🇱 NL  | s170.gogocs.xyz
   type: vless
   server: s170.gogocs.xyz
@@ -191,7 +191,6 @@ proxies:
   network: tcp
   encryption: none
   tls: true
-  servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
   client-fingerprint: chrome
 - name: 🇳🇱 NL  | s170.gogocs.xyz (2)
@@ -204,24 +203,8 @@ proxies:
   network: tcp
   encryption: none
   tls: true
+  servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇫🇷 FR [ws] | 194.55.239.89
-  type: vless
-  server: 194.55.239.89
-  port: 443
-  uuid: 073b7df7-5527-45a2-ba29-183b85c39071
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: broadcast.liveflow.space
-  client-fingerprint: firefox
-  ws-opts:
-    path: /live.stream.v1.Broadcast/
-    headers:
-      Host: broadcast.liveflow.space
 - name: 🇳🇱 NL  | s170.gogocs.xyz (3)
   type: vless
   server: s170.gogocs.xyz
@@ -235,6 +218,21 @@ proxies:
   servername: s170.gogocs.xyz
   flow: xtls-rprx-vision
   client-fingerprint: chrome
+- name: 🇫🇷 FR [ws] | 194.55.239.89
+  type: vless
+  server: 194.55.239.89
+  port: 443
+  uuid: 073b7df7-5527-45a2-ba29-183b85c39071
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: broadcast.liveflow.space
+  ws-opts:
+    path: /live.stream.v1.Broadcast/
+    headers:
+      Host: broadcast.liveflow.space
 - name: 🇳🇱 NL  | s171.wagahaha.xyz
   type: vless
   server: s171.wagahaha.xyz
@@ -248,6 +246,22 @@ proxies:
   servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
   client-fingerprint: chrome
+- name: 🇩🇪 DE [ws] | 194.156.26.6
+  type: vless
+  server: 194.156.26.6
+  port: 443
+  uuid: 50414e45-4c5f-5a45-5553-10609203787d
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: rqzt0xexu5ms.rwf5sggee1geeewwrfg.workers.dev
+  client-fingerprint: chrome
+  ws-opts:
+    path: /stream/PANEL_ZEUS/10609203787d/loc-1
+    headers:
+      Host: rqzt0xexu5ms.rwf5sggee1geeewwrfg.workers.dev
 - name: 🇩🇪 DE [ws] | 217.19.122.156
   type: vless
   server: 217.19.122.156
@@ -291,7 +305,6 @@ proxies:
   encryption: none
   tls: true
   servername: z1q3pv4g78.rucdncomp.pro
-  client-fingerprint: firefox
   ws-opts:
     path: /useraction/events/b892639b7195/
     headers:
@@ -336,8 +349,8 @@ proxy-groups:
   - 🇹🇷 TR [R][xhttp] | 185.255.95.226
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇸🇪 SE [R] | 31.77.18.220
-  - 🇩🇪 DE [R] | 193.23.218.107
   - 🇫🇮 FI [R] | 13.143.173.15
+  - 🇩🇪 DE [R] | 193.23.218.107
   - 🇩🇪 DE [R][xhttp] | 132.243.230.251
   - 🇺🇸 US [R] | 78.17.178.125
   - 🇺🇦 UA [xhttp] | 185.178.208.140
@@ -353,8 +366,8 @@ proxy-groups:
   - 🇹🇷 TR [R][xhttp] | 185.255.95.226
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇸🇪 SE [R] | 31.77.18.220
-  - 🇩🇪 DE [R] | 193.23.218.107
   - 🇫🇮 FI [R] | 13.143.173.15
+  - 🇩🇪 DE [R] | 193.23.218.107
   - 🇩🇪 DE [R][xhttp] | 132.243.230.251
   - 🇺🇸 US [R] | 78.17.178.125
   - 🇺🇦 UA [xhttp] | 185.178.208.140
@@ -362,9 +375,10 @@ proxy-groups:
   - 🇳🇱 NL  | 62.105.220.106 (2)
   - 🇳🇱 NL  | s170.gogocs.xyz
   - 🇳🇱 NL  | s170.gogocs.xyz (2)
-  - 🇫🇷 FR [ws] | 194.55.239.89
   - 🇳🇱 NL  | s170.gogocs.xyz (3)
+  - 🇫🇷 FR [ws] | 194.55.239.89
   - 🇳🇱 NL  | s171.wagahaha.xyz
+  - 🇩🇪 DE [ws] | 194.156.26.6
   - 🇩🇪 DE [ws] | 217.19.122.156
   - 🇨🇿 CZ [ws] | 185.78.76.166
   - 🇩🇪 DE [ws] | z1q3pv4g78.rucdncomp.pro
