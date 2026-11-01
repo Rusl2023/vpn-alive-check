@@ -21,9 +21,9 @@ dns:
   - tls://8.8.8.8
   - tls://1.1.1.1
 proxies:
-- name: 🇩🇪 DE [R][xhttp] | 45.38.190.101
+- name: 🇹🇷 TR [R][xhttp] | 185.255.95.226
   type: vless
-  server: 45.38.190.101
+  server: 185.255.95.226
   port: 443
   uuid: 55ad002b-6cdf-4d76-81bb-91f3f605afc5
   udp: true
@@ -32,9 +32,10 @@ proxies:
   encryption: none
   tls: true
   reality-opts:
-    public-key: BwvlA1kuzTnXLIVO4AbvYMgbLG87MWPcwoodcZc_8S0
+    public-key: zXVHrcMf6I3SWOybEG42fNtVlL5Wv8m-rur1xSVubQI
     short-id: 6e8a5b8428df2c7b
   servername: google.com
+  client-fingerprint: firefox
 - name: 🇸🇪 SE [R] | 31.77.18.220
   type: vless
   server: 31.77.18.220
@@ -49,7 +50,7 @@ proxies:
     public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
   servername: google.com
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
+  client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 193.163.203.170
   type: vless
   server: 193.163.203.170
@@ -66,6 +67,21 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: random
+- name: 🇫🇮 FI [R] | 13.143.173.15
+  type: vless
+  server: 13.143.173.15
+  port: 443
+  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
+  servername: google.com
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇩🇪 DE [R] | 193.23.218.107
   type: vless
   server: 193.23.218.107
@@ -82,39 +98,24 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇫🇮 FI [R] | 13.143.173.15
+- name: 🇩🇪 DE [R][xhttp] | 132.243.230.251
   type: vless
-  server: 13.143.173.15
+  server: 132.243.230.251
   port: 443
-  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
-  servername: google.com
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇹🇷 TR [R][xhttp] | 185.255.95.226
-  type: vless
-  server: 185.255.95.226
-  port: 443
-  uuid: 55ad002b-6cdf-4d76-81bb-91f3f605afc5
+  uuid: 6da2c981-8c77-4340-bda3-93399b7aea26
   udp: true
   skip-cert-verify: true
   network: xhttp
   encryption: none
   tls: true
   reality-opts:
-    public-key: zXVHrcMf6I3SWOybEG42fNtVlL5Wv8m-rur1xSVubQI
-    short-id: 6e8a5b8428df2c7b
-  servername: google.com
+    public-key: Uz1UbBDf84n7oNfFIhFvXbuFcj1nbNEroiKC_Ud4ajg
+    short-id: b2f9bb426426e0e7
+  servername: www.kinopoisk.ru
   client-fingerprint: firefox
-- name: 🇫🇷 FR [R] | 194.33.34.108
+- name: 🇨🇦 CA [R] | 148.113.179.73
   type: vless
-  server: 194.33.34.108
+  server: 148.113.179.73
   port: 443
   uuid: 3cd95e58-9f0a-47e1-9937-64a58e949aa5
   udp: true
@@ -128,9 +129,9 @@ proxies:
   servername: stats.vk-portal.net
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇨🇦 CA [R] | 148.113.179.73
+- name: 🇫🇷 FR [R] | 194.33.34.108
   type: vless
-  server: 148.113.179.73
+  server: 194.33.34.108
   port: 443
   uuid: 3cd95e58-9f0a-47e1-9937-64a58e949aa5
   udp: true
@@ -170,51 +171,35 @@ proxies:
   encryption: none
   tls: true
   servername: static.bakarova-top.ru
-  client-fingerprint: qq
-- name: 🇫🇮 FI [ws] | 158.160.172.181
+  client-fingerprint: chrome
+- name: 🇱🇹 LT [ws] | 185.178.208.167
   type: vless
-  server: 158.160.172.181
+  server: 185.178.208.167
   port: 443
-  uuid: 57939f22-314a-556a-b991-26aaeedc654a
+  uuid: 2232d904-8e6a-4202-8240-6efd8aec02e9
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: cdn.pixelrelay.top
+  servername: lorettmay.top
   client-fingerprint: firefox
   ws-opts:
-    path: /stream/updates/c4b65c89
+    path: /blog/posts
     headers:
-      Host: cdn.pixelrelay.top
-- name: 🇫🇮 FI [ws] | 158.160.146.45
-  type: vless
-  server: 158.160.146.45
-  port: 443
-  uuid: 57939f22-314a-556a-b991-26aaeedc654a
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: cdn.pixelrelay.top
-  client-fingerprint: firefox
-  ws-opts:
-    path: /stream/updates/c4b65c89
-    headers:
-      Host: cdn.pixelrelay.top
+      Host: lorettmay.top
 - name: 🇳🇱 NL [ws] | 185.86.145.37
   type: vless
   server: 185.86.145.37
   port: 443
-  uuid: e37ebf3b-ac32-48a8-8f56-d113967eaf29
+  uuid: fd8b05d0-0a98-4fba-9b48-5c0367abfcf5
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
   servername: ara.rtkdvbr.cc
-  client-fingerprint: chrome
+  client-fingerprint: qq
   ws-opts:
     path: /amws
     headers:
@@ -231,6 +216,7 @@ proxies:
   tls: true
   servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇳🇱 NL  | 62.105.220.106 (2)
   type: vless
   server: 62.105.220.106
@@ -253,9 +239,7 @@ proxies:
   network: tcp
   encryption: none
   tls: true
-  servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
 - name: 🇳🇱 NL  | s170.gogocs.xyz (2)
   type: vless
   server: s170.gogocs.xyz
@@ -266,7 +250,9 @@ proxies:
   network: tcp
   encryption: none
   tls: true
+  servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
+  client-fingerprint: chrome
 - name: 🇳🇱 NL  | s171.wagahaha.xyz
   type: vless
   server: s171.wagahaha.xyz
@@ -279,23 +265,7 @@ proxies:
   tls: true
   servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇩🇪 DE [ws] | 194.156.26.6
-  type: vless
-  server: 194.156.26.6
-  port: 443
-  uuid: 50414e45-4c5f-5a45-5553-10609203787d
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: rqzt0xexu5ms.rwf5sggee1geeewwrfg.workers.dev
-  client-fingerprint: chrome
-  ws-opts:
-    path: /stream/PANEL_ZEUS/10609203787d/loc-1
-    headers:
-      Host: rqzt0xexu5ms.rwf5sggee1geeewwrfg.workers.dev
+  client-fingerprint: firefox
 - name: 🇳🇱 NL  | s170.gogocs.xyz (3)
   type: vless
   server: s170.gogocs.xyz
@@ -309,18 +279,34 @@ proxies:
   servername: s170.gogocs.xyz
   flow: xtls-rprx-vision
   client-fingerprint: chrome
+- name: 🇨🇿 CZ [ws] | 185.78.76.166
+  type: vless
+  server: 185.78.76.166
+  port: 443
+  uuid: f27b6f65-6e59-4f89-b929-afa397ca587f
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: n.bitpulse.me
+  client-fingerprint: firefox
+  ws-opts:
+    path: /019bcbad-3813-7cce-8786-3ac0e418f128?ed=2560
+    headers:
+      Host: n.bitpulse.me
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
-  - 🇩🇪 DE [R][xhttp] | 45.38.190.101
+  - 🇹🇷 TR [R][xhttp] | 185.255.95.226
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇬🇧 GB [R] | 193.163.203.170
-  - 🇩🇪 DE [R] | 193.23.218.107
   - 🇫🇮 FI [R] | 13.143.173.15
-  - 🇹🇷 TR [R][xhttp] | 185.255.95.226
-  - 🇫🇷 FR [R] | 194.33.34.108
+  - 🇩🇪 DE [R] | 193.23.218.107
+  - 🇩🇪 DE [R][xhttp] | 132.243.230.251
   - 🇨🇦 CA [R] | 148.113.179.73
+  - 🇫🇷 FR [R] | 194.33.34.108
   - 🇺🇿 UZ [R] | 185.76.14.21
   - 🇺🇦 UA [xhttp] | 185.178.208.140
   url: https://www.google.com/generate_204
@@ -330,26 +316,25 @@ proxy-groups:
   type: select
   proxies:
   - 🚀 Auto
-  - 🇩🇪 DE [R][xhttp] | 45.38.190.101
+  - 🇹🇷 TR [R][xhttp] | 185.255.95.226
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇬🇧 GB [R] | 193.163.203.170
-  - 🇩🇪 DE [R] | 193.23.218.107
   - 🇫🇮 FI [R] | 13.143.173.15
-  - 🇹🇷 TR [R][xhttp] | 185.255.95.226
-  - 🇫🇷 FR [R] | 194.33.34.108
+  - 🇩🇪 DE [R] | 193.23.218.107
+  - 🇩🇪 DE [R][xhttp] | 132.243.230.251
   - 🇨🇦 CA [R] | 148.113.179.73
+  - 🇫🇷 FR [R] | 194.33.34.108
   - 🇺🇿 UZ [R] | 185.76.14.21
   - 🇺🇦 UA [xhttp] | 185.178.208.140
-  - 🇫🇮 FI [ws] | 158.160.172.181
-  - 🇫🇮 FI [ws] | 158.160.146.45
+  - 🇱🇹 LT [ws] | 185.178.208.167
   - 🇳🇱 NL [ws] | 185.86.145.37
   - 🇳🇱 NL  | 62.105.220.106
   - 🇳🇱 NL  | 62.105.220.106 (2)
   - 🇳🇱 NL  | s170.gogocs.xyz
   - 🇳🇱 NL  | s170.gogocs.xyz (2)
   - 🇳🇱 NL  | s171.wagahaha.xyz
-  - 🇩🇪 DE [ws] | 194.156.26.6
   - 🇳🇱 NL  | s170.gogocs.xyz (3)
+  - 🇨🇿 CZ [ws] | 185.78.76.166
 - name: 🎯 Direct
   type: select
   proxies:
