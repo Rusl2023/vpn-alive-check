@@ -21,24 +21,60 @@ dns:
   - tls://8.8.8.8
   - tls://1.1.1.1
 proxies:
-- name: 🇸🇪 SE [R] | 31.77.18.220
+- name: 🇮🇪 IE [R][grpc] | 195.123.189.214
   type: vless
-  server: 31.77.18.220
+  server: 195.123.189.214
   port: 443
-  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
+  uuid: 63959ed7-d26f-48dd-8c7b-ebdb6ea68535
   udp: true
   skip-cert-verify: true
-  network: tcp
+  network: grpc
   encryption: none
   tls: true
   reality-opts:
-    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
-  servername: google.com
-  flow: xtls-rprx-vision
+    public-key: 9X-tgXeFaqxURY0nGxFNdz9bpNIo7DTXHoWXpBqiOj0
+    short-id: cbc638acc8ac87
+  servername: max.ru
   client-fingerprint: firefox
-- name: 🇫🇮 FI [R] | 13.143.173.15
+  grpc-opts:
+    grpc-service-name: grpc-90
+- name: 🇪🇪 EE [R][grpc] | 87.232.88.6
   type: vless
-  server: 13.143.173.15
+  server: 87.232.88.6
+  port: 443
+  uuid: 4b091976-0936-44ac-9a90-6a265d2b619f
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: uuD0VJNMH1jZKPjiI5qhbiMVabQFkocWy0LUjh-3HEQ
+    short-id: bc35
+  servername: max.ru
+  client-fingerprint: firefox
+  grpc-opts:
+    grpc-service-name: grpc-65
+- name: 🇺🇸 US [R][grpc] | 87.232.88.27
+  type: vless
+  server: 87.232.88.27
+  port: 443
+  uuid: e08d9bc5-6832-4dd4-bd44-d9bbe61e5817
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 4qE0kXmxDvNzsns2jdwd74AN35RptcTD4eKo5REa9w8
+    short-id: '04'
+  servername: max.ru
+  client-fingerprint: firefox
+  grpc-opts:
+    grpc-service-name: grpc-67
+- name: 🇸🇪 SE [R] | 31.77.18.220
+  type: vless
+  server: 31.77.18.220
   port: 443
   uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
   udp: true
@@ -67,6 +103,21 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: random
+- name: 🇫🇮 FI [R] | 13.143.173.15
+  type: vless
+  server: 13.143.173.15
+  port: 443
+  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
+  servername: google.com
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇩🇪 DE [R] | 193.23.218.107
   type: vless
   server: 193.23.218.107
@@ -83,7 +134,7 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇮🇶 IQ [R][xhttp] | 132.243.230.251
+- name: 🇩🇪 DE [R][xhttp] | 132.243.230.251
   type: vless
   server: 132.243.230.251
   port: 443
@@ -98,22 +149,6 @@ proxies:
     short-id: b2f9bb426426e0e7
   servername: www.kinopoisk.ru
   client-fingerprint: qq
-- name: 🇨🇦 CA [R] | 148.113.179.73
-  type: vless
-  server: 148.113.179.73
-  port: 443
-  uuid: 3cd95e58-9f0a-47e1-9937-64a58e949aa5
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: 6eN2NciEaZis5J4muRRqpfLQ1OglI3A8lNSTmAGo6Do
-    short-id: 3c6fc84d
-  servername: stats.vk-portal.net
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇫🇷 FR [R] | 194.33.34.108
   type: vless
   server: 194.33.34.108
@@ -130,9 +165,9 @@ proxies:
   servername: stats.vk-portal.net
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇺🇿 UZ [R] | 82.148.6.146
+- name: 🇨🇦 CA [R] | 148.113.179.73
   type: vless
-  server: 82.148.6.146
+  server: 148.113.179.73
   port: 443
   uuid: 3cd95e58-9f0a-47e1-9937-64a58e949aa5
   udp: true
@@ -145,20 +180,21 @@ proxies:
     short-id: 3c6fc84d
   servername: stats.vk-portal.net
   flow: xtls-rprx-vision
-- name: 🇩🇪 DE [R] | 168.222.143.254
+  client-fingerprint: firefox
+- name: 🇺🇿 UZ [R] | 185.76.14.21
   type: vless
-  server: 168.222.143.254
+  server: 185.76.14.21
   port: 443
-  uuid: ebdf87e8-4f75-4b84-94e0-65ce4894993a
+  uuid: 3cd95e58-9f0a-47e1-9937-64a58e949aa5
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: 3_Qy1SAtWfbiQbznyhlXxJtqB-5QQ46VF1Uz2h5A7Q4
-    short-id: 2dc17935
-  servername: st.avito.ru
+    public-key: 6eN2NciEaZis5J4muRRqpfLQ1OglI3A8lNSTmAGo6Do
+    short-id: 3c6fc84d
+  servername: stats.vk-portal.net
   flow: xtls-rprx-vision
 - name: 🇺🇦 UA [xhttp] | 185.178.208.140
   type: vless
@@ -171,24 +207,20 @@ proxies:
   encryption: none
   tls: true
   servername: static.bakarova-top.ru
-  client-fingerprint: qq
-- name: 🇱🇹 LT [ws] | 185.178.208.167
+  client-fingerprint: chrome
+- name: 🇺🇦 UA [xhttp] | 185.178.208.140 (2)
   type: vless
-  server: 185.178.208.167
+  server: 185.178.208.140
   port: 443
-  uuid: 2232d904-8e6a-4202-8240-6efd8aec02e9
+  uuid: ea277838-a188-44f1-a2e8-94aa110c4f27
   udp: true
   skip-cert-verify: true
-  network: ws
+  network: xhttp
   encryption: none
   tls: true
-  servername: lorettmay.top
+  servername: api.bakarova-top.ru
   client-fingerprint: firefox
-  ws-opts:
-    path: /blog/posts
-    headers:
-      Host: lorettmay.top
-- name: 🇱🇹 LT [ws] | 185.178.208.167 (2)
+- name: 🇱🇹 LT [ws] | 185.178.208.167
   type: vless
   server: 185.178.208.167
   port: 443
@@ -204,9 +236,9 @@ proxies:
     path: /blog/posts
     headers:
       Host: lorettmay.top
-- name: 🇱🇹 LT [ws] | lorettmay.top
+- name: 🇱🇹 LT [ws] | 185.178.208.167 (2)
   type: vless
-  server: lorettmay.top
+  server: 185.178.208.167
   port: 443
   uuid: 2232d904-8e6a-4202-8240-6efd8aec02e9
   udp: true
@@ -220,34 +252,6 @@ proxies:
     path: /blog/posts
     headers:
       Host: lorettmay.top
-- name: 🇳🇱 NL [ws] | 185.86.145.37
-  type: vless
-  server: 185.86.145.37
-  port: 443
-  uuid: 769cc55c-7ed6-4f3a-a77c-92e1c5c137ba
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: ara.rtkdvbr.cc
-  client-fingerprint: qq
-  ws-opts:
-    path: /amws
-    headers:
-      Host: ara.rtkdvbr.cc
-- name: 🇵🇱 PL  | 87.242.119.253
-  type: vless
-  server: 87.242.119.253
-  port: 443
-  uuid: aba9cdd4-026c-0001-87a9-9b3e5f24dd82
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: hvtlr-ru-47sb.fade.mom
-  client-fingerprint: chrome
 - name: 🇳🇱 NL  | 62.105.220.106
   type: vless
   server: 62.105.220.106
@@ -260,7 +264,18 @@ proxies:
   tls: true
   servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
+- name: 🇳🇱 NL  | s171.wagahaha.xyz
+  type: vless
+  server: s171.wagahaha.xyz
+  port: 443
+  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  servername: u695098u7dae9c0cs220.gogocs.xyz
+  flow: xtls-rprx-vision
 - name: 🇳🇱 NL  | 62.105.220.106 (2)
   type: vless
   server: 62.105.220.106
@@ -283,9 +298,8 @@ proxies:
   network: tcp
   encryption: none
   tls: true
-  servername: s170.gogocs.xyz
+  servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
 - name: 🇳🇱 NL  | s170.gogocs.xyz (2)
   type: vless
   server: s170.gogocs.xyz
@@ -296,22 +310,7 @@ proxies:
   network: tcp
   encryption: none
   tls: true
-  servername: u695098u7dae9c0cs220.gogocs.xyz
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇳🇱 NL  | s171.wagahaha.xyz
-  type: vless
-  server: s171.wagahaha.xyz
-  port: 443
-  uuid: 30e52776-55ac-3cb4-8d36-e2910f07e2c3
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: u695098u7dae9c0cs220.gogocs.xyz
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
 - name: 🇳🇱 NL  | s170.gogocs.xyz (3)
   type: vless
   server: s170.gogocs.xyz
@@ -322,39 +321,41 @@ proxies:
   network: tcp
   encryption: none
   tls: true
+  servername: s170.gogocs.xyz
   flow: xtls-rprx-vision
-- name: 🇫🇷 FR [ws] | 178.104.70.11
+  client-fingerprint: chrome
+- name: 🇩🇪 DE [ws] | 194.156.26.6
   type: vless
-  server: 178.104.70.11
+  server: 194.156.26.6
   port: 443
-  uuid: 64726966-0000-4000-8000-740000000000
+  uuid: 50414e45-4c5f-5a45-5553-10609203787d
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: parsa-panel-dy55x.railway1385-2a46.workers.dev
-  client-fingerprint: firefox
-  ws-opts:
-    path: /
-    headers:
-      Host: parsa-panel-dy55x.railway1385-2a46.workers.dev
-- name: 🇹🇭 TH [ws] | 185.125.103.113
-  type: vless
-  server: 185.125.103.113
-  port: 443
-  uuid: f0c9ebf7-76cc-44b7-8b30-b33ee0ffc898
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: coding.grok2.indevs.in
+  servername: rqzt0xexu5ms.rwf5sggee1geeewwrfg.workers.dev
   client-fingerprint: chrome
   ws-opts:
-    path: /proxyip=ProxyIP.SG.CMLiussss.Net
+    path: /stream/PANEL_ZEUS/10609203787d/loc-1
     headers:
-      Host: coding.grok2.indevs.in
+      Host: rqzt0xexu5ms.rwf5sggee1geeewwrfg.workers.dev
+- name: 🇱🇹 LT [ws] | lorettmay.top
+  type: vless
+  server: lorettmay.top
+  port: 443
+  uuid: 2232d904-8e6a-4202-8240-6efd8aec02e9
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: lorettmay.top
+  client-fingerprint: firefox
+  ws-opts:
+    path: /blog/posts
+    headers:
+      Host: lorettmay.top
 - name: 🇩🇪 DE [ws] | vivozim.vyvoz-musora.cc
   type: vless
   server: vivozim.vyvoz-musora.cc
@@ -371,36 +372,20 @@ proxies:
     path: /e8ws
     headers:
       Host: vivozim.vyvoz-musora.cc
-- name: 🇺🇸 US [ws] | 85.192.42.198
-  type: vless
-  server: 85.192.42.198
-  port: 443
-  uuid: 2c9fdcf7-339b-4a31-9585-930f0bcbb0da
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: jyfrj1cims.dev.onappjet.com
-  client-fingerprint: firefox
-  ws-opts:
-    path: /jx-o4e0xzvx0107se
-    headers:
-      Host: jyfrj1cims.dev.onappjet.com
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
+  - 🇮🇪 IE [R][grpc] | 195.123.189.214
+  - 🇪🇪 EE [R][grpc] | 87.232.88.6
+  - 🇺🇸 US [R][grpc] | 87.232.88.27
   - 🇸🇪 SE [R] | 31.77.18.220
-  - 🇫🇮 FI [R] | 13.143.173.15
   - 🇬🇧 GB [R] | 193.163.203.170
+  - 🇫🇮 FI [R] | 13.143.173.15
   - 🇩🇪 DE [R] | 193.23.218.107
-  - 🇮🇶 IQ [R][xhttp] | 132.243.230.251
-  - 🇨🇦 CA [R] | 148.113.179.73
+  - 🇩🇪 DE [R][xhttp] | 132.243.230.251
   - 🇫🇷 FR [R] | 194.33.34.108
-  - 🇺🇿 UZ [R] | 82.148.6.146
-  - 🇩🇪 DE [R] | 168.222.143.254
-  - 🇺🇦 UA [xhttp] | 185.178.208.140
+  - 🇨🇦 CA [R] | 148.113.179.73
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -408,31 +393,30 @@ proxy-groups:
   type: select
   proxies:
   - 🚀 Auto
+  - 🇮🇪 IE [R][grpc] | 195.123.189.214
+  - 🇪🇪 EE [R][grpc] | 87.232.88.6
+  - 🇺🇸 US [R][grpc] | 87.232.88.27
   - 🇸🇪 SE [R] | 31.77.18.220
-  - 🇫🇮 FI [R] | 13.143.173.15
   - 🇬🇧 GB [R] | 193.163.203.170
+  - 🇫🇮 FI [R] | 13.143.173.15
   - 🇩🇪 DE [R] | 193.23.218.107
-  - 🇮🇶 IQ [R][xhttp] | 132.243.230.251
-  - 🇨🇦 CA [R] | 148.113.179.73
+  - 🇩🇪 DE [R][xhttp] | 132.243.230.251
   - 🇫🇷 FR [R] | 194.33.34.108
-  - 🇺🇿 UZ [R] | 82.148.6.146
-  - 🇩🇪 DE [R] | 168.222.143.254
+  - 🇨🇦 CA [R] | 148.113.179.73
+  - 🇺🇿 UZ [R] | 185.76.14.21
   - 🇺🇦 UA [xhttp] | 185.178.208.140
+  - 🇺🇦 UA [xhttp] | 185.178.208.140 (2)
   - 🇱🇹 LT [ws] | 185.178.208.167
   - 🇱🇹 LT [ws] | 185.178.208.167 (2)
-  - 🇱🇹 LT [ws] | lorettmay.top
-  - 🇳🇱 NL [ws] | 185.86.145.37
-  - 🇵🇱 PL  | 87.242.119.253
   - 🇳🇱 NL  | 62.105.220.106
+  - 🇳🇱 NL  | s171.wagahaha.xyz
   - 🇳🇱 NL  | 62.105.220.106 (2)
   - 🇳🇱 NL  | s170.gogocs.xyz
   - 🇳🇱 NL  | s170.gogocs.xyz (2)
-  - 🇳🇱 NL  | s171.wagahaha.xyz
   - 🇳🇱 NL  | s170.gogocs.xyz (3)
-  - 🇫🇷 FR [ws] | 178.104.70.11
-  - 🇹🇭 TH [ws] | 185.125.103.113
+  - 🇩🇪 DE [ws] | 194.156.26.6
+  - 🇱🇹 LT [ws] | lorettmay.top
   - 🇩🇪 DE [ws] | vivozim.vyvoz-musora.cc
-  - 🇺🇸 US [ws] | 85.192.42.198
 - name: 🎯 Direct
   type: select
   proxies:
