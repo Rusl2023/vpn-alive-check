@@ -21,23 +21,6 @@ dns:
   - tls://8.8.8.8
   - tls://1.1.1.1
 proxies:
-- name: 🇺🇸 US [R][grpc] | 87.232.88.27
-  type: vless
-  server: 87.232.88.27
-  port: 443
-  uuid: e08d9bc5-6832-4dd4-bd44-d9bbe61e5817
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: 4qE0kXmxDvNzsns2jdwd74AN35RptcTD4eKo5REa9w8
-    short-id: '04'
-  servername: max.ru
-  client-fingerprint: firefox
-  grpc-opts:
-    grpc-service-name: grpc-67
 - name: 🇮🇪 IE [R][grpc] | 195.123.189.221
   type: vless
   server: 195.123.189.221
@@ -89,6 +72,21 @@ proxies:
   client-fingerprint: chrome
   grpc-opts:
     grpc-service-name: grpc-90
+- name: 🇸🇪 SE [R] | 31.77.18.220
+  type: vless
+  server: 31.77.18.220
+  port: 443
+  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
+  servername: google.com
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 193.163.203.170
   type: vless
   server: 193.163.203.170
@@ -105,21 +103,6 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: random
-- name: 🇸🇪 SE [R] | 31.77.18.220
-  type: vless
-  server: 31.77.18.220
-  port: 443
-  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
-  servername: google.com
-  flow: xtls-rprx-vision-udp443
-  client-fingerprint: firefox
 - name: 🇫🇮 FI [R] | 13.143.173.15
   type: vless
   server: 13.143.173.15
@@ -151,7 +134,7 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇩🇪 DE [R][xhttp] | 132.243.230.251
+- name: 🇮🇶 IQ [R][xhttp] | 132.243.230.251
   type: vless
   server: 132.243.230.251
   port: 443
@@ -166,21 +149,6 @@ proxies:
     short-id: b2f9bb426426e0e7
   servername: www.kinopoisk.ru
   client-fingerprint: qq
-- name: 🇩🇪 DE [R][xhttp] | 45.8.99.5
-  type: vless
-  server: 45.8.99.5
-  port: 443
-  uuid: 7f99eb58-5983-006e-9c02-d8cea49f7074
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: 0omtLHQHyKnV7w05maiOqvL5PvxdCQKw_zDqqgR28X8
-    short-id: 8d0ff3d6ec629371
-  servername: ozon.ru
-  client-fingerprint: firefox
 - name: 🇨🇦 CA [R] | 148.113.179.73
   type: vless
   server: 148.113.179.73
@@ -227,6 +195,37 @@ proxies:
     short-id: 3c6fc84d
   servername: stats.vk-portal.net
   flow: xtls-rprx-vision
+- name: 🇩🇪 DE [R][xhttp] | 45.8.99.5
+  type: vless
+  server: 45.8.99.5
+  port: 443
+  uuid: 7f99eb58-5983-006e-9c02-d8cea49f7074
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 0omtLHQHyKnV7w05maiOqvL5PvxdCQKw_zDqqgR28X8
+    short-id: 8d0ff3d6ec629371
+  servername: ozon.ru
+  client-fingerprint: chrome
+- name: 🇰🇪 KE [R] | 45.150.189.211
+  type: vless
+  server: 45.150.189.211
+  port: 443
+  uuid: 3cd95e58-9f0a-47e1-9937-64a58e949aa5
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 6eN2NciEaZis5J4muRRqpfLQ1OglI3A8lNSTmAGo6Do
+    short-id: 3c6fc84d
+  servername: stats.vk-portal.net
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇺🇦 UA [xhttp] | 185.178.208.140
   type: vless
   server: 185.178.208.140
@@ -251,6 +250,22 @@ proxies:
   tls: true
   servername: api.bakarova-top.ru
   client-fingerprint: chrome
+- name: 🇳🇱 NL [ws] | 185.86.145.37
+  type: vless
+  server: 185.86.145.37
+  port: 443
+  uuid: 135aa7e5-87af-4df2-a9f0-0c4eaea0c492
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: rar.rtkdvbr.cc
+  client-fingerprint: qq
+  ws-opts:
+    path: /amws
+    headers:
+      Host: rar.rtkdvbr.cc
 - name: 🇩🇪 DE [ws] | 217.19.122.156
   type: vless
   server: 217.19.122.156
@@ -278,35 +293,25 @@ proxies:
   encryption: none
   tls: true
   servername: z1q3pv4g78.rucdncomp.pro
+  client-fingerprint: firefox
   ws-opts:
     path: /useraction/events/b892639b7195/
     headers:
       Host: z1q3pv4g78.rucdncomp.pro
-- name: 🇵🇱 PL  | 87.242.119.253
-  type: vless
-  server: 87.242.119.253
-  port: 443
-  uuid: aba9cdd4-026c-0001-87a9-9b3e5f24dd82
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: hvtlr-ru-47sb.fade.mom
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
-  - 🇺🇸 US [R][grpc] | 87.232.88.27
   - 🇮🇪 IE [R][grpc] | 195.123.189.221
   - 🇮🇪 IE [R][grpc] | 195.123.189.214
   - 🇮🇪 IE [R][grpc] | qtir1.dnetsolutions.ru
-  - 🇬🇧 GB [R] | 193.163.203.170
   - 🇸🇪 SE [R] | 31.77.18.220
+  - 🇬🇧 GB [R] | 193.163.203.170
   - 🇫🇮 FI [R] | 13.143.173.15
   - 🇩🇪 DE [R] | 193.23.218.107
-  - 🇩🇪 DE [R][xhttp] | 132.243.230.251
-  - 🇩🇪 DE [R][xhttp] | 45.8.99.5
+  - 🇮🇶 IQ [R][xhttp] | 132.243.230.251
+  - 🇨🇦 CA [R] | 148.113.179.73
+  - 🇺🇿 UZ [R] | 185.76.14.21
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -314,24 +319,24 @@ proxy-groups:
   type: select
   proxies:
   - 🚀 Auto
-  - 🇺🇸 US [R][grpc] | 87.232.88.27
   - 🇮🇪 IE [R][grpc] | 195.123.189.221
   - 🇮🇪 IE [R][grpc] | 195.123.189.214
   - 🇮🇪 IE [R][grpc] | qtir1.dnetsolutions.ru
-  - 🇬🇧 GB [R] | 193.163.203.170
   - 🇸🇪 SE [R] | 31.77.18.220
+  - 🇬🇧 GB [R] | 193.163.203.170
   - 🇫🇮 FI [R] | 13.143.173.15
   - 🇩🇪 DE [R] | 193.23.218.107
-  - 🇩🇪 DE [R][xhttp] | 132.243.230.251
-  - 🇩🇪 DE [R][xhttp] | 45.8.99.5
+  - 🇮🇶 IQ [R][xhttp] | 132.243.230.251
   - 🇨🇦 CA [R] | 148.113.179.73
   - 🇺🇿 UZ [R] | 185.76.14.21
   - 🇺🇿 UZ [R] | 82.148.6.146
+  - 🇩🇪 DE [R][xhttp] | 45.8.99.5
+  - 🇰🇪 KE [R] | 45.150.189.211
   - 🇺🇦 UA [xhttp] | 185.178.208.140
   - 🇺🇦 UA [xhttp] | 185.178.208.140 (2)
+  - 🇳🇱 NL [ws] | 185.86.145.37
   - 🇩🇪 DE [ws] | 217.19.122.156
   - 🇩🇪 DE [ws] | z1q3pv4g78.rucdncomp.pro
-  - 🇵🇱 PL  | 87.242.119.253
 - name: 🎯 Direct
   type: select
   proxies:
