@@ -38,6 +38,21 @@ proxies:
   client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: grpc-67
+- name: 🇸🇪 SE [R] | 31.77.18.220
+  type: vless
+  server: 31.77.18.220
+  port: 443
+  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
+  servername: google.com
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇫🇮 FI [R] | 13.143.173.15
   type: vless
   server: 13.143.173.15
@@ -69,21 +84,6 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: random
-- name: 🇸🇪 SE [R] | 31.77.18.220
-  type: vless
-  server: 31.77.18.220
-  port: 443
-  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
-  servername: google.com
-  flow: xtls-rprx-vision-udp443
-  client-fingerprint: firefox
 - name: 🇩🇪 DE [R] | 193.23.218.107
   type: vless
   server: 193.23.218.107
@@ -100,21 +100,6 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇩🇪 DE [R][xhttp] | 45.8.99.5
-  type: vless
-  server: 45.8.99.5
-  port: 443
-  uuid: 7f99eb58-5983-006e-9c02-d8cea49f7074
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: 0omtLHQHyKnV7w05maiOqvL5PvxdCQKw_zDqqgR28X8
-    short-id: 8d0ff3d6ec629371
-  servername: ozon.ru
-  client-fingerprint: firefox
 - name: 🇺🇦 UA [xhttp] | 185.178.208.140
   type: vless
   server: 185.178.208.140
@@ -138,7 +123,39 @@ proxies:
   encryption: none
   tls: true
   servername: api.bakarova-top.ru
+  client-fingerprint: firefox
+- name: 🇩🇪 DE [ws] | 31.12.75.64
+  type: vless
+  server: 31.12.75.64
+  port: 443
+  uuid: 50414e45-4c5f-5a45-5553-15038a30cbef
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: oizs5zecux0s.pouriayy1.workers.dev
   client-fingerprint: chrome
+  ws-opts:
+    path: /stream/PANEL_ZEUS/15038a30cbef/loc-0fp=unsafe
+    headers:
+      Host: oizs5zecux0s.pouriayy1.workers.dev
+- name: 🇨🇾 CY [ws] | 178.104.70.11
+  type: vless
+  server: 178.104.70.11
+  port: 443
+  uuid: 64726966-0000-4000-8000-740000000000
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: parsa-panel-dy55x.railway1385-2a46.workers.dev
+  client-fingerprint: firefox
+  ws-opts:
+    path: /
+    headers:
+      Host: parsa-panel-dy55x.railway1385-2a46.workers.dev
 - name: 🇩🇪 DE [ws] | 217.19.122.156
   type: vless
   server: 217.19.122.156
@@ -166,7 +183,7 @@ proxies:
   encryption: none
   tls: true
   servername: z1q3pv4g78.rucdncomp.pro
-  client-fingerprint: chrome
+  client-fingerprint: firefox
   ws-opts:
     path: /useraction/events/b892639b7195/
     headers:
@@ -175,7 +192,7 @@ proxies:
   type: vless
   server: 185.178.208.140
   port: 443
-  uuid: c720cb74-4c84-4fce-b8ae-637dbaa16199
+  uuid: 7955bf18-35c4-412d-aabd-c0b36c793063
   udp: true
   skip-cert-verify: true
   network: ws
@@ -192,15 +209,15 @@ proxy-groups:
   type: url-test
   proxies:
   - 🇺🇸 US [R][grpc] | 87.232.88.27
+  - 🇸🇪 SE [R] | 31.77.18.220
   - 🇫🇮 FI [R] | 13.143.173.15
   - 🇬🇧 GB [R] | 193.163.203.170
-  - 🇸🇪 SE [R] | 31.77.18.220
   - 🇩🇪 DE [R] | 193.23.218.107
-  - 🇩🇪 DE [R][xhttp] | 45.8.99.5
   - 🇺🇦 UA [xhttp] | 185.178.208.140
   - 🇺🇦 UA [xhttp] | 185.178.208.140 (2)
+  - 🇩🇪 DE [ws] | 31.12.75.64
+  - 🇨🇾 CY [ws] | 178.104.70.11
   - 🇩🇪 DE [ws] | 217.19.122.156
-  - 🇩🇪 DE [ws] | z1q3pv4g78.rucdncomp.pro
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -209,13 +226,14 @@ proxy-groups:
   proxies:
   - 🚀 Auto
   - 🇺🇸 US [R][grpc] | 87.232.88.27
+  - 🇸🇪 SE [R] | 31.77.18.220
   - 🇫🇮 FI [R] | 13.143.173.15
   - 🇬🇧 GB [R] | 193.163.203.170
-  - 🇸🇪 SE [R] | 31.77.18.220
   - 🇩🇪 DE [R] | 193.23.218.107
-  - 🇩🇪 DE [R][xhttp] | 45.8.99.5
   - 🇺🇦 UA [xhttp] | 185.178.208.140
   - 🇺🇦 UA [xhttp] | 185.178.208.140 (2)
+  - 🇩🇪 DE [ws] | 31.12.75.64
+  - 🇨🇾 CY [ws] | 178.104.70.11
   - 🇩🇪 DE [ws] | 217.19.122.156
   - 🇩🇪 DE [ws] | z1q3pv4g78.rucdncomp.pro
   - 🇩🇪 DE [ws] | 185.178.208.140
