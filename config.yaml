@@ -21,41 +21,25 @@ dns:
   - tls://8.8.8.8
   - tls://1.1.1.1
 proxies:
-- name: 🇺🇸 US [R][grpc] | 87.232.88.27
+- name: 🇬🇧 GB [R] | 193.163.203.170
   type: vless
-  server: 87.232.88.27
+  server: 193.163.203.170
   port: 443
-  uuid: e08d9bc5-6832-4dd4-bd44-d9bbe61e5817
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: 4qE0kXmxDvNzsns2jdwd74AN35RptcTD4eKo5REa9w8
-    short-id: '04'
-  servername: max.ru
-  client-fingerprint: firefox
-  grpc-opts:
-    grpc-service-name: grpc-67
-- name: 🇸🇪 SE [R] | 31.77.18.220
-  type: vless
-  server: 31.77.18.220
-  port: 443
-  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
+  uuid: 11aabba0-5fd1-4f15-8068-74c1a466cefc
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
-  servername: google.com
+    public-key: GCCZ1ZZjB_nj7yxqFi22bIIWWr_G6rnWUzDcssN_40o
+    short-id: b28db60d77c50b4f
+  servername: yandex.ru
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇫🇮 FI [R] | 13.143.173.15
+  client-fingerprint: random
+- name: 🇸🇪 SE [R] | 31.77.18.220
   type: vless
-  server: 13.143.173.15
+  server: 31.77.18.220
   port: 443
   uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
   udp: true
@@ -84,23 +68,22 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇬🇧 GB [R] | 193.163.203.170
+- name: 🇫🇮 FI [R] | 13.143.173.15
   type: vless
-  server: 193.163.203.170
+  server: 13.143.173.15
   port: 443
-  uuid: 11aabba0-5fd1-4f15-8068-74c1a466cefc
+  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: GCCZ1ZZjB_nj7yxqFi22bIIWWr_G6rnWUzDcssN_40o
-    short-id: b28db60d77c50b4f
-  servername: yandex.ru
+    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
+  servername: google.com
   flow: xtls-rprx-vision
-  client-fingerprint: random
-- name: 🇺🇦 UA [xhttp] | 185.178.208.140
+  client-fingerprint: firefox
+- name: 🇺🇸 US [xhttp] | 185.178.208.140
   type: vless
   server: 185.178.208.140
   port: 443
@@ -111,8 +94,8 @@ proxies:
   encryption: none
   tls: true
   servername: static.bakarova-top.ru
-  client-fingerprint: qq
-- name: 🇺🇦 UA [xhttp] | 185.178.208.140 (2)
+  client-fingerprint: chrome
+- name: 🇺🇸 US [xhttp] | 185.178.208.140 (2)
   type: vless
   server: 185.178.208.140
   port: 443
@@ -124,50 +107,16 @@ proxies:
   tls: true
   servername: api.bakarova-top.ru
   client-fingerprint: firefox
-- name: 🇩🇪 DE [ws] | z1q3pv4g78.rucdncomp.pro
-  type: vless
-  server: z1q3pv4g78.rucdncomp.pro
-  port: 443
-  uuid: c720cb74-4c84-4fce-b8ae-637dbaa16199
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: z1q3pv4g78.rucdncomp.pro
-  client-fingerprint: random
-  ws-opts:
-    path: /useraction/events/b892639b7195/
-    headers:
-      Host: z1q3pv4g78.rucdncomp.pro
-- name: 🇩🇪 DE [ws] | 46.243.235.98
-  type: vless
-  server: 46.243.235.98
-  port: 443
-  uuid: c720cb74-4c84-4fce-b8ae-637dbaa16199
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: z1q3pv4g78.rucdncomp.pro
-  ws-opts:
-    path: /useraction/events/b892639b7195/
-    headers:
-      Host: z1q3pv4g78.rucdncomp.pro
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
-  - 🇺🇸 US [R][grpc] | 87.232.88.27
-  - 🇸🇪 SE [R] | 31.77.18.220
-  - 🇫🇮 FI [R] | 13.143.173.15
-  - 🇩🇪 DE [R] | 193.23.218.107
   - 🇬🇧 GB [R] | 193.163.203.170
-  - 🇺🇦 UA [xhttp] | 185.178.208.140
-  - 🇺🇦 UA [xhttp] | 185.178.208.140 (2)
-  - 🇩🇪 DE [ws] | z1q3pv4g78.rucdncomp.pro
-  - 🇩🇪 DE [ws] | 46.243.235.98
+  - 🇸🇪 SE [R] | 31.77.18.220
+  - 🇩🇪 DE [R] | 193.23.218.107
+  - 🇫🇮 FI [R] | 13.143.173.15
+  - 🇺🇸 US [xhttp] | 185.178.208.140
+  - 🇺🇸 US [xhttp] | 185.178.208.140 (2)
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -175,15 +124,12 @@ proxy-groups:
   type: select
   proxies:
   - 🚀 Auto
-  - 🇺🇸 US [R][grpc] | 87.232.88.27
-  - 🇸🇪 SE [R] | 31.77.18.220
-  - 🇫🇮 FI [R] | 13.143.173.15
-  - 🇩🇪 DE [R] | 193.23.218.107
   - 🇬🇧 GB [R] | 193.163.203.170
-  - 🇺🇦 UA [xhttp] | 185.178.208.140
-  - 🇺🇦 UA [xhttp] | 185.178.208.140 (2)
-  - 🇩🇪 DE [ws] | z1q3pv4g78.rucdncomp.pro
-  - 🇩🇪 DE [ws] | 46.243.235.98
+  - 🇸🇪 SE [R] | 31.77.18.220
+  - 🇩🇪 DE [R] | 193.23.218.107
+  - 🇫🇮 FI [R] | 13.143.173.15
+  - 🇺🇸 US [xhttp] | 185.178.208.140
+  - 🇺🇸 US [xhttp] | 185.178.208.140 (2)
 - name: 🎯 Direct
   type: select
   proxies:
