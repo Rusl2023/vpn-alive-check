@@ -21,6 +21,21 @@ dns:
   - tls://8.8.8.8
   - tls://1.1.1.1
 proxies:
+- name: 🇫🇮 FI [R] | 13.143.173.15
+  type: vless
+  server: 13.143.173.15
+  port: 443
+  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
+  servername: google.com
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 193.163.203.170
   type: vless
   server: 193.163.203.170
@@ -68,22 +83,7 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇫🇮 FI [R] | 13.143.173.15
-  type: vless
-  server: 13.143.173.15
-  port: 443
-  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
-  servername: google.com
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇺🇸 US [xhttp] | 185.178.208.140
+- name: 🇷🇴 RO [xhttp] | 185.178.208.140
   type: vless
   server: 185.178.208.140
   port: 443
@@ -94,8 +94,8 @@ proxies:
   encryption: none
   tls: true
   servername: static.bakarova-top.ru
-  client-fingerprint: chrome
-- name: 🇺🇸 US [xhttp] | 185.178.208.140 (2)
+  client-fingerprint: qq
+- name: 🇷🇴 RO [xhttp] | 185.178.208.140 (2)
   type: vless
   server: 185.178.208.140
   port: 443
@@ -106,17 +106,48 @@ proxies:
   encryption: none
   tls: true
   servername: api.bakarova-top.ru
+  client-fingerprint: chrome
+- name: 🇫🇷 FR [ws] | 178.104.70.11
+  type: vless
+  server: 178.104.70.11
+  port: 443
+  uuid: 64726966-0000-4000-8000-740000000000
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: parsa-panel-dy55x.railway1385-2a46.workers.dev
+  client-fingerprint: firefox
+  ws-opts:
+    path: /
+    headers:
+      Host: parsa-panel-dy55x.railway1385-2a46.workers.dev
+- name: 🇳🇱 NL  | cdn4.anytube.ru
+  type: vless
+  server: cdn4.anytube.ru
+  port: 443
+  uuid: 255a8044-3337-473e-af26-46a37208adcc
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  servername: cdn4.anytube.ru
+  flow: xtls-rprx-vision
   client-fingerprint: firefox
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
+  - 🇫🇮 FI [R] | 13.143.173.15
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇩🇪 DE [R] | 193.23.218.107
-  - 🇫🇮 FI [R] | 13.143.173.15
-  - 🇺🇸 US [xhttp] | 185.178.208.140
-  - 🇺🇸 US [xhttp] | 185.178.208.140 (2)
+  - 🇷🇴 RO [xhttp] | 185.178.208.140
+  - 🇷🇴 RO [xhttp] | 185.178.208.140 (2)
+  - 🇫🇷 FR [ws] | 178.104.70.11
+  - 🇳🇱 NL  | cdn4.anytube.ru
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -124,12 +155,14 @@ proxy-groups:
   type: select
   proxies:
   - 🚀 Auto
+  - 🇫🇮 FI [R] | 13.143.173.15
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇩🇪 DE [R] | 193.23.218.107
-  - 🇫🇮 FI [R] | 13.143.173.15
-  - 🇺🇸 US [xhttp] | 185.178.208.140
-  - 🇺🇸 US [xhttp] | 185.178.208.140 (2)
+  - 🇷🇴 RO [xhttp] | 185.178.208.140
+  - 🇷🇴 RO [xhttp] | 185.178.208.140 (2)
+  - 🇫🇷 FR [ws] | 178.104.70.11
+  - 🇳🇱 NL  | cdn4.anytube.ru
 - name: 🎯 Direct
   type: select
   proxies:
