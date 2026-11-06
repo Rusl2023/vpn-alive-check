@@ -21,6 +21,21 @@ dns:
   - tls://8.8.8.8
   - tls://1.1.1.1
 proxies:
+- name: 🇸🇪 SE [R] | 31.77.18.220
+  type: vless
+  server: 31.77.18.220
+  port: 443
+  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
+  servername: google.com
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇫🇮 FI [R] | 13.143.173.15
   type: vless
   server: 13.143.173.15
@@ -52,21 +67,6 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: random
-- name: 🇸🇪 SE [R] | 31.77.18.220
-  type: vless
-  server: 31.77.18.220
-  port: 443
-  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
-  servername: google.com
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇩🇪 DE [R] | 193.23.218.107
   type: vless
   server: 193.23.218.107
@@ -83,19 +83,7 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇷🇴 RO [xhttp] | 185.178.208.140
-  type: vless
-  server: 185.178.208.140
-  port: 443
-  uuid: ea277838-a188-44f1-a2e8-94aa110c4f27
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  servername: static.bakarova-top.ru
-  client-fingerprint: qq
-- name: 🇷🇴 RO [xhttp] | 185.178.208.140 (2)
+- name: 🇺🇸 US [xhttp] | 185.178.208.140
   type: vless
   server: 185.178.208.140
   port: 443
@@ -107,22 +95,97 @@ proxies:
   tls: true
   servername: api.bakarova-top.ru
   client-fingerprint: chrome
-- name: 🇫🇷 FR [ws] | 178.104.70.11
+- name: 🇷🇴 RO [xhttp] | 185.178.208.140
   type: vless
-  server: 178.104.70.11
+  server: 185.178.208.140
   port: 443
-  uuid: 64726966-0000-4000-8000-740000000000
+  uuid: ea277838-a188-44f1-a2e8-94aa110c4f27
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  servername: static.bakarova-top.ru
+- name: 🇩🇪 DE [ws] | telemetry.gitpacket.pro
+  type: vless
+  server: telemetry.gitpacket.pro
+  port: 443
+  uuid: 73a0f995-f2f1-4d47-a99d-a6dcc1952bf9
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: parsa-panel-dy55x.railway1385-2a46.workers.dev
+  servername: telemetry.gitpacket.pro
   client-fingerprint: firefox
   ws-opts:
-    path: /
+    path: /api/v2/query/zpxgr1pf/
     headers:
-      Host: parsa-panel-dy55x.railway1385-2a46.workers.dev
+      Host: telemetry.gitpacket.pro
+- name: 🇩🇪 DE [ws] | api.weologic.pro
+  type: vless
+  server: api.weologic.pro
+  port: 443
+  uuid: 73a0f995-f2f1-4d47-a99d-a6dcc1952bf9
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: api.weologic.pro
+  client-fingerprint: firefox
+  ws-opts:
+    path: /api/v2/query/zpxgr1pf/
+    headers:
+      Host: api.weologic.pro
+- name: 🇩🇪 DE [ws] | 95.129.236.76
+  type: vless
+  server: 95.129.236.76
+  port: 443
+  uuid: 73a0f995-f2f1-4d47-a99d-a6dcc1952bf9
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: telemetry.gitpacket.pro
+  client-fingerprint: firefox
+  ws-opts:
+    path: /api/v2/query/zpxgr1pf/
+    headers:
+      Host: telemetry.gitpacket.pro
+- name: 🇩🇪 DE [ws] | 95.129.236.149
+  type: vless
+  server: 95.129.236.149
+  port: 443
+  uuid: 72ff875e-cb3a-46a6-a759-4c7fc886df69
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: d.nehtar.ru
+  client-fingerprint: firefox
+  ws-opts:
+    path: /gateway/v1/ws/74c4d5e82a8e50ccf09fc628c17dc9be
+    headers:
+      Host: d.nehtar.ru
+- name: 🇩🇪 DE [ws] | 188.225.58.108
+  type: vless
+  server: 188.225.58.108
+  port: 443
+  uuid: 73a0f995-f2f1-4d47-a99d-a6dcc1952bf9
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: api.weologic.pro
+  client-fingerprint: firefox
+  ws-opts:
+    path: /api/v2/query/zpxgr1pf/
+    headers:
+      Host: api.weologic.pro
 - name: 🇳🇱 NL  | cdn4.anytube.ru
   type: vless
   server: cdn4.anytube.ru
@@ -140,14 +203,16 @@ proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
+  - 🇸🇪 SE [R] | 31.77.18.220
   - 🇫🇮 FI [R] | 13.143.173.15
   - 🇬🇧 GB [R] | 193.163.203.170
-  - 🇸🇪 SE [R] | 31.77.18.220
   - 🇩🇪 DE [R] | 193.23.218.107
+  - 🇺🇸 US [xhttp] | 185.178.208.140
   - 🇷🇴 RO [xhttp] | 185.178.208.140
-  - 🇷🇴 RO [xhttp] | 185.178.208.140 (2)
-  - 🇫🇷 FR [ws] | 178.104.70.11
-  - 🇳🇱 NL  | cdn4.anytube.ru
+  - 🇩🇪 DE [ws] | telemetry.gitpacket.pro
+  - 🇩🇪 DE [ws] | api.weologic.pro
+  - 🇩🇪 DE [ws] | 95.129.236.76
+  - 🇩🇪 DE [ws] | 95.129.236.149
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -155,13 +220,17 @@ proxy-groups:
   type: select
   proxies:
   - 🚀 Auto
+  - 🇸🇪 SE [R] | 31.77.18.220
   - 🇫🇮 FI [R] | 13.143.173.15
   - 🇬🇧 GB [R] | 193.163.203.170
-  - 🇸🇪 SE [R] | 31.77.18.220
   - 🇩🇪 DE [R] | 193.23.218.107
+  - 🇺🇸 US [xhttp] | 185.178.208.140
   - 🇷🇴 RO [xhttp] | 185.178.208.140
-  - 🇷🇴 RO [xhttp] | 185.178.208.140 (2)
-  - 🇫🇷 FR [ws] | 178.104.70.11
+  - 🇩🇪 DE [ws] | telemetry.gitpacket.pro
+  - 🇩🇪 DE [ws] | api.weologic.pro
+  - 🇩🇪 DE [ws] | 95.129.236.76
+  - 🇩🇪 DE [ws] | 95.129.236.149
+  - 🇩🇪 DE [ws] | 188.225.58.108
   - 🇳🇱 NL  | cdn4.anytube.ru
 - name: 🎯 Direct
   type: select
