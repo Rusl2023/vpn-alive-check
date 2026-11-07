@@ -21,6 +21,22 @@ dns:
   - tls://8.8.8.8
   - tls://1.1.1.1
 proxies:
+- name: 🇬🇧 GB [R] | 193.163.203.170
+  type: vless
+  server: 193.163.203.170
+  port: 443
+  uuid: 11aabba0-5fd1-4f15-8068-74c1a466cefc
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: GCCZ1ZZjB_nj7yxqFi22bIIWWr_G6rnWUzDcssN_40o
+    short-id: b28db60d77c50b4f
+  servername: yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: random
 - name: 🇸🇪 SE [R] | 31.77.18.220
   type: vless
   server: 31.77.18.220
@@ -51,23 +67,7 @@ proxies:
     short-id: cb620aa2f04bce33
   servername: yandex.ru
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇬🇧 GB [R] | 193.163.203.170
-  type: vless
-  server: 193.163.203.170
-  port: 443
-  uuid: 11aabba0-5fd1-4f15-8068-74c1a466cefc
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: GCCZ1ZZjB_nj7yxqFi22bIIWWr_G6rnWUzDcssN_40o
-    short-id: b28db60d77c50b4f
-  servername: yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: random
+  client-fingerprint: qq
 - name: 🇫🇮 FI [R] | 13.143.173.15
   type: vless
   server: 13.143.173.15
@@ -83,7 +83,7 @@ proxies:
   servername: google.com
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇺🇸 US [xhttp] | 185.178.208.140
+- name: 🇷🇴 RO [xhttp] | 185.178.208.140
   type: vless
   server: 185.178.208.140
   port: 443
@@ -94,8 +94,8 @@ proxies:
   encryption: none
   tls: true
   servername: static.bakarova-top.ru
-  client-fingerprint: firefox
-- name: 🇺🇸 US [xhttp] | 185.178.208.140 (2)
+  client-fingerprint: chrome
+- name: 🇺🇸 US [xhttp] | 185.178.208.140
   type: vless
   server: 185.178.208.140
   port: 443
@@ -106,34 +106,80 @@ proxies:
   encryption: none
   tls: true
   servername: api.bakarova-top.ru
-  client-fingerprint: firefox
-- name: 🇧🇬 BG [ws] | 176.124.218.80
+  client-fingerprint: chrome
+- name: 🇩🇪 DE [grpc] | 147.45.153.134
   type: vless
-  server: 176.124.218.80
+  server: 147.45.153.134
   port: 443
-  uuid: 981c7ccc-2b17-473c-8358-7fd1d6eec1b4
+  uuid: 27653b37-603c-4c90-b1f5-25c4d23f8932
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  servername: renderer-bridge-2-133.mirra.now
+  client-fingerprint: firefox
+  grpc-opts:
+    grpc-service-name: VideoRenderer
+- name: 🇩🇪 DE [grpc] | renderer-bridge-2-133.mirra.now
+  type: vless
+  server: renderer-bridge-2-133.mirra.now
+  port: 443
+  uuid: 27653b37-603c-4c90-b1f5-25c4d23f8932
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  servername: renderer-bridge-2-133.mirra.now
+  client-fingerprint: firefox
+  grpc-opts:
+    grpc-service-name: VideoRenderer
+- name: 🇫🇷 FR [ws] | 194.156.26.125
+  type: vless
+  server: 194.156.26.125
+  port: 443
+  uuid: 86c7af80-c9cf-4265-ab77-da12b0bf8bb6
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: bg2-ws.gacvpn.site
+  servername: 186.baklajann.ru
   client-fingerprint: firefox
   ws-opts:
-    path: /static/js/vendor.f857f795.js
     headers:
-      Host: bg2-ws.gacvpn.site
+      Host: 186.baklajann.ru
+- name: 🇦🇪 AE [ws] | 185.86.147.175
+  type: vless
+  server: 185.86.147.175
+  port: 443
+  uuid: 7955bf18-35c4-412d-aabd-c0b36c793063
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: bhjolq0d0l.flowersgood.top
+  client-fingerprint: qq
+  ws-opts:
+    path: /service/telemetry/045d381f1166/
+    headers:
+      Host: bhjolq0d0l.flowersgood.top
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
+  - 🇬🇧 GB [R] | 193.163.203.170
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇩🇪 DE [R] | 193.23.218.107
-  - 🇬🇧 GB [R] | 193.163.203.170
   - 🇫🇮 FI [R] | 13.143.173.15
+  - 🇷🇴 RO [xhttp] | 185.178.208.140
   - 🇺🇸 US [xhttp] | 185.178.208.140
-  - 🇺🇸 US [xhttp] | 185.178.208.140 (2)
-  - 🇧🇬 BG [ws] | 176.124.218.80
+  - 🇩🇪 DE [grpc] | 147.45.153.134
+  - 🇩🇪 DE [grpc] | renderer-bridge-2-133.mirra.now
+  - 🇫🇷 FR [ws] | 194.156.26.125
+  - 🇦🇪 AE [ws] | 185.86.147.175
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -141,13 +187,16 @@ proxy-groups:
   type: select
   proxies:
   - 🚀 Auto
+  - 🇬🇧 GB [R] | 193.163.203.170
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇩🇪 DE [R] | 193.23.218.107
-  - 🇬🇧 GB [R] | 193.163.203.170
   - 🇫🇮 FI [R] | 13.143.173.15
+  - 🇷🇴 RO [xhttp] | 185.178.208.140
   - 🇺🇸 US [xhttp] | 185.178.208.140
-  - 🇺🇸 US [xhttp] | 185.178.208.140 (2)
-  - 🇧🇬 BG [ws] | 176.124.218.80
+  - 🇩🇪 DE [grpc] | 147.45.153.134
+  - 🇩🇪 DE [grpc] | renderer-bridge-2-133.mirra.now
+  - 🇫🇷 FR [ws] | 194.156.26.125
+  - 🇦🇪 AE [ws] | 185.86.147.175
 - name: 🎯 Direct
   type: select
   proxies:
