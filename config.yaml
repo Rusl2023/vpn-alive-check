@@ -82,9 +82,9 @@ proxies:
     short-id: 8d0ff3d6ec629371
   servername: ozon.ru
   client-fingerprint: chrome
-- name: 🇳🇱 NL [R] | 89.105.218.148
+- name: 🇳🇱 NL [R] | novonl.subv.ru
   type: vless
-  server: 89.105.218.148
+  server: novonl.subv.ru
   port: 443
   uuid: 90157e25-cee1-4217-921e-91f300bc1a24
   udp: true
@@ -97,20 +97,7 @@ proxies:
     short-id: 428ef87fd47a3a32
   servername: golos.mail.ru
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇺🇸 US [xhttp] | 185.178.208.140
-  type: vless
-  server: 185.178.208.140
-  port: 443
-  uuid: ea277838-a188-44f1-a2e8-94aa110c4f27
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  servername: api.bakarova-top.ru
-  client-fingerprint: chrome
-- name: 🇺🇸 US [xhttp] | 185.178.208.140 (2)
+- name: 🇺🇦 UA [xhttp] | 185.178.208.140
   type: vless
   server: 185.178.208.140
   port: 443
@@ -121,7 +108,33 @@ proxies:
   encryption: none
   tls: true
   servername: static.bakarova-top.ru
+  client-fingerprint: qq
+- name: 🇷🇴 RO [xhttp] | 185.178.208.140
+  type: vless
+  server: 185.178.208.140
+  port: 443
+  uuid: ea277838-a188-44f1-a2e8-94aa110c4f27
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  servername: api.bakarova-top.ru
   client-fingerprint: firefox
+- name: 🇩🇪 DE [grpc] | falmero.store
+  type: vless
+  server: falmero.store
+  port: 443
+  uuid: 8fb19a9e-ca2b-433a-8469-e4c7796033b2
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  servername: falmero.store
+  client-fingerprint: chrome
+  grpc-opts:
+    grpc-service-name: glush.de1.v1
 - name: 🇦🇪 AE [ws] | 185.86.147.175
   type: vless
   server: 185.86.147.175
@@ -133,7 +146,7 @@ proxies:
   encryption: none
   tls: true
   servername: bhjolq0d0l.flowersgood.top
-  client-fingerprint: firefox
+  client-fingerprint: chrome
   ws-opts:
     path: /service/telemetry/045d381f1166/
     headers:
@@ -162,9 +175,10 @@ proxy-groups:
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇫🇮 FI [R] | 13.143.173.15
   - 🇩🇪 DE [R][xhttp] | 13.143.137.98
-  - 🇳🇱 NL [R] | 89.105.218.148
-  - 🇺🇸 US [xhttp] | 185.178.208.140
-  - 🇺🇸 US [xhttp] | 185.178.208.140 (2)
+  - 🇳🇱 NL [R] | novonl.subv.ru
+  - 🇺🇦 UA [xhttp] | 185.178.208.140
+  - 🇷🇴 RO [xhttp] | 185.178.208.140
+  - 🇩🇪 DE [grpc] | falmero.store
   - 🇦🇪 AE [ws] | 185.86.147.175
   - 🇦🇪 AE [ws] | bhjolq0d0l.flowersgood.top
   url: https://www.google.com/generate_204
@@ -178,9 +192,10 @@ proxy-groups:
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇫🇮 FI [R] | 13.143.173.15
   - 🇩🇪 DE [R][xhttp] | 13.143.137.98
-  - 🇳🇱 NL [R] | 89.105.218.148
-  - 🇺🇸 US [xhttp] | 185.178.208.140
-  - 🇺🇸 US [xhttp] | 185.178.208.140 (2)
+  - 🇳🇱 NL [R] | novonl.subv.ru
+  - 🇺🇦 UA [xhttp] | 185.178.208.140
+  - 🇷🇴 RO [xhttp] | 185.178.208.140
+  - 🇩🇪 DE [grpc] | falmero.store
   - 🇦🇪 AE [ws] | 185.86.147.175
   - 🇦🇪 AE [ws] | bhjolq0d0l.flowersgood.top
 - name: 🎯 Direct
