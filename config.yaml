@@ -34,7 +34,7 @@ proxies:
   reality-opts:
     public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
   servername: google.com
-  flow: xtls-rprx-vision
+  flow: xtls-rprx-vision-udp443
   client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 193.163.203.170
   type: vless
@@ -79,8 +79,8 @@ proxies:
   encryption: none
   tls: true
   servername: api.bakarova-top.ru
-  client-fingerprint: chrome
-- name: 🇺🇸 US [xhttp] | 185.178.208.140
+  client-fingerprint: firefox
+- name: 🇷🇴 RO [xhttp] | 185.178.208.140 (2)
   type: vless
   server: 185.178.208.140
   port: 443
@@ -91,21 +91,7 @@ proxies:
   encryption: none
   tls: true
   servername: static.bakarova-top.ru
-  client-fingerprint: chrome
-- name: 🇩🇪 DE [grpc] | 147.45.153.134
-  type: vless
-  server: 147.45.153.134
-  port: 443
-  uuid: 27653b37-603c-4c90-b1f5-25c4d23f8932
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  servername: renderer-bridge-2-133.mirra.now
   client-fingerprint: firefox
-  grpc-opts:
-    grpc-service-name: VideoRenderer
 - name: 🇩🇪 DE [grpc] | renderer-bridge-2-133.mirra.now
   type: vless
   server: renderer-bridge-2-133.mirra.now
@@ -117,41 +103,9 @@ proxies:
   encryption: none
   tls: true
   servername: renderer-bridge-2-133.mirra.now
-  client-fingerprint: chrome
+  client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: VideoRenderer
-- name: 🇩🇪 DE [ws] | 31.12.75.64
-  type: vless
-  server: 31.12.75.64
-  port: 443
-  uuid: 50414e45-4c5f-5a45-5553-15038a30cbef
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: oizs5zecux0s.pouriayy1.workers.dev
-  client-fingerprint: chrome
-  ws-opts:
-    path: /stream/PANEL_ZEUS/15038a30cbef/loc-0fp=unsafe
-    headers:
-      Host: oizs5zecux0s.pouriayy1.workers.dev
-- name: 🇫🇷 FR [ws] | 178.104.70.11
-  type: vless
-  server: 178.104.70.11
-  port: 443
-  uuid: 64726966-0000-4000-8000-740000000000
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: parsa-panel-dy55x.railway1385-2a46.workers.dev
-  client-fingerprint: firefox
-  ws-opts:
-    path: /
-    headers:
-      Host: parsa-panel-dy55x.railway1385-2a46.workers.dev
 - name: 🇦🇪 AE [ws] | 185.86.147.175
   type: vless
   server: 185.86.147.175
@@ -163,7 +117,7 @@ proxies:
   encryption: none
   tls: true
   servername: bhjolq0d0l.flowersgood.top
-  client-fingerprint: chrome
+  client-fingerprint: firefox
   ws-opts:
     path: /service/telemetry/045d381f1166/
     headers:
@@ -176,11 +130,8 @@ proxy-groups:
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇩🇪 DE [R] | 193.23.218.107
   - 🇷🇴 RO [xhttp] | 185.178.208.140
-  - 🇺🇸 US [xhttp] | 185.178.208.140
-  - 🇩🇪 DE [grpc] | 147.45.153.134
+  - 🇷🇴 RO [xhttp] | 185.178.208.140 (2)
   - 🇩🇪 DE [grpc] | renderer-bridge-2-133.mirra.now
-  - 🇩🇪 DE [ws] | 31.12.75.64
-  - 🇫🇷 FR [ws] | 178.104.70.11
   - 🇦🇪 AE [ws] | 185.86.147.175
   url: https://www.google.com/generate_204
   interval: 300
@@ -193,11 +144,8 @@ proxy-groups:
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇩🇪 DE [R] | 193.23.218.107
   - 🇷🇴 RO [xhttp] | 185.178.208.140
-  - 🇺🇸 US [xhttp] | 185.178.208.140
-  - 🇩🇪 DE [grpc] | 147.45.153.134
+  - 🇷🇴 RO [xhttp] | 185.178.208.140 (2)
   - 🇩🇪 DE [grpc] | renderer-bridge-2-133.mirra.now
-  - 🇩🇪 DE [ws] | 31.12.75.64
-  - 🇫🇷 FR [ws] | 178.104.70.11
   - 🇦🇪 AE [ws] | 185.86.147.175
 - name: 🎯 Direct
   type: select
