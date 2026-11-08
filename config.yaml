@@ -21,6 +21,21 @@ dns:
   - tls://8.8.8.8
   - tls://1.1.1.1
 proxies:
+- name: 🇸🇪 SE [R] | 31.77.18.220
+  type: vless
+  server: 31.77.18.220
+  port: 443
+  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
+  servername: google.com
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 193.163.203.170
   type: vless
   server: 193.163.203.170
@@ -52,21 +67,6 @@ proxies:
   servername: google.com
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇸🇪 SE [R] | 31.77.18.220
-  type: vless
-  server: 31.77.18.220
-  port: 443
-  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
-  servername: google.com
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇩🇪 DE [R][xhttp] | 13.143.137.98
   type: vless
   server: 13.143.137.98
@@ -82,34 +82,22 @@ proxies:
     short-id: 8d0ff3d6ec629371
   servername: ozon.ru
   client-fingerprint: chrome
-- name: 🇩🇪 DE [grpc] | 89.223.125.45
+- name: 🇳🇱 NL [R] | 89.105.218.153
   type: vless
-  server: 89.223.125.45
+  server: 89.105.218.153
   port: 443
-  uuid: 8fb19a9e-ca2b-433a-8469-e4c7796033b2
+  uuid: 90157e25-cee1-4217-921e-91f300bc1a24
   udp: true
   skip-cert-verify: true
-  network: grpc
+  network: tcp
   encryption: none
   tls: true
-  servername: falmero.store
-  client-fingerprint: firefox
-  grpc-opts:
-    grpc-service-name: glush.de1.v1
-- name: 🇩🇪 DE [grpc] | falmero.store
-  type: vless
-  server: falmero.store
-  port: 443
-  uuid: 8fb19a9e-ca2b-433a-8469-e4c7796033b2
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  servername: falmero.store
-  client-fingerprint: qq
-  grpc-opts:
-    grpc-service-name: glush.de1.v1
+  reality-opts:
+    public-key: 1vSZjvhZO01oAEH3b7eebR1qF5dLU1Dq2E7xu8pwGSs
+    short-id: 428ef87fd47a3a32
+  servername: golos.mail.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
 - name: 🇷🇴 RO [xhttp] | 185.178.208.140
   type: vless
   server: 185.178.208.140
@@ -121,8 +109,8 @@ proxies:
   encryption: none
   tls: true
   servername: static.bakarova-top.ru
-  client-fingerprint: firefox
-- name: 🇺🇸 US [xhttp] | 185.178.208.140
+  client-fingerprint: qq
+- name: 🇷🇴 RO [xhttp] | 185.178.208.140 (2)
   type: vless
   server: 185.178.208.140
   port: 443
@@ -145,7 +133,23 @@ proxies:
   encryption: none
   tls: true
   servername: bhjolq0d0l.flowersgood.top
-  client-fingerprint: firefox
+  client-fingerprint: chrome
+  ws-opts:
+    path: /service/telemetry/045d381f1166/
+    headers:
+      Host: bhjolq0d0l.flowersgood.top
+- name: 🇦🇪 AE [ws] | bhjolq0d0l.flowersgood.top
+  type: vless
+  server: bhjolq0d0l.flowersgood.top
+  port: 443
+  uuid: 7955bf18-35c4-412d-aabd-c0b36c793063
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: bhjolq0d0l.flowersgood.top
+  client-fingerprint: chrome
   ws-opts:
     path: /service/telemetry/045d381f1166/
     headers:
@@ -154,15 +158,15 @@ proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
+  - 🇸🇪 SE [R] | 31.77.18.220
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇫🇮 FI [R] | 13.143.173.15
-  - 🇸🇪 SE [R] | 31.77.18.220
   - 🇩🇪 DE [R][xhttp] | 13.143.137.98
-  - 🇩🇪 DE [grpc] | 89.223.125.45
-  - 🇩🇪 DE [grpc] | falmero.store
+  - 🇳🇱 NL [R] | 89.105.218.153
   - 🇷🇴 RO [xhttp] | 185.178.208.140
-  - 🇺🇸 US [xhttp] | 185.178.208.140
+  - 🇷🇴 RO [xhttp] | 185.178.208.140 (2)
   - 🇦🇪 AE [ws] | 185.86.147.175
+  - 🇦🇪 AE [ws] | bhjolq0d0l.flowersgood.top
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -170,15 +174,15 @@ proxy-groups:
   type: select
   proxies:
   - 🚀 Auto
+  - 🇸🇪 SE [R] | 31.77.18.220
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇫🇮 FI [R] | 13.143.173.15
-  - 🇸🇪 SE [R] | 31.77.18.220
   - 🇩🇪 DE [R][xhttp] | 13.143.137.98
-  - 🇩🇪 DE [grpc] | 89.223.125.45
-  - 🇩🇪 DE [grpc] | falmero.store
+  - 🇳🇱 NL [R] | 89.105.218.153
   - 🇷🇴 RO [xhttp] | 185.178.208.140
-  - 🇺🇸 US [xhttp] | 185.178.208.140
+  - 🇷🇴 RO [xhttp] | 185.178.208.140 (2)
   - 🇦🇪 AE [ws] | 185.86.147.175
+  - 🇦🇪 AE [ws] | bhjolq0d0l.flowersgood.top
 - name: 🎯 Direct
   type: select
   proxies:
