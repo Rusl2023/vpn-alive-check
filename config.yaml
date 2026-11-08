@@ -21,21 +21,6 @@ dns:
   - tls://8.8.8.8
   - tls://1.1.1.1
 proxies:
-- name: 🇸🇪 SE [R] | 31.77.18.220
-  type: vless
-  server: 31.77.18.220
-  port: 443
-  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
-  servername: google.com
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
 - name: 🇬🇧 GB [R] | 193.163.203.170
   type: vless
   server: 193.163.203.170
@@ -67,6 +52,21 @@ proxies:
   servername: google.com
   flow: xtls-rprx-vision
   client-fingerprint: firefox
+- name: 🇸🇪 SE [R] | 31.77.18.220
+  type: vless
+  server: 31.77.18.220
+  port: 443
+  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
+  servername: google.com
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇩🇪 DE [R][xhttp] | 13.143.137.98
   type: vless
   server: 13.143.137.98
@@ -82,9 +82,9 @@ proxies:
     short-id: 8d0ff3d6ec629371
   servername: ozon.ru
   client-fingerprint: chrome
-- name: 🇩🇪 DE [grpc] | falmero.store
+- name: 🇩🇪 DE [grpc] | 89.223.125.45
   type: vless
-  server: falmero.store
+  server: 89.223.125.45
   port: 443
   uuid: 8fb19a9e-ca2b-433a-8469-e4c7796033b2
   udp: true
@@ -96,7 +96,21 @@ proxies:
   client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: glush.de1.v1
-- name: 🇺🇸 US [xhttp] | 185.178.208.140
+- name: 🇩🇪 DE [grpc] | falmero.store
+  type: vless
+  server: falmero.store
+  port: 443
+  uuid: 8fb19a9e-ca2b-433a-8469-e4c7796033b2
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  servername: falmero.store
+  client-fingerprint: qq
+  grpc-opts:
+    grpc-service-name: glush.de1.v1
+- name: 🇷🇴 RO [xhttp] | 185.178.208.140
   type: vless
   server: 185.178.208.140
   port: 443
@@ -107,8 +121,8 @@ proxies:
   encryption: none
   tls: true
   servername: static.bakarova-top.ru
-  client-fingerprint: chrome
-- name: 🇺🇸 US [xhttp] | 185.178.208.140 (2)
+  client-fingerprint: firefox
+- name: 🇺🇸 US [xhttp] | 185.178.208.140
   type: vless
   server: 185.178.208.140
   port: 443
@@ -119,39 +133,7 @@ proxies:
   encryption: none
   tls: true
   servername: api.bakarova-top.ru
-  client-fingerprint: chrome
-- name: 🇩🇪 DE [ws] | 91.215.43.80
-  type: vless
-  server: 91.215.43.80
-  port: 443
-  uuid: e9b117e4-8be9-4105-9354-a5e0663294f0
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: metrics.api.downloader-pet.xyz
-  client-fingerprint: chrome
-  ws-opts:
-    path: /gateway/v1/ws/a901ed17102fc3090ca1ab052c672f47
-    headers:
-      Host: metrics.api.downloader-pet.xyz
-- name: 🇫🇷 FR [ws] | 178.104.70.11
-  type: vless
-  server: 178.104.70.11
-  port: 443
-  uuid: 64726966-0000-4000-8000-740000000000
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: parsa-panel-dy55x.railway1385-2a46.workers.dev
   client-fingerprint: firefox
-  ws-opts:
-    path: /
-    headers:
-      Host: parsa-panel-dy55x.railway1385-2a46.workers.dev
 - name: 🇦🇪 AE [ws] | 185.86.147.175
   type: vless
   server: 185.86.147.175
@@ -168,35 +150,18 @@ proxies:
     path: /service/telemetry/045d381f1166/
     headers:
       Host: bhjolq0d0l.flowersgood.top
-- name: 🇩🇪 DE [ws] | 95.129.236.149
-  type: vless
-  server: 95.129.236.149
-  port: 443
-  uuid: a58902b4-e0ea-4ad5-89ba-aa9343c1c8cd
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: d.nehtar.ru
-  client-fingerprint: firefox
-  ws-opts:
-    path: /gateway/v1/ws/74c4d5e82a8e50ccf09fc628c17dc9be
-    headers:
-      Host: d.nehtar.ru
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
-  - 🇸🇪 SE [R] | 31.77.18.220
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇫🇮 FI [R] | 13.143.173.15
+  - 🇸🇪 SE [R] | 31.77.18.220
   - 🇩🇪 DE [R][xhttp] | 13.143.137.98
+  - 🇩🇪 DE [grpc] | 89.223.125.45
   - 🇩🇪 DE [grpc] | falmero.store
+  - 🇷🇴 RO [xhttp] | 185.178.208.140
   - 🇺🇸 US [xhttp] | 185.178.208.140
-  - 🇺🇸 US [xhttp] | 185.178.208.140 (2)
-  - 🇩🇪 DE [ws] | 91.215.43.80
-  - 🇫🇷 FR [ws] | 178.104.70.11
   - 🇦🇪 AE [ws] | 185.86.147.175
   url: https://www.google.com/generate_204
   interval: 300
@@ -205,17 +170,15 @@ proxy-groups:
   type: select
   proxies:
   - 🚀 Auto
-  - 🇸🇪 SE [R] | 31.77.18.220
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇫🇮 FI [R] | 13.143.173.15
+  - 🇸🇪 SE [R] | 31.77.18.220
   - 🇩🇪 DE [R][xhttp] | 13.143.137.98
+  - 🇩🇪 DE [grpc] | 89.223.125.45
   - 🇩🇪 DE [grpc] | falmero.store
+  - 🇷🇴 RO [xhttp] | 185.178.208.140
   - 🇺🇸 US [xhttp] | 185.178.208.140
-  - 🇺🇸 US [xhttp] | 185.178.208.140 (2)
-  - 🇩🇪 DE [ws] | 91.215.43.80
-  - 🇫🇷 FR [ws] | 178.104.70.11
   - 🇦🇪 AE [ws] | 185.86.147.175
-  - 🇩🇪 DE [ws] | 95.129.236.149
 - name: 🎯 Direct
   type: select
   proxies:
