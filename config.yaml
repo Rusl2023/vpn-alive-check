@@ -36,6 +36,21 @@ proxies:
   servername: google.com
   flow: xtls-rprx-vision
   client-fingerprint: firefox
+- name: 🇫🇮 FI [R] | 13.143.173.15
+  type: vless
+  server: 13.143.173.15
+  port: 443
+  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
+  servername: google.com
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 193.163.203.170
   type: vless
   server: 193.163.203.170
@@ -52,21 +67,6 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: random
-- name: 🇫🇮 FI [R] | 13.143.173.15
-  type: vless
-  server: 13.143.173.15
-  port: 443
-  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
-  servername: google.com
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇩🇪 DE [R][xhttp] | 13.143.137.98
   type: vless
   server: 13.143.137.98
@@ -82,9 +82,9 @@ proxies:
     short-id: 8d0ff3d6ec629371
   servername: ozon.ru
   client-fingerprint: chrome
-- name: 🇳🇱 NL [R] | 89.105.218.153
+- name: 🇳🇱 NL [R] | 89.105.218.138
   type: vless
-  server: 89.105.218.153
+  server: 89.105.218.138
   port: 443
   uuid: 90157e25-cee1-4217-921e-91f300bc1a24
   udp: true
@@ -97,7 +97,6 @@ proxies:
     short-id: 428ef87fd47a3a32
   servername: golos.mail.ru
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
 - name: 🇷🇴 RO [xhttp] | 185.178.208.140
   type: vless
   server: 185.178.208.140
@@ -109,7 +108,21 @@ proxies:
   encryption: none
   tls: true
   servername: static.bakarova-top.ru
-  client-fingerprint: qq
+  client-fingerprint: chrome
+- name: 🇩🇪 DE [grpc] | renderer-bridge-2-133.mirra.now
+  type: vless
+  server: renderer-bridge-2-133.mirra.now
+  port: 443
+  uuid: 27653b37-603c-4c90-b1f5-25c4d23f8932
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  servername: renderer-bridge-2-133.mirra.now
+  client-fingerprint: chrome
+  grpc-opts:
+    grpc-service-name: VideoRenderer
 - name: 🇷🇴 RO [xhttp] | 185.178.208.140 (2)
   type: vless
   server: 185.178.208.140
@@ -122,6 +135,124 @@ proxies:
   tls: true
   servername: api.bakarova-top.ru
   client-fingerprint: firefox
+- name: 🇪🇸 ES [xhttp] | status.konozura.space
+  type: vless
+  server: status.konozura.space
+  port: 443
+  uuid: 68a67906-5b37-4779-a6cc-58a1655f18b4
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  servername: status.konozura.space
+  client-fingerprint: qq
+- name: 🇪🇪 EE [ws] | sport.herumhas.shop
+  type: vless
+  server: sport.herumhas.shop
+  port: 443
+  uuid: 68a67906-5b37-4779-a6cc-58a1655f18b4
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: sport.herumhas.shop
+  client-fingerprint: firefox
+  ws-opts:
+    path: /api/v2/checkout/poll
+    headers:
+      Host: sport.herumhas.shop
+- name: 🇺🇸 US  | 194.55.239.39
+  type: vless
+  server: 194.55.239.39
+  port: 443
+  uuid: 68a67906-5b37-4779-a6cc-58a1655f18b4
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  servername: cdn-network.cloudgamings.org
+  flow: xtls-rprx-vision
+  client-fingerprint: qq
+- name: 🇳🇱 NL [ws] | 6b9iw.guardora.pro
+  type: vless
+  server: 6b9iw.guardora.pro
+  port: 443
+  uuid: d9cc5c37-b53c-14a1-b4e1-1b9f7fbea1b1
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: 6b9iw.guardora.pro
+  client-fingerprint: chrome
+  ws-opts:
+    path: /ogVAL8moh5SB
+    headers:
+      Host: 6b9iw.guardora.pro
+- name: 🇳🇱 NL [ws] | 185.178.208.167
+  type: vless
+  server: 185.178.208.167
+  port: 443
+  uuid: 8a4fe9f3-4da3-4004-b721-cae64ff0d018
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: stechnostore.life
+  client-fingerprint: firefox
+  ws-opts:
+    path: /player/collect/9c8514f9552d/
+    headers:
+      Host: stechnostore.life
+- name: 🇱🇹 LT [ws] | 6b9iw.guardora.pro
+  type: vless
+  server: 6b9iw.guardora.pro
+  port: 443
+  uuid: d9cc5c37-b53c-1131-b4e1-1b9f7fbea1b1
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: 6b9iw.guardora.pro
+  client-fingerprint: chrome
+  ws-opts:
+    path: /ogVAL8moh5SB
+    headers:
+      Host: 6b9iw.guardora.pro
+- name: 🇺🇸 US  | 188.225.73.226
+  type: vless
+  server: 188.225.73.226
+  port: 443
+  uuid: 68a67906-5b37-4779-a6cc-58a1655f18b4
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  servername: api-germany-1.locallynet.org
+  flow: xtls-rprx-vision
+  client-fingerprint: qq
+- name: 🇳🇱 NL [ws] | 185.178.208.167 (2)
+  type: vless
+  server: 185.178.208.167
+  port: 443
+  uuid: 18b99163-5196-4ddc-85f8-8fdf5efdcd53
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: stechnostore.life
+  client-fingerprint: qq
+  ws-opts:
+    path: /player/collect/9c8514f9552d/
+    headers:
+      Host: stechnostore.life
 - name: 🇦🇪 AE [ws] | 185.86.147.175
   type: vless
   server: 185.86.147.175
@@ -138,35 +269,36 @@ proxies:
     path: /service/telemetry/045d381f1166/
     headers:
       Host: bhjolq0d0l.flowersgood.top
-- name: 🇦🇪 AE [ws] | bhjolq0d0l.flowersgood.top
+- name: 🇪🇪 EE [ws] | 185.178.208.156
   type: vless
-  server: bhjolq0d0l.flowersgood.top
+  server: 185.178.208.156
   port: 443
-  uuid: 7955bf18-35c4-412d-aabd-c0b36c793063
+  uuid: 68a67906-5b37-4779-a6cc-58a1655f18b4
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: bhjolq0d0l.flowersgood.top
-  client-fingerprint: chrome
+  servername: sport.herumhas.shop
+  client-fingerprint: firefox
   ws-opts:
-    path: /service/telemetry/045d381f1166/
+    path: /api/v2/checkout/poll
     headers:
-      Host: bhjolq0d0l.flowersgood.top
+      Host: sport.herumhas.shop
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
   - 🇸🇪 SE [R] | 31.77.18.220
-  - 🇬🇧 GB [R] | 193.163.203.170
   - 🇫🇮 FI [R] | 13.143.173.15
+  - 🇬🇧 GB [R] | 193.163.203.170
   - 🇩🇪 DE [R][xhttp] | 13.143.137.98
-  - 🇳🇱 NL [R] | 89.105.218.153
+  - 🇳🇱 NL [R] | 89.105.218.138
   - 🇷🇴 RO [xhttp] | 185.178.208.140
+  - 🇩🇪 DE [grpc] | renderer-bridge-2-133.mirra.now
   - 🇷🇴 RO [xhttp] | 185.178.208.140 (2)
-  - 🇦🇪 AE [ws] | 185.86.147.175
-  - 🇦🇪 AE [ws] | bhjolq0d0l.flowersgood.top
+  - 🇪🇸 ES [xhttp] | status.konozura.space
+  - 🇪🇪 EE [ws] | sport.herumhas.shop
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -175,14 +307,23 @@ proxy-groups:
   proxies:
   - 🚀 Auto
   - 🇸🇪 SE [R] | 31.77.18.220
-  - 🇬🇧 GB [R] | 193.163.203.170
   - 🇫🇮 FI [R] | 13.143.173.15
+  - 🇬🇧 GB [R] | 193.163.203.170
   - 🇩🇪 DE [R][xhttp] | 13.143.137.98
-  - 🇳🇱 NL [R] | 89.105.218.153
+  - 🇳🇱 NL [R] | 89.105.218.138
   - 🇷🇴 RO [xhttp] | 185.178.208.140
+  - 🇩🇪 DE [grpc] | renderer-bridge-2-133.mirra.now
   - 🇷🇴 RO [xhttp] | 185.178.208.140 (2)
+  - 🇪🇸 ES [xhttp] | status.konozura.space
+  - 🇪🇪 EE [ws] | sport.herumhas.shop
+  - 🇺🇸 US  | 194.55.239.39
+  - 🇳🇱 NL [ws] | 6b9iw.guardora.pro
+  - 🇳🇱 NL [ws] | 185.178.208.167
+  - 🇱🇹 LT [ws] | 6b9iw.guardora.pro
+  - 🇺🇸 US  | 188.225.73.226
+  - 🇳🇱 NL [ws] | 185.178.208.167 (2)
   - 🇦🇪 AE [ws] | 185.86.147.175
-  - 🇦🇪 AE [ws] | bhjolq0d0l.flowersgood.top
+  - 🇪🇪 EE [ws] | 185.178.208.156
 - name: 🎯 Direct
   type: select
   proxies:
