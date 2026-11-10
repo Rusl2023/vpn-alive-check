@@ -35,7 +35,7 @@ proxies:
     public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
   servername: google.com
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
+  client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 193.163.203.170
   type: vless
   server: 193.163.203.170
@@ -67,38 +67,6 @@ proxies:
   servername: google.com
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇳🇱 NL [ws] | 185.178.208.167
-  type: vless
-  server: 185.178.208.167
-  port: 443
-  uuid: 8a4fe9f3-4da3-4004-b721-cae64ff0d018
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: stechnostore.life
-  client-fingerprint: chrome
-  ws-opts:
-    path: /player/collect/9c8514f9552d/
-    headers:
-      Host: stechnostore.life
-- name: 🇳🇱 NL [ws] | 185.178.208.167 (2)
-  type: vless
-  server: 185.178.208.167
-  port: 443
-  uuid: 18b99163-5196-4ddc-85f8-8fdf5efdcd53
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: stechnostore.life
-  client-fingerprint: qq
-  ws-opts:
-    path: /player/collect/9c8514f9552d/
-    headers:
-      Host: stechnostore.life
 - name: 🇺🇸 US [ws] | chat.gpt.prem-ai.shop
   type: vless
   server: chat.gpt.prem-ai.shop
@@ -110,7 +78,7 @@ proxies:
   encryption: none
   tls: true
   servername: chat.gpt.prem-ai.shop
-  client-fingerprint: firefox
+  client-fingerprint: chrome
   ws-opts:
     path: /gateway/v1/ws/791f9a4d19f715c2ffaedfbaf99d88bd
     headers:
@@ -142,26 +110,11 @@ proxies:
   encryption: none
   tls: true
   servername: bhjolq0d0l.flowersgood.top
+  client-fingerprint: chrome
   ws-opts:
     path: /service/telemetry/045d381f1166/
     headers:
       Host: bhjolq0d0l.flowersgood.top
-- name: 🇺🇸 US [ws] | 91.217.80.43
-  type: vless
-  server: 91.217.80.43
-  port: 443
-  uuid: 9cd907f7-0807-4f6b-a6ee-b89b340fd102
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: abc.ilovezhenjiu.top
-  client-fingerprint: firefox
-  ws-opts:
-    path: /pxhrws
-    headers:
-      Host: abc.ilovezhenjiu.top
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
@@ -169,12 +122,9 @@ proxy-groups:
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇫🇮 FI [R] | 13.143.173.15
-  - 🇳🇱 NL [ws] | 185.178.208.167
-  - 🇳🇱 NL [ws] | 185.178.208.167 (2)
   - 🇺🇸 US [ws] | chat.gpt.prem-ai.shop
   - 🇦🇪 AE [ws] | 185.86.147.175
   - 🇦🇪 AE [ws] | bhjolq0d0l.flowersgood.top
-  - 🇺🇸 US [ws] | 91.217.80.43
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -185,12 +135,9 @@ proxy-groups:
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇫🇮 FI [R] | 13.143.173.15
-  - 🇳🇱 NL [ws] | 185.178.208.167
-  - 🇳🇱 NL [ws] | 185.178.208.167 (2)
   - 🇺🇸 US [ws] | chat.gpt.prem-ai.shop
   - 🇦🇪 AE [ws] | 185.86.147.175
   - 🇦🇪 AE [ws] | bhjolq0d0l.flowersgood.top
-  - 🇺🇸 US [ws] | 91.217.80.43
 - name: 🎯 Direct
   type: select
   proxies:
