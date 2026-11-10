@@ -34,7 +34,7 @@ proxies:
   reality-opts:
     public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
   servername: google.com
-  flow: xtls-rprx-vision
+  flow: xtls-rprx-vision-udp443
   client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 193.163.203.170
   type: vless
@@ -67,22 +67,22 @@ proxies:
   servername: google.com
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇺🇸 US [ws] | chat.gpt.prem-ai.shop
+- name: 🇫🇷 FR [ws] | 178.104.70.11
   type: vless
-  server: chat.gpt.prem-ai.shop
+  server: 178.104.70.11
   port: 443
-  uuid: 95f85937-7b95-45c4-8d69-95da6a978569
+  uuid: 64726966-0000-4000-8000-740000000000
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: chat.gpt.prem-ai.shop
-  client-fingerprint: chrome
+  servername: parsa-panel-dy55x.railway1385-2a46.workers.dev
+  client-fingerprint: firefox
   ws-opts:
-    path: /gateway/v1/ws/791f9a4d19f715c2ffaedfbaf99d88bd
+    path: /
     headers:
-      Host: chat.gpt.prem-ai.shop
+      Host: parsa-panel-dy55x.railway1385-2a46.workers.dev
 - name: 🇦🇪 AE [ws] | 185.86.147.175
   type: vless
   server: 185.86.147.175
@@ -99,22 +99,6 @@ proxies:
     path: /service/telemetry/045d381f1166/
     headers:
       Host: bhjolq0d0l.flowersgood.top
-- name: 🇦🇪 AE [ws] | bhjolq0d0l.flowersgood.top
-  type: vless
-  server: bhjolq0d0l.flowersgood.top
-  port: 443
-  uuid: 7955bf18-35c4-412d-aabd-c0b36c793063
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: bhjolq0d0l.flowersgood.top
-  client-fingerprint: chrome
-  ws-opts:
-    path: /service/telemetry/045d381f1166/
-    headers:
-      Host: bhjolq0d0l.flowersgood.top
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
@@ -122,9 +106,8 @@ proxy-groups:
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇫🇮 FI [R] | 13.143.173.15
-  - 🇺🇸 US [ws] | chat.gpt.prem-ai.shop
+  - 🇫🇷 FR [ws] | 178.104.70.11
   - 🇦🇪 AE [ws] | 185.86.147.175
-  - 🇦🇪 AE [ws] | bhjolq0d0l.flowersgood.top
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -135,9 +118,8 @@ proxy-groups:
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇫🇮 FI [R] | 13.143.173.15
-  - 🇺🇸 US [ws] | chat.gpt.prem-ai.shop
+  - 🇫🇷 FR [ws] | 178.104.70.11
   - 🇦🇪 AE [ws] | 185.86.147.175
-  - 🇦🇪 AE [ws] | bhjolq0d0l.flowersgood.top
 - name: 🎯 Direct
   type: select
   proxies:
