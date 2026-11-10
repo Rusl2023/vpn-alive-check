@@ -51,7 +51,7 @@ proxies:
     public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
   servername: google.com
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
+  client-fingerprint: firefox
 - name: 🇫🇮 FI [R] | 13.143.173.15
   type: vless
   server: 13.143.173.15
@@ -67,40 +67,25 @@ proxies:
   servername: google.com
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇩🇪 DE [R][xhttp] | 13.143.137.98
+- name: 🇳🇱 NL [R] | 89.105.218.133
   type: vless
-  server: 13.143.137.98
+  server: 89.105.218.133
   port: 443
-  uuid: 7f99eb58-5983-006e-9c02-d8cea49f7074
+  uuid: 90157e25-cee1-4217-921e-91f300bc1a24
   udp: true
   skip-cert-verify: true
-  network: xhttp
+  network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: 0omtLHQHyKnV7w05maiOqvL5PvxdCQKw_zDqqgR28X8
-    short-id: 8d0ff3d6ec629371
-  servername: ozon.ru
-  client-fingerprint: chrome
-- name: 🇬🇧 GB [ws] | files.neurixai.app
-  type: vless
-  server: files.neurixai.app
-  port: 443
-  uuid: 010be6fa-ab5f-404a-9edf-ab2db1f09f0c
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: files.neurixai.app
+    public-key: 1vSZjvhZO01oAEH3b7eebR1qF5dLU1Dq2E7xu8pwGSs
+    short-id: 428ef87fd47a3a32
+  servername: golos.mail.ru
+  flow: xtls-rprx-vision
   client-fingerprint: firefox
-  ws-opts:
-    path: /api/generate
-    headers:
-      Host: files.neurixai.app
-- name: 🇳🇱 NL [ws] | fst.krevetkabs111.net
+- name: 🇳🇱 NL [ws] | 95.163.209.247
   type: vless
-  server: fst.krevetkabs111.net
+  server: 95.163.209.247
   port: 443
   uuid: 010be6fa-ab5f-404a-9edf-ab2db1f09f0c
   udp: true
@@ -125,7 +110,7 @@ proxies:
   encryption: none
   tls: true
   servername: bhjolq0d0l.flowersgood.top
-  client-fingerprint: chrome
+  client-fingerprint: firefox
   ws-opts:
     path: /service/telemetry/045d381f1166/
     headers:
@@ -141,6 +126,7 @@ proxies:
   encryption: none
   tls: true
   servername: bhjolq0d0l.flowersgood.top
+  client-fingerprint: chrome
   ws-opts:
     path: /service/telemetry/045d381f1166/
     headers:
@@ -168,9 +154,8 @@ proxy-groups:
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇫🇮 FI [R] | 13.143.173.15
-  - 🇩🇪 DE [R][xhttp] | 13.143.137.98
-  - 🇬🇧 GB [ws] | files.neurixai.app
-  - 🇳🇱 NL [ws] | fst.krevetkabs111.net
+  - 🇳🇱 NL [R] | 89.105.218.133
+  - 🇳🇱 NL [ws] | 95.163.209.247
   - 🇦🇪 AE [ws] | 185.86.147.175
   - 🇦🇪 AE [ws] | bhjolq0d0l.flowersgood.top
   - 🇬🇧 GB [ws] | 95.163.232.240
@@ -184,9 +169,8 @@ proxy-groups:
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇫🇮 FI [R] | 13.143.173.15
-  - 🇩🇪 DE [R][xhttp] | 13.143.137.98
-  - 🇬🇧 GB [ws] | files.neurixai.app
-  - 🇳🇱 NL [ws] | fst.krevetkabs111.net
+  - 🇳🇱 NL [R] | 89.105.218.133
+  - 🇳🇱 NL [ws] | 95.163.209.247
   - 🇦🇪 AE [ws] | 185.86.147.175
   - 🇦🇪 AE [ws] | bhjolq0d0l.flowersgood.top
   - 🇬🇧 GB [ws] | 95.163.232.240
