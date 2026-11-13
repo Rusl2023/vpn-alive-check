@@ -49,7 +49,7 @@ proxies:
   reality-opts:
     public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
   servername: google.com
-  flow: xtls-rprx-vision
+  flow: xtls-rprx-vision-udp443
   client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 193.163.203.170
   type: vless
@@ -67,37 +67,6 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: random
-- name: 🇩🇪 DE [R][xhttp] | 13.143.137.98
-  type: vless
-  server: 13.143.137.98
-  port: 443
-  uuid: 7f99eb58-5983-006e-9c02-d8cea49f7074
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: 0omtLHQHyKnV7w05maiOqvL5PvxdCQKw_zDqqgR28X8
-    short-id: 8d0ff3d6ec629371
-  servername: ozon.ru
-  client-fingerprint: chrome
-- name: 🇳🇱 NL [R] | 201.34.130.154
-  type: vless
-  server: 201.34.130.154
-  port: 443
-  uuid: fb9b439d-e5d2-4337-a781-b18a67b8127e
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: Adzk6YXb3MU4kN8PgDQjY_4GfQgMUhRy_2LOGmiFHCg
-    short-id: c48282c0acf92721
-  servername: st.ozone.ru
-  flow: xtls-rprx-vision-udp443
-  client-fingerprint: firefox
 - name: 🇩🇪 DE [grpc] | luminexorizon.ink
   type: vless
   server: luminexorizon.ink
@@ -109,7 +78,7 @@ proxies:
   encryption: none
   tls: true
   servername: luminexorizon.ink
-  client-fingerprint: chrome
+  client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: glush.de3.v1
 - name: 🇩🇪 DE [grpc] | 188.225.73.41
@@ -125,20 +94,6 @@ proxies:
   servername: cadrin.wtf
   grpc-opts:
     grpc-service-name: cache.sync.v1
-- name: 🇫🇮 FI [grpc] | 188.225.46.162
-  type: vless
-  server: 188.225.46.162
-  port: 443
-  uuid: 7d718630-7a1a-4af8-9332-aa0610634e8a
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  servername: filnex.baby
-  client-fingerprint: qq
-  grpc-opts:
-    grpc-service-name: lalibobi.tw.de1.Connect
 - name: 🇦🇪 AE [ws] | 185.86.147.175
   type: vless
   server: 185.86.147.175
@@ -150,43 +105,59 @@ proxies:
   encryption: none
   tls: true
   servername: bhjolq0d0l.flowersgood.top
-  client-fingerprint: firefox
+  client-fingerprint: chrome
   ws-opts:
     path: /service/telemetry/045d381f1166/
     headers:
       Host: bhjolq0d0l.flowersgood.top
-- name: 🇹🇷 TR [ws] | 188.225.37.43
+- name: 🇩🇪 DE [ws] | silk.filnex.baby
   type: vless
-  server: 188.225.37.43
+  server: silk.filnex.baby
   port: 443
-  uuid: 4cabcd59-a405-4c00-96f5-03507e1e28fa
+  uuid: 820fa845-a1eb-4a83-b613-e6714cea8a1a
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: torvani.cyou
-  client-fingerprint: firefox
+  servername: silk.filnex.baby
+  client-fingerprint: random
   ws-opts:
-    path: '%2Fapi%2Fboards%2Flive'
+    path: /api/de5/stream
     headers:
-      Host: torvani.cyou
-- name: 🇩🇪 DE [ws] | 188.225.37.175
+      Host: silk.filnex.baby
+- name: 🇦🇪 AE [ws] | bhjolq0d0l.flowersgood.top
   type: vless
-  server: 188.225.37.175
+  server: bhjolq0d0l.flowersgood.top
   port: 443
-  uuid: 4b50270b-5caf-4c34-b3da-17b4525604a6
+  uuid: 7955bf18-35c4-412d-aabd-c0b36c793063
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: cryptoventura.online
+  servername: bhjolq0d0l.flowersgood.top
   client-fingerprint: chrome
   ws-opts:
-    path: /api/de3/live
+    path: /service/telemetry/045d381f1166/
     headers:
-      Host: cryptoventura.online
+      Host: bhjolq0d0l.flowersgood.top
+- name: 🇩🇪 DE [ws] | ivory.filnex.baby
+  type: vless
+  server: ivory.filnex.baby
+  port: 443
+  uuid: 820fa845-a1eb-4a83-b613-e6714cea8a1a
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: ivory.filnex.baby
+  client-fingerprint: firefox
+  ws-opts:
+    path: /api/de4/stream
+    headers:
+      Host: ivory.filnex.baby
 - name: 🇯🇵 JP [ws] | 185.222.43.175
   type: vless
   server: 185.222.43.175
@@ -202,9 +173,25 @@ proxies:
     path: /tyxyws
     headers:
       Host: jp3.yohototo.top
-- name: 🇹🇷 TR [ws] | torvani.cyou
+- name: 🇳🇱 NL [ws] | nguyxejonb.flowersgood.top
   type: vless
-  server: torvani.cyou
+  server: nguyxejonb.flowersgood.top
+  port: 443
+  uuid: 7955bf18-35c4-412d-aabd-c0b36c793063
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: nguyxejonb.flowersgood.top
+  client-fingerprint: firefox
+  ws-opts:
+    path: /service/telemetry/0294da469190/
+    headers:
+      Host: nguyxejonb.flowersgood.top
+- name: 🇩🇪 DE [ws] | grove.moltex.click
+  type: vless
+  server: grove.moltex.click
   port: 443
   uuid: 820fa845-a1eb-4a83-b613-e6714cea8a1a
   udp: true
@@ -212,15 +199,15 @@ proxies:
   network: ws
   encryption: none
   tls: true
-  servername: torvani.cyou
+  servername: grove.moltex.click
   client-fingerprint: firefox
   ws-opts:
-    path: /api/boards/live
+    path: /api/de6/stream
     headers:
-      Host: torvani.cyou
-- name: 🇩🇪 DE [ws] | cryptoventura.online
+      Host: grove.moltex.click
+- name: 🇩🇪 DE [ws] | ws3.falmero.store
   type: vless
-  server: cryptoventura.online
+  server: ws3.falmero.store
   port: 443
   uuid: 820fa845-a1eb-4a83-b613-e6714cea8a1a
   udp: true
@@ -228,28 +215,28 @@ proxies:
   network: ws
   encryption: none
   tls: true
-  servername: cryptoventura.online
+  servername: falmero.store
   client-fingerprint: firefox
   ws-opts:
-    path: /api/de3/live
+    path: /api/de1/stream
     headers:
-      Host: cryptoventura.online
-- name: 🇩🇪 DE [ws] | 193.233.129.97
+      Host: falmero.store
+- name: 🇳🇱 NL [ws] | 185.86.147.175
   type: vless
-  server: 193.233.129.97
+  server: 185.86.147.175
   port: 443
-  uuid: 99c5b713-dedf-4a10-8070-916ff3f49b0e
+  uuid: 7955bf18-35c4-412d-aabd-c0b36c793063
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: fs.qicai99.com
-  client-fingerprint: chrome
+  servername: nguyxejonb.flowersgood.top
+  client-fingerprint: firefox
   ws-opts:
-    path: /
+    path: /service/telemetry/0294da469190/
     headers:
-      Host: fs.qicai99.com
+      Host: nguyxejonb.flowersgood.top
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
@@ -257,13 +244,13 @@ proxy-groups:
   - 🇫🇮 FI [R] | 13.143.173.15
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇬🇧 GB [R] | 193.163.203.170
-  - 🇩🇪 DE [R][xhttp] | 13.143.137.98
-  - 🇳🇱 NL [R] | 201.34.130.154
   - 🇩🇪 DE [grpc] | luminexorizon.ink
   - 🇩🇪 DE [grpc] | 188.225.73.41
-  - 🇫🇮 FI [grpc] | 188.225.46.162
   - 🇦🇪 AE [ws] | 185.86.147.175
-  - 🇹🇷 TR [ws] | 188.225.37.43
+  - 🇩🇪 DE [ws] | silk.filnex.baby
+  - 🇦🇪 AE [ws] | bhjolq0d0l.flowersgood.top
+  - 🇩🇪 DE [ws] | ivory.filnex.baby
+  - 🇯🇵 JP [ws] | 185.222.43.175
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -274,18 +261,17 @@ proxy-groups:
   - 🇫🇮 FI [R] | 13.143.173.15
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇬🇧 GB [R] | 193.163.203.170
-  - 🇩🇪 DE [R][xhttp] | 13.143.137.98
-  - 🇳🇱 NL [R] | 201.34.130.154
   - 🇩🇪 DE [grpc] | luminexorizon.ink
   - 🇩🇪 DE [grpc] | 188.225.73.41
-  - 🇫🇮 FI [grpc] | 188.225.46.162
   - 🇦🇪 AE [ws] | 185.86.147.175
-  - 🇹🇷 TR [ws] | 188.225.37.43
-  - 🇩🇪 DE [ws] | 188.225.37.175
+  - 🇩🇪 DE [ws] | silk.filnex.baby
+  - 🇦🇪 AE [ws] | bhjolq0d0l.flowersgood.top
+  - 🇩🇪 DE [ws] | ivory.filnex.baby
   - 🇯🇵 JP [ws] | 185.222.43.175
-  - 🇹🇷 TR [ws] | torvani.cyou
-  - 🇩🇪 DE [ws] | cryptoventura.online
-  - 🇩🇪 DE [ws] | 193.233.129.97
+  - 🇳🇱 NL [ws] | nguyxejonb.flowersgood.top
+  - 🇩🇪 DE [ws] | grove.moltex.click
+  - 🇩🇪 DE [ws] | ws3.falmero.store
+  - 🇳🇱 NL [ws] | 185.86.147.175
 - name: 🎯 Direct
   type: select
   proxies:
