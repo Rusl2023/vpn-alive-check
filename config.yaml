@@ -21,6 +21,21 @@ dns:
   - tls://8.8.8.8
   - tls://1.1.1.1
 proxies:
+- name: 🇫🇮 FI [R] | 13.143.173.15
+  type: vless
+  server: 13.143.173.15
+  port: 443
+  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
+  servername: google.com
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇸🇪 SE [R] | 31.77.18.220
   type: vless
   server: 31.77.18.220
@@ -35,7 +50,7 @@ proxies:
     public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
   servername: google.com
   flow: xtls-rprx-vision
-  client-fingerprint: qq
+  client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 193.163.203.170
   type: vless
   server: 193.163.203.170
@@ -52,21 +67,6 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: random
-- name: 🇫🇮 FI [R] | 13.143.173.15
-  type: vless
-  server: 13.143.173.15
-  port: 443
-  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
-  servername: google.com
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇩🇪 DE [R][xhttp] | 13.143.137.98
   type: vless
   server: 13.143.137.98
@@ -96,8 +96,22 @@ proxies:
     public-key: Adzk6YXb3MU4kN8PgDQjY_4GfQgMUhRy_2LOGmiFHCg
     short-id: c48282c0acf92721
   servername: st.ozone.ru
-  flow: xtls-rprx-vision
+  flow: xtls-rprx-vision-udp443
+  client-fingerprint: firefox
+- name: 🇩🇪 DE [grpc] | luminexorizon.ink
+  type: vless
+  server: luminexorizon.ink
+  port: 443
+  uuid: 4b50270b-5caf-4c34-b3da-17b4525604a6
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  servername: luminexorizon.ink
   client-fingerprint: chrome
+  grpc-opts:
+    grpc-service-name: glush.de3.v1
 - name: 🇩🇪 DE [grpc] | 188.225.73.41
   type: vless
   server: 188.225.73.41
@@ -109,51 +123,8 @@ proxies:
   encryption: none
   tls: true
   servername: cadrin.wtf
-  client-fingerprint: chrome
   grpc-opts:
     grpc-service-name: cache.sync.v1
-- name: 🇩🇪 DE [grpc] | astravellion.xyz
-  type: vless
-  server: astravellion.xyz
-  port: 443
-  uuid: 4b50270b-5caf-4c34-b3da-17b4525604a6
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  servername: astravellion.xyz
-  client-fingerprint: firefox
-  grpc-opts:
-    grpc-service-name: glush.de1.v1
-- name: 🇩🇪 DE [grpc] | 5.129.193.120
-  type: vless
-  server: 5.129.193.120
-  port: 443
-  uuid: 4b50270b-5caf-4c34-b3da-17b4525604a6
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  servername: astravellion.xyz
-  client-fingerprint: qq
-  grpc-opts:
-    grpc-service-name: glush.de1.v1
-- name: 🇩🇪 DE [grpc] | 5.129.193.120 (2)
-  type: vless
-  server: 5.129.193.120
-  port: 443
-  uuid: 820fa845-a1eb-4a83-b613-e6714cea8a1a
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  servername: falmero.store
-  client-fingerprint: qq
-  grpc-opts:
-    grpc-service-name: glush.de1.v1
 - name: 🇫🇮 FI [grpc] | 188.225.46.162
   type: vless
   server: 188.225.46.162
@@ -165,12 +136,12 @@ proxies:
   encryption: none
   tls: true
   servername: filnex.baby
-  client-fingerprint: firefox
+  client-fingerprint: qq
   grpc-opts:
     grpc-service-name: lalibobi.tw.de1.Connect
-- name: 🇦🇪 AE [ws] | bhjolq0d0l.flowersgood.top
+- name: 🇦🇪 AE [ws] | 185.86.147.175
   type: vless
-  server: bhjolq0d0l.flowersgood.top
+  server: 185.86.147.175
   port: 443
   uuid: 7955bf18-35c4-412d-aabd-c0b36c793063
   udp: true
@@ -179,27 +150,11 @@ proxies:
   encryption: none
   tls: true
   servername: bhjolq0d0l.flowersgood.top
-  client-fingerprint: chrome
+  client-fingerprint: firefox
   ws-opts:
     path: /service/telemetry/045d381f1166/
     headers:
       Host: bhjolq0d0l.flowersgood.top
-- name: 🇩🇪 DE [ws] | 188.225.37.175
-  type: vless
-  server: 188.225.37.175
-  port: 443
-  uuid: 4b50270b-5caf-4c34-b3da-17b4525604a6
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: cryptoventura.online
-  client-fingerprint: chrome
-  ws-opts:
-    path: /api/de3/live
-    headers:
-      Host: cryptoventura.online
 - name: 🇹🇷 TR [ws] | 188.225.37.43
   type: vless
   server: 188.225.37.43
@@ -216,6 +171,22 @@ proxies:
     path: '%2Fapi%2Fboards%2Flive'
     headers:
       Host: torvani.cyou
+- name: 🇩🇪 DE [ws] | 188.225.37.175
+  type: vless
+  server: 188.225.37.175
+  port: 443
+  uuid: 4b50270b-5caf-4c34-b3da-17b4525604a6
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: cryptoventura.online
+  client-fingerprint: chrome
+  ws-opts:
+    path: /api/de3/live
+    headers:
+      Host: cryptoventura.online
 - name: 🇯🇵 JP [ws] | 185.222.43.175
   type: vless
   server: 185.222.43.175
@@ -231,22 +202,38 @@ proxies:
     path: /tyxyws
     headers:
       Host: jp3.yohototo.top
-- name: 🇦🇪 AE [ws] | 185.86.147.175
+- name: 🇹🇷 TR [ws] | torvani.cyou
   type: vless
-  server: 185.86.147.175
+  server: torvani.cyou
   port: 443
-  uuid: 7955bf18-35c4-412d-aabd-c0b36c793063
+  uuid: 820fa845-a1eb-4a83-b613-e6714cea8a1a
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: bhjolq0d0l.flowersgood.top
-  client-fingerprint: chrome
+  servername: torvani.cyou
+  client-fingerprint: firefox
   ws-opts:
-    path: /service/telemetry/045d381f1166/
+    path: /api/boards/live
     headers:
-      Host: bhjolq0d0l.flowersgood.top
+      Host: torvani.cyou
+- name: 🇩🇪 DE [ws] | cryptoventura.online
+  type: vless
+  server: cryptoventura.online
+  port: 443
+  uuid: 820fa845-a1eb-4a83-b613-e6714cea8a1a
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: cryptoventura.online
+  client-fingerprint: firefox
+  ws-opts:
+    path: /api/de3/live
+    headers:
+      Host: cryptoventura.online
 - name: 🇩🇪 DE [ws] | 193.233.129.97
   type: vless
   server: 193.233.129.97
@@ -263,36 +250,20 @@ proxies:
     path: /
     headers:
       Host: fs.qicai99.com
-- name: 🇩🇪 DE [ws] | ws3.falmero.store
-  type: vless
-  server: ws3.falmero.store
-  port: 443
-  uuid: 820fa845-a1eb-4a83-b613-e6714cea8a1a
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: falmero.store
-  client-fingerprint: firefox
-  ws-opts:
-    path: /api/de1/stream
-    headers:
-      Host: falmero.store
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
+  - 🇫🇮 FI [R] | 13.143.173.15
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇬🇧 GB [R] | 193.163.203.170
-  - 🇫🇮 FI [R] | 13.143.173.15
   - 🇩🇪 DE [R][xhttp] | 13.143.137.98
   - 🇳🇱 NL [R] | 201.34.130.154
+  - 🇩🇪 DE [grpc] | luminexorizon.ink
   - 🇩🇪 DE [grpc] | 188.225.73.41
-  - 🇩🇪 DE [grpc] | astravellion.xyz
-  - 🇩🇪 DE [grpc] | 5.129.193.120
-  - 🇩🇪 DE [grpc] | 5.129.193.120 (2)
   - 🇫🇮 FI [grpc] | 188.225.46.162
+  - 🇦🇪 AE [ws] | 185.86.147.175
+  - 🇹🇷 TR [ws] | 188.225.37.43
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -300,23 +271,21 @@ proxy-groups:
   type: select
   proxies:
   - 🚀 Auto
+  - 🇫🇮 FI [R] | 13.143.173.15
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇬🇧 GB [R] | 193.163.203.170
-  - 🇫🇮 FI [R] | 13.143.173.15
   - 🇩🇪 DE [R][xhttp] | 13.143.137.98
   - 🇳🇱 NL [R] | 201.34.130.154
+  - 🇩🇪 DE [grpc] | luminexorizon.ink
   - 🇩🇪 DE [grpc] | 188.225.73.41
-  - 🇩🇪 DE [grpc] | astravellion.xyz
-  - 🇩🇪 DE [grpc] | 5.129.193.120
-  - 🇩🇪 DE [grpc] | 5.129.193.120 (2)
   - 🇫🇮 FI [grpc] | 188.225.46.162
-  - 🇦🇪 AE [ws] | bhjolq0d0l.flowersgood.top
-  - 🇩🇪 DE [ws] | 188.225.37.175
-  - 🇹🇷 TR [ws] | 188.225.37.43
-  - 🇯🇵 JP [ws] | 185.222.43.175
   - 🇦🇪 AE [ws] | 185.86.147.175
+  - 🇹🇷 TR [ws] | 188.225.37.43
+  - 🇩🇪 DE [ws] | 188.225.37.175
+  - 🇯🇵 JP [ws] | 185.222.43.175
+  - 🇹🇷 TR [ws] | torvani.cyou
+  - 🇩🇪 DE [ws] | cryptoventura.online
   - 🇩🇪 DE [ws] | 193.233.129.97
-  - 🇩🇪 DE [ws] | ws3.falmero.store
 - name: 🎯 Direct
   type: select
   proxies:
