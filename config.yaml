@@ -34,8 +34,8 @@ proxies:
   reality-opts:
     public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
   servername: google.com
-  flow: xtls-rprx-vision-udp443
-  client-fingerprint: firefox
+  flow: xtls-rprx-vision
+  client-fingerprint: qq
 - name: 🇬🇧 GB [R] | 193.163.203.170
   type: vless
   server: 193.163.203.170
@@ -98,20 +98,20 @@ proxies:
   servername: st.ozone.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇩🇪 DE [grpc] | 5.129.193.120
+- name: 🇩🇪 DE [grpc] | 188.225.73.41
   type: vless
-  server: 5.129.193.120
+  server: 188.225.73.41
   port: 443
-  uuid: 4b50270b-5caf-4c34-b3da-17b4525604a6
+  uuid: 4cabcd59-a405-4c00-96f5-03507e1e28fa
   udp: true
   skip-cert-verify: true
   network: grpc
   encryption: none
   tls: true
-  servername: astravellion.xyz
-  client-fingerprint: qq
+  servername: cadrin.wtf
+  client-fingerprint: chrome
   grpc-opts:
-    grpc-service-name: glush.de1.v1
+    grpc-service-name: cache.sync.v1
 - name: 🇩🇪 DE [grpc] | astravellion.xyz
   type: vless
   server: astravellion.xyz
@@ -126,35 +126,48 @@ proxies:
   client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: glush.de1.v1
-- name: 🇩🇪 DE [grpc] | 188.225.73.41
+- name: 🇩🇪 DE [grpc] | 5.129.193.120
   type: vless
-  server: 188.225.73.41
+  server: 5.129.193.120
   port: 443
-  uuid: 4cabcd59-a405-4c00-96f5-03507e1e28fa
+  uuid: 4b50270b-5caf-4c34-b3da-17b4525604a6
   udp: true
   skip-cert-verify: true
   network: grpc
   encryption: none
   tls: true
-  servername: cadrin.wtf
+  servername: astravellion.xyz
+  client-fingerprint: qq
   grpc-opts:
-    grpc-service-name: cache.sync.v1
-- name: 🇩🇪 DE [ws] | 188.225.37.175
+    grpc-service-name: glush.de1.v1
+- name: 🇩🇪 DE [grpc] | 5.129.193.120 (2)
   type: vless
-  server: 188.225.37.175
+  server: 5.129.193.120
   port: 443
-  uuid: 4b50270b-5caf-4c34-b3da-17b4525604a6
+  uuid: 820fa845-a1eb-4a83-b613-e6714cea8a1a
   udp: true
   skip-cert-verify: true
-  network: ws
+  network: grpc
   encryption: none
   tls: true
-  servername: cryptoventura.online
+  servername: falmero.store
+  client-fingerprint: qq
+  grpc-opts:
+    grpc-service-name: glush.de1.v1
+- name: 🇫🇮 FI [grpc] | 188.225.46.162
+  type: vless
+  server: 188.225.46.162
+  port: 443
+  uuid: 7d718630-7a1a-4af8-9332-aa0610634e8a
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  servername: filnex.baby
   client-fingerprint: firefox
-  ws-opts:
-    path: /api/de3/live
-    headers:
-      Host: cryptoventura.online
+  grpc-opts:
+    grpc-service-name: lalibobi.tw.de1.Connect
 - name: 🇦🇪 AE [ws] | bhjolq0d0l.flowersgood.top
   type: vless
   server: bhjolq0d0l.flowersgood.top
@@ -171,6 +184,22 @@ proxies:
     path: /service/telemetry/045d381f1166/
     headers:
       Host: bhjolq0d0l.flowersgood.top
+- name: 🇩🇪 DE [ws] | 188.225.37.175
+  type: vless
+  server: 188.225.37.175
+  port: 443
+  uuid: 4b50270b-5caf-4c34-b3da-17b4525604a6
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: cryptoventura.online
+  client-fingerprint: chrome
+  ws-opts:
+    path: /api/de3/live
+    headers:
+      Host: cryptoventura.online
 - name: 🇹🇷 TR [ws] | 188.225.37.43
   type: vless
   server: 188.225.37.43
@@ -202,22 +231,22 @@ proxies:
     path: /tyxyws
     headers:
       Host: jp3.yohototo.top
-- name: 🇱🇻 LV [ws] | n1.topingr.ir
+- name: 🇦🇪 AE [ws] | 185.86.147.175
   type: vless
-  server: n1.topingr.ir
+  server: 185.86.147.175
   port: 443
-  uuid: 84be02cf-c5c5-4b33-ba26-31b5f8320033
+  uuid: 7955bf18-35c4-412d-aabd-c0b36c793063
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: cdn2.zovip2.ir
+  servername: bhjolq0d0l.flowersgood.top
   client-fingerprint: chrome
   ws-opts:
-    path: /api/v3/pulse
+    path: /service/telemetry/045d381f1166/
     headers:
-      Host: cdn2.zovip2.ir
+      Host: bhjolq0d0l.flowersgood.top
 - name: 🇩🇪 DE [ws] | 193.233.129.97
   type: vless
   server: 193.233.129.97
@@ -234,6 +263,22 @@ proxies:
     path: /
     headers:
       Host: fs.qicai99.com
+- name: 🇩🇪 DE [ws] | ws3.falmero.store
+  type: vless
+  server: ws3.falmero.store
+  port: 443
+  uuid: 820fa845-a1eb-4a83-b613-e6714cea8a1a
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: falmero.store
+  client-fingerprint: firefox
+  ws-opts:
+    path: /api/de1/stream
+    headers:
+      Host: falmero.store
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
@@ -243,11 +288,11 @@ proxy-groups:
   - 🇫🇮 FI [R] | 13.143.173.15
   - 🇩🇪 DE [R][xhttp] | 13.143.137.98
   - 🇳🇱 NL [R] | 201.34.130.154
-  - 🇩🇪 DE [grpc] | 5.129.193.120
-  - 🇩🇪 DE [grpc] | astravellion.xyz
   - 🇩🇪 DE [grpc] | 188.225.73.41
-  - 🇩🇪 DE [ws] | 188.225.37.175
-  - 🇦🇪 AE [ws] | bhjolq0d0l.flowersgood.top
+  - 🇩🇪 DE [grpc] | astravellion.xyz
+  - 🇩🇪 DE [grpc] | 5.129.193.120
+  - 🇩🇪 DE [grpc] | 5.129.193.120 (2)
+  - 🇫🇮 FI [grpc] | 188.225.46.162
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -260,15 +305,18 @@ proxy-groups:
   - 🇫🇮 FI [R] | 13.143.173.15
   - 🇩🇪 DE [R][xhttp] | 13.143.137.98
   - 🇳🇱 NL [R] | 201.34.130.154
-  - 🇩🇪 DE [grpc] | 5.129.193.120
-  - 🇩🇪 DE [grpc] | astravellion.xyz
   - 🇩🇪 DE [grpc] | 188.225.73.41
-  - 🇩🇪 DE [ws] | 188.225.37.175
+  - 🇩🇪 DE [grpc] | astravellion.xyz
+  - 🇩🇪 DE [grpc] | 5.129.193.120
+  - 🇩🇪 DE [grpc] | 5.129.193.120 (2)
+  - 🇫🇮 FI [grpc] | 188.225.46.162
   - 🇦🇪 AE [ws] | bhjolq0d0l.flowersgood.top
+  - 🇩🇪 DE [ws] | 188.225.37.175
   - 🇹🇷 TR [ws] | 188.225.37.43
   - 🇯🇵 JP [ws] | 185.222.43.175
-  - 🇱🇻 LV [ws] | n1.topingr.ir
+  - 🇦🇪 AE [ws] | 185.86.147.175
   - 🇩🇪 DE [ws] | 193.233.129.97
+  - 🇩🇪 DE [ws] | ws3.falmero.store
 - name: 🎯 Direct
   type: select
   proxies:
