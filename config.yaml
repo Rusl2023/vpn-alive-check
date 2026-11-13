@@ -34,22 +34,7 @@ proxies:
   reality-opts:
     public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
   servername: google.com
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇫🇮 FI [R] | 13.143.173.15
-  type: vless
-  server: 13.143.173.15
-  port: 443
-  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
-  servername: google.com
-  flow: xtls-rprx-vision
+  flow: xtls-rprx-vision-udp443
   client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 193.163.203.170
   type: vless
@@ -67,6 +52,21 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: random
+- name: 🇫🇮 FI [R] | 13.143.173.15
+  type: vless
+  server: 13.143.173.15
+  port: 443
+  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
+  servername: google.com
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇩🇪 DE [R][xhttp] | 13.143.137.98
   type: vless
   server: 13.143.137.98
@@ -82,22 +82,36 @@ proxies:
     short-id: 8d0ff3d6ec629371
   servername: ozon.ru
   client-fingerprint: chrome
-- name: 🇳🇱 NL [R] | novonl.subv.ru
+- name: 🇳🇱 NL [R] | 201.34.130.154
   type: vless
-  server: novonl.subv.ru
+  server: 201.34.130.154
   port: 443
-  uuid: 90157e25-cee1-4217-921e-91f300bc1a24
+  uuid: fb9b439d-e5d2-4337-a781-b18a67b8127e
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: 1vSZjvhZO01oAEH3b7eebR1qF5dLU1Dq2E7xu8pwGSs
-    short-id: 428ef87fd47a3a32
-  servername: golos.mail.ru
+    public-key: Adzk6YXb3MU4kN8PgDQjY_4GfQgMUhRy_2LOGmiFHCg
+    short-id: c48282c0acf92721
+  servername: st.ozone.ru
   flow: xtls-rprx-vision
   client-fingerprint: chrome
+- name: 🇩🇪 DE [grpc] | 5.129.193.120
+  type: vless
+  server: 5.129.193.120
+  port: 443
+  uuid: 4b50270b-5caf-4c34-b3da-17b4525604a6
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  servername: astravellion.xyz
+  client-fingerprint: qq
+  grpc-opts:
+    grpc-service-name: glush.de1.v1
 - name: 🇩🇪 DE [grpc] | astravellion.xyz
   type: vless
   server: astravellion.xyz
@@ -109,9 +123,54 @@ proxies:
   encryption: none
   tls: true
   servername: astravellion.xyz
-  client-fingerprint: random
+  client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: glush.de1.v1
+- name: 🇩🇪 DE [grpc] | 188.225.73.41
+  type: vless
+  server: 188.225.73.41
+  port: 443
+  uuid: 4cabcd59-a405-4c00-96f5-03507e1e28fa
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  servername: cadrin.wtf
+  grpc-opts:
+    grpc-service-name: cache.sync.v1
+- name: 🇩🇪 DE [ws] | 188.225.37.175
+  type: vless
+  server: 188.225.37.175
+  port: 443
+  uuid: 4b50270b-5caf-4c34-b3da-17b4525604a6
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: cryptoventura.online
+  client-fingerprint: firefox
+  ws-opts:
+    path: /api/de3/live
+    headers:
+      Host: cryptoventura.online
+- name: 🇦🇪 AE [ws] | bhjolq0d0l.flowersgood.top
+  type: vless
+  server: bhjolq0d0l.flowersgood.top
+  port: 443
+  uuid: 7955bf18-35c4-412d-aabd-c0b36c793063
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: bhjolq0d0l.flowersgood.top
+  client-fingerprint: chrome
+  ws-opts:
+    path: /service/telemetry/045d381f1166/
+    headers:
+      Host: bhjolq0d0l.flowersgood.top
 - name: 🇹🇷 TR [ws] | 188.225.37.43
   type: vless
   server: 188.225.37.43
@@ -128,22 +187,6 @@ proxies:
     path: '%2Fapi%2Fboards%2Flive'
     headers:
       Host: torvani.cyou
-- name: 🇩🇪 DE [ws] | 188.225.37.175
-  type: vless
-  server: 188.225.37.175
-  port: 443
-  uuid: 4b50270b-5caf-4c34-b3da-17b4525604a6
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: cryptoventura.online
-  client-fingerprint: chrome
-  ws-opts:
-    path: /api/de3/live
-    headers:
-      Host: cryptoventura.online
 - name: 🇯🇵 JP [ws] | 185.222.43.175
   type: vless
   server: 185.222.43.175
@@ -159,37 +202,22 @@ proxies:
     path: /tyxyws
     headers:
       Host: jp3.yohototo.top
-- name: 🇦🇪 AE [ws] | 185.86.147.175
+- name: 🇱🇻 LV [ws] | n1.topingr.ir
   type: vless
-  server: 185.86.147.175
+  server: n1.topingr.ir
   port: 443
-  uuid: 7955bf18-35c4-412d-aabd-c0b36c793063
+  uuid: 84be02cf-c5c5-4b33-ba26-31b5f8320033
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: bhjolq0d0l.flowersgood.top
+  servername: cdn2.zovip2.ir
   client-fingerprint: chrome
   ws-opts:
-    path: /service/telemetry/045d381f1166/
+    path: /api/v3/pulse
     headers:
-      Host: bhjolq0d0l.flowersgood.top
-- name: 🇦🇪 AE [ws] | bhjolq0d0l.flowersgood.top
-  type: vless
-  server: bhjolq0d0l.flowersgood.top
-  port: 443
-  uuid: 7955bf18-35c4-412d-aabd-c0b36c793063
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: bhjolq0d0l.flowersgood.top
-  ws-opts:
-    path: /service/telemetry/045d381f1166/
-    headers:
-      Host: bhjolq0d0l.flowersgood.top
+      Host: cdn2.zovip2.ir
 - name: 🇩🇪 DE [ws] | 193.233.129.97
   type: vless
   server: 193.233.129.97
@@ -206,51 +234,20 @@ proxies:
     path: /
     headers:
       Host: fs.qicai99.com
-- name: 🇸🇪 SE [ws] | 45.83.182.80
-  type: vless
-  server: 45.83.182.80
-  port: 443
-  uuid: 99c5b713-dedf-4a10-8070-916ff3f49b0e
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: fs.qicai99.com
-  ws-opts:
-    path: /
-    headers:
-      Host: fs.qicai99.com
-- name: 🇩🇪 DE [ws] | cryptoventura.online
-  type: vless
-  server: cryptoventura.online
-  port: 443
-  uuid: 4b50270b-5caf-4c34-b3da-17b4525604a6
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: cryptoventura.online
-  client-fingerprint: chrome
-  ws-opts:
-    path: /api/de3/live
-    headers:
-      Host: cryptoventura.online
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
   - 🇸🇪 SE [R] | 31.77.18.220
-  - 🇫🇮 FI [R] | 13.143.173.15
   - 🇬🇧 GB [R] | 193.163.203.170
+  - 🇫🇮 FI [R] | 13.143.173.15
   - 🇩🇪 DE [R][xhttp] | 13.143.137.98
-  - 🇳🇱 NL [R] | novonl.subv.ru
+  - 🇳🇱 NL [R] | 201.34.130.154
+  - 🇩🇪 DE [grpc] | 5.129.193.120
   - 🇩🇪 DE [grpc] | astravellion.xyz
-  - 🇹🇷 TR [ws] | 188.225.37.43
+  - 🇩🇪 DE [grpc] | 188.225.73.41
   - 🇩🇪 DE [ws] | 188.225.37.175
-  - 🇯🇵 JP [ws] | 185.222.43.175
-  - 🇦🇪 AE [ws] | 185.86.147.175
+  - 🇦🇪 AE [ws] | bhjolq0d0l.flowersgood.top
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -259,19 +256,19 @@ proxy-groups:
   proxies:
   - 🚀 Auto
   - 🇸🇪 SE [R] | 31.77.18.220
-  - 🇫🇮 FI [R] | 13.143.173.15
   - 🇬🇧 GB [R] | 193.163.203.170
+  - 🇫🇮 FI [R] | 13.143.173.15
   - 🇩🇪 DE [R][xhttp] | 13.143.137.98
-  - 🇳🇱 NL [R] | novonl.subv.ru
+  - 🇳🇱 NL [R] | 201.34.130.154
+  - 🇩🇪 DE [grpc] | 5.129.193.120
   - 🇩🇪 DE [grpc] | astravellion.xyz
-  - 🇹🇷 TR [ws] | 188.225.37.43
+  - 🇩🇪 DE [grpc] | 188.225.73.41
   - 🇩🇪 DE [ws] | 188.225.37.175
-  - 🇯🇵 JP [ws] | 185.222.43.175
-  - 🇦🇪 AE [ws] | 185.86.147.175
   - 🇦🇪 AE [ws] | bhjolq0d0l.flowersgood.top
+  - 🇹🇷 TR [ws] | 188.225.37.43
+  - 🇯🇵 JP [ws] | 185.222.43.175
+  - 🇱🇻 LV [ws] | n1.topingr.ir
   - 🇩🇪 DE [ws] | 193.233.129.97
-  - 🇸🇪 SE [ws] | 45.83.182.80
-  - 🇩🇪 DE [ws] | cryptoventura.online
 - name: 🎯 Direct
   type: select
   proxies:
