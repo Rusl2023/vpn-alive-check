@@ -21,36 +21,6 @@ dns:
   - tls://8.8.8.8
   - tls://1.1.1.1
 proxies:
-- name: 🇸🇪 SE [R] | 31.77.18.220
-  type: vless
-  server: 31.77.18.220
-  port: 443
-  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
-  servername: google.com
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇫🇮 FI [R] | 13.143.173.15
-  type: vless
-  server: 13.143.173.15
-  port: 443
-  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
-  servername: google.com
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 193.163.203.170
   type: vless
   server: 193.163.203.170
@@ -67,6 +37,52 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: random
+- name: 🇫🇮 FI [R] | 13.143.173.15
+  type: vless
+  server: 13.143.173.15
+  port: 443
+  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
+  servername: google.com
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇸🇪 SE [R] | 31.77.18.220
+  type: vless
+  server: 31.77.18.220
+  port: 443
+  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
+  servername: google.com
+  flow: xtls-rprx-vision
+  client-fingerprint: qq
+- name: 🇫🇮 FI [R] | 147.45.214.143
+  type: vless
+  server: 147.45.214.143
+  port: 443
+  uuid: fb9b439d-e5d2-4337-a781-b18a67b8127e
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: Adzk6YXb3MU4kN8PgDQjY_4GfQgMUhRy_2LOGmiFHCg
+    short-id: c48282c0acf92721
+  servername: st.ozone.ru
+  flow: xtls-rprx-vision-udp443
+  client-fingerprint: firefox
 - name: 🇩🇪 DE [grpc] | 188.225.73.41
   type: vless
   server: 188.225.73.41
@@ -78,9 +94,10 @@ proxies:
   encryption: none
   tls: true
   servername: cadrin.wtf
+  client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: cache.sync.v1
-- name: 🇧🇬 BG [xhttp] | 185.178.208.140
+- name: 🇷🇴 RO [xhttp] | 185.178.208.140
   type: vless
   server: 185.178.208.140
   port: 443
@@ -91,26 +108,38 @@ proxies:
   encryption: none
   tls: true
   servername: kfx7q.bakarova-top.ru
-  client-fingerprint: firefox
-- name: 🇳🇱 NL [ws] | 185.86.147.175
-  type: vless
-  server: 185.86.147.175
-  port: 443
-  uuid: 7955bf18-35c4-412d-aabd-c0b36c793063
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: nguyxejonb.flowersgood.top
   client-fingerprint: chrome
-  ws-opts:
-    path: /service/telemetry/0294da469190/
-    headers:
-      Host: nguyxejonb.flowersgood.top
-- name: 🇳🇱 NL [ws] | nguyxejonb.flowersgood.top
+- name: 🇪🇪 EE [grpc] | 194.55.239.18
   type: vless
-  server: nguyxejonb.flowersgood.top
+  server: 194.55.239.18
+  port: 443
+  uuid: 3ecbd833-40d8-4ddb-b80b-a7c4628ec7e5
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  servername: d4x-ee.cloud-cdn.xyz
+  client-fingerprint: firefox
+  grpc-opts:
+    grpc-service-name: vlgrpc
+- name: 🇪🇪 EE [grpc] | 194.55.239.15
+  type: vless
+  server: 194.55.239.15
+  port: 443
+  uuid: 3ecbd833-40d8-4ddb-b80b-a7c4628ec7e5
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  servername: d4x-ee.cloud-cdn.xyz
+  client-fingerprint: firefox
+  grpc-opts:
+    grpc-service-name: vlgrpc
+- name: 🇦🇪 AE [ws] | bhjolq0d0l.flowersgood.top
+  type: vless
+  server: bhjolq0d0l.flowersgood.top
   port: 443
   uuid: 7955bf18-35c4-412d-aabd-c0b36c793063
   udp: true
@@ -118,26 +147,12 @@ proxies:
   network: ws
   encryption: none
   tls: true
-  servername: nguyxejonb.flowersgood.top
+  servername: bhjolq0d0l.flowersgood.top
+  client-fingerprint: qq
   ws-opts:
-    path: /service/telemetry/0294da469190/
+    path: /service/telemetry/045d381f1166/
     headers:
-      Host: nguyxejonb.flowersgood.top
-- name: 🇯🇵 JP [ws] | 185.222.43.175
-  type: vless
-  server: 185.222.43.175
-  port: 443
-  uuid: 4e4f1f70-5e56-4a76-bb9d-db087f4690c4
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: jp3.yohototo.top
-  ws-opts:
-    path: /tyxyws
-    headers:
-      Host: jp3.yohototo.top
+      Host: bhjolq0d0l.flowersgood.top
 - name: 🇦🇪 AE [ws] | 185.86.147.175
   type: vless
   server: 185.86.147.175
@@ -154,24 +169,24 @@ proxies:
     path: /service/telemetry/045d381f1166/
     headers:
       Host: bhjolq0d0l.flowersgood.top
-- name: 🇩🇪 DE [ws] | 193.233.129.97
+- name: 🇯🇵 JP [ws] | 185.222.43.175
   type: vless
-  server: 193.233.129.97
+  server: 185.222.43.175
   port: 443
-  uuid: 99c5b713-dedf-4a10-8070-916ff3f49b0e
+  uuid: 4e4f1f70-5e56-4a76-bb9d-db087f4690c4
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: fs.qicai99.com
+  servername: jp3.yohototo.top
   ws-opts:
-    path: /
+    path: /tyxyws
     headers:
-      Host: fs.qicai99.com
-- name: 🇦🇪 AE [ws] | bhjolq0d0l.flowersgood.top
+      Host: jp3.yohototo.top
+- name: 🇳🇱 NL [ws] | nguyxejonb.flowersgood.top
   type: vless
-  server: bhjolq0d0l.flowersgood.top
+  server: nguyxejonb.flowersgood.top
   port: 443
   uuid: 7955bf18-35c4-412d-aabd-c0b36c793063
   udp: true
@@ -179,26 +194,74 @@ proxies:
   network: ws
   encryption: none
   tls: true
-  servername: bhjolq0d0l.flowersgood.top
+  servername: nguyxejonb.flowersgood.top
+  client-fingerprint: firefox
+  ws-opts:
+    path: /service/telemetry/0294da469190/
+    headers:
+      Host: nguyxejonb.flowersgood.top
+- name: 🇩🇪 DE [ws] | my.nehtar.ru
+  type: vless
+  server: my.nehtar.ru
+  port: 443
+  uuid: fe1988d0-077c-4865-8b03-ffde242a109f
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: my.nehtar.ru
+  client-fingerprint: qq
+  ws-opts:
+    path: /gateway/v1/ws/a10af91503cf8cbe55f42a7e5264c498
+    headers:
+      Host: my.nehtar.ru
+- name: 🇩🇪 DE [ws] | qvk5si2vup.flowersgood.top
+  type: vless
+  server: qvk5si2vup.flowersgood.top
+  port: 443
+  uuid: 7955bf18-35c4-412d-aabd-c0b36c793063
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: qvk5si2vup.flowersgood.top
   client-fingerprint: chrome
   ws-opts:
-    path: /service/telemetry/045d381f1166/
+    path: /client/events/c328ea296826/
     headers:
-      Host: bhjolq0d0l.flowersgood.top
+      Host: qvk5si2vup.flowersgood.top
+- name: 🇳🇱 NL [ws] | 185.86.147.175
+  type: vless
+  server: 185.86.147.175
+  port: 443
+  uuid: 7955bf18-35c4-412d-aabd-c0b36c793063
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: nguyxejonb.flowersgood.top
+  client-fingerprint: firefox
+  ws-opts:
+    path: /service/telemetry/0294da469190/
+    headers:
+      Host: nguyxejonb.flowersgood.top
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
-  - 🇸🇪 SE [R] | 31.77.18.220
-  - 🇫🇮 FI [R] | 13.143.173.15
   - 🇬🇧 GB [R] | 193.163.203.170
+  - 🇫🇮 FI [R] | 13.143.173.15
+  - 🇸🇪 SE [R] | 31.77.18.220
+  - 🇫🇮 FI [R] | 147.45.214.143
   - 🇩🇪 DE [grpc] | 188.225.73.41
-  - 🇧🇬 BG [xhttp] | 185.178.208.140
-  - 🇳🇱 NL [ws] | 185.86.147.175
-  - 🇳🇱 NL [ws] | nguyxejonb.flowersgood.top
-  - 🇯🇵 JP [ws] | 185.222.43.175
+  - 🇷🇴 RO [xhttp] | 185.178.208.140
+  - 🇪🇪 EE [grpc] | 194.55.239.18
+  - 🇪🇪 EE [grpc] | 194.55.239.15
+  - 🇦🇪 AE [ws] | bhjolq0d0l.flowersgood.top
   - 🇦🇪 AE [ws] | 185.86.147.175
-  - 🇩🇪 DE [ws] | 193.233.129.97
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -206,17 +269,21 @@ proxy-groups:
   type: select
   proxies:
   - 🚀 Auto
-  - 🇸🇪 SE [R] | 31.77.18.220
-  - 🇫🇮 FI [R] | 13.143.173.15
   - 🇬🇧 GB [R] | 193.163.203.170
+  - 🇫🇮 FI [R] | 13.143.173.15
+  - 🇸🇪 SE [R] | 31.77.18.220
+  - 🇫🇮 FI [R] | 147.45.214.143
   - 🇩🇪 DE [grpc] | 188.225.73.41
-  - 🇧🇬 BG [xhttp] | 185.178.208.140
-  - 🇳🇱 NL [ws] | 185.86.147.175
-  - 🇳🇱 NL [ws] | nguyxejonb.flowersgood.top
-  - 🇯🇵 JP [ws] | 185.222.43.175
-  - 🇦🇪 AE [ws] | 185.86.147.175
-  - 🇩🇪 DE [ws] | 193.233.129.97
+  - 🇷🇴 RO [xhttp] | 185.178.208.140
+  - 🇪🇪 EE [grpc] | 194.55.239.18
+  - 🇪🇪 EE [grpc] | 194.55.239.15
   - 🇦🇪 AE [ws] | bhjolq0d0l.flowersgood.top
+  - 🇦🇪 AE [ws] | 185.86.147.175
+  - 🇯🇵 JP [ws] | 185.222.43.175
+  - 🇳🇱 NL [ws] | nguyxejonb.flowersgood.top
+  - 🇩🇪 DE [ws] | my.nehtar.ru
+  - 🇩🇪 DE [ws] | qvk5si2vup.flowersgood.top
+  - 🇳🇱 NL [ws] | 185.86.147.175
 - name: 🎯 Direct
   type: select
   proxies:
