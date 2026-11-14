@@ -21,21 +21,6 @@ dns:
   - tls://8.8.8.8
   - tls://1.1.1.1
 proxies:
-- name: 🇫🇮 FI [R] | 13.143.173.15
-  type: vless
-  server: 13.143.173.15
-  port: 443
-  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
-  servername: google.com
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇸🇪 SE [R] | 31.77.18.220
   type: vless
   server: 31.77.18.220
@@ -49,7 +34,7 @@ proxies:
   reality-opts:
     public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
   servername: google.com
-  flow: xtls-rprx-vision-udp443
+  flow: xtls-rprx-vision
   client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 193.163.203.170
   type: vless
@@ -67,6 +52,49 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: random
+- name: 🇫🇮 FI [R] | 13.143.173.15
+  type: vless
+  server: 13.143.173.15
+  port: 443
+  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
+  servername: google.com
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇩🇪 DE [grpc] | 72.56.252.245
+  type: vless
+  server: 72.56.252.245
+  port: 443
+  uuid: 820fa845-a1eb-4a83-b613-e6714cea8a1a
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  servername: notebook.filnex.baby
+  client-fingerprint: firefox
+  grpc-opts:
+    grpc-service-name: glush.de6.v1
+- name: 🇩🇪 DE [grpc] | hemlock.elvano.website
+  type: vless
+  server: hemlock.elvano.website
+  port: 443
+  uuid: 820fa845-a1eb-4a83-b613-e6714cea8a1a
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  servername: hemlock.elvano.website
+  client-fingerprint: firefox
+  grpc-opts:
+    grpc-service-name: cache.sync.v1
 - name: 🇩🇪 DE [grpc] | luminexorizon.ink
   type: vless
   server: luminexorizon.ink
@@ -94,6 +122,62 @@ proxies:
   servername: cadrin.wtf
   grpc-opts:
     grpc-service-name: cache.sync.v1
+- name: 🇫🇮 FI [grpc] | 188.225.46.162
+  type: vless
+  server: 188.225.46.162
+  port: 443
+  uuid: 7d718630-7a1a-4af8-9332-aa0610634e8a
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  servername: filnex.baby
+  client-fingerprint: firefox
+  grpc-opts:
+    grpc-service-name: lalibobi.tw.de1.Connect
+- name: 🇩🇪 DE [grpc] | 188.225.38.12
+  type: vless
+  server: 188.225.38.12
+  port: 443
+  uuid: 820fa845-a1eb-4a83-b613-e6714cea8a1a
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  servername: hemlock.elvano.website
+  client-fingerprint: firefox
+  grpc-opts:
+    grpc-service-name: cache.sync.v1
+- name: 🇩🇪 DE [grpc] | atelier.merlano.monster
+  type: vless
+  server: atelier.merlano.monster
+  port: 443
+  uuid: 820fa845-a1eb-4a83-b613-e6714cea8a1a
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  servername: grove.moltex.click
+  client-fingerprint: firefox
+  grpc-opts:
+    grpc-service-name: glush.de1.v1
+- name: 🇩🇪 DE [grpc] | gallery.merlano.monster
+  type: vless
+  server: gallery.merlano.monster
+  port: 443
+  uuid: 820fa845-a1eb-4a83-b613-e6714cea8a1a
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  servername: grove.moltex.click
+  client-fingerprint: firefox
+  grpc-opts:
+    grpc-service-name: glush.de2.v1
 - name: 🇦🇪 AE [ws] | 185.86.147.175
   type: vless
   server: 185.86.147.175
@@ -105,27 +189,11 @@ proxies:
   encryption: none
   tls: true
   servername: bhjolq0d0l.flowersgood.top
-  client-fingerprint: chrome
+  client-fingerprint: firefox
   ws-opts:
     path: /service/telemetry/045d381f1166/
     headers:
       Host: bhjolq0d0l.flowersgood.top
-- name: 🇩🇪 DE [ws] | silk.filnex.baby
-  type: vless
-  server: silk.filnex.baby
-  port: 443
-  uuid: 820fa845-a1eb-4a83-b613-e6714cea8a1a
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: silk.filnex.baby
-  client-fingerprint: random
-  ws-opts:
-    path: /api/de5/stream
-    headers:
-      Host: silk.filnex.baby
 - name: 🇦🇪 AE [ws] | bhjolq0d0l.flowersgood.top
   type: vless
   server: bhjolq0d0l.flowersgood.top
@@ -137,27 +205,42 @@ proxies:
   encryption: none
   tls: true
   servername: bhjolq0d0l.flowersgood.top
-  client-fingerprint: chrome
   ws-opts:
     path: /service/telemetry/045d381f1166/
     headers:
       Host: bhjolq0d0l.flowersgood.top
-- name: 🇩🇪 DE [ws] | ivory.filnex.baby
+- name: 🇳🇱 NL [ws] | 31.177.111.184
   type: vless
-  server: ivory.filnex.baby
+  server: 31.177.111.184
   port: 443
-  uuid: 820fa845-a1eb-4a83-b613-e6714cea8a1a
+  uuid: 2232d904-8e6a-4202-8240-6efd8aec02e9
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: ivory.filnex.baby
+  servername: zry9ocg43w.flowersgood.top
   client-fingerprint: firefox
   ws-opts:
-    path: /api/de4/stream
+    path: /static/collect/9412171e8a3a/
     headers:
-      Host: ivory.filnex.baby
+      Host: zry9ocg43w.flowersgood.top
+- name: 🇺🇸 US [ws] | 178.104.70.11
+  type: vless
+  server: 178.104.70.11
+  port: 443
+  uuid: 64726966-0000-4000-8000-740000000000
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: parsa-panel-dy55x.railway1385-2a46.workers.dev
+  client-fingerprint: firefox
+  ws-opts:
+    path: /
+    headers:
+      Host: parsa-panel-dy55x.railway1385-2a46.workers.dev
 - name: 🇯🇵 JP [ws] | 185.222.43.175
   type: vless
   server: 185.222.43.175
@@ -173,22 +256,38 @@ proxies:
     path: /tyxyws
     headers:
       Host: jp3.yohototo.top
-- name: 🇳🇱 NL [ws] | nguyxejonb.flowersgood.top
+- name: 🇩🇪 DE [ws] | hedgerow.moltex.click
   type: vless
-  server: nguyxejonb.flowersgood.top
+  server: hedgerow.moltex.click
   port: 443
-  uuid: 7955bf18-35c4-412d-aabd-c0b36c793063
+  uuid: 820fa845-a1eb-4a83-b613-e6714cea8a1a
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: nguyxejonb.flowersgood.top
-  client-fingerprint: firefox
+  servername: grove.moltex.click
+  client-fingerprint: chrome
   ws-opts:
-    path: /service/telemetry/0294da469190/
+    path: /api/de6/stream
     headers:
-      Host: nguyxejonb.flowersgood.top
+      Host: grove.moltex.click
+- name: 🇩🇪 DE [ws] | 193.233.129.97
+  type: vless
+  server: 193.233.129.97
+  port: 443
+  uuid: 99c5b713-dedf-4a10-8070-916ff3f49b0e
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: fs.qicai99.com
+  client-fingerprint: chrome
+  ws-opts:
+    path: /
+    headers:
+      Host: fs.qicai99.com
 - name: 🇩🇪 DE [ws] | grove.moltex.click
   type: vless
   server: grove.moltex.click
@@ -205,52 +304,20 @@ proxies:
     path: /api/de6/stream
     headers:
       Host: grove.moltex.click
-- name: 🇩🇪 DE [ws] | ws3.falmero.store
-  type: vless
-  server: ws3.falmero.store
-  port: 443
-  uuid: 820fa845-a1eb-4a83-b613-e6714cea8a1a
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: falmero.store
-  client-fingerprint: firefox
-  ws-opts:
-    path: /api/de1/stream
-    headers:
-      Host: falmero.store
-- name: 🇳🇱 NL [ws] | 185.86.147.175
-  type: vless
-  server: 185.86.147.175
-  port: 443
-  uuid: 7955bf18-35c4-412d-aabd-c0b36c793063
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: nguyxejonb.flowersgood.top
-  client-fingerprint: firefox
-  ws-opts:
-    path: /service/telemetry/0294da469190/
-    headers:
-      Host: nguyxejonb.flowersgood.top
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
-  - 🇫🇮 FI [R] | 13.143.173.15
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇬🇧 GB [R] | 193.163.203.170
+  - 🇫🇮 FI [R] | 13.143.173.15
+  - 🇩🇪 DE [grpc] | 72.56.252.245
+  - 🇩🇪 DE [grpc] | hemlock.elvano.website
   - 🇩🇪 DE [grpc] | luminexorizon.ink
   - 🇩🇪 DE [grpc] | 188.225.73.41
-  - 🇦🇪 AE [ws] | 185.86.147.175
-  - 🇩🇪 DE [ws] | silk.filnex.baby
-  - 🇦🇪 AE [ws] | bhjolq0d0l.flowersgood.top
-  - 🇩🇪 DE [ws] | ivory.filnex.baby
-  - 🇯🇵 JP [ws] | 185.222.43.175
+  - 🇫🇮 FI [grpc] | 188.225.46.162
+  - 🇩🇪 DE [grpc] | 188.225.38.12
+  - 🇩🇪 DE [grpc] | atelier.merlano.monster
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -258,20 +325,25 @@ proxy-groups:
   type: select
   proxies:
   - 🚀 Auto
-  - 🇫🇮 FI [R] | 13.143.173.15
   - 🇸🇪 SE [R] | 31.77.18.220
   - 🇬🇧 GB [R] | 193.163.203.170
+  - 🇫🇮 FI [R] | 13.143.173.15
+  - 🇩🇪 DE [grpc] | 72.56.252.245
+  - 🇩🇪 DE [grpc] | hemlock.elvano.website
   - 🇩🇪 DE [grpc] | luminexorizon.ink
   - 🇩🇪 DE [grpc] | 188.225.73.41
+  - 🇫🇮 FI [grpc] | 188.225.46.162
+  - 🇩🇪 DE [grpc] | 188.225.38.12
+  - 🇩🇪 DE [grpc] | atelier.merlano.monster
+  - 🇩🇪 DE [grpc] | gallery.merlano.monster
   - 🇦🇪 AE [ws] | 185.86.147.175
-  - 🇩🇪 DE [ws] | silk.filnex.baby
   - 🇦🇪 AE [ws] | bhjolq0d0l.flowersgood.top
-  - 🇩🇪 DE [ws] | ivory.filnex.baby
+  - 🇳🇱 NL [ws] | 31.177.111.184
+  - 🇺🇸 US [ws] | 178.104.70.11
   - 🇯🇵 JP [ws] | 185.222.43.175
-  - 🇳🇱 NL [ws] | nguyxejonb.flowersgood.top
+  - 🇩🇪 DE [ws] | hedgerow.moltex.click
+  - 🇩🇪 DE [ws] | 193.233.129.97
   - 🇩🇪 DE [ws] | grove.moltex.click
-  - 🇩🇪 DE [ws] | ws3.falmero.store
-  - 🇳🇱 NL [ws] | 185.86.147.175
 - name: 🎯 Direct
   type: select
   proxies:
