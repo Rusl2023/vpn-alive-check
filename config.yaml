@@ -21,21 +21,6 @@ dns:
   - tls://8.8.8.8
   - tls://1.1.1.1
 proxies:
-- name: 🇸🇪 SE [R] | 31.77.18.220
-  type: vless
-  server: 31.77.18.220
-  port: 443
-  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
-  servername: google.com
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 193.163.203.170
   type: vless
   server: 193.163.203.170
@@ -67,6 +52,21 @@ proxies:
   servername: google.com
   flow: xtls-rprx-vision
   client-fingerprint: firefox
+- name: 🇸🇪 SE [R] | 31.77.18.220
+  type: vless
+  server: 31.77.18.220
+  port: 443
+  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
+  servername: google.com
+  flow: xtls-rprx-vision
+  client-fingerprint: qq
 - name: 🇳🇱 NL [R] | 147.45.214.143
   type: vless
   server: 147.45.214.143
@@ -113,22 +113,6 @@ proxies:
   client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: cache.sync.v1
-- name: 🇫🇷 FR [ws] | 178.104.70.11
-  type: vless
-  server: 178.104.70.11
-  port: 443
-  uuid: 64726966-0000-4000-8000-740000000000
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: parsa-panel-dy55x.railway1385-2a46.workers.dev
-  client-fingerprint: firefox
-  ws-opts:
-    path: /
-    headers:
-      Host: parsa-panel-dy55x.railway1385-2a46.workers.dev
 - name: 🇯🇵 JP [ws] | 185.222.43.175
   type: vless
   server: 185.222.43.175
@@ -164,13 +148,12 @@ proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
-  - 🇸🇪 SE [R] | 31.77.18.220
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇫🇮 FI [R] | 13.143.173.15
+  - 🇸🇪 SE [R] | 31.77.18.220
   - 🇳🇱 NL [R] | 147.45.214.143
   - 🇳🇱 NL [R] | 93.183.83.53
   - 🇩🇪 DE [grpc] | 188.225.73.41
-  - 🇫🇷 FR [ws] | 178.104.70.11
   - 🇯🇵 JP [ws] | 185.222.43.175
   - 🇩🇪 DE [ws] | my.nehtar.ru
   url: https://www.google.com/generate_204
@@ -180,13 +163,12 @@ proxy-groups:
   type: select
   proxies:
   - 🚀 Auto
-  - 🇸🇪 SE [R] | 31.77.18.220
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇫🇮 FI [R] | 13.143.173.15
+  - 🇸🇪 SE [R] | 31.77.18.220
   - 🇳🇱 NL [R] | 147.45.214.143
   - 🇳🇱 NL [R] | 93.183.83.53
   - 🇩🇪 DE [grpc] | 188.225.73.41
-  - 🇫🇷 FR [ws] | 178.104.70.11
   - 🇯🇵 JP [ws] | 185.222.43.175
   - 🇩🇪 DE [ws] | my.nehtar.ru
 - name: 🎯 Direct
