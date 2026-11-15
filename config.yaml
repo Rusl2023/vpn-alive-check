@@ -51,7 +51,7 @@ proxies:
     public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
   servername: google.com
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
+  client-fingerprint: firefox
 - name: 🇸🇪 SE [R] | 31.77.18.220
   type: vless
   server: 31.77.18.220
@@ -67,6 +67,37 @@ proxies:
   servername: google.com
   flow: xtls-rprx-vision
   client-fingerprint: qq
+- name: 🇳🇱 NL [R] | 147.45.214.143
+  type: vless
+  server: 147.45.214.143
+  port: 443
+  uuid: fb9b439d-e5d2-4337-a781-b18a67b8127e
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: Adzk6YXb3MU4kN8PgDQjY_4GfQgMUhRy_2LOGmiFHCg
+    short-id: c48282c0acf92721
+  servername: st.ozone.ru
+  flow: xtls-rprx-vision-udp443
+- name: 🇳🇱 NL [R] | 93.183.83.53
+  type: vless
+  server: 93.183.83.53
+  port: 443
+  uuid: fb9b439d-e5d2-4337-a781-b18a67b8127e
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: Adzk6YXb3MU4kN8PgDQjY_4GfQgMUhRy_2LOGmiFHCg
+    short-id: c48282c0acf92721
+  servername: st.ozone.ru
+  flow: xtls-rprx-vision-udp443
+  client-fingerprint: firefox
 - name: 🇩🇪 DE [grpc] | 188.225.73.41
   type: vless
   server: 188.225.73.41
@@ -78,22 +109,8 @@ proxies:
   encryption: none
   tls: true
   servername: cadrin.wtf
-  client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: cache.sync.v1
-- name: 🇵🇱 PL  | 159.194.210.102
-  type: vless
-  server: 159.194.210.102
-  port: 443
-  uuid: ecf65acd-ea72-0002-be5f-cd23afb2722f
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: box.vpvi.store
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
 - name: 🇯🇵 JP [ws] | 185.222.43.175
   type: vless
   server: 185.222.43.175
@@ -109,6 +126,22 @@ proxies:
     path: /tyxyws
     headers:
       Host: jp3.yohototo.top
+- name: 🇩🇪 DE [ws] | my.nehtar.ru
+  type: vless
+  server: my.nehtar.ru
+  port: 443
+  uuid: fe1988d0-077c-4865-8b03-ffde242a109f
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: my.nehtar.ru
+  client-fingerprint: qq
+  ws-opts:
+    path: /gateway/v1/ws/a10af91503cf8cbe55f42a7e5264c498
+    headers:
+      Host: my.nehtar.ru
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
@@ -116,9 +149,11 @@ proxy-groups:
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇫🇮 FI [R] | 13.143.173.15
   - 🇸🇪 SE [R] | 31.77.18.220
+  - 🇳🇱 NL [R] | 147.45.214.143
+  - 🇳🇱 NL [R] | 93.183.83.53
   - 🇩🇪 DE [grpc] | 188.225.73.41
-  - 🇵🇱 PL  | 159.194.210.102
   - 🇯🇵 JP [ws] | 185.222.43.175
+  - 🇩🇪 DE [ws] | my.nehtar.ru
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -129,9 +164,11 @@ proxy-groups:
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇫🇮 FI [R] | 13.143.173.15
   - 🇸🇪 SE [R] | 31.77.18.220
+  - 🇳🇱 NL [R] | 147.45.214.143
+  - 🇳🇱 NL [R] | 93.183.83.53
   - 🇩🇪 DE [grpc] | 188.225.73.41
-  - 🇵🇱 PL  | 159.194.210.102
   - 🇯🇵 JP [ws] | 185.222.43.175
+  - 🇩🇪 DE [ws] | my.nehtar.ru
 - name: 🎯 Direct
   type: select
   proxies:
