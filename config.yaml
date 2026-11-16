@@ -21,21 +21,6 @@ dns:
   - tls://8.8.8.8
   - tls://1.1.1.1
 proxies:
-- name: 🇫🇮 FI [R] | 13.143.173.15
-  type: vless
-  server: 13.143.173.15
-  port: 443
-  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
-  servername: google.com
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 193.163.203.170
   type: vless
   server: 193.163.203.170
@@ -52,22 +37,36 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: random
-- name: 🇳🇱 NL [R] | 188.124.54.30
+- name: 🇸🇪 SE [R] | 31.77.18.220
   type: vless
-  server: 188.124.54.30
+  server: 31.77.18.220
   port: 443
-  uuid: dcf2b1c4-f99f-4319-b917-37af1e7233c8
+  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: NaKc4dzGFuXMEyK2EpqbS7EosjGDR4wNQS7fH2EnSzk
-    short-id: 43699ddc62b52c4b
-  servername: 12.img.avito.st
+    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
+  servername: google.com
   flow: xtls-rprx-vision
   client-fingerprint: qq
+- name: 🇫🇮 FI [R] | 13.143.173.15
+  type: vless
+  server: 13.143.173.15
+  port: 443
+  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
+  servername: google.com
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇩🇪 DE [grpc] | 188.225.73.41
   type: vless
   server: 188.225.73.41
@@ -82,19 +81,21 @@ proxies:
   client-fingerprint: chrome
   grpc-opts:
     grpc-service-name: cache.sync.v1
-- name: 🇪🇪 EE  | 159.194.210.102
+- name: 🇳🇱 NL [ws] | 37.18.14.177
   type: vless
-  server: 159.194.210.102
+  server: 37.18.14.177
   port: 443
-  uuid: ecf65acd-ea72-0002-be5f-cd23afb2722f
+  uuid: 2232d904-8e6a-4202-8240-6efd8aec02e9
   udp: true
   skip-cert-verify: true
-  network: tcp
+  network: ws
   encryption: none
   tls: true
-  servername: box.vpvi.store
-  flow: xtls-rprx-vision
-  client-fingerprint: random
+  servername: exl6vz64yc.deshevayashaurma.icu
+  ws-opts:
+    path: /player/events/8be4cef5ec05/
+    headers:
+      Host: l2hbelfbzv.flowersgood.top
 - name: 🇯🇵 JP [ws] | 185.222.43.175
   type: vless
   server: 185.222.43.175
@@ -123,22 +124,6 @@ proxies:
   servername: mosaic.topp-con.xyz
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇩🇪 DE [ws] | 147.45.153.59
-  type: vless
-  server: 147.45.153.59
-  port: 443
-  uuid: 80a06811-f74b-4b82-ac99-7e66c2a98e1c
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: clover.filnex.baby
-  client-fingerprint: firefox
-  ws-opts:
-    path: /api/de6/stream
-    headers:
-      Host: clover.filnex.baby
 - name: 🇩🇪 DE [ws] | clover.filnex.baby
   type: vless
   server: clover.filnex.baby
@@ -171,20 +156,52 @@ proxies:
     path: /api/de6/stream
     headers:
       Host: reedbed.filnex.baby
+- name: 🇩🇪 DE [ws] | 88.216.70.125
+  type: vless
+  server: 88.216.70.125
+  port: 443
+  uuid: 88e79aa6-f431-4453-8dcc-652a0c747198
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: o685y.save-node.com
+  client-fingerprint: firefox
+  ws-opts:
+    path: /api/se1k2rfxlsuer3ry4u6e84kl8rqp721p
+    headers:
+      Host: o685y.save-node.com
+- name: 🇩🇪 DE [ws] | o685y.save-node.com
+  type: vless
+  server: o685y.save-node.com
+  port: 443
+  uuid: 88e79aa6-f431-4453-8dcc-652a0c747198
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: o685y.save-node.com
+  client-fingerprint: firefox
+  ws-opts:
+    path: /api/se1k2rfxlsuer3ry4u6e84kl8rqp721p
+    headers:
+      Host: o685y.save-node.com
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
-  - 🇫🇮 FI [R] | 13.143.173.15
   - 🇬🇧 GB [R] | 193.163.203.170
-  - 🇳🇱 NL [R] | 188.124.54.30
+  - 🇸🇪 SE [R] | 31.77.18.220
+  - 🇫🇮 FI [R] | 13.143.173.15
   - 🇩🇪 DE [grpc] | 188.225.73.41
-  - 🇪🇪 EE  | 159.194.210.102
+  - 🇳🇱 NL [ws] | 37.18.14.177
   - 🇯🇵 JP [ws] | 185.222.43.175
   - 🇩🇪 DE  | 176.98.176.60
-  - 🇩🇪 DE [ws] | 147.45.153.59
   - 🇩🇪 DE [ws] | clover.filnex.baby
   - 🇩🇪 DE [ws] | reedbed.filnex.baby
+  - 🇩🇪 DE [ws] | 88.216.70.125
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -192,16 +209,17 @@ proxy-groups:
   type: select
   proxies:
   - 🚀 Auto
-  - 🇫🇮 FI [R] | 13.143.173.15
   - 🇬🇧 GB [R] | 193.163.203.170
-  - 🇳🇱 NL [R] | 188.124.54.30
+  - 🇸🇪 SE [R] | 31.77.18.220
+  - 🇫🇮 FI [R] | 13.143.173.15
   - 🇩🇪 DE [grpc] | 188.225.73.41
-  - 🇪🇪 EE  | 159.194.210.102
+  - 🇳🇱 NL [ws] | 37.18.14.177
   - 🇯🇵 JP [ws] | 185.222.43.175
   - 🇩🇪 DE  | 176.98.176.60
-  - 🇩🇪 DE [ws] | 147.45.153.59
   - 🇩🇪 DE [ws] | clover.filnex.baby
   - 🇩🇪 DE [ws] | reedbed.filnex.baby
+  - 🇩🇪 DE [ws] | 88.216.70.125
+  - 🇩🇪 DE [ws] | o685y.save-node.com
 - name: 🎯 Direct
   type: select
   proxies:
