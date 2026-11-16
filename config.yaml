@@ -21,9 +21,9 @@ dns:
   - tls://8.8.8.8
   - tls://1.1.1.1
 proxies:
-- name: 🇸🇪 SE [R] | 31.77.18.220
+- name: 🇫🇮 FI [R] | 13.143.173.15
   type: vless
-  server: 31.77.18.220
+  server: 13.143.173.15
   port: 443
   uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
   udp: true
@@ -34,7 +34,7 @@ proxies:
   reality-opts:
     public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
   servername: google.com
-  flow: xtls-rprx-vision-udp443
+  flow: xtls-rprx-vision
   client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 193.163.203.170
   type: vless
@@ -52,53 +52,22 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: random
-- name: 🇫🇮 FI [R] | 13.143.173.15
+- name: 🇳🇱 NL [R] | 188.124.54.30
   type: vless
-  server: 13.143.173.15
+  server: 188.124.54.30
   port: 443
-  uuid: 4f51ca84-43ea-4087-b8a2-938e0ccbe27a
+  uuid: dcf2b1c4-f99f-4319-b917-37af1e7233c8
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: mDDDyruO33nuqcTS7pZOjd9oOpDHUf0aEv2TQ1DFGV4
-  servername: google.com
+    public-key: NaKc4dzGFuXMEyK2EpqbS7EosjGDR4wNQS7fH2EnSzk
+    short-id: 43699ddc62b52c4b
+  servername: 12.img.avito.st
   flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇳🇱 NL [R] | 147.45.214.143
-  type: vless
-  server: 147.45.214.143
-  port: 443
-  uuid: fb9b439d-e5d2-4337-a781-b18a67b8127e
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: Adzk6YXb3MU4kN8PgDQjY_4GfQgMUhRy_2LOGmiFHCg
-    short-id: c48282c0acf92721
-  servername: st.ozone.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇳🇱 NL [R] | 93.183.83.53
-  type: vless
-  server: 93.183.83.53
-  port: 443
-  uuid: fb9b439d-e5d2-4337-a781-b18a67b8127e
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: Adzk6YXb3MU4kN8PgDQjY_4GfQgMUhRy_2LOGmiFHCg
-    short-id: c48282c0acf92721
-  servername: st.ozone.ru
-  flow: xtls-rprx-vision-udp443
-  client-fingerprint: firefox
+  client-fingerprint: qq
 - name: 🇩🇪 DE [grpc] | 188.225.73.41
   type: vless
   server: 188.225.73.41
@@ -113,6 +82,19 @@ proxies:
   client-fingerprint: chrome
   grpc-opts:
     grpc-service-name: cache.sync.v1
+- name: 🇪🇪 EE  | 159.194.210.102
+  type: vless
+  server: 159.194.210.102
+  port: 443
+  uuid: ecf65acd-ea72-0002-be5f-cd23afb2722f
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  servername: box.vpvi.store
+  flow: xtls-rprx-vision
+  client-fingerprint: random
 - name: 🇯🇵 JP [ws] | 185.222.43.175
   type: vless
   server: 185.222.43.175
@@ -141,35 +123,68 @@ proxies:
   servername: mosaic.topp-con.xyz
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇩🇪 DE [ws] | 185.129.100.252
+- name: 🇩🇪 DE [ws] | 147.45.153.59
   type: vless
-  server: 185.129.100.252
+  server: 147.45.153.59
   port: 443
-  uuid: fe1988d0-077c-4865-8b03-ffde242a109f
+  uuid: 80a06811-f74b-4b82-ac99-7e66c2a98e1c
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: my.nehtar.ru
-  client-fingerprint: qq
+  servername: clover.filnex.baby
+  client-fingerprint: firefox
   ws-opts:
-    path: /gateway/v1/ws/a10af91503cf8cbe55f42a7e5264c498
+    path: /api/de6/stream
     headers:
-      Host: my.nehtar.ru
+      Host: clover.filnex.baby
+- name: 🇩🇪 DE [ws] | clover.filnex.baby
+  type: vless
+  server: clover.filnex.baby
+  port: 443
+  uuid: 80a06811-f74b-4b82-ac99-7e66c2a98e1c
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: clover.filnex.baby
+  client-fingerprint: random
+  ws-opts:
+    path: /api/de6/stream
+    headers:
+      Host: clover.filnex.baby
+- name: 🇩🇪 DE [ws] | reedbed.filnex.baby
+  type: vless
+  server: reedbed.filnex.baby
+  port: 443
+  uuid: 80a06811-f74b-4b82-ac99-7e66c2a98e1c
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: reedbed.filnex.baby
+  client-fingerprint: firefox
+  ws-opts:
+    path: /api/de6/stream
+    headers:
+      Host: reedbed.filnex.baby
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
-  - 🇸🇪 SE [R] | 31.77.18.220
-  - 🇬🇧 GB [R] | 193.163.203.170
   - 🇫🇮 FI [R] | 13.143.173.15
-  - 🇳🇱 NL [R] | 147.45.214.143
-  - 🇳🇱 NL [R] | 93.183.83.53
+  - 🇬🇧 GB [R] | 193.163.203.170
+  - 🇳🇱 NL [R] | 188.124.54.30
   - 🇩🇪 DE [grpc] | 188.225.73.41
+  - 🇪🇪 EE  | 159.194.210.102
   - 🇯🇵 JP [ws] | 185.222.43.175
   - 🇩🇪 DE  | 176.98.176.60
-  - 🇩🇪 DE [ws] | 185.129.100.252
+  - 🇩🇪 DE [ws] | 147.45.153.59
+  - 🇩🇪 DE [ws] | clover.filnex.baby
+  - 🇩🇪 DE [ws] | reedbed.filnex.baby
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -177,15 +192,16 @@ proxy-groups:
   type: select
   proxies:
   - 🚀 Auto
-  - 🇸🇪 SE [R] | 31.77.18.220
-  - 🇬🇧 GB [R] | 193.163.203.170
   - 🇫🇮 FI [R] | 13.143.173.15
-  - 🇳🇱 NL [R] | 147.45.214.143
-  - 🇳🇱 NL [R] | 93.183.83.53
+  - 🇬🇧 GB [R] | 193.163.203.170
+  - 🇳🇱 NL [R] | 188.124.54.30
   - 🇩🇪 DE [grpc] | 188.225.73.41
+  - 🇪🇪 EE  | 159.194.210.102
   - 🇯🇵 JP [ws] | 185.222.43.175
   - 🇩🇪 DE  | 176.98.176.60
-  - 🇩🇪 DE [ws] | 185.129.100.252
+  - 🇩🇪 DE [ws] | 147.45.153.59
+  - 🇩🇪 DE [ws] | clover.filnex.baby
+  - 🇩🇪 DE [ws] | reedbed.filnex.baby
 - name: 🎯 Direct
   type: select
   proxies:
