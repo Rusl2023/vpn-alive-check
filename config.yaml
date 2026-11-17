@@ -37,6 +37,49 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: random
+- name: 🇧🇬 BG [R] | 131.123.41.146
+  type: vless
+  server: 131.123.41.146
+  port: 443
+  uuid: a66c53b7-4ac7-4d61-abd7-42fade426123
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: QBdNaEKW772qSR7mxLOS0d7HUOWPV2Ek3Ku8ju53vWw
+    short-id: 70e44abe428e676c
+  servername: yabs.yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇩🇪 DE [grpc] | 188.225.73.41
+  type: vless
+  server: 188.225.73.41
+  port: 443
+  uuid: 4cabcd59-a405-4c00-96f5-03507e1e28fa
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  servername: cadrin.wtf
+  client-fingerprint: chrome
+  grpc-opts:
+    grpc-service-name: cache.sync.v1
+- name: 🇳🇱 NL  | 171.22.183.159
+  type: vless
+  server: 171.22.183.159
+  port: 443
+  uuid: 24fb9b5b-43b7-4058-a7e5-a0499ada1fda
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  servername: 171.22.183.159
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇯🇵 JP [ws] | 185.222.43.175
   type: vless
   server: 185.222.43.175
@@ -52,39 +95,83 @@ proxies:
     path: /tyxyws
     headers:
       Host: jp3.yohototo.top
-- name: 🇳🇱 NL  | 171.22.183.159
+- name: 🇩🇪 DE [ws] | 185.253.7.22
   type: vless
-  server: 171.22.183.159
+  server: 185.253.7.22
   port: 443
-  uuid: 24fb9b5b-43b7-4058-a7e5-a0499ada1fda
+  uuid: 80a06811-f74b-4b82-ac99-7e66c2a98e1c
   udp: true
   skip-cert-verify: true
-  network: tcp
+  network: ws
   encryption: none
   tls: true
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇳🇱 NL  | 171.22.183.159 (2)
+  servername: clover.filnex.baby
+  client-fingerprint: chrome
+  ws-opts:
+    path: /api/de6/stream
+    headers:
+      Host: clover.filnex.baby
+- name: 🇩🇪 DE [ws] | 88.216.70.125
   type: vless
-  server: 171.22.183.159
+  server: 88.216.70.125
   port: 443
-  uuid: 24fb9b5b-43b7-4058-a7e5-a0499ada1fda
+  uuid: 88e79aa6-f431-4453-8dcc-652a0c747198
   udp: true
   skip-cert-verify: true
-  network: tcp
+  network: ws
   encryption: none
   tls: true
-  servername: 171.22.183.159
-  flow: xtls-rprx-vision
+  servername: o685y.save-node.com
+  client-fingerprint: chrome
+  ws-opts:
+    path: /api/se1k2rfxlsuer3ry4u6e84kl8rqp721p
+    headers:
+      Host: o685y.save-node.com
+- name: 🇩🇪 DE [ws] | o685y.save-node.com
+  type: vless
+  server: o685y.save-node.com
+  port: 443
+  uuid: 88e79aa6-f431-4453-8dcc-652a0c747198
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: o685y.save-node.com
   client-fingerprint: firefox
+  ws-opts:
+    path: /api/se1k2rfxlsuer3ry4u6e84kl8rqp721p
+    headers:
+      Host: o685y.save-node.com
+- name: 🇸🇪 SE [ws] | 92.223.84.254
+  type: vless
+  server: 92.223.84.254
+  port: 443
+  uuid: 740b2630-b42d-425c-bacd-37e7e30d78f1
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: subgift.gcorecdn.com
+  client-fingerprint: firefox
+  ws-opts:
+    path: /t.me-SubGift
+    headers:
+      Host: subgift.gcorecdn.com
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
   - 🇬🇧 GB [R] | 193.163.203.170
-  - 🇯🇵 JP [ws] | 185.222.43.175
+  - 🇧🇬 BG [R] | 131.123.41.146
+  - 🇩🇪 DE [grpc] | 188.225.73.41
   - 🇳🇱 NL  | 171.22.183.159
-  - 🇳🇱 NL  | 171.22.183.159 (2)
+  - 🇯🇵 JP [ws] | 185.222.43.175
+  - 🇩🇪 DE [ws] | 185.253.7.22
+  - 🇩🇪 DE [ws] | 88.216.70.125
+  - 🇩🇪 DE [ws] | o685y.save-node.com
+  - 🇸🇪 SE [ws] | 92.223.84.254
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -93,9 +180,14 @@ proxy-groups:
   proxies:
   - 🚀 Auto
   - 🇬🇧 GB [R] | 193.163.203.170
-  - 🇯🇵 JP [ws] | 185.222.43.175
+  - 🇧🇬 BG [R] | 131.123.41.146
+  - 🇩🇪 DE [grpc] | 188.225.73.41
   - 🇳🇱 NL  | 171.22.183.159
-  - 🇳🇱 NL  | 171.22.183.159 (2)
+  - 🇯🇵 JP [ws] | 185.222.43.175
+  - 🇩🇪 DE [ws] | 185.253.7.22
+  - 🇩🇪 DE [ws] | 88.216.70.125
+  - 🇩🇪 DE [ws] | o685y.save-node.com
+  - 🇸🇪 SE [ws] | 92.223.84.254
 - name: 🎯 Direct
   type: select
   proxies:
