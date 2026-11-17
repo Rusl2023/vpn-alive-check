@@ -37,81 +37,6 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: random
-- name: 🇩🇪 DE [grpc] | 188.225.73.41
-  type: vless
-  server: 188.225.73.41
-  port: 443
-  uuid: 4cabcd59-a405-4c00-96f5-03507e1e28fa
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  servername: cadrin.wtf
-  client-fingerprint: chrome
-  grpc-opts:
-    grpc-service-name: cache.sync.v1
-- name: 🇩🇪 DE [ws] | 37.18.14.177
-  type: vless
-  server: 37.18.14.177
-  port: 443
-  uuid: 7955bf18-35c4-412d-aabd-c0b36c793063
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: owj5svd907.deshevayashaurma.icu
-  client-fingerprint: firefox
-  ws-opts:
-    path: /static/collect/037b5c44e12a/
-    headers:
-      Host: owj5svd907.deshevayashaurma.icu
-- name: 🇳🇱 NL [ws] | 37.18.14.177
-  type: vless
-  server: 37.18.14.177
-  port: 443
-  uuid: 2232d904-8e6a-4202-8240-6efd8aec02e9
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: exl6vz64yc.deshevayashaurma.icu
-  client-fingerprint: firefox
-  ws-opts:
-    path: /player/events/8be4cef5ec05/
-    headers:
-      Host: l2hbelfbzv.flowersgood.top
-- name: 🇫🇷 FR [ws] | 178.104.70.11
-  type: vless
-  server: 178.104.70.11
-  port: 443
-  uuid: 64726966-0000-4000-8000-740000000000
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: parsa-panel-dy55x.railway1385-2a46.workers.dev
-  client-fingerprint: firefox
-  ws-opts:
-    path: /
-    headers:
-      Host: parsa-panel-dy55x.railway1385-2a46.workers.dev
-- name: 🇩🇪 DE  | 176.98.176.60
-  type: vless
-  server: 176.98.176.60
-  port: 443
-  uuid: 7ad63b26-bf70-4872-8fab-ebaf73a1e19d
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: mosaic.topp-con.xyz
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇯🇵 JP [ws] | 185.222.43.175
   type: vless
   server: 185.222.43.175
@@ -127,55 +52,19 @@ proxies:
     path: /tyxyws
     headers:
       Host: jp3.yohototo.top
-- name: 🇩🇪 DE [ws] | reedbed.filnex.baby
-  type: vless
-  server: reedbed.filnex.baby
-  port: 443
-  uuid: 80a06811-f74b-4b82-ac99-7e66c2a98e1c
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: reedbed.filnex.baby
-  client-fingerprint: firefox
-  ws-opts:
-    path: /api/de6/stream
-    headers:
-      Host: reedbed.filnex.baby
-- name: 🇩🇪 DE [ws] | 185.253.7.22
-  type: vless
-  server: 185.253.7.22
-  port: 443
-  uuid: 80a06811-f74b-4b82-ac99-7e66c2a98e1c
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: clover.filnex.baby
-  client-fingerprint: firefox
-  ws-opts:
-    path: /api/de6/stream
-    headers:
-      Host: clover.filnex.baby
-- name: 🇩🇪 DE [ws] | 88.216.70.125
-  type: vless
-  server: 88.216.70.125
-  port: 443
-  uuid: 88e79aa6-f431-4453-8dcc-652a0c747198
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: o685y.save-node.com
-  client-fingerprint: chrome
-  ws-opts:
-    path: /api/se1k2rfxlsuer3ry4u6e84kl8rqp721p
-    headers:
-      Host: o685y.save-node.com
 - name: 🇳🇱 NL  | 171.22.183.159
+  type: vless
+  server: 171.22.183.159
+  port: 443
+  uuid: 24fb9b5b-43b7-4058-a7e5-a0499ada1fda
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇳🇱 NL  | 171.22.183.159 (2)
   type: vless
   server: 171.22.183.159
   port: 443
@@ -188,36 +77,14 @@ proxies:
   servername: 171.22.183.159
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇩🇪 DE [ws] | clover.filnex.baby
-  type: vless
-  server: clover.filnex.baby
-  port: 443
-  uuid: 80a06811-f74b-4b82-ac99-7e66c2a98e1c
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: clover.filnex.baby
-  client-fingerprint: firefox
-  ws-opts:
-    path: /api/de6/stream
-    headers:
-      Host: clover.filnex.baby
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
   - 🇬🇧 GB [R] | 193.163.203.170
-  - 🇩🇪 DE [grpc] | 188.225.73.41
-  - 🇩🇪 DE [ws] | 37.18.14.177
-  - 🇳🇱 NL [ws] | 37.18.14.177
-  - 🇫🇷 FR [ws] | 178.104.70.11
-  - 🇩🇪 DE  | 176.98.176.60
   - 🇯🇵 JP [ws] | 185.222.43.175
-  - 🇩🇪 DE [ws] | reedbed.filnex.baby
-  - 🇩🇪 DE [ws] | 185.253.7.22
-  - 🇩🇪 DE [ws] | 88.216.70.125
+  - 🇳🇱 NL  | 171.22.183.159
+  - 🇳🇱 NL  | 171.22.183.159 (2)
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -226,17 +93,9 @@ proxy-groups:
   proxies:
   - 🚀 Auto
   - 🇬🇧 GB [R] | 193.163.203.170
-  - 🇩🇪 DE [grpc] | 188.225.73.41
-  - 🇩🇪 DE [ws] | 37.18.14.177
-  - 🇳🇱 NL [ws] | 37.18.14.177
-  - 🇫🇷 FR [ws] | 178.104.70.11
-  - 🇩🇪 DE  | 176.98.176.60
   - 🇯🇵 JP [ws] | 185.222.43.175
-  - 🇩🇪 DE [ws] | reedbed.filnex.baby
-  - 🇩🇪 DE [ws] | 185.253.7.22
-  - 🇩🇪 DE [ws] | 88.216.70.125
   - 🇳🇱 NL  | 171.22.183.159
-  - 🇩🇪 DE [ws] | clover.filnex.baby
+  - 🇳🇱 NL  | 171.22.183.159 (2)
 - name: 🎯 Direct
   type: select
   proxies:
