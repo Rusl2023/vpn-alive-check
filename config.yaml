@@ -36,6 +36,22 @@ proxies:
     short-id: 6ad3c0f1e9b2478a
   servername: yandex.ru
   flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇳🇱 NL [R] | 2.27.40.12
+  type: vless
+  server: 2.27.40.12
+  port: 443
+  uuid: 038e6b17-84e9-4ace-8973-8ef2308ed6e1
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: T1BWBw3lq9G1LiQ7eQSPfdNQic7bUMEbdFNJBewAwB8
+    short-id: 6ad3c0f1e9b2478a
+  servername: yandex.ru
+  flow: xtls-rprx-vision
   client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 193.163.203.170
   type: vless
@@ -53,22 +69,6 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: random
-- name: 🇳🇱 NL [R] | 2.27.40.12
-  type: vless
-  server: 2.27.40.12
-  port: 443
-  uuid: 038e6b17-84e9-4ace-8973-8ef2308ed6e1
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: T1BWBw3lq9G1LiQ7eQSPfdNQic7bUMEbdFNJBewAwB8
-    short-id: 6ad3c0f1e9b2478a
-  servername: yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇧🇬 BG [R] | 131.123.41.146
   type: vless
   server: 131.123.41.146
@@ -85,6 +85,19 @@ proxies:
   servername: yabs.yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
+- name: 🇩🇪 DE [grpc] | 147.45.99.100
+  type: vless
+  server: 147.45.99.100
+  port: 443
+  uuid: 4b50270b-5caf-4c34-b3da-17b4525604a6
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  servername: luminexorizon.ink
+  grpc-opts:
+    grpc-service-name: glush.de3.v1
 - name: 🇩🇪 DE [grpc] | luminexorizon.ink
   type: vless
   server: luminexorizon.ink
@@ -96,109 +109,9 @@ proxies:
   encryption: none
   tls: true
   servername: luminexorizon.ink
-  client-fingerprint: firefox
+  client-fingerprint: random
   grpc-opts:
     grpc-service-name: glush.de3.v1
-- name: 🇩🇪 DE [grpc] | 188.225.73.41
-  type: vless
-  server: 188.225.73.41
-  port: 443
-  uuid: 4cabcd59-a405-4c00-96f5-03507e1e28fa
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  servername: cadrin.wtf
-  grpc-opts:
-    grpc-service-name: cache.sync.v1
-- name: 🇩🇪 DE [grpc] | pebble.gerqix.online
-  type: vless
-  server: pebble.gerqix.online
-  port: 443
-  uuid: 80a06811-f74b-4b82-ac99-7e66c2a98e1c
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  servername: windlass.gerqix.online
-  client-fingerprint: chrome
-  grpc-opts:
-    grpc-service-name: glush.de2.v1
-- name: 🇩🇪 DE [grpc] | linen.gerqix.online
-  type: vless
-  server: linen.gerqix.online
-  port: 443
-  uuid: 80a06811-f74b-4b82-ac99-7e66c2a98e1c
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  servername: linen.gerqix.online
-  client-fingerprint: random
-  grpc-opts:
-    grpc-service-name: glush.de1.v1
-- name: 🇩🇪 DE [grpc] | linen.gerqix.online (2)
-  type: vless
-  server: linen.gerqix.online
-  port: 443
-  uuid: 80a06811-f74b-4b82-ac99-7e66c2a98e1c
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  servername: fernglade.gerqix.online
-  client-fingerprint: firefox
-  grpc-opts:
-    grpc-service-name: glush.de1.v1
-- name: 🇩🇪 DE [grpc] | pebble.gerqix.online (2)
-  type: vless
-  server: pebble.gerqix.online
-  port: 443
-  uuid: 80a06811-f74b-4b82-ac99-7e66c2a98e1c
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  servername: pebble.gerqix.online
-  client-fingerprint: random
-  grpc-opts:
-    grpc-service-name: glush.de2.v1
-- name: 🇫🇷 FR [ws] | 178.104.70.11
-  type: vless
-  server: 178.104.70.11
-  port: 443
-  uuid: 64726966-0000-4000-8000-740000000000
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: parsa-panel-dy55x.railway1385-2a46.workers.dev
-  client-fingerprint: firefox
-  ws-opts:
-    path: /
-    headers:
-      Host: parsa-panel-dy55x.railway1385-2a46.workers.dev
-- name: 🇯🇵 JP [ws] | 185.222.43.175
-  type: vless
-  server: 185.222.43.175
-  port: 443
-  uuid: 4e4f1f70-5e56-4a76-bb9d-db087f4690c4
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: jp3.yohototo.top
-  ws-opts:
-    path: /tyxyws
-    headers:
-      Host: jp3.yohototo.top
 - name: 🇸🇪 SE [ws] | subgift.gcorecdn.com
   type: vless
   server: subgift.gcorecdn.com
@@ -214,6 +127,37 @@ proxies:
     path: /t.me-SubGift
     headers:
       Host: subgift.gcorecdn.com
+- name: 🇦🇪 AE [ws] | r0xnfzk9ud.newwl.pro
+  type: vless
+  server: r0xnfzk9ud.newwl.pro
+  port: 443
+  uuid: 7955bf18-35c4-412d-aabd-c0b36c793063
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: r0xnfzk9ud.newwl.pro
+  client-fingerprint: firefox
+  ws-opts:
+    path: /service/telemetry/045d381f1166/
+    headers:
+      Host: r0xnfzk9ud.newwl.pro
+- name: 🇯🇵 JP [ws] | 185.222.43.175
+  type: vless
+  server: 185.222.43.175
+  port: 443
+  uuid: 4e4f1f70-5e56-4a76-bb9d-db087f4690c4
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: jp3.yohototo.top
+  ws-opts:
+    path: /tyxyws
+    headers:
+      Host: jp3.yohototo.top
 - name: 🇩🇪 DE [ws] | 185.253.7.22
   type: vless
   server: 185.253.7.22
@@ -267,15 +211,15 @@ proxy-groups:
   type: url-test
   proxies:
   - 🇳🇱 NL [R] | 201.58.186.140
-  - 🇬🇧 GB [R] | 193.163.203.170
   - 🇳🇱 NL [R] | 2.27.40.12
+  - 🇬🇧 GB [R] | 193.163.203.170
   - 🇧🇬 BG [R] | 131.123.41.146
+  - 🇩🇪 DE [grpc] | 147.45.99.100
   - 🇩🇪 DE [grpc] | luminexorizon.ink
-  - 🇩🇪 DE [grpc] | 188.225.73.41
-  - 🇩🇪 DE [grpc] | pebble.gerqix.online
-  - 🇩🇪 DE [grpc] | linen.gerqix.online
-  - 🇩🇪 DE [grpc] | linen.gerqix.online (2)
-  - 🇩🇪 DE [grpc] | pebble.gerqix.online (2)
+  - 🇸🇪 SE [ws] | subgift.gcorecdn.com
+  - 🇦🇪 AE [ws] | r0xnfzk9ud.newwl.pro
+  - 🇯🇵 JP [ws] | 185.222.43.175
+  - 🇩🇪 DE [ws] | 185.253.7.22
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -284,18 +228,14 @@ proxy-groups:
   proxies:
   - 🚀 Auto
   - 🇳🇱 NL [R] | 201.58.186.140
-  - 🇬🇧 GB [R] | 193.163.203.170
   - 🇳🇱 NL [R] | 2.27.40.12
+  - 🇬🇧 GB [R] | 193.163.203.170
   - 🇧🇬 BG [R] | 131.123.41.146
+  - 🇩🇪 DE [grpc] | 147.45.99.100
   - 🇩🇪 DE [grpc] | luminexorizon.ink
-  - 🇩🇪 DE [grpc] | 188.225.73.41
-  - 🇩🇪 DE [grpc] | pebble.gerqix.online
-  - 🇩🇪 DE [grpc] | linen.gerqix.online
-  - 🇩🇪 DE [grpc] | linen.gerqix.online (2)
-  - 🇩🇪 DE [grpc] | pebble.gerqix.online (2)
-  - 🇫🇷 FR [ws] | 178.104.70.11
-  - 🇯🇵 JP [ws] | 185.222.43.175
   - 🇸🇪 SE [ws] | subgift.gcorecdn.com
+  - 🇦🇪 AE [ws] | r0xnfzk9ud.newwl.pro
+  - 🇯🇵 JP [ws] | 185.222.43.175
   - 🇩🇪 DE [ws] | 185.253.7.22
   - 🇳🇱 NL [ws] | 31.177.111.134
   - 🇸🇪 SE [ws] | 92.223.84.254
