@@ -21,38 +21,6 @@ dns:
   - tls://8.8.8.8
   - tls://1.1.1.1
 proxies:
-- name: 🇳🇱 NL [R] | 201.58.186.140
-  type: vless
-  server: 201.58.186.140
-  port: 443
-  uuid: 038e6b17-84e9-4ace-8973-8ef2308ed6e1
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: T1BWBw3lq9G1LiQ7eQSPfdNQic7bUMEbdFNJBewAwB8
-    short-id: 6ad3c0f1e9b2478a
-  servername: yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
-- name: 🇳🇱 NL [R] | 2.27.40.12
-  type: vless
-  server: 2.27.40.12
-  port: 443
-  uuid: 038e6b17-84e9-4ace-8973-8ef2308ed6e1
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: T1BWBw3lq9G1LiQ7eQSPfdNQic7bUMEbdFNJBewAwB8
-    short-id: 6ad3c0f1e9b2478a
-  servername: yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇬🇧 GB [R] | 193.163.203.170
   type: vless
   server: 193.163.203.170
@@ -69,127 +37,18 @@ proxies:
   servername: yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: random
-- name: 🇧🇬 BG [R] | 131.123.41.146
+- name: 🇩🇪 DE [xhttp] | driftwood.elvano.website
   type: vless
-  server: 131.123.41.146
+  server: driftwood.elvano.website
   port: 443
-  uuid: a66c53b7-4ac7-4d61-abd7-42fade426123
+  uuid: 5ef70d03-e0fc-462c-9a04-1441f604fbfb
   udp: true
   skip-cert-verify: true
-  network: tcp
+  network: xhttp
   encryption: none
   tls: true
-  reality-opts:
-    public-key: QBdNaEKW772qSR7mxLOS0d7HUOWPV2Ek3Ku8ju53vWw
-    short-id: 70e44abe428e676c
-  servername: yabs.yandex.ru
-  flow: xtls-rprx-vision
+  servername: driftwood.elvano.website
   client-fingerprint: firefox
-- name: 🇩🇪 DE [grpc] | 147.45.99.100
-  type: vless
-  server: 147.45.99.100
-  port: 443
-  uuid: 4b50270b-5caf-4c34-b3da-17b4525604a6
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  servername: luminexorizon.ink
-  grpc-opts:
-    grpc-service-name: glush.de3.v1
-- name: 🇩🇪 DE [grpc] | luminexorizon.ink
-  type: vless
-  server: luminexorizon.ink
-  port: 443
-  uuid: 4b50270b-5caf-4c34-b3da-17b4525604a6
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  servername: luminexorizon.ink
-  client-fingerprint: random
-  grpc-opts:
-    grpc-service-name: glush.de3.v1
-- name: 🇸🇪 SE [ws] | subgift.gcorecdn.com
-  type: vless
-  server: subgift.gcorecdn.com
-  port: 443
-  uuid: 740b2630-b42d-425c-bacd-37e7e30d78f1
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: subgift.gcorecdn.com
-  ws-opts:
-    path: /t.me-SubGift
-    headers:
-      Host: subgift.gcorecdn.com
-- name: 🇦🇪 AE [ws] | r0xnfzk9ud.newwl.pro
-  type: vless
-  server: r0xnfzk9ud.newwl.pro
-  port: 443
-  uuid: 7955bf18-35c4-412d-aabd-c0b36c793063
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: r0xnfzk9ud.newwl.pro
-  client-fingerprint: firefox
-  ws-opts:
-    path: /service/telemetry/045d381f1166/
-    headers:
-      Host: r0xnfzk9ud.newwl.pro
-- name: 🇯🇵 JP [ws] | 185.222.43.175
-  type: vless
-  server: 185.222.43.175
-  port: 443
-  uuid: 4e4f1f70-5e56-4a76-bb9d-db087f4690c4
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: jp3.yohototo.top
-  ws-opts:
-    path: /tyxyws
-    headers:
-      Host: jp3.yohototo.top
-- name: 🇩🇪 DE [ws] | 185.253.7.22
-  type: vless
-  server: 185.253.7.22
-  port: 443
-  uuid: 80a06811-f74b-4b82-ac99-7e66c2a98e1c
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: clover.filnex.baby
-  client-fingerprint: chrome
-  ws-opts:
-    path: /api/de6/stream
-    headers:
-      Host: clover.filnex.baby
-- name: 🇳🇱 NL [ws] | 31.177.111.134
-  type: vless
-  server: 31.177.111.134
-  port: 443
-  uuid: fd90e601-a56c-42b8-aab7-aa02d26fcb04
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: k6t8wxun3s.schoolbag.top
-  client-fingerprint: firefox
-  ws-opts:
-    path: /static/metrics/86d07ea17ea1/
-    headers:
-      Host: ns4pmajwas.flowersgood.top
 - name: 🇸🇪 SE [ws] | 92.223.84.254
   type: vless
   server: 92.223.84.254
@@ -206,20 +65,59 @@ proxies:
     path: /t.me-SubGift
     headers:
       Host: subgift.gcorecdn.com
+- name: 🇸🇪 SE [ws] | subgift.gcorecdn.com
+  type: vless
+  server: subgift.gcorecdn.com
+  port: 443
+  uuid: 740b2630-b42d-425c-bacd-37e7e30d78f1
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: subgift.gcorecdn.com
+  ws-opts:
+    path: /t.me-SubGift
+    headers:
+      Host: subgift.gcorecdn.com
+- name: 🇯🇵 JP [ws] | 185.222.43.175
+  type: vless
+  server: 185.222.43.175
+  port: 443
+  uuid: 4e4f1f70-5e56-4a76-bb9d-db087f4690c4
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: jp3.yohototo.top
+  ws-opts:
+    path: /tyxyws
+    headers:
+      Host: jp3.yohototo.top
+- name: 🇮🇱 IL  | 132.243.167.145
+  type: vless
+  server: 132.243.167.145
+  port: 443
+  uuid: 00f1d8d5-9c90-45f2-98d8-cbd7a536a92e
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  servername: version-0t.sosnas.site
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
-  - 🇳🇱 NL [R] | 201.58.186.140
-  - 🇳🇱 NL [R] | 2.27.40.12
   - 🇬🇧 GB [R] | 193.163.203.170
-  - 🇧🇬 BG [R] | 131.123.41.146
-  - 🇩🇪 DE [grpc] | 147.45.99.100
-  - 🇩🇪 DE [grpc] | luminexorizon.ink
+  - 🇩🇪 DE [xhttp] | driftwood.elvano.website
+  - 🇸🇪 SE [ws] | 92.223.84.254
   - 🇸🇪 SE [ws] | subgift.gcorecdn.com
-  - 🇦🇪 AE [ws] | r0xnfzk9ud.newwl.pro
   - 🇯🇵 JP [ws] | 185.222.43.175
-  - 🇩🇪 DE [ws] | 185.253.7.22
+  - 🇮🇱 IL  | 132.243.167.145
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -227,18 +125,12 @@ proxy-groups:
   type: select
   proxies:
   - 🚀 Auto
-  - 🇳🇱 NL [R] | 201.58.186.140
-  - 🇳🇱 NL [R] | 2.27.40.12
   - 🇬🇧 GB [R] | 193.163.203.170
-  - 🇧🇬 BG [R] | 131.123.41.146
-  - 🇩🇪 DE [grpc] | 147.45.99.100
-  - 🇩🇪 DE [grpc] | luminexorizon.ink
-  - 🇸🇪 SE [ws] | subgift.gcorecdn.com
-  - 🇦🇪 AE [ws] | r0xnfzk9ud.newwl.pro
-  - 🇯🇵 JP [ws] | 185.222.43.175
-  - 🇩🇪 DE [ws] | 185.253.7.22
-  - 🇳🇱 NL [ws] | 31.177.111.134
+  - 🇩🇪 DE [xhttp] | driftwood.elvano.website
   - 🇸🇪 SE [ws] | 92.223.84.254
+  - 🇸🇪 SE [ws] | subgift.gcorecdn.com
+  - 🇯🇵 JP [ws] | 185.222.43.175
+  - 🇮🇱 IL  | 132.243.167.145
 - name: 🎯 Direct
   type: select
   proxies:
