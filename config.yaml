@@ -21,69 +21,146 @@ dns:
   - tls://8.8.8.8
   - tls://1.1.1.1
 proxies:
-- name: 🇫🇮 FI [R] | fin-2.beinprime.ru
+- name: 🇬🇧 GB [R] | 193.163.203.170
   type: vless
-  server: fin-2.beinprime.ru
+  server: 193.163.203.170
   port: 443
-  uuid: 038e6b17-84e9-4ace-8973-8ef2308ed6e1
+  uuid: 11aabba0-5fd1-4f15-8068-74c1a466cefc
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
   reality-opts:
-    public-key: T1BWBw3lq9G1LiQ7eQSPfdNQic7bUMEbdFNJBewAwB8
-    short-id: 6ad3c0f1e9b2478a
+    public-key: GCCZ1ZZjB_nj7yxqFi22bIIWWr_G6rnWUzDcssN_40o
+    short-id: b28db60d77c50b4f
   servername: yandex.ru
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇳🇱 NL [R] | t03jfnfode.deshevayashaurma.icu
+  client-fingerprint: random
+- name: 🇩🇪 DE [xhttp] | 77.95.203.4
   type: vless
-  server: t03jfnfode.deshevayashaurma.icu
+  server: 77.95.203.4
   port: 443
-  uuid: fd90e601-a56c-42b8-aab7-aa02d26fcb04
+  uuid: 25ac78e7-6d1d-4c9a-a450-c01a4871769f
   udp: true
   skip-cert-verify: true
-  network: tcp
+  network: xhttp
   encryption: none
   tls: true
-  reality-opts:
-    public-key: 8wsCMM2zufCIE32RR7_Df1512OC2M6qGmahqDofzCDc
-    short-id: 73e0da0b
-  servername: preview.rutube.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇯🇵 JP [ws] | 185.222.43.175
+  servername: pigment.merlano.monster
+  client-fingerprint: chrome
+- name: 🇩🇪 DE [xhttp] | marsh.moltex.click
   type: vless
-  server: 185.222.43.175
+  server: marsh.moltex.click
   port: 443
-  uuid: 4e4f1f70-5e56-4a76-bb9d-db087f4690c4
+  uuid: 25ac78e7-6d1d-4c9a-a450-c01a4871769f
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  servername: cotoneaster.moltex.click
+  client-fingerprint: firefox
+- name: 🇩🇪 DE [xhttp] | willowbank.moltex.click
+  type: vless
+  server: willowbank.moltex.click
+  port: 443
+  uuid: 25ac78e7-6d1d-4c9a-a450-c01a4871769f
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  servername: daylily.moltex.click
+  client-fingerprint: firefox
+- name: 🇩🇪 DE [xhttp] | pigment.merlano.monster
+  type: vless
+  server: pigment.merlano.monster
+  port: 443
+  uuid: 25ac78e7-6d1d-4c9a-a450-c01a4871769f
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  servername: pigment.merlano.monster
+  client-fingerprint: firefox
+- name: 🇩🇪 DE [grpc] | almanac.filnex.baby
+  type: vless
+  server: almanac.filnex.baby
+  port: 443
+  uuid: 25ac78e7-6d1d-4c9a-a450-c01a4871769f
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  servername: morningfen.merlano.monster
+  client-fingerprint: qq
+  grpc-opts:
+    grpc-service-name: glush.de1.v1
+- name: 🇩🇪 DE [grpc] | ledger.filnex.baby
+  type: vless
+  server: ledger.filnex.baby
+  port: 443
+  uuid: 25ac78e7-6d1d-4c9a-a450-c01a4871769f
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  servername: copperdell.merlano.monster
+  client-fingerprint: firefox
+  grpc-opts:
+    grpc-service-name: glush.de2.v1
+- name: 🇩🇪 DE [ws] | 77.95.203.4
+  type: vless
+  server: 77.95.203.4
+  port: 443
+  uuid: 25ac78e7-6d1d-4c9a-a450-c01a4871769f
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: jp3.yohototo.top
+  servername: sequoia.merlano.monster
+  client-fingerprint: firefox
   ws-opts:
-    path: /tyxyws
+    path: /api/de1/stream
     headers:
-      Host: jp3.yohototo.top
-- name: 🇫🇷 FR [ws] | 178.104.70.11
+      Host: sequoia.merlano.monster
+- name: 🇩🇪 DE [ws] | vellum.merlano.monster
   type: vless
-  server: 178.104.70.11
+  server: vellum.merlano.monster
   port: 443
-  uuid: 64726966-0000-4000-8000-740000000000
+  uuid: 25ac78e7-6d1d-4c9a-a450-c01a4871769f
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: parsa-panel-dy55x.railway1385-2a46.workers.dev
+  servername: sequoia.merlano.monster
+  client-fingerprint: qq
+  ws-opts:
+    path: /api/de1/stream
+    headers:
+      Host: sequoia.merlano.monster
+- name: 🇩🇪 DE [ws] | ws3.falmero.store
+  type: vless
+  server: ws3.falmero.store
+  port: 443
+  uuid: 25ac78e7-6d1d-4c9a-a450-c01a4871769f
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: canvas.merlano.monster
   client-fingerprint: firefox
   ws-opts:
-    path: /
+    path: /api/de1/stream
     headers:
-      Host: parsa-panel-dy55x.railway1385-2a46.workers.dev
+      Host: canvas.merlano.monster
 - name: 🇸🇪 SE [ws] | 92.223.84.254
   type: vless
   server: 92.223.84.254
@@ -115,16 +192,35 @@ proxies:
     path: /t.me-SubGift
     headers:
       Host: subgift.gcorecdn.com
+- name: 🇯🇵 JP [ws] | 185.222.43.175
+  type: vless
+  server: 185.222.43.175
+  port: 443
+  uuid: 4e4f1f70-5e56-4a76-bb9d-db087f4690c4
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: jp3.yohototo.top
+  ws-opts:
+    path: /tyxyws
+    headers:
+      Host: jp3.yohototo.top
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
-  - 🇫🇮 FI [R] | fin-2.beinprime.ru
-  - 🇳🇱 NL [R] | t03jfnfode.deshevayashaurma.icu
-  - 🇯🇵 JP [ws] | 185.222.43.175
-  - 🇫🇷 FR [ws] | 178.104.70.11
-  - 🇸🇪 SE [ws] | 92.223.84.254
-  - 🇸🇪 SE [ws] | subgift.gcorecdn.com
+  - 🇬🇧 GB [R] | 193.163.203.170
+  - 🇩🇪 DE [xhttp] | 77.95.203.4
+  - 🇩🇪 DE [xhttp] | marsh.moltex.click
+  - 🇩🇪 DE [xhttp] | willowbank.moltex.click
+  - 🇩🇪 DE [xhttp] | pigment.merlano.monster
+  - 🇩🇪 DE [grpc] | almanac.filnex.baby
+  - 🇩🇪 DE [grpc] | ledger.filnex.baby
+  - 🇩🇪 DE [ws] | 77.95.203.4
+  - 🇩🇪 DE [ws] | vellum.merlano.monster
+  - 🇩🇪 DE [ws] | ws3.falmero.store
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -132,12 +228,19 @@ proxy-groups:
   type: select
   proxies:
   - 🚀 Auto
-  - 🇫🇮 FI [R] | fin-2.beinprime.ru
-  - 🇳🇱 NL [R] | t03jfnfode.deshevayashaurma.icu
-  - 🇯🇵 JP [ws] | 185.222.43.175
-  - 🇫🇷 FR [ws] | 178.104.70.11
+  - 🇬🇧 GB [R] | 193.163.203.170
+  - 🇩🇪 DE [xhttp] | 77.95.203.4
+  - 🇩🇪 DE [xhttp] | marsh.moltex.click
+  - 🇩🇪 DE [xhttp] | willowbank.moltex.click
+  - 🇩🇪 DE [xhttp] | pigment.merlano.monster
+  - 🇩🇪 DE [grpc] | almanac.filnex.baby
+  - 🇩🇪 DE [grpc] | ledger.filnex.baby
+  - 🇩🇪 DE [ws] | 77.95.203.4
+  - 🇩🇪 DE [ws] | vellum.merlano.monster
+  - 🇩🇪 DE [ws] | ws3.falmero.store
   - 🇸🇪 SE [ws] | 92.223.84.254
   - 🇸🇪 SE [ws] | subgift.gcorecdn.com
+  - 🇯🇵 JP [ws] | 185.222.43.175
 - name: 🎯 Direct
   type: select
   proxies:
