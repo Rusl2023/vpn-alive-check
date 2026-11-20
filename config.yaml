@@ -53,6 +53,22 @@ proxies:
   servername: sun9-37.userapi.com
   flow: xtls-rprx-vision
   client-fingerprint: firefox
+- name: 🇩🇪 DE [R] | 194.55.239.10
+  type: vless
+  server: 194.55.239.10
+  port: 443
+  uuid: f1e221a2-b4bc-4e59-a8e7-81324788b377
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 4Su0-tgE1LOcvkrgkhbqwcSx0xP4dr5Wh6gvhtxg0Gk
+    short-id: 7935022d536cccb8
+  servername: sun9-37.userapi.com
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇩🇪 DE [grpc] | almanac.filnex.baby
   type: vless
   server: almanac.filnex.baby
@@ -64,23 +80,9 @@ proxies:
   encryption: none
   tls: true
   servername: morningfen.merlano.monster
-  client-fingerprint: chrome
+  client-fingerprint: random
   grpc-opts:
     grpc-service-name: glush.de1.v1
-- name: 🇩🇪 DE [grpc] | ledger.filnex.baby
-  type: vless
-  server: ledger.filnex.baby
-  port: 443
-  uuid: 25ac78e7-6d1d-4c9a-a450-c01a4871769f
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  servername: copperdell.merlano.monster
-  client-fingerprint: qq
-  grpc-opts:
-    grpc-service-name: glush.de2.v1
 - name: 🇩🇪 DE [xhttp] | willowbank.moltex.click
   type: vless
   server: willowbank.moltex.click
@@ -92,25 +94,50 @@ proxies:
   encryption: none
   tls: true
   servername: daylily.moltex.click
-  client-fingerprint: firefox
-- name: 🇯🇵 JP [ws] | 185.222.43.175
+  client-fingerprint: chrome
+- name: 🇩🇪 DE [grpc] | linen.gerqix.online
   type: vless
-  server: 185.222.43.175
+  server: linen.gerqix.online
   port: 443
-  uuid: 4e4f1f70-5e56-4a76-bb9d-db087f4690c4
+  uuid: 25ac78e7-6d1d-4c9a-a450-c01a4871769f
   udp: true
   skip-cert-verify: true
-  network: ws
+  network: grpc
   encryption: none
   tls: true
-  servername: jp3.yohototo.top
-  ws-opts:
-    path: /tyxyws
-    headers:
-      Host: jp3.yohototo.top
-- name: 🇩🇪 DE [ws] | bookend.filnex.baby
+  servername: fernglade.gerqix.online
+  client-fingerprint: firefox
+  grpc-opts:
+    grpc-service-name: glush.de1.v1
+- name: 🇩🇪 DE [xhttp] | marsh.moltex.click
   type: vless
-  server: bookend.filnex.baby
+  server: marsh.moltex.click
+  port: 443
+  uuid: 25ac78e7-6d1d-4c9a-a450-c01a4871769f
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  servername: cotoneaster.moltex.click
+  client-fingerprint: firefox
+- name: 🇹🇷 TR [grpc] | 188.225.36.219
+  type: vless
+  server: 188.225.36.219
+  port: 443
+  uuid: 25ac78e7-6d1d-4c9a-a450-c01a4871769f
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  servername: olvento.space
+  client-fingerprint: firefox
+  grpc-opts:
+    grpc-service-name: olvento.sync.v1
+- name: 🇩🇪 DE [ws] | woodgrain.filnex.baby
+  type: vless
+  server: woodgrain.filnex.baby
   port: 443
   uuid: 25ac78e7-6d1d-4c9a-a450-c01a4871769f
   udp: true
@@ -118,12 +145,44 @@ proxies:
   network: ws
   encryption: none
   tls: true
-  servername: hollowreed.gerqix.online
+  servername: birchshade.elvano.website
+  client-fingerprint: firefox
+  ws-opts:
+    path: /api/de2/stream
+    headers:
+      Host: birchshade.elvano.website
+- name: 🇩🇪 DE [ws] | ws3.falmero.store
+  type: vless
+  server: ws3.falmero.store
+  port: 443
+  uuid: 25ac78e7-6d1d-4c9a-a450-c01a4871769f
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: canvas.merlano.monster
   client-fingerprint: chrome
   ws-opts:
     path: /api/de1/stream
     headers:
-      Host: hollowreed.gerqix.online
+      Host: canvas.merlano.monster
+- name: 🇸🇪 SE [ws] | 92.223.84.254
+  type: vless
+  server: 92.223.84.254
+  port: 443
+  uuid: 740b2630-b42d-425c-bacd-37e7e30d78f1
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: subgift.gcorecdn.com
+  client-fingerprint: chrome
+  ws-opts:
+    path: /t.me-SubGift
+    headers:
+      Host: subgift.gcorecdn.com
 - name: 🇸🇪 SE [ws] | subgift.gcorecdn.com
   type: vless
   server: subgift.gcorecdn.com
@@ -139,6 +198,21 @@ proxies:
     path: /t.me-SubGift
     headers:
       Host: subgift.gcorecdn.com
+- name: 🇯🇵 JP [ws] | 185.222.43.175
+  type: vless
+  server: 185.222.43.175
+  port: 443
+  uuid: 4e4f1f70-5e56-4a76-bb9d-db087f4690c4
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: jp3.yohototo.top
+  ws-opts:
+    path: /tyxyws
+    headers:
+      Host: jp3.yohototo.top
 - name: 🇩🇪 DE  | 176.98.176.60
   type: vless
   server: 176.98.176.60
@@ -152,22 +226,6 @@ proxies:
   servername: mosaic.topp-con.xyz
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇸🇪 SE [ws] | 92.223.84.254
-  type: vless
-  server: 92.223.84.254
-  port: 443
-  uuid: 740b2630-b42d-425c-bacd-37e7e30d78f1
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: subgift.gcorecdn.com
-  client-fingerprint: firefox
-  ws-opts:
-    path: /t.me-SubGift
-    headers:
-      Host: subgift.gcorecdn.com
 - name: 🇩🇪 DE [ws] | 88.216.70.125
   type: vless
   server: 88.216.70.125
@@ -179,6 +237,22 @@ proxies:
   encryption: none
   tls: true
   servername: o685y.save-node.com
+  ws-opts:
+    path: /api/se1k2rfxlsuer3ry4u6e84kl8rqp721p
+    headers:
+      Host: o685y.save-node.com
+- name: 🇩🇪 DE [ws] | leviko-de6156.shopingggg.ir
+  type: vless
+  server: leviko-de6156.shopingggg.ir
+  port: 443
+  uuid: 88e79aa6-f431-4453-8dcc-652a0c747198
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: o685y.save-node.com
+  client-fingerprint: chrome
   ws-opts:
     path: /api/se1k2rfxlsuer3ry4u6e84kl8rqp721p
     headers:
@@ -198,20 +272,48 @@ proxies:
     path: /api/se1k2rfxlsuer3ry4u6e84kl8rqp721p
     headers:
       Host: o685y.save-node.com
+- name: 🇫🇮 FI  | 188.68.216.27
+  type: vless
+  server: 188.68.216.27
+  port: 443
+  uuid: e5d9306d-06fd-0001-a707-11f21c9b446a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  servername: qtuod-ru-56sel.fade.mom
+  client-fingerprint: chrome
+- name: 🇺🇸 US [ws] | 95.129.236.70
+  type: vless
+  server: 95.129.236.70
+  port: 443
+  uuid: 1547ed3d-3bb7-4153-afdc-8eb3e9373c84
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: static.lk.pc-club.app
+  client-fingerprint: firefox
+  ws-opts:
+    path: /gateway/v1/ws/de963c1a03a37c66383da198813099b1
+    headers:
+      Host: static.lk.pc-club.app
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇩🇪 DE [R] | food.ebaniyautist.com
+  - 🇩🇪 DE [R] | 194.55.239.10
   - 🇩🇪 DE [grpc] | almanac.filnex.baby
-  - 🇩🇪 DE [grpc] | ledger.filnex.baby
   - 🇩🇪 DE [xhttp] | willowbank.moltex.click
-  - 🇯🇵 JP [ws] | 185.222.43.175
-  - 🇩🇪 DE [ws] | bookend.filnex.baby
-  - 🇸🇪 SE [ws] | subgift.gcorecdn.com
-  - 🇩🇪 DE  | 176.98.176.60
-  - 🇸🇪 SE [ws] | 92.223.84.254
+  - 🇩🇪 DE [grpc] | linen.gerqix.online
+  - 🇩🇪 DE [xhttp] | marsh.moltex.click
+  - 🇹🇷 TR [grpc] | 188.225.36.219
+  - 🇩🇪 DE [ws] | woodgrain.filnex.baby
+  - 🇩🇪 DE [ws] | ws3.falmero.store
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -221,16 +323,23 @@ proxy-groups:
   - 🚀 Auto
   - 🇬🇧 GB [R] | 193.163.203.170
   - 🇩🇪 DE [R] | food.ebaniyautist.com
+  - 🇩🇪 DE [R] | 194.55.239.10
   - 🇩🇪 DE [grpc] | almanac.filnex.baby
-  - 🇩🇪 DE [grpc] | ledger.filnex.baby
   - 🇩🇪 DE [xhttp] | willowbank.moltex.click
-  - 🇯🇵 JP [ws] | 185.222.43.175
-  - 🇩🇪 DE [ws] | bookend.filnex.baby
-  - 🇸🇪 SE [ws] | subgift.gcorecdn.com
-  - 🇩🇪 DE  | 176.98.176.60
+  - 🇩🇪 DE [grpc] | linen.gerqix.online
+  - 🇩🇪 DE [xhttp] | marsh.moltex.click
+  - 🇹🇷 TR [grpc] | 188.225.36.219
+  - 🇩🇪 DE [ws] | woodgrain.filnex.baby
+  - 🇩🇪 DE [ws] | ws3.falmero.store
   - 🇸🇪 SE [ws] | 92.223.84.254
+  - 🇸🇪 SE [ws] | subgift.gcorecdn.com
+  - 🇯🇵 JP [ws] | 185.222.43.175
+  - 🇩🇪 DE  | 176.98.176.60
   - 🇩🇪 DE [ws] | 88.216.70.125
+  - 🇩🇪 DE [ws] | leviko-de6156.shopingggg.ir
   - 🇩🇪 DE [ws] | o685y.save-node.com
+  - 🇫🇮 FI  | 188.68.216.27
+  - 🇺🇸 US [ws] | 95.129.236.70
 - name: 🎯 Direct
   type: select
   proxies:
