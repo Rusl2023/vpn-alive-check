@@ -21,38 +21,6 @@ dns:
   - tls://8.8.8.8
   - tls://1.1.1.1
 proxies:
-- name: 🇬🇧 GB [R] | 193.163.203.170
-  type: vless
-  server: 193.163.203.170
-  port: 443
-  uuid: 11aabba0-5fd1-4f15-8068-74c1a466cefc
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: GCCZ1ZZjB_nj7yxqFi22bIIWWr_G6rnWUzDcssN_40o
-    short-id: b28db60d77c50b4f
-  servername: yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: random
-- name: 🇩🇪 DE [R] | food.ebaniyautist.com
-  type: vless
-  server: food.ebaniyautist.com
-  port: 443
-  uuid: f1e221a2-b4bc-4e59-a8e7-81324788b377
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: 4Su0-tgE1LOcvkrgkhbqwcSx0xP4dr5Wh6gvhtxg0Gk
-    short-id: 7935022d536cccb8
-  servername: sun9-37.userapi.com
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇩🇪 DE [R] | 194.55.239.10
   type: vless
   server: 194.55.239.10
@@ -69,57 +37,36 @@ proxies:
   servername: sun9-37.userapi.com
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇩🇪 DE [grpc] | almanac.filnex.baby
+- name: 🇩🇪 DE [R] | food.ebaniyautist.com
   type: vless
-  server: almanac.filnex.baby
+  server: food.ebaniyautist.com
   port: 443
-  uuid: 25ac78e7-6d1d-4c9a-a450-c01a4871769f
+  uuid: f1e221a2-b4bc-4e59-a8e7-81324788b377
   udp: true
   skip-cert-verify: true
-  network: grpc
+  network: tcp
   encryption: none
   tls: true
-  servername: morningfen.merlano.monster
-  client-fingerprint: random
-  grpc-opts:
-    grpc-service-name: glush.de1.v1
-- name: 🇩🇪 DE [xhttp] | willowbank.moltex.click
-  type: vless
-  server: willowbank.moltex.click
-  port: 443
-  uuid: 25ac78e7-6d1d-4c9a-a450-c01a4871769f
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  servername: daylily.moltex.click
-  client-fingerprint: chrome
-- name: 🇩🇪 DE [grpc] | linen.gerqix.online
-  type: vless
-  server: linen.gerqix.online
-  port: 443
-  uuid: 25ac78e7-6d1d-4c9a-a450-c01a4871769f
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  servername: fernglade.gerqix.online
+  reality-opts:
+    public-key: 4Su0-tgE1LOcvkrgkhbqwcSx0xP4dr5Wh6gvhtxg0Gk
+    short-id: 7935022d536cccb8
+  servername: sun9-37.userapi.com
+  flow: xtls-rprx-vision
   client-fingerprint: firefox
-  grpc-opts:
-    grpc-service-name: glush.de1.v1
-- name: 🇩🇪 DE [xhttp] | marsh.moltex.click
+- name: 🇵🇱 PL [R] | 83.168.90.13
   type: vless
-  server: marsh.moltex.click
+  server: 83.168.90.13
   port: 443
-  uuid: 25ac78e7-6d1d-4c9a-a450-c01a4871769f
+  uuid: b32e9bf3-d926-46fe-93c7-084b7a5eea1a
   udp: true
   skip-cert-verify: true
-  network: xhttp
+  network: tcp
   encryption: none
   tls: true
-  servername: cotoneaster.moltex.click
+  reality-opts:
+    public-key: bkQ2euy5Ls1EELvms1JGr4Bwey673s5CAvSs6b3XzwA
+  servername: ya.ru
+  flow: xtls-rprx-vision
   client-fingerprint: firefox
 - name: 🇹🇷 TR [grpc] | 188.225.36.219
   type: vless
@@ -135,9 +82,117 @@ proxies:
   client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: olvento.sync.v1
-- name: 🇩🇪 DE [ws] | woodgrain.filnex.baby
+- name: 🇹🇷 TR [grpc] | olvento.space
   type: vless
-  server: woodgrain.filnex.baby
+  server: olvento.space
+  port: 443
+  uuid: 25ac78e7-6d1d-4c9a-a450-c01a4871769f
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  servername: olvento.space
+  client-fingerprint: firefox
+  grpc-opts:
+    grpc-service-name: olvento.sync.v1
+- name: 🇫🇷 FR [xhttp] | 194.156.26.125
+  type: vless
+  server: 194.156.26.125
+  port: 443
+  uuid: 654ba40a-0522-4fc3-8328-08099482c201
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  servername: mama1472.baklajann.ru
+  client-fingerprint: chrome
+- name: 🇬🇧 GB [xhttp] | 194.156.26.125
+  type: vless
+  server: 194.156.26.125
+  port: 443
+  uuid: 654ba40a-0522-4fc3-8328-08099482c201
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  servername: mama120.baklajann.ru
+  client-fingerprint: chrome
+- name: 🇩🇪 DE [xhttp] | marsh.moltex.click
+  type: vless
+  server: marsh.moltex.click
+  port: 443
+  uuid: 25ac78e7-6d1d-4c9a-a450-c01a4871769f
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  servername: cotoneaster.moltex.click
+  client-fingerprint: firefox
+- name: 🇩🇪 DE [grpc] | 5.42.102.162
+  type: vless
+  server: 5.42.102.162
+  port: 443
+  uuid: 25ac78e7-6d1d-4c9a-a450-c01a4871769f
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  servername: morningfen.merlano.monster
+  client-fingerprint: firefox
+  grpc-opts:
+    grpc-service-name: glush.de1.v1
+- name: 🇩🇪 DE [grpc] | vellum.filnex.baby
+  type: vless
+  server: vellum.filnex.baby
+  port: 443
+  uuid: 25ac78e7-6d1d-4c9a-a450-c01a4871769f
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  servername: rookery.moltex.click
+  client-fingerprint: firefox
+  grpc-opts:
+    grpc-service-name: glush.de3.v1
+- name: 🇩🇪 DE [grpc] | marigold.gerqix.online
+  type: vless
+  server: marigold.gerqix.online
+  port: 443
+  uuid: 25ac78e7-6d1d-4c9a-a450-c01a4871769f
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  servername: marigold.gerqix.online
+  client-fingerprint: firefox
+  grpc-opts:
+    grpc-service-name: glush.de5.v1
+- name: 🇺🇸 US [ws] | 95.129.236.70
+  type: vless
+  server: 95.129.236.70
+  port: 443
+  uuid: 1547ed3d-3bb7-4153-afdc-8eb3e9373c84
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: static.lk.pc-club.app
+  client-fingerprint: firefox
+  ws-opts:
+    path: /gateway/v1/ws/de963c1a03a37c66383da198813099b1
+    headers:
+      Host: static.lk.pc-club.app
+- name: 🇩🇪 DE [ws] | foliose.merlano.monster
+  type: vless
+  server: foliose.merlano.monster
   port: 443
   uuid: 25ac78e7-6d1d-4c9a-a450-c01a4871769f
   udp: true
@@ -145,59 +200,12 @@ proxies:
   network: ws
   encryption: none
   tls: true
-  servername: birchshade.elvano.website
-  client-fingerprint: firefox
+  servername: foliose.merlano.monster
+  client-fingerprint: chrome
   ws-opts:
     path: /api/de2/stream
     headers:
-      Host: birchshade.elvano.website
-- name: 🇩🇪 DE [ws] | ws3.falmero.store
-  type: vless
-  server: ws3.falmero.store
-  port: 443
-  uuid: 25ac78e7-6d1d-4c9a-a450-c01a4871769f
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: canvas.merlano.monster
-  client-fingerprint: chrome
-  ws-opts:
-    path: /api/de1/stream
-    headers:
-      Host: canvas.merlano.monster
-- name: 🇸🇪 SE [ws] | 92.223.84.254
-  type: vless
-  server: 92.223.84.254
-  port: 443
-  uuid: 740b2630-b42d-425c-bacd-37e7e30d78f1
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: subgift.gcorecdn.com
-  client-fingerprint: chrome
-  ws-opts:
-    path: /t.me-SubGift
-    headers:
-      Host: subgift.gcorecdn.com
-- name: 🇸🇪 SE [ws] | subgift.gcorecdn.com
-  type: vless
-  server: subgift.gcorecdn.com
-  port: 443
-  uuid: 740b2630-b42d-425c-bacd-37e7e30d78f1
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: subgift.gcorecdn.com
-  ws-opts:
-    path: /t.me-SubGift
-    headers:
-      Host: subgift.gcorecdn.com
+      Host: foliose.merlano.monster
 - name: 🇯🇵 JP [ws] | 185.222.43.175
   type: vless
   server: 185.222.43.175
@@ -226,24 +234,41 @@ proxies:
   servername: mosaic.topp-con.xyz
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇩🇪 DE [ws] | 88.216.70.125
+- name: 🇸🇪 SE [ws] | 92.223.84.254
   type: vless
-  server: 88.216.70.125
+  server: 92.223.84.254
   port: 443
-  uuid: 88e79aa6-f431-4453-8dcc-652a0c747198
+  uuid: 740b2630-b42d-425c-bacd-37e7e30d78f1
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: o685y.save-node.com
+  servername: subgift.gcorecdn.com
+  client-fingerprint: firefox
   ws-opts:
-    path: /api/se1k2rfxlsuer3ry4u6e84kl8rqp721p
+    path: /t.me-SubGift
     headers:
-      Host: o685y.save-node.com
-- name: 🇩🇪 DE [ws] | leviko-de6156.shopingggg.ir
+      Host: subgift.gcorecdn.com
+- name: 🇸🇪 SE [ws] | subgift.gcorecdn.com
   type: vless
-  server: leviko-de6156.shopingggg.ir
+  server: subgift.gcorecdn.com
+  port: 443
+  uuid: 740b2630-b42d-425c-bacd-37e7e30d78f1
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: subgift.gcorecdn.com
+  client-fingerprint: chrome
+  ws-opts:
+    path: /t.me-SubGift
+    headers:
+      Host: subgift.gcorecdn.com
+- name: 🇩🇪 DE [ws] | 88.216.70.125
+  type: vless
+  server: 88.216.70.125
   port: 443
   uuid: 88e79aa6-f431-4453-8dcc-652a0c747198
   udp: true
@@ -268,52 +293,85 @@ proxies:
   encryption: none
   tls: true
   servername: o685y.save-node.com
+  client-fingerprint: chrome
   ws-opts:
     path: /api/se1k2rfxlsuer3ry4u6e84kl8rqp721p
     headers:
       Host: o685y.save-node.com
-- name: 🇫🇮 FI  | 188.68.216.27
+- name: 🇩🇪 DE [ws] | leviko-de6156.shopingggg.ir
   type: vless
-  server: 188.68.216.27
+  server: leviko-de6156.shopingggg.ir
   port: 443
-  uuid: e5d9306d-06fd-0001-a707-11f21c9b446a
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: qtuod-ru-56sel.fade.mom
-  client-fingerprint: chrome
-- name: 🇺🇸 US [ws] | 95.129.236.70
-  type: vless
-  server: 95.129.236.70
-  port: 443
-  uuid: 1547ed3d-3bb7-4153-afdc-8eb3e9373c84
+  uuid: 88e79aa6-f431-4453-8dcc-652a0c747198
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: static.lk.pc-club.app
+  servername: o685y.save-node.com
+  client-fingerprint: chrome
+  ws-opts:
+    path: /api/se1k2rfxlsuer3ry4u6e84kl8rqp721p
+    headers:
+      Host: o685y.save-node.com
+- name: 🇸🇪 SE  | 88.216.129.132
+  type: vless
+  server: 88.216.129.132
+  port: 443
+  uuid: 07011275-4633-40ab-9e00-e005a3dc22ff
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  servername: tn6z7hx.mintharbor.net
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇩🇪 DE [ws] | inlet.gerqix.online
+  type: vless
+  server: inlet.gerqix.online
+  port: 443
+  uuid: 25ac78e7-6d1d-4c9a-a450-c01a4871769f
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: inlet.gerqix.online
   client-fingerprint: firefox
   ws-opts:
-    path: /gateway/v1/ws/de963c1a03a37c66383da198813099b1
+    path: /api/de4/stream
     headers:
-      Host: static.lk.pc-club.app
+      Host: inlet.gerqix.online
+- name: 🇫🇷 FR [ws] | api.floweroom.vip
+  type: vless
+  server: api.floweroom.vip
+  port: 443
+  uuid: 8897280f-82be-4d5a-bfa1-80bd22851384
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: api.floweroom.vip
+  ws-opts:
+    path: /cart/sync/g-jSjxyhq24P
+    headers:
+      Host: api.floweroom.vip
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
-  - 🇬🇧 GB [R] | 193.163.203.170
-  - 🇩🇪 DE [R] | food.ebaniyautist.com
   - 🇩🇪 DE [R] | 194.55.239.10
-  - 🇩🇪 DE [grpc] | almanac.filnex.baby
-  - 🇩🇪 DE [xhttp] | willowbank.moltex.click
-  - 🇩🇪 DE [grpc] | linen.gerqix.online
-  - 🇩🇪 DE [xhttp] | marsh.moltex.click
+  - 🇩🇪 DE [R] | food.ebaniyautist.com
+  - 🇵🇱 PL [R] | 83.168.90.13
   - 🇹🇷 TR [grpc] | 188.225.36.219
-  - 🇩🇪 DE [ws] | woodgrain.filnex.baby
-  - 🇩🇪 DE [ws] | ws3.falmero.store
+  - 🇹🇷 TR [grpc] | olvento.space
+  - 🇫🇷 FR [xhttp] | 194.156.26.125
+  - 🇬🇧 GB [xhttp] | 194.156.26.125
+  - 🇩🇪 DE [xhttp] | marsh.moltex.click
+  - 🇩🇪 DE [grpc] | 5.42.102.162
+  - 🇩🇪 DE [grpc] | vellum.filnex.baby
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -321,25 +379,29 @@ proxy-groups:
   type: select
   proxies:
   - 🚀 Auto
-  - 🇬🇧 GB [R] | 193.163.203.170
-  - 🇩🇪 DE [R] | food.ebaniyautist.com
   - 🇩🇪 DE [R] | 194.55.239.10
-  - 🇩🇪 DE [grpc] | almanac.filnex.baby
-  - 🇩🇪 DE [xhttp] | willowbank.moltex.click
-  - 🇩🇪 DE [grpc] | linen.gerqix.online
-  - 🇩🇪 DE [xhttp] | marsh.moltex.click
+  - 🇩🇪 DE [R] | food.ebaniyautist.com
+  - 🇵🇱 PL [R] | 83.168.90.13
   - 🇹🇷 TR [grpc] | 188.225.36.219
-  - 🇩🇪 DE [ws] | woodgrain.filnex.baby
-  - 🇩🇪 DE [ws] | ws3.falmero.store
-  - 🇸🇪 SE [ws] | 92.223.84.254
-  - 🇸🇪 SE [ws] | subgift.gcorecdn.com
+  - 🇹🇷 TR [grpc] | olvento.space
+  - 🇫🇷 FR [xhttp] | 194.156.26.125
+  - 🇬🇧 GB [xhttp] | 194.156.26.125
+  - 🇩🇪 DE [xhttp] | marsh.moltex.click
+  - 🇩🇪 DE [grpc] | 5.42.102.162
+  - 🇩🇪 DE [grpc] | vellum.filnex.baby
+  - 🇩🇪 DE [grpc] | marigold.gerqix.online
+  - 🇺🇸 US [ws] | 95.129.236.70
+  - 🇩🇪 DE [ws] | foliose.merlano.monster
   - 🇯🇵 JP [ws] | 185.222.43.175
   - 🇩🇪 DE  | 176.98.176.60
+  - 🇸🇪 SE [ws] | 92.223.84.254
+  - 🇸🇪 SE [ws] | subgift.gcorecdn.com
   - 🇩🇪 DE [ws] | 88.216.70.125
-  - 🇩🇪 DE [ws] | leviko-de6156.shopingggg.ir
   - 🇩🇪 DE [ws] | o685y.save-node.com
-  - 🇫🇮 FI  | 188.68.216.27
-  - 🇺🇸 US [ws] | 95.129.236.70
+  - 🇩🇪 DE [ws] | leviko-de6156.shopingggg.ir
+  - 🇸🇪 SE  | 88.216.129.132
+  - 🇩🇪 DE [ws] | inlet.gerqix.online
+  - 🇫🇷 FR [ws] | api.floweroom.vip
 - name: 🎯 Direct
   type: select
   proxies:
