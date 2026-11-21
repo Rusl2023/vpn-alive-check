@@ -21,103 +21,112 @@ dns:
   - tls://8.8.8.8
   - tls://1.1.1.1
 proxies:
-- name: 🇳🇱 NL [R] | 135.106.208.37
+- name: 🇳🇱 NL [R][grpc] | 51.250.35.127
   type: vless
-  server: 135.106.208.37
+  server: 51.250.35.127
   port: 443
-  uuid: 7384d777-cd1b-56f3-a31a-d7f69daf45ed
+  uuid: 25d67a12-cd2d-4b72-af3d-b22b3e88402c
   udp: true
   skip-cert-verify: true
-  network: tcp
+  network: grpc
   encryption: none
   tls: true
   reality-opts:
-    public-key: VgX9N3I4ELJA5PCSaEXwJMly3GprvfDWhNTAu5yfgm0
-    short-id: c00d8a77
-  servername: max.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇺🇸 US  | 194.187.122.99
+    public-key: MPbIoioyPoYiGN74tRHlailah_gCWVO7P-KU6_ug-hI
+    short-id: '50'
+  servername: ya.ru
+  client-fingerprint: qq
+  grpc-opts:
+    grpc-service-name: mc.yandex.ru
+- name: 🇩🇪 DE [grpc] | 5.182.87.242
   type: vless
-  server: 194.187.122.99
+  server: 5.182.87.242
   port: 443
-  uuid: f7331345-aac5-4e81-b8ac-8b8aa3ee2068
+  uuid: d96bdba8-70d6-407f-9863-e2a61e4b1399
   udp: true
   skip-cert-verify: true
-  network: tcp
+  network: grpc
   encryption: none
   tls: true
-  servername: media.lite64.site
-  flow: xtls-rprx-vision
+  servername: de2.omgcloud.ru
   client-fingerprint: firefox
-- name: 🇺🇸 US  | 176.57.218.50
+  grpc-opts:
+    grpc-service-name: ''
+- name: 🇩🇪 DE [xhttp] | 31.177.111.225
   type: vless
-  server: 176.57.218.50
+  server: 31.177.111.225
   port: 443
-  uuid: f7331345-aac5-4e81-b8ac-8b8aa3ee2068
+  uuid: fdd8114b-977d-4bb1-b675-a20af8ad41f5
   udp: true
   skip-cert-verify: true
-  network: tcp
+  network: xhttp
   encryption: none
   tls: true
-  servername: cdn.lite64.site
-  flow: xtls-rprx-vision
+  servername: alt.edge-assets.ru
   client-fingerprint: firefox
-- name: 🇺🇸 US  | 89.223.68.41
+- name: 🇳🇱 NL [ws] | 46.243.233.194
   type: vless
-  server: 89.223.68.41
+  server: 46.243.233.194
   port: 443
-  uuid: f7331345-aac5-4e81-b8ac-8b8aa3ee2068
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: static.lite64.site
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇺🇸 US  | 185.154.194.17
-  type: vless
-  server: 185.154.194.17
-  port: 443
-  uuid: f7331345-aac5-4e81-b8ac-8b8aa3ee2068
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: img.lite64.site
-  flow: xtls-rprx-vision
-  client-fingerprint: random
-- name: 🇨🇾 CY  | 188.225.74.139
-  type: vless
-  server: 188.225.74.139
-  port: 443
-  uuid: 7370aef1-b137-411d-ad0a-c12cc8c0b65e
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: spb.b2ai.top
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇳🇱 NL [ws] | 31.177.111.107
-  type: vless
-  server: 31.177.111.107
-  port: 443
-  uuid: ef5a57c7-84d5-4f86-b99c-875a16da485f
+  uuid: 7955bf18-35c4-412d-aabd-c0b36c793063
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: q075gi2cms.schoolbag.top
+  servername: pssdwynorv.newwl.pro
   client-fingerprint: firefox
   ws-opts:
-    path: /collector/runtime/channel/open
+    path: /service/telemetry/0294da469190/
     headers:
-      Host: q075gi2cms.schoolbag.top
+      Host: pssdwynorv.newwl.pro
+- name: 🇳🇱 NL [ws] | pssdwynorv.newwl.pro
+  type: vless
+  server: pssdwynorv.newwl.pro
+  port: 443
+  uuid: 7955bf18-35c4-412d-aabd-c0b36c793063
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: pssdwynorv.newwl.pro
+  client-fingerprint: qq
+  ws-opts:
+    path: /service/telemetry/0294da469190/
+    headers:
+      Host: pssdwynorv.newwl.pro
+- name: 🇩🇪 DE [ws] | files-qzgs.login.opendns.stream
+  type: vless
+  server: files-qzgs.login.opendns.stream
+  port: 443
+  uuid: a71d6c6d-c95e-4ec1-a892-22e21733bf09
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: files-qzgs.login.opendns.stream
+  client-fingerprint: firefox
+  ws-opts:
+    path: /origin/246825491/fetch
+    headers:
+      Host: files-qzgs.login.opendns.stream
+- name: 🇯🇵 JP [ws] | 185.222.43.175
+  type: vless
+  server: 185.222.43.175
+  port: 443
+  uuid: 4e4f1f70-5e56-4a76-bb9d-db087f4690c4
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: jp3.yohototo.top
+  ws-opts:
+    path: /tyxyws
+    headers:
+      Host: jp3.yohototo.top
 - name: 🇩🇪 DE  | 176.98.176.60
   type: vless
   server: 176.98.176.60
@@ -147,21 +156,22 @@ proxies:
     path: /api/se1k2rfxlsuer3ry4u6e84kl8rqp721p
     headers:
       Host: o685y.save-node.com
-- name: 🇯🇵 JP [ws] | 185.222.43.175
+- name: 🇩🇪 DE [ws] | o685y.save-node.com
   type: vless
-  server: 185.222.43.175
+  server: o685y.save-node.com
   port: 443
-  uuid: 4e4f1f70-5e56-4a76-bb9d-db087f4690c4
+  uuid: 88e79aa6-f431-4453-8dcc-652a0c747198
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: jp3.yohototo.top
+  servername: o685y.save-node.com
+  client-fingerprint: chrome
   ws-opts:
-    path: /tyxyws
+    path: /api/se1k2rfxlsuer3ry4u6e84kl8rqp721p
     headers:
-      Host: jp3.yohototo.top
+      Host: o685y.save-node.com
 - name: 🇩🇪 DE [ws] | leviko-de6156.shopingggg.ir
   type: vless
   server: leviko-de6156.shopingggg.ir
@@ -178,51 +188,36 @@ proxies:
     path: /api/se1k2rfxlsuer3ry4u6e84kl8rqp721p
     headers:
       Host: o685y.save-node.com
-- name: 🇩🇪 DE [ws] | o685y.save-node.com
+- name: 🇩🇪 DE [ws] | 95.129.236.239
   type: vless
-  server: o685y.save-node.com
+  server: 95.129.236.239
   port: 443
-  uuid: 88e79aa6-f431-4453-8dcc-652a0c747198
+  uuid: a71d6c6d-c95e-4ec1-a892-22e21733bf09
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: o685y.save-node.com
-  ws-opts:
-    path: /api/se1k2rfxlsuer3ry4u6e84kl8rqp721p
-    headers:
-      Host: o685y.save-node.com
-- name: 🇳🇱 NL [ws] | 46.243.233.194
-  type: vless
-  server: 46.243.233.194
-  port: 443
-  uuid: 7955bf18-35c4-412d-aabd-c0b36c793063
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: pssdwynorv.newwl.pro
+  servername: files-qzgs.login.opendns.stream
   client-fingerprint: firefox
   ws-opts:
-    path: /service/telemetry/0294da469190/
+    path: /origin/246825491/fetch
     headers:
-      Host: pssdwynorv.newwl.pro
+      Host: files-qzgs.login.opendns.stream
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
-  - 🇳🇱 NL [R] | 135.106.208.37
-  - 🇺🇸 US  | 194.187.122.99
-  - 🇺🇸 US  | 176.57.218.50
-  - 🇺🇸 US  | 89.223.68.41
-  - 🇺🇸 US  | 185.154.194.17
-  - 🇨🇾 CY  | 188.225.74.139
-  - 🇳🇱 NL [ws] | 31.177.111.107
+  - 🇳🇱 NL [R][grpc] | 51.250.35.127
+  - 🇩🇪 DE [grpc] | 5.182.87.242
+  - 🇩🇪 DE [xhttp] | 31.177.111.225
+  - 🇳🇱 NL [ws] | 46.243.233.194
+  - 🇳🇱 NL [ws] | pssdwynorv.newwl.pro
+  - 🇩🇪 DE [ws] | files-qzgs.login.opendns.stream
+  - 🇯🇵 JP [ws] | 185.222.43.175
   - 🇩🇪 DE  | 176.98.176.60
   - 🇩🇪 DE [ws] | 88.216.70.125
-  - 🇯🇵 JP [ws] | 185.222.43.175
+  - 🇩🇪 DE [ws] | o685y.save-node.com
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -230,19 +225,18 @@ proxy-groups:
   type: select
   proxies:
   - 🚀 Auto
-  - 🇳🇱 NL [R] | 135.106.208.37
-  - 🇺🇸 US  | 194.187.122.99
-  - 🇺🇸 US  | 176.57.218.50
-  - 🇺🇸 US  | 89.223.68.41
-  - 🇺🇸 US  | 185.154.194.17
-  - 🇨🇾 CY  | 188.225.74.139
-  - 🇳🇱 NL [ws] | 31.177.111.107
+  - 🇳🇱 NL [R][grpc] | 51.250.35.127
+  - 🇩🇪 DE [grpc] | 5.182.87.242
+  - 🇩🇪 DE [xhttp] | 31.177.111.225
+  - 🇳🇱 NL [ws] | 46.243.233.194
+  - 🇳🇱 NL [ws] | pssdwynorv.newwl.pro
+  - 🇩🇪 DE [ws] | files-qzgs.login.opendns.stream
+  - 🇯🇵 JP [ws] | 185.222.43.175
   - 🇩🇪 DE  | 176.98.176.60
   - 🇩🇪 DE [ws] | 88.216.70.125
-  - 🇯🇵 JP [ws] | 185.222.43.175
-  - 🇩🇪 DE [ws] | leviko-de6156.shopingggg.ir
   - 🇩🇪 DE [ws] | o685y.save-node.com
-  - 🇳🇱 NL [ws] | 46.243.233.194
+  - 🇩🇪 DE [ws] | leviko-de6156.shopingggg.ir
+  - 🇩🇪 DE [ws] | 95.129.236.239
 - name: 🎯 Direct
   type: select
   proxies:
