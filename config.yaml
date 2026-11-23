@@ -54,6 +54,18 @@ proxies:
   servername: push.vk.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
+- name: 🇦🇹 AT [xhttp] | 185.244.182.162
+  type: vless
+  server: 185.244.182.162
+  port: 443
+  uuid: c50eae6b-18de-4bdc-a22f-9edda40a57ed
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  servername: atd1.tunnely.space
+  client-fingerprint: firefox
 - name: 🇹🇷 TR [grpc] | 188.225.36.219
   type: vless
   server: 188.225.36.219
@@ -82,6 +94,38 @@ proxies:
   client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: glush.de1.v1
+- name: 🇩🇪 DE [ws] | 95.129.236.239
+  type: vless
+  server: 95.129.236.239
+  port: 443
+  uuid: a71d6c6d-c95e-4ec1-a892-22e21733bf09
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: files-qzgs.login.opendns.stream
+  client-fingerprint: firefox
+  ws-opts:
+    path: /origin/246825491/fetch
+    headers:
+      Host: files-qzgs.login.opendns.stream
+- name: 🇩🇪 DE [ws] | 185.178.208.167
+  type: vless
+  server: 185.178.208.167
+  port: 443
+  uuid: 6bd1d88f-0a26-4d21-b325-15d85120b883
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: sw-api.telemetryapi.org
+  client-fingerprint: firefox
+  ws-opts:
+    path: /api/v2/client/session/connect
+    headers:
+      Host: sw-api.telemetryapi.org
 - name: 🇩🇪 DE [ws] | files-qzgs.login.opendns.stream
   type: vless
   server: files-qzgs.login.opendns.stream
@@ -98,19 +142,6 @@ proxies:
     path: /origin/246825491/fetch
     headers:
       Host: files-qzgs.login.opendns.stream
-- name: 🇩🇪 DE  | 176.98.176.60
-  type: vless
-  server: 176.98.176.60
-  port: 443
-  uuid: 7ad63b26-bf70-4872-8fab-ebaf73a1e19d
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: mosaic.topp-con.xyz
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
 - name: 🇯🇵 JP [ws] | 185.222.43.175
   type: vless
   server: 185.222.43.175
@@ -126,25 +157,38 @@ proxies:
     path: /tyxyws
     headers:
       Host: jp3.yohototo.top
-- name: 🇩🇪 DE [ws] | 88.216.70.125
+- name: 🇩🇪 DE [ws] | sw-api.telemetryapi.org
   type: vless
-  server: 88.216.70.125
+  server: sw-api.telemetryapi.org
   port: 443
-  uuid: 88e79aa6-f431-4453-8dcc-652a0c747198
+  uuid: 6bd1d88f-0a26-4d21-b325-15d85120b883
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: o685y.save-node.com
-  client-fingerprint: chrome
+  servername: sw-api.telemetryapi.org
+  client-fingerprint: qq
   ws-opts:
-    path: /api/se1k2rfxlsuer3ry4u6e84kl8rqp721p
+    path: /api/v2/client/session/connect
     headers:
-      Host: o685y.save-node.com
-- name: 🇩🇪 DE [ws] | leviko-de6156.shopingggg.ir
+      Host: sw-api.telemetryapi.org
+- name: 🇩🇪 DE  | 176.98.176.60
   type: vless
-  server: leviko-de6156.shopingggg.ir
+  server: 176.98.176.60
+  port: 443
+  uuid: 7ad63b26-bf70-4872-8fab-ebaf73a1e19d
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  servername: mosaic.topp-con.xyz
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇩🇪 DE [ws] | 88.216.70.125
+  type: vless
+  server: 88.216.70.125
   port: 443
   uuid: 88e79aa6-f431-4453-8dcc-652a0c747198
   udp: true
@@ -174,36 +218,65 @@ proxies:
     path: /api/se1k2rfxlsuer3ry4u6e84kl8rqp721p
     headers:
       Host: o685y.save-node.com
-- name: 🇩🇪 DE [ws] | 95.129.236.239
+- name: 🇩🇪 DE [ws] | 188.225.72.227
   type: vless
-  server: 95.129.236.239
+  server: 188.225.72.227
   port: 443
-  uuid: a71d6c6d-c95e-4ec1-a892-22e21733bf09
+  uuid: 9838332e-2ec6-4467-a070-d6de028262ce
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: files-qzgs.login.opendns.stream
+  servername: cdn.quantum.vodka
+  client-fingerprint: chrome
+  ws-opts:
+    path: /api/v1/pipe/b1bb509248
+    headers:
+      Host: cdn.quantum.vodka
+- name: 🇸🇪 SE  | 188.225.46.6
+  type: vless
+  server: 188.225.46.6
+  port: 443
+  uuid: a077dc9a-712f-48ea-b75c-d94af64011ec
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  servername: spb.b2ai.top
+  flow: xtls-rprx-vision-udp443
+  client-fingerprint: firefox
+- name: 🇰🇿 KZ [ws] | 91.219.23.76
+  type: vless
+  server: 91.219.23.76
+  port: 443
+  uuid: 8b1b59c8-8802-0002-a636-ffe786275594
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: cataloguebroker.comparecarprices.org
   client-fingerprint: firefox
   ws-opts:
-    path: /origin/246825491/fetch
+    path: /media/ws/
     headers:
-      Host: files-qzgs.login.opendns.stream
+      Host: cataloguebroker.comparecarprices.org
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
   - 🇳🇱 NL [R][grpc] | 51.250.35.127
   - 🇩🇪 DE [R] | f828nczurr.newwl.pro
+  - 🇦🇹 AT [xhttp] | 185.244.182.162
   - 🇹🇷 TR [grpc] | 188.225.36.219
   - 🇩🇪 DE [grpc] | 81.200.158.26
+  - 🇩🇪 DE [ws] | 95.129.236.239
+  - 🇩🇪 DE [ws] | 185.178.208.167
   - 🇩🇪 DE [ws] | files-qzgs.login.opendns.stream
-  - 🇩🇪 DE  | 176.98.176.60
   - 🇯🇵 JP [ws] | 185.222.43.175
-  - 🇩🇪 DE [ws] | 88.216.70.125
-  - 🇩🇪 DE [ws] | leviko-de6156.shopingggg.ir
-  - 🇩🇪 DE [ws] | o685y.save-node.com
+  - 🇩🇪 DE [ws] | sw-api.telemetryapi.org
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -213,15 +286,20 @@ proxy-groups:
   - 🚀 Auto
   - 🇳🇱 NL [R][grpc] | 51.250.35.127
   - 🇩🇪 DE [R] | f828nczurr.newwl.pro
+  - 🇦🇹 AT [xhttp] | 185.244.182.162
   - 🇹🇷 TR [grpc] | 188.225.36.219
   - 🇩🇪 DE [grpc] | 81.200.158.26
-  - 🇩🇪 DE [ws] | files-qzgs.login.opendns.stream
-  - 🇩🇪 DE  | 176.98.176.60
-  - 🇯🇵 JP [ws] | 185.222.43.175
-  - 🇩🇪 DE [ws] | 88.216.70.125
-  - 🇩🇪 DE [ws] | leviko-de6156.shopingggg.ir
-  - 🇩🇪 DE [ws] | o685y.save-node.com
   - 🇩🇪 DE [ws] | 95.129.236.239
+  - 🇩🇪 DE [ws] | 185.178.208.167
+  - 🇩🇪 DE [ws] | files-qzgs.login.opendns.stream
+  - 🇯🇵 JP [ws] | 185.222.43.175
+  - 🇩🇪 DE [ws] | sw-api.telemetryapi.org
+  - 🇩🇪 DE  | 176.98.176.60
+  - 🇩🇪 DE [ws] | 88.216.70.125
+  - 🇩🇪 DE [ws] | o685y.save-node.com
+  - 🇩🇪 DE [ws] | 188.225.72.227
+  - 🇸🇪 SE  | 188.225.46.6
+  - 🇰🇿 KZ [ws] | 91.219.23.76
 - name: 🎯 Direct
   type: select
   proxies:
