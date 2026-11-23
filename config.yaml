@@ -38,21 +38,9 @@ proxies:
   client-fingerprint: qq
   grpc-opts:
     grpc-service-name: mc.yandex.ru
-- name: 🇦🇹 AT [xhttp] | 185.244.182.162
+- name: 🇩🇪 DE [grpc] | tapestry.gerqix.online
   type: vless
-  server: 185.244.182.162
-  port: 443
-  uuid: c50eae6b-18de-4bdc-a22f-9edda40a57ed
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  servername: atd1.tunnely.space
-  client-fingerprint: firefox
-- name: 🇩🇪 DE [grpc] | vellum.filnex.baby
-  type: vless
-  server: vellum.filnex.baby
+  server: tapestry.gerqix.online
   port: 443
   uuid: 0b6a7fe0-206b-4071-9f96-cd397d1ec01a
   udp: true
@@ -60,7 +48,7 @@ proxies:
   network: grpc
   encryption: none
   tls: true
-  servername: rookery.moltex.click
+  servername: tapestry.gerqix.online
   client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: glush.de3.v1
@@ -92,22 +80,20 @@ proxies:
   client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: olvento.sync.v1
-- name: 🇩🇪 DE [ws] | 185.178.208.167
+- name: 🇨🇿 CZ [grpc] | 109.248.17.252
   type: vless
-  server: 185.178.208.167
+  server: 109.248.17.252
   port: 443
-  uuid: 6bd1d88f-0a26-4d21-b325-15d85120b883
+  uuid: 9000a7f3-df2a-49a8-ae56-3e7777bd32f7
   udp: true
   skip-cert-verify: true
-  network: ws
+  network: grpc
   encryption: none
   tls: true
-  servername: sw-api.telemetryapi.org
+  servername: v4.clequinix.globalinetforallalwaysandneverbanyoubelieveme.com
   client-fingerprint: firefox
-  ws-opts:
-    path: /api/v2/client/session/connect
-    headers:
-      Host: sw-api.telemetryapi.org
+  grpc-opts:
+    grpc-service-name: v4-clequinix-globalinetforallalwaysandneverbanyoubelieveme-com
 - name: 🇯🇵 JP [ws] | 185.222.43.175
   type: vless
   server: 185.222.43.175
@@ -136,115 +122,31 @@ proxies:
   servername: mosaic.topp-con.xyz
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇩🇪 DE [ws] | 88.216.70.125
+- name: 🇸🇪 SE  | 188.225.46.6
   type: vless
-  server: 88.216.70.125
+  server: 188.225.46.6
   port: 443
-  uuid: 88e79aa6-f431-4453-8dcc-652a0c747198
+  uuid: a077dc9a-712f-48ea-b75c-d94af64011ec
   udp: true
   skip-cert-verify: true
-  network: ws
+  network: tcp
   encryption: none
   tls: true
-  servername: o685y.save-node.com
-  ws-opts:
-    path: /api/se1k2rfxlsuer3ry4u6e84kl8rqp721p
-    headers:
-      Host: o685y.save-node.com
-- name: 🇩🇪 DE [ws] | o685y.save-node.com
-  type: vless
-  server: o685y.save-node.com
-  port: 443
-  uuid: 88e79aa6-f431-4453-8dcc-652a0c747198
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: o685y.save-node.com
+  servername: spb.b2ai.top
+  flow: xtls-rprx-vision-udp443
   client-fingerprint: firefox
-  ws-opts:
-    path: /api/se1k2rfxlsuer3ry4u6e84kl8rqp721p
-    headers:
-      Host: o685y.save-node.com
-- name: 🇩🇪 DE [ws] | files-qzgs.login.opendns.stream
-  type: vless
-  server: files-qzgs.login.opendns.stream
-  port: 443
-  uuid: a71d6c6d-c95e-4ec1-a892-22e21733bf09
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: files-qzgs.login.opendns.stream
-  client-fingerprint: firefox
-  ws-opts:
-    path: /origin/246825491/fetch
-    headers:
-      Host: files-qzgs.login.opendns.stream
-- name: 🇩🇪 DE [ws] | 95.129.236.239
-  type: vless
-  server: 95.129.236.239
-  port: 443
-  uuid: a71d6c6d-c95e-4ec1-a892-22e21733bf09
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: files-qzgs.login.opendns.stream
-  client-fingerprint: firefox
-  ws-opts:
-    path: /origin/246825491/fetch
-    headers:
-      Host: files-qzgs.login.opendns.stream
-- name: 🇩🇪 DE [ws] | sw-api.telemetryapi.org
-  type: vless
-  server: sw-api.telemetryapi.org
-  port: 443
-  uuid: 6bd1d88f-0a26-4d21-b325-15d85120b883
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: sw-api.telemetryapi.org
-  client-fingerprint: qq
-  ws-opts:
-    path: /api/v2/client/session/connect
-    headers:
-      Host: sw-api.telemetryapi.org
-- name: 🇰🇿 KZ [ws] | 91.219.23.76
-  type: vless
-  server: 91.219.23.76
-  port: 443
-  uuid: 8b1b59c8-8802-0002-a636-ffe786275594
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: cataloguebroker.comparecarprices.org
-  client-fingerprint: firefox
-  ws-opts:
-    path: /media/ws/
-    headers:
-      Host: cataloguebroker.comparecarprices.org
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
   - 🇳🇱 NL [R][grpc] | 51.250.35.127
-  - 🇦🇹 AT [xhttp] | 185.244.182.162
-  - 🇩🇪 DE [grpc] | vellum.filnex.baby
+  - 🇩🇪 DE [grpc] | tapestry.gerqix.online
   - 🇩🇪 DE [grpc] | 81.200.158.26
   - 🇹🇷 TR [grpc] | 188.225.36.219
-  - 🇩🇪 DE [ws] | 185.178.208.167
+  - 🇨🇿 CZ [grpc] | 109.248.17.252
   - 🇯🇵 JP [ws] | 185.222.43.175
   - 🇩🇪 DE  | 176.98.176.60
-  - 🇩🇪 DE [ws] | 88.216.70.125
-  - 🇩🇪 DE [ws] | o685y.save-node.com
+  - 🇸🇪 SE  | 188.225.46.6
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -253,19 +155,13 @@ proxy-groups:
   proxies:
   - 🚀 Auto
   - 🇳🇱 NL [R][grpc] | 51.250.35.127
-  - 🇦🇹 AT [xhttp] | 185.244.182.162
-  - 🇩🇪 DE [grpc] | vellum.filnex.baby
+  - 🇩🇪 DE [grpc] | tapestry.gerqix.online
   - 🇩🇪 DE [grpc] | 81.200.158.26
   - 🇹🇷 TR [grpc] | 188.225.36.219
-  - 🇩🇪 DE [ws] | 185.178.208.167
+  - 🇨🇿 CZ [grpc] | 109.248.17.252
   - 🇯🇵 JP [ws] | 185.222.43.175
   - 🇩🇪 DE  | 176.98.176.60
-  - 🇩🇪 DE [ws] | 88.216.70.125
-  - 🇩🇪 DE [ws] | o685y.save-node.com
-  - 🇩🇪 DE [ws] | files-qzgs.login.opendns.stream
-  - 🇩🇪 DE [ws] | 95.129.236.239
-  - 🇩🇪 DE [ws] | sw-api.telemetryapi.org
-  - 🇰🇿 KZ [ws] | 91.219.23.76
+  - 🇸🇪 SE  | 188.225.46.6
 - name: 🎯 Direct
   type: select
   proxies:
