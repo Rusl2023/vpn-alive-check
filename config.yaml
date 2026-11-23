@@ -38,22 +38,6 @@ proxies:
   client-fingerprint: qq
   grpc-opts:
     grpc-service-name: mc.yandex.ru
-- name: 🇩🇪 DE [R] | f828nczurr.newwl.pro
-  type: vless
-  server: f828nczurr.newwl.pro
-  port: 443
-  uuid: 7955bf18-35c4-412d-aabd-c0b36c793063
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: gIoGTXALALpkvFP4kINkeajD4YoFgIPiW48aOkc0bSw
-    short-id: 611c49b4c7dc6f5a
-  servername: push.vk.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇦🇹 AT [xhttp] | 185.244.182.162
   type: vless
   server: 185.244.182.162
@@ -66,9 +50,9 @@ proxies:
   tls: true
   servername: atd1.tunnely.space
   client-fingerprint: firefox
-- name: 🇹🇷 TR [grpc] | 188.225.36.219
+- name: 🇩🇪 DE [grpc] | vellum.filnex.baby
   type: vless
-  server: 188.225.36.219
+  server: vellum.filnex.baby
   port: 443
   uuid: 0b6a7fe0-206b-4071-9f96-cd397d1ec01a
   udp: true
@@ -76,10 +60,10 @@ proxies:
   network: grpc
   encryption: none
   tls: true
-  servername: olvento.space
+  servername: rookery.moltex.click
   client-fingerprint: firefox
   grpc-opts:
-    grpc-service-name: olvento.sync.v1
+    grpc-service-name: glush.de3.v1
 - name: 🇩🇪 DE [grpc] | 81.200.158.26
   type: vless
   server: 81.200.158.26
@@ -94,22 +78,20 @@ proxies:
   client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: glush.de1.v1
-- name: 🇩🇪 DE [ws] | 95.129.236.239
+- name: 🇹🇷 TR [grpc] | 188.225.36.219
   type: vless
-  server: 95.129.236.239
+  server: 188.225.36.219
   port: 443
-  uuid: a71d6c6d-c95e-4ec1-a892-22e21733bf09
+  uuid: 0b6a7fe0-206b-4071-9f96-cd397d1ec01a
   udp: true
   skip-cert-verify: true
-  network: ws
+  network: grpc
   encryption: none
   tls: true
-  servername: files-qzgs.login.opendns.stream
+  servername: olvento.space
   client-fingerprint: firefox
-  ws-opts:
-    path: /origin/246825491/fetch
-    headers:
-      Host: files-qzgs.login.opendns.stream
+  grpc-opts:
+    grpc-service-name: olvento.sync.v1
 - name: 🇩🇪 DE [ws] | 185.178.208.167
   type: vless
   server: 185.178.208.167
@@ -126,6 +108,65 @@ proxies:
     path: /api/v2/client/session/connect
     headers:
       Host: sw-api.telemetryapi.org
+- name: 🇯🇵 JP [ws] | 185.222.43.175
+  type: vless
+  server: 185.222.43.175
+  port: 443
+  uuid: 4e4f1f70-5e56-4a76-bb9d-db087f4690c4
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: jp3.yohototo.top
+  ws-opts:
+    path: /tyxyws
+    headers:
+      Host: jp3.yohototo.top
+- name: 🇩🇪 DE  | 176.98.176.60
+  type: vless
+  server: 176.98.176.60
+  port: 443
+  uuid: 7ad63b26-bf70-4872-8fab-ebaf73a1e19d
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  servername: mosaic.topp-con.xyz
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇩🇪 DE [ws] | 88.216.70.125
+  type: vless
+  server: 88.216.70.125
+  port: 443
+  uuid: 88e79aa6-f431-4453-8dcc-652a0c747198
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: o685y.save-node.com
+  ws-opts:
+    path: /api/se1k2rfxlsuer3ry4u6e84kl8rqp721p
+    headers:
+      Host: o685y.save-node.com
+- name: 🇩🇪 DE [ws] | o685y.save-node.com
+  type: vless
+  server: o685y.save-node.com
+  port: 443
+  uuid: 88e79aa6-f431-4453-8dcc-652a0c747198
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: o685y.save-node.com
+  client-fingerprint: firefox
+  ws-opts:
+    path: /api/se1k2rfxlsuer3ry4u6e84kl8rqp721p
+    headers:
+      Host: o685y.save-node.com
 - name: 🇩🇪 DE [ws] | files-qzgs.login.opendns.stream
   type: vless
   server: files-qzgs.login.opendns.stream
@@ -142,21 +183,22 @@ proxies:
     path: /origin/246825491/fetch
     headers:
       Host: files-qzgs.login.opendns.stream
-- name: 🇯🇵 JP [ws] | 185.222.43.175
+- name: 🇩🇪 DE [ws] | 95.129.236.239
   type: vless
-  server: 185.222.43.175
+  server: 95.129.236.239
   port: 443
-  uuid: 4e4f1f70-5e56-4a76-bb9d-db087f4690c4
+  uuid: a71d6c6d-c95e-4ec1-a892-22e21733bf09
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: jp3.yohototo.top
+  servername: files-qzgs.login.opendns.stream
+  client-fingerprint: firefox
   ws-opts:
-    path: /tyxyws
+    path: /origin/246825491/fetch
     headers:
-      Host: jp3.yohototo.top
+      Host: files-qzgs.login.opendns.stream
 - name: 🇩🇪 DE [ws] | sw-api.telemetryapi.org
   type: vless
   server: sw-api.telemetryapi.org
@@ -173,80 +215,6 @@ proxies:
     path: /api/v2/client/session/connect
     headers:
       Host: sw-api.telemetryapi.org
-- name: 🇩🇪 DE  | 176.98.176.60
-  type: vless
-  server: 176.98.176.60
-  port: 443
-  uuid: 7ad63b26-bf70-4872-8fab-ebaf73a1e19d
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: mosaic.topp-con.xyz
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇩🇪 DE [ws] | 88.216.70.125
-  type: vless
-  server: 88.216.70.125
-  port: 443
-  uuid: 88e79aa6-f431-4453-8dcc-652a0c747198
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: o685y.save-node.com
-  client-fingerprint: chrome
-  ws-opts:
-    path: /api/se1k2rfxlsuer3ry4u6e84kl8rqp721p
-    headers:
-      Host: o685y.save-node.com
-- name: 🇩🇪 DE [ws] | o685y.save-node.com
-  type: vless
-  server: o685y.save-node.com
-  port: 443
-  uuid: 88e79aa6-f431-4453-8dcc-652a0c747198
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: o685y.save-node.com
-  client-fingerprint: chrome
-  ws-opts:
-    path: /api/se1k2rfxlsuer3ry4u6e84kl8rqp721p
-    headers:
-      Host: o685y.save-node.com
-- name: 🇩🇪 DE [ws] | 188.225.72.227
-  type: vless
-  server: 188.225.72.227
-  port: 443
-  uuid: 9838332e-2ec6-4467-a070-d6de028262ce
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: cdn.quantum.vodka
-  client-fingerprint: chrome
-  ws-opts:
-    path: /api/v1/pipe/b1bb509248
-    headers:
-      Host: cdn.quantum.vodka
-- name: 🇸🇪 SE  | 188.225.46.6
-  type: vless
-  server: 188.225.46.6
-  port: 443
-  uuid: a077dc9a-712f-48ea-b75c-d94af64011ec
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: spb.b2ai.top
-  flow: xtls-rprx-vision-udp443
-  client-fingerprint: firefox
 - name: 🇰🇿 KZ [ws] | 91.219.23.76
   type: vless
   server: 91.219.23.76
@@ -268,15 +236,15 @@ proxy-groups:
   type: url-test
   proxies:
   - 🇳🇱 NL [R][grpc] | 51.250.35.127
-  - 🇩🇪 DE [R] | f828nczurr.newwl.pro
   - 🇦🇹 AT [xhttp] | 185.244.182.162
-  - 🇹🇷 TR [grpc] | 188.225.36.219
+  - 🇩🇪 DE [grpc] | vellum.filnex.baby
   - 🇩🇪 DE [grpc] | 81.200.158.26
-  - 🇩🇪 DE [ws] | 95.129.236.239
+  - 🇹🇷 TR [grpc] | 188.225.36.219
   - 🇩🇪 DE [ws] | 185.178.208.167
-  - 🇩🇪 DE [ws] | files-qzgs.login.opendns.stream
   - 🇯🇵 JP [ws] | 185.222.43.175
-  - 🇩🇪 DE [ws] | sw-api.telemetryapi.org
+  - 🇩🇪 DE  | 176.98.176.60
+  - 🇩🇪 DE [ws] | 88.216.70.125
+  - 🇩🇪 DE [ws] | o685y.save-node.com
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -285,20 +253,18 @@ proxy-groups:
   proxies:
   - 🚀 Auto
   - 🇳🇱 NL [R][grpc] | 51.250.35.127
-  - 🇩🇪 DE [R] | f828nczurr.newwl.pro
   - 🇦🇹 AT [xhttp] | 185.244.182.162
-  - 🇹🇷 TR [grpc] | 188.225.36.219
+  - 🇩🇪 DE [grpc] | vellum.filnex.baby
   - 🇩🇪 DE [grpc] | 81.200.158.26
-  - 🇩🇪 DE [ws] | 95.129.236.239
+  - 🇹🇷 TR [grpc] | 188.225.36.219
   - 🇩🇪 DE [ws] | 185.178.208.167
-  - 🇩🇪 DE [ws] | files-qzgs.login.opendns.stream
   - 🇯🇵 JP [ws] | 185.222.43.175
-  - 🇩🇪 DE [ws] | sw-api.telemetryapi.org
   - 🇩🇪 DE  | 176.98.176.60
   - 🇩🇪 DE [ws] | 88.216.70.125
   - 🇩🇪 DE [ws] | o685y.save-node.com
-  - 🇩🇪 DE [ws] | 188.225.72.227
-  - 🇸🇪 SE  | 188.225.46.6
+  - 🇩🇪 DE [ws] | files-qzgs.login.opendns.stream
+  - 🇩🇪 DE [ws] | 95.129.236.239
+  - 🇩🇪 DE [ws] | sw-api.telemetryapi.org
   - 🇰🇿 KZ [ws] | 91.219.23.76
 - name: 🎯 Direct
   type: select
