@@ -53,6 +53,54 @@ proxies:
     short-id: 17aa0cd6
   servername: typewriter.mail.ru
   flow: xtls-rprx-vision
+  client-fingerprint: chrome
+- name: 🇭🇰 HK [R] | 170.168.32.125
+  type: vless
+  server: 170.168.32.125
+  port: 443
+  uuid: 148917bd-0b37-42b8-98f4-aa94ca73e75a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: tp7awfnKLbhIDkdYlT7Avf-SfUwt7ncX5oyWS5wQmR0
+    short-id: 6d
+  servername: travel.yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇪🇸 ES [R] | 179.255.189.18
+  type: vless
+  server: 179.255.189.18
+  port: 443
+  uuid: 148917bd-0b37-42b8-98f4-aa94ca73e75a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: tp7awfnKLbhIDkdYlT7Avf-SfUwt7ncX5oyWS5wQmR0
+    short-id: '76834511'
+  servername: travel.yandex.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇭🇰 HK [R] | 138.249.210.11
+  type: vless
+  server: 138.249.210.11
+  port: 443
+  uuid: 148917bd-0b37-42b8-98f4-aa94ca73e75a
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: tp7awfnKLbhIDkdYlT7Avf-SfUwt7ncX5oyWS5wQmR0
+    short-id: 4e3f59
+  servername: travel.yandex.ru
+  flow: xtls-rprx-vision
   client-fingerprint: firefox
 - name: 🇩🇪 DE [grpc] | 5.129.253.99
   type: vless
@@ -96,6 +144,22 @@ proxies:
   client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: glush.de3.v1
+- name: 🇩🇪 DE [R] | s53cc20fxv.deshevayashaurma.icu
+  type: vless
+  server: s53cc20fxv.deshevayashaurma.icu
+  port: 443
+  uuid: c78cc6f1-0154-49c9-b5ba-3ca18d7b977b
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 108ddeK8_9G_vKTA93xrC4Jfht_cyYTfciRbKiSgJiM
+    short-id: f141f1462c2efc90
+  servername: id.vk.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇫🇷 FR [xhttp] | 45.67.215.21
   type: vless
   server: 45.67.215.21
@@ -108,32 +172,44 @@ proxies:
   tls: true
   servername: mama147.baklajann.ru
   client-fingerprint: firefox
-- name: 🇨🇿 CZ [grpc] | 109.248.17.252
+- name: 🇩🇪 DE [xhttp] | riverside.elvano.website
   type: vless
-  server: 109.248.17.252
+  server: riverside.elvano.website
   port: 443
-  uuid: 9000a7f3-df2a-49a8-ae56-3e7777bd32f7
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  servername: v4.clequinix.globalinetforallalwaysandneverbanyoubelieveme.com
-  client-fingerprint: chrome
-  grpc-opts:
-    grpc-service-name: v4-clequinix-globalinetforallalwaysandneverbanyoubelieveme-com
-- name: 🇫🇮 FI [xhttp] | 46.17.45.116
-  type: vless
-  server: 46.17.45.116
-  port: 443
-  uuid: f120881b-3d5c-4583-a039-6ecd07e04c3f
+  uuid: 0b6a7fe0-206b-4071-9f96-cd397d1ec01a
   udp: true
   skip-cert-verify: true
   network: xhttp
   encryption: none
   tls: true
-  servername: vcvdss.syncpointbase.online
-  client-fingerprint: chrome
+  servername: riverside.elvano.website
+  client-fingerprint: firefox
+- name: 🇩🇪 DE [grpc] | pebble.gerqix.online
+  type: vless
+  server: pebble.gerqix.online
+  port: 443
+  uuid: 83706ae4-be2f-4b2b-8079-c3eb4e0b2e3e
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  servername: windlass.gerqix.online
+  client-fingerprint: firefox
+  grpc-opts:
+    grpc-service-name: glush.de2.v1
+- name: 🇩🇪 DE [xhttp] | prairie.moltex.click
+  type: vless
+  server: prairie.moltex.click
+  port: 443
+  uuid: 83706ae4-be2f-4b2b-8079-c3eb4e0b2e3e
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  servername: alderpond.moltex.click
+  client-fingerprint: firefox
 - name: 🇩🇪 DE [ws] | ws3.falmero.store
   type: vless
   server: ws3.falmero.store
@@ -145,11 +221,27 @@ proxies:
   encryption: none
   tls: true
   servername: paperbirch.merlano.monster
-  client-fingerprint: firefox
+  client-fingerprint: random
   ws-opts:
     path: /api/de1/stream
     headers:
       Host: paperbirch.merlano.monster
+- name: 🇩🇪 DE [ws] | files-qzgs.login.opendns.stream
+  type: vless
+  server: files-qzgs.login.opendns.stream
+  port: 443
+  uuid: a71d6c6d-c95e-4ec1-a892-22e21733bf09
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: files-qzgs.login.opendns.stream
+  client-fingerprint: chrome
+  ws-opts:
+    path: /origin/246825491/fetch
+    headers:
+      Host: files-qzgs.login.opendns.stream
 - name: 🇩🇪 DE [ws] | 72.56.1.44
   type: vless
   server: 72.56.1.44
@@ -166,19 +258,6 @@ proxies:
     path: /api/de6/stream
     headers:
       Host: birchmeadow.moltex.click
-- name: 🇩🇪 DE  | 176.98.176.60
-  type: vless
-  server: 176.98.176.60
-  port: 443
-  uuid: 7ad63b26-bf70-4872-8fab-ebaf73a1e19d
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: mosaic.topp-con.xyz
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇯🇵 JP [ws] | 185.222.43.175
   type: vless
   server: 185.222.43.175
@@ -194,54 +273,19 @@ proxies:
     path: /tyxyws
     headers:
       Host: jp3.yohototo.top
-- name: 🇳🇱 NL [ws] | 46.243.233.194
+- name: 🇩🇪 DE  | 176.98.176.60
   type: vless
-  server: 46.243.233.194
+  server: 176.98.176.60
   port: 443
-  uuid: 7955bf18-35c4-412d-aabd-c0b36c793063
+  uuid: 7ad63b26-bf70-4872-8fab-ebaf73a1e19d
   udp: true
   skip-cert-verify: true
-  network: ws
+  network: tcp
   encryption: none
   tls: true
-  servername: pssdwynorv.newwl.pro
-  client-fingerprint: firefox
-  ws-opts:
-    path: /service/telemetry/0294da469190/
-    headers:
-      Host: pssdwynorv.newwl.pro
-- name: 🇺🇸 US [ws] | e3.cdnwh.icu
-  type: vless
-  server: e3.cdnwh.icu
-  port: 443
-  uuid: b432a23a-acff-425c-bf69-70480cd6ed09
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: e3.cdnwh.icu
-  client-fingerprint: firefox
-  ws-opts:
-    path: /edge/chunk/b2265efffa29/
-    headers:
-      Host: e3.cdnwh.icu
-- name: 🇺🇸 US [ws] | 46.243.232.149
-  type: vless
-  server: 46.243.232.149
-  port: 443
-  uuid: b432a23a-acff-425c-bf69-70480cd6ed09
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: e3.cdnwh.icu
-  client-fingerprint: firefox
-  ws-opts:
-    path: /edge/chunk/b2265efffa29/
-    headers:
-      Host: e3.cdnwh.icu
+  servername: mosaic.topp-con.xyz
+  flow: xtls-rprx-vision
+  client-fingerprint: chrome
 - name: 🇳🇱 NL  | 171.22.183.167
   type: vless
   server: 171.22.183.167
@@ -283,36 +327,84 @@ proxies:
     path: /media/ws/
     headers:
       Host: accessfooter.cleanfoodshop.org
-- name: 🇫🇮 FI [ws] | 46.17.45.116
+- name: 🇩🇪 DE [ws] | foliose.merlano.monster
   type: vless
-  server: 46.17.45.116
+  server: foliose.merlano.monster
   port: 443
-  uuid: f120881b-3d5c-4583-a039-6ecd07e04c3f
+  uuid: 83706ae4-be2f-4b2b-8079-c3eb4e0b2e3e
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: f4bcuz.syncpointbase.online
+  servername: bookcloth.merlano.monster
   client-fingerprint: firefox
   ws-opts:
-    path: /ws
+    path: /api/de2/stream
     headers:
-      Host: f4bcuz.syncpointbase.online
+      Host: bookcloth.merlano.monster
+- name: 🇺🇸 US [ws] | 194.163.154.147
+  type: vless
+  server: 194.163.154.147
+  port: 443
+  uuid: 58e22afd-bf74-4736-984d-63a8ca03d7f0
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: accessfooter.cleanfoodshop.org
+  client-fingerprint: firefox
+  ws-opts:
+    path: /media/ws/
+    headers:
+      Host: accessfooter.cleanfoodshop.org
+- name: 🇩🇪 DE [ws] | 185.247.224.206
+  type: vless
+  server: 185.247.224.206
+  port: 443
+  uuid: 83706ae4-be2f-4b2b-8079-c3eb4e0b2e3e
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: lagoon.gerqix.online
+  client-fingerprint: firefox
+  ws-opts:
+    path: /api/de5/stream
+    headers:
+      Host: lagoon.gerqix.online
+- name: 🇩🇪 DE [ws] | woodgrain.filnex.baby
+  type: vless
+  server: woodgrain.filnex.baby
+  port: 443
+  uuid: 83706ae4-be2f-4b2b-8079-c3eb4e0b2e3e
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: larchbank.elvano.website
+  client-fingerprint: firefox
+  ws-opts:
+    path: /api/de2/stream
+    headers:
+      Host: larchbank.elvano.website
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
   - 🇳🇱 NL [R][grpc] | 51.250.35.127
   - 🇮🇪 IE [R] | 185.86.147.175
+  - 🇭🇰 HK [R] | 170.168.32.125
+  - 🇪🇸 ES [R] | 179.255.189.18
+  - 🇭🇰 HK [R] | 138.249.210.11
   - 🇩🇪 DE [grpc] | 5.129.253.99
   - 🇩🇪 DE [grpc] | 81.200.158.26
   - 🇩🇪 DE [grpc] | vellum.filnex.baby
+  - 🇩🇪 DE [R] | s53cc20fxv.deshevayashaurma.icu
   - 🇫🇷 FR [xhttp] | 45.67.215.21
-  - 🇨🇿 CZ [grpc] | 109.248.17.252
-  - 🇫🇮 FI [xhttp] | 46.17.45.116
-  - 🇩🇪 DE [ws] | ws3.falmero.store
-  - 🇩🇪 DE [ws] | 72.56.1.44
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -322,23 +414,29 @@ proxy-groups:
   - 🚀 Auto
   - 🇳🇱 NL [R][grpc] | 51.250.35.127
   - 🇮🇪 IE [R] | 185.86.147.175
+  - 🇭🇰 HK [R] | 170.168.32.125
+  - 🇪🇸 ES [R] | 179.255.189.18
+  - 🇭🇰 HK [R] | 138.249.210.11
   - 🇩🇪 DE [grpc] | 5.129.253.99
   - 🇩🇪 DE [grpc] | 81.200.158.26
   - 🇩🇪 DE [grpc] | vellum.filnex.baby
+  - 🇩🇪 DE [R] | s53cc20fxv.deshevayashaurma.icu
   - 🇫🇷 FR [xhttp] | 45.67.215.21
-  - 🇨🇿 CZ [grpc] | 109.248.17.252
-  - 🇫🇮 FI [xhttp] | 46.17.45.116
+  - 🇩🇪 DE [xhttp] | riverside.elvano.website
+  - 🇩🇪 DE [grpc] | pebble.gerqix.online
+  - 🇩🇪 DE [xhttp] | prairie.moltex.click
   - 🇩🇪 DE [ws] | ws3.falmero.store
+  - 🇩🇪 DE [ws] | files-qzgs.login.opendns.stream
   - 🇩🇪 DE [ws] | 72.56.1.44
-  - 🇩🇪 DE  | 176.98.176.60
   - 🇯🇵 JP [ws] | 185.222.43.175
-  - 🇳🇱 NL [ws] | 46.243.233.194
-  - 🇺🇸 US [ws] | e3.cdnwh.icu
-  - 🇺🇸 US [ws] | 46.243.232.149
+  - 🇩🇪 DE  | 176.98.176.60
   - 🇳🇱 NL  | 171.22.183.167
   - 🇳🇱 NL  | 171.22.183.167 (2)
   - 🇺🇸 US [ws] | 147.45.126.206
-  - 🇫🇮 FI [ws] | 46.17.45.116
+  - 🇩🇪 DE [ws] | foliose.merlano.monster
+  - 🇺🇸 US [ws] | 194.163.154.147
+  - 🇩🇪 DE [ws] | 185.247.224.206
+  - 🇩🇪 DE [ws] | woodgrain.filnex.baby
 - name: 🎯 Direct
   type: select
   proxies:
