@@ -21,6 +21,39 @@ dns:
   - tls://8.8.8.8
   - tls://1.1.1.1
 proxies:
+- name: 🇳🇱 NL [R][grpc] | 51.250.35.127
+  type: vless
+  server: 51.250.35.127
+  port: 443
+  uuid: 25d67a12-cd2d-4b72-af3d-b22b3e88402c
+  udp: true
+  skip-cert-verify: true
+  network: grpc
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: MPbIoioyPoYiGN74tRHlailah_gCWVO7P-KU6_ug-hI
+    short-id: '50'
+  servername: ya.ru
+  client-fingerprint: qq
+  grpc-opts:
+    grpc-service-name: mc.yandex.ru
+- name: 🇮🇪 IE [R] | 185.86.147.175
+  type: vless
+  server: 185.86.147.175
+  port: 443
+  uuid: ef1da56e-8117-42b4-bcd8-9094ebbdf985
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  reality-opts:
+    public-key: 8AMTGPbrxsJjdXnKnF9Q_FTBE0tQHG-nfE1CeqN7GRs
+    short-id: 17aa0cd6
+  servername: typewriter.mail.ru
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
 - name: 🇩🇪 DE [grpc] | 5.129.253.99
   type: vless
   server: 5.129.253.99
@@ -49,20 +82,6 @@ proxies:
   client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: glush.de1.v1
-- name: 🇩🇪 DE [grpc] | tapestry.gerqix.online
-  type: vless
-  server: tapestry.gerqix.online
-  port: 443
-  uuid: 0b6a7fe0-206b-4071-9f96-cd397d1ec01a
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  servername: tapestry.gerqix.online
-  client-fingerprint: random
-  grpc-opts:
-    grpc-service-name: glush.de3.v1
 - name: 🇩🇪 DE [grpc] | vellum.filnex.baby
   type: vless
   server: vellum.filnex.baby
@@ -74,9 +93,21 @@ proxies:
   encryption: none
   tls: true
   servername: rookery.moltex.click
-  client-fingerprint: random
+  client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: glush.de3.v1
+- name: 🇫🇷 FR [xhttp] | 45.67.215.21
+  type: vless
+  server: 45.67.215.21
+  port: 443
+  uuid: 3493b1bc-1c65-46e6-9cb6-9dd62b99afea
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  servername: mama147.baklajann.ru
+  client-fingerprint: firefox
 - name: 🇨🇿 CZ [grpc] | 109.248.17.252
   type: vless
   server: 109.248.17.252
@@ -88,37 +119,21 @@ proxies:
   encryption: none
   tls: true
   servername: v4.clequinix.globalinetforallalwaysandneverbanyoubelieveme.com
+  client-fingerprint: chrome
   grpc-opts:
     grpc-service-name: v4-clequinix-globalinetforallalwaysandneverbanyoubelieveme-com
-- name: 🇩🇪 DE  | 176.98.176.60
+- name: 🇫🇮 FI [xhttp] | 46.17.45.116
   type: vless
-  server: 176.98.176.60
+  server: 46.17.45.116
   port: 443
-  uuid: 7ad63b26-bf70-4872-8fab-ebaf73a1e19d
+  uuid: f120881b-3d5c-4583-a039-6ecd07e04c3f
   udp: true
   skip-cert-verify: true
-  network: tcp
+  network: xhttp
   encryption: none
   tls: true
-  servername: mosaic.topp-con.xyz
-  flow: xtls-rprx-vision
-  client-fingerprint: random
-- name: 🇩🇪 DE [ws] | 45.130.151.217
-  type: vless
-  server: 45.130.151.217
-  port: 443
-  uuid: 0b6a7fe0-206b-4071-9f96-cd397d1ec01a
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: parchment.merlano.monster
-  client-fingerprint: firefox
-  ws-opts:
-    path: /api/de7/stream
-    headers:
-      Host: parchment.merlano.monster
+  servername: vcvdss.syncpointbase.online
+  client-fingerprint: chrome
 - name: 🇩🇪 DE [ws] | ws3.falmero.store
   type: vless
   server: ws3.falmero.store
@@ -130,40 +145,11 @@ proxies:
   encryption: none
   tls: true
   servername: paperbirch.merlano.monster
-  client-fingerprint: chrome
+  client-fingerprint: firefox
   ws-opts:
     path: /api/de1/stream
     headers:
       Host: paperbirch.merlano.monster
-- name: 🇺🇸 US [ws] | 45.130.151.217
-  type: vless
-  server: 45.130.151.217
-  port: 443
-  uuid: 58e22afd-bf74-4736-984d-63a8ca03d7f0
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: accessfooter.cleanfoodshop.org
-  client-fingerprint: firefox
-  ws-opts:
-    path: /media/ws/
-    headers:
-      Host: accessfooter.cleanfoodshop.org
-- name: 🇸🇪 SE  | 188.225.36.19
-  type: vless
-  server: 188.225.36.19
-  port: 443
-  uuid: a077dc9a-712f-48ea-b75c-d94af64011ec
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  servername: spb.b2ai.top
-  flow: xtls-rprx-vision-udp443
-  client-fingerprint: firefox
 - name: 🇩🇪 DE [ws] | 72.56.1.44
   type: vless
   server: 72.56.1.44
@@ -180,127 +166,153 @@ proxies:
     path: /api/de6/stream
     headers:
       Host: birchmeadow.moltex.click
-- name: 🇸🇪 SE  | 188.225.46.6
+- name: 🇩🇪 DE  | 176.98.176.60
   type: vless
-  server: 188.225.46.6
+  server: 176.98.176.60
   port: 443
-  uuid: a077dc9a-712f-48ea-b75c-d94af64011ec
+  uuid: 7ad63b26-bf70-4872-8fab-ebaf73a1e19d
   udp: true
   skip-cert-verify: true
   network: tcp
   encryption: none
   tls: true
-  servername: spb.b2ai.top
-  flow: xtls-rprx-vision-udp443
+  servername: mosaic.topp-con.xyz
+  flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇩🇪 DE [ws] | 88.216.70.125
+- name: 🇯🇵 JP [ws] | 185.222.43.175
   type: vless
-  server: 88.216.70.125
+  server: 185.222.43.175
   port: 443
-  uuid: 88e79aa6-f431-4453-8dcc-652a0c747198
+  uuid: 4e4f1f70-5e56-4a76-bb9d-db087f4690c4
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: o685y.save-node.com
+  servername: jp3.yohototo.top
   ws-opts:
-    path: /api/se1k2rfxlsuer3ry4u6e84kl8rqp721p
+    path: /tyxyws
     headers:
-      Host: o685y.save-node.com
-- name: 🇩🇪 DE [ws] | leviko-de6384.shopingggg.ir
+      Host: jp3.yohototo.top
+- name: 🇳🇱 NL [ws] | 46.243.233.194
   type: vless
-  server: leviko-de6384.shopingggg.ir
+  server: 46.243.233.194
   port: 443
-  uuid: 88e79aa6-f431-4453-8dcc-652a0c747198
+  uuid: 7955bf18-35c4-412d-aabd-c0b36c793063
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: o685y.save-node.com
-  ws-opts:
-    path: /api/se1k2rfxlsuer3ry4u6e84kl8rqp721p
-    headers:
-      Host: o685y.save-node.com
-- name: 🇩🇪 DE [ws] | o685y.save-node.com
-  type: vless
-  server: o685y.save-node.com
-  port: 443
-  uuid: 88e79aa6-f431-4453-8dcc-652a0c747198
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: o685y.save-node.com
+  servername: pssdwynorv.newwl.pro
   client-fingerprint: firefox
   ws-opts:
-    path: /api/se1k2rfxlsuer3ry4u6e84kl8rqp721p
+    path: /service/telemetry/0294da469190/
     headers:
-      Host: o685y.save-node.com
-- name: 🇩🇪 DE [ws] | leviko-de1765.shopingggg.ir
+      Host: pssdwynorv.newwl.pro
+- name: 🇺🇸 US [ws] | e3.cdnwh.icu
   type: vless
-  server: leviko-de1765.shopingggg.ir
+  server: e3.cdnwh.icu
   port: 443
-  uuid: 88e79aa6-f431-4453-8dcc-652a0c747198
+  uuid: b432a23a-acff-425c-bf69-70480cd6ed09
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: o685y.save-node.com
+  servername: e3.cdnwh.icu
+  client-fingerprint: firefox
+  ws-opts:
+    path: /edge/chunk/b2265efffa29/
+    headers:
+      Host: e3.cdnwh.icu
+- name: 🇺🇸 US [ws] | 46.243.232.149
+  type: vless
+  server: 46.243.232.149
+  port: 443
+  uuid: b432a23a-acff-425c-bf69-70480cd6ed09
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: e3.cdnwh.icu
+  client-fingerprint: firefox
+  ws-opts:
+    path: /edge/chunk/b2265efffa29/
+    headers:
+      Host: e3.cdnwh.icu
+- name: 🇳🇱 NL  | 171.22.183.167
+  type: vless
+  server: 171.22.183.167
+  port: 443
+  uuid: 04920673-035c-410d-94e4-5b1469d3fb6f
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  servername: 171.22.183.167
+  flow: xtls-rprx-vision
   client-fingerprint: chrome
-  ws-opts:
-    path: /api/se1k2rfxlsuer3ry4u6e84kl8rqp721p
-    headers:
-      Host: o685y.save-node.com
-- name: 🇩🇪 DE [ws] | sw-api.telemetryapi.org
+- name: 🇳🇱 NL  | 171.22.183.167 (2)
   type: vless
-  server: sw-api.telemetryapi.org
+  server: 171.22.183.167
   port: 443
-  uuid: 6bd1d88f-0a26-4d21-b325-15d85120b883
+  uuid: 04920673-035c-410d-94e4-5b1469d3fb6f
+  udp: true
+  skip-cert-verify: true
+  network: tcp
+  encryption: none
+  tls: true
+  flow: xtls-rprx-vision
+  client-fingerprint: firefox
+- name: 🇺🇸 US [ws] | 147.45.126.206
+  type: vless
+  server: 147.45.126.206
+  port: 443
+  uuid: 58e22afd-bf74-4736-984d-63a8ca03d7f0
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: sw-api.telemetryapi.org
-  client-fingerprint: qq
+  servername: accessfooter.cleanfoodshop.org
+  client-fingerprint: firefox
   ws-opts:
-    path: /api/v2/client/session/connect
+    path: /media/ws/
     headers:
-      Host: sw-api.telemetryapi.org
-- name: 🇩🇪 DE [ws] | 185.178.208.167
+      Host: accessfooter.cleanfoodshop.org
+- name: 🇫🇮 FI [ws] | 46.17.45.116
   type: vless
-  server: 185.178.208.167
+  server: 46.17.45.116
   port: 443
-  uuid: 6bd1d88f-0a26-4d21-b325-15d85120b883
+  uuid: f120881b-3d5c-4583-a039-6ecd07e04c3f
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: sw-api.telemetryapi.org
-  client-fingerprint: qq
+  servername: f4bcuz.syncpointbase.online
+  client-fingerprint: firefox
   ws-opts:
-    path: /api/v2/client/session/connect
+    path: /ws
     headers:
-      Host: sw-api.telemetryapi.org
+      Host: f4bcuz.syncpointbase.online
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
   proxies:
+  - 🇳🇱 NL [R][grpc] | 51.250.35.127
+  - 🇮🇪 IE [R] | 185.86.147.175
   - 🇩🇪 DE [grpc] | 5.129.253.99
   - 🇩🇪 DE [grpc] | 81.200.158.26
-  - 🇩🇪 DE [grpc] | tapestry.gerqix.online
   - 🇩🇪 DE [grpc] | vellum.filnex.baby
+  - 🇫🇷 FR [xhttp] | 45.67.215.21
   - 🇨🇿 CZ [grpc] | 109.248.17.252
-  - 🇩🇪 DE  | 176.98.176.60
-  - 🇩🇪 DE [ws] | 45.130.151.217
+  - 🇫🇮 FI [xhttp] | 46.17.45.116
   - 🇩🇪 DE [ws] | ws3.falmero.store
-  - 🇺🇸 US [ws] | 45.130.151.217
-  - 🇸🇪 SE  | 188.225.36.19
+  - 🇩🇪 DE [ws] | 72.56.1.44
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -308,24 +320,25 @@ proxy-groups:
   type: select
   proxies:
   - 🚀 Auto
+  - 🇳🇱 NL [R][grpc] | 51.250.35.127
+  - 🇮🇪 IE [R] | 185.86.147.175
   - 🇩🇪 DE [grpc] | 5.129.253.99
   - 🇩🇪 DE [grpc] | 81.200.158.26
-  - 🇩🇪 DE [grpc] | tapestry.gerqix.online
   - 🇩🇪 DE [grpc] | vellum.filnex.baby
+  - 🇫🇷 FR [xhttp] | 45.67.215.21
   - 🇨🇿 CZ [grpc] | 109.248.17.252
-  - 🇩🇪 DE  | 176.98.176.60
-  - 🇩🇪 DE [ws] | 45.130.151.217
+  - 🇫🇮 FI [xhttp] | 46.17.45.116
   - 🇩🇪 DE [ws] | ws3.falmero.store
-  - 🇺🇸 US [ws] | 45.130.151.217
-  - 🇸🇪 SE  | 188.225.36.19
   - 🇩🇪 DE [ws] | 72.56.1.44
-  - 🇸🇪 SE  | 188.225.46.6
-  - 🇩🇪 DE [ws] | 88.216.70.125
-  - 🇩🇪 DE [ws] | leviko-de6384.shopingggg.ir
-  - 🇩🇪 DE [ws] | o685y.save-node.com
-  - 🇩🇪 DE [ws] | leviko-de1765.shopingggg.ir
-  - 🇩🇪 DE [ws] | sw-api.telemetryapi.org
-  - 🇩🇪 DE [ws] | 185.178.208.167
+  - 🇩🇪 DE  | 176.98.176.60
+  - 🇯🇵 JP [ws] | 185.222.43.175
+  - 🇳🇱 NL [ws] | 46.243.233.194
+  - 🇺🇸 US [ws] | e3.cdnwh.icu
+  - 🇺🇸 US [ws] | 46.243.232.149
+  - 🇳🇱 NL  | 171.22.183.167
+  - 🇳🇱 NL  | 171.22.183.167 (2)
+  - 🇺🇸 US [ws] | 147.45.126.206
+  - 🇫🇮 FI [ws] | 46.17.45.116
 - name: 🎯 Direct
   type: select
   proxies:
