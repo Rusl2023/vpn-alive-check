@@ -70,9 +70,9 @@ proxies:
   servername: travel.yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇪🇸 ES [R] | 179.255.189.18
+- name: 🇵🇱 PL [R] | 45.142.212.191
   type: vless
-  server: 179.255.189.18
+  server: 45.142.212.191
   port: 443
   uuid: 148917bd-0b37-42b8-98f4-aa94ca73e75a
   udp: true
@@ -82,10 +82,9 @@ proxies:
   tls: true
   reality-opts:
     public-key: tp7awfnKLbhIDkdYlT7Avf-SfUwt7ncX5oyWS5wQmR0
-    short-id: '76834511'
+    short-id: 24c4
   servername: travel.yandex.ru
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
 - name: 🇭🇰 HK [R] | 138.249.210.11
   type: vless
   server: 138.249.210.11
@@ -102,48 +101,6 @@ proxies:
   servername: travel.yandex.ru
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇵🇱 PL [R] | 45.142.212.191
-  type: vless
-  server: 45.142.212.191
-  port: 443
-  uuid: 148917bd-0b37-42b8-98f4-aa94ca73e75a
-  udp: true
-  skip-cert-verify: true
-  network: tcp
-  encryption: none
-  tls: true
-  reality-opts:
-    public-key: tp7awfnKLbhIDkdYlT7Avf-SfUwt7ncX5oyWS5wQmR0
-    short-id: 24c4
-  servername: travel.yandex.ru
-  flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇫🇷 FR [xhttp] | 45.67.215.204
-  type: vless
-  server: 45.67.215.204
-  port: 443
-  uuid: db4b5d79-a741-41c8-9769-c1ba3d7ac374
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  servername: mamafrance.baklajann.ru
-  client-fingerprint: chrome
-- name: 🇨🇿 CZ [grpc] | 109.248.17.252
-  type: vless
-  server: 109.248.17.252
-  port: 443
-  uuid: 9000a7f3-df2a-49a8-ae56-3e7777bd32f7
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  servername: v4.clequinix.globalinetforallalwaysandneverbanyoubelieveme.com
-  client-fingerprint: chrome
-  grpc-opts:
-    grpc-service-name: v4-clequinix-globalinetforallalwaysandneverbanyoubelieveme-com
 - name: 🇳🇱 NL  | 171.22.183.167
   type: vless
   server: 171.22.183.167
@@ -156,53 +113,38 @@ proxies:
   tls: true
   servername: 171.22.183.167
   flow: xtls-rprx-vision
-- name: 🇫🇮 FI [ws] | 77.232.140.7
+- name: 🇵🇱 PL [ws] | x55cf8ug.devcdn.icu
   type: vless
-  server: 77.232.140.7
+  server: x55cf8ug.devcdn.icu
   port: 443
-  uuid: 50414e45-4c5f-5a45-5553-5a447647929f
+  uuid: b432a23a-acff-425c-bf69-70480cd6ed09
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: bbz1x6eau6gs.88bahpu62r.workers.dev
-  ws-opts:
-    path: /stream/PANEL_ZEUS/5a447647929f
-    headers:
-      Host: bbz1x6eau6gs.88bahpu62r.workers.dev
-- name: 🇺🇸 US [ws] | 194.156.26.20
-  type: vless
-  server: 194.156.26.20
-  port: 443
-  uuid: 50414e45-4c5f-5a45-5553-d617da6e0a54
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: qzzw7gegux3s.ersg587gatdd.workers.dev
+  servername: x55cf8ug.devcdn.icu
   client-fingerprint: firefox
   ws-opts:
-    path: /stream/PANEL_ZEUS/d617da6e0a54
+    path: /edge/chunk/b2265efffa29/
     headers:
-      Host: qzzw7gegux3s.ersg587gatdd.workers.dev
-- name: 🇺🇸 US [ws] | 194.156.26.4
+      Host: x55cf8ug.devcdn.icu
+- name: 🇺🇸 US [ws] | 5.101.117.253
   type: vless
-  server: 194.156.26.4
+  server: 5.101.117.253
   port: 443
-  uuid: 50414e45-4c5f-5a45-5553-d498006b6113
+  uuid: 58e22afd-bf74-4736-984d-63a8ca03d7f0
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: 4kzs98enuqus.gametyrhewr06.workers.dev
+  servername: accessfooter.cleanfoodshop.org
   client-fingerprint: firefox
   ws-opts:
-    path: /stream/PANEL_ZEUS/d498006b6113
+    path: /media/ws/
     headers:
-      Host: 4kzs98enuqus.gametyrhewr06.workers.dev
+      Host: accessfooter.cleanfoodshop.org
 - name: 🇺🇸 US [ws] | 194.163.154.147
   type: vless
   server: 194.163.154.147
@@ -235,21 +177,6 @@ proxies:
     path: /media/ws/
     headers:
       Host: accessfooter.cleanfoodshop.org
-- name: 🇯🇵 JP [ws] | 185.222.43.175
-  type: vless
-  server: 185.222.43.175
-  port: 443
-  uuid: 4e4f1f70-5e56-4a76-bb9d-db087f4690c4
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: jp3.yohototo.top
-  ws-opts:
-    path: /tyxyws
-    headers:
-      Host: jp3.yohototo.top
 - name: 🇩🇪 DE  | 176.98.176.60
   type: vless
   server: 176.98.176.60
@@ -263,102 +190,22 @@ proxies:
   servername: mosaic.topp-con.xyz
   flow: xtls-rprx-vision
   client-fingerprint: chrome
-- name: 🇨🇾 CY [ws] | 194.76.146.25
+- name: 🇺🇸 US [ws] | 188.225.33.67
   type: vless
-  server: 194.76.146.25
+  server: 188.225.33.67
   port: 443
-  uuid: 92e8d9dc-8e3b-4f81-a278-d18c6bf1b962
+  uuid: b432a23a-acff-425c-bf69-70480cd6ed09
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: app-base-njw3ky.pages.dev
-  client-fingerprint: chrome
-  ws-opts:
-    path: /ws?ip=194.76.146.25:443
-    headers:
-      Host: app-base-njw3ky.pages.dev
-- name: 🇸🇪 SE [ws] | 185.58.115.45
-  type: vless
-  server: 185.58.115.45
-  port: 443
-  uuid: 92e8d9dc-8e3b-4f81-a278-d18c6bf1b962
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: app-base-njw3ky.pages.dev
-  client-fingerprint: chrome
-  ws-opts:
-    path: /ws?ip=185.58.115.45:443
-    headers:
-      Host: app-base-njw3ky.pages.dev
-- name: 🇩🇪 DE [ws] | 95.140.154.46
-  type: vless
-  server: 95.140.154.46
-  port: 443
-  uuid: 92e8d9dc-8e3b-4f81-a278-d18c6bf1b962
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: app-base-njw3ky.pages.dev
-  client-fingerprint: chrome
-  ws-opts:
-    path: /ws?ip=95.140.154.46:443
-    headers:
-      Host: app-base-njw3ky.pages.dev
-- name: 🇩🇪 DE [ws] | sw-api.telemetryapi.org
-  type: vless
-  server: sw-api.telemetryapi.org
-  port: 443
-  uuid: 6bd1d88f-0a26-4d21-b325-15d85120b883
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: sw-api.telemetryapi.org
-  client-fingerprint: qq
-  ws-opts:
-    path: /api/v2/client/session/connect
-    headers:
-      Host: sw-api.telemetryapi.org
-- name: 🇩🇪 DE [ws] | 95.129.236.239
-  type: vless
-  server: 95.129.236.239
-  port: 443
-  uuid: a71d6c6d-c95e-4ec1-a892-22e21733bf09
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: files-qzgs.login.opendns.stream
-  client-fingerprint: chrome
-  ws-opts:
-    path: /origin/246825491/fetch
-    headers:
-      Host: files-qzgs.login.opendns.stream
-- name: 🇩🇪 DE [ws] | files-qzgs.login.opendns.stream
-  type: vless
-  server: files-qzgs.login.opendns.stream
-  port: 443
-  uuid: a71d6c6d-c95e-4ec1-a892-22e21733bf09
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: files-qzgs.login.opendns.stream
+  servername: e2.cdnwh.icu
   client-fingerprint: firefox
   ws-opts:
-    path: /origin/246825491/fetch
+    path: /stream/segment/3078a41dd7eb/
     headers:
-      Host: files-qzgs.login.opendns.stream
+      Host: e2.cdnwh.icu
 - name: 🇵🇱 PL [ws] | 46.243.232.149
   type: vless
   server: 46.243.232.149
@@ -375,6 +222,22 @@ proxies:
     path: /edge/chunk/b2265efffa29/
     headers:
       Host: e3.cdnwh.icu
+- name: 🇩🇪 DE [ws] | 95.129.236.239
+  type: vless
+  server: 95.129.236.239
+  port: 443
+  uuid: a71d6c6d-c95e-4ec1-a892-22e21733bf09
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: files-qzgs.login.opendns.stream
+  client-fingerprint: firefox
+  ws-opts:
+    path: /origin/246825491/fetch
+    headers:
+      Host: files-qzgs.login.opendns.stream
 - name: 🇩🇪 DE [ws] | 185.178.208.167
   type: vless
   server: 185.178.208.167
@@ -386,14 +249,14 @@ proxies:
   encryption: none
   tls: true
   servername: sw-api.telemetryapi.org
-  client-fingerprint: qq
+  client-fingerprint: firefox
   ws-opts:
     path: /api/v2/client/session/connect
     headers:
       Host: sw-api.telemetryapi.org
-- name: 🇵🇱 PL [ws] | 46.243.232.149 (2)
+- name: 🇵🇱 PL [ws] | 46.243.232.78
   type: vless
-  server: 46.243.232.149
+  server: 46.243.232.78
   port: 443
   uuid: b432a23a-acff-425c-bf69-70480cd6ed09
   udp: true
@@ -401,15 +264,15 @@ proxies:
   network: ws
   encryption: none
   tls: true
-  servername: devcdn.icu
+  servername: e2.cdnwh.icu
   client-fingerprint: firefox
   ws-opts:
-    path: /edge/chunk/b2265efffa29/
+    path: /stream/segment/3078a41dd7eb/
     headers:
-      Host: devcdn.icu
-- name: 🇵🇱 PL [ws] | 46.243.232.78
+      Host: e2.cdnwh.icu
+- name: 🇵🇱 PL [ws] | 46.243.232.149 (2)
   type: vless
-  server: 46.243.232.78
+  server: 46.243.232.149
   port: 443
   uuid: b432a23a-acff-425c-bf69-70480cd6ed09
   udp: true
@@ -433,28 +296,12 @@ proxies:
   network: ws
   encryption: none
   tls: true
-  servername: e2.cdnwh.icu
+  servername: devcdn.icu
   client-fingerprint: firefox
   ws-opts:
-    path: /stream/segment/3078a41dd7eb/
+    path: /edge/chunk/b2265efffa29/
     headers:
-      Host: e2.cdnwh.icu
-- name: 🇺🇸 US [ws] | 185.247.224.206
-  type: vless
-  server: 185.247.224.206
-  port: 443
-  uuid: 58e22afd-bf74-4736-984d-63a8ca03d7f0
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: accessfooter.cleanfoodshop.org
-  client-fingerprint: firefox
-  ws-opts:
-    path: /media/ws/
-    headers:
-      Host: accessfooter.cleanfoodshop.org
+      Host: devcdn.icu
 - name: 🇳🇱 NL  | 171.22.183.167 (2)
   type: vless
   server: 171.22.183.167
@@ -467,9 +314,25 @@ proxies:
   tls: true
   flow: xtls-rprx-vision
   client-fingerprint: firefox
-- name: 🇺🇸 US [ws] | 147.45.126.206
+- name: 🇵🇱 PL [ws] | devcdn.icu
   type: vless
-  server: 147.45.126.206
+  server: devcdn.icu
+  port: 443
+  uuid: b432a23a-acff-425c-bf69-70480cd6ed09
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: devcdn.icu
+  client-fingerprint: firefox
+  ws-opts:
+    path: /edge/chunk/b2265efffa29/
+    headers:
+      Host: devcdn.icu
+- name: 🇺🇸 US [ws] | 185.247.224.206
+  type: vless
+  server: 185.247.224.206
   port: 443
   uuid: 58e22afd-bf74-4736-984d-63a8ca03d7f0
   udp: true
@@ -499,6 +362,22 @@ proxies:
     path: /stream/segment/3078a41dd7eb/
     headers:
       Host: e2.cdnwh.icu
+- name: 🇺🇸 US [ws] | 147.45.126.206
+  type: vless
+  server: 147.45.126.206
+  port: 443
+  uuid: 58e22afd-bf74-4736-984d-63a8ca03d7f0
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: accessfooter.cleanfoodshop.org
+  client-fingerprint: firefox
+  ws-opts:
+    path: /media/ws/
+    headers:
+      Host: accessfooter.cleanfoodshop.org
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
@@ -506,13 +385,13 @@ proxy-groups:
   - 🇳🇱 NL [R][grpc] | 51.250.35.127
   - 🇭🇰 HK [R] | 170.168.32.125
   - 🇸🇨 SC [R] | 179.255.176.73
-  - 🇪🇸 ES [R] | 179.255.189.18
-  - 🇭🇰 HK [R] | 138.249.210.11
   - 🇵🇱 PL [R] | 45.142.212.191
-  - 🇫🇷 FR [xhttp] | 45.67.215.204
-  - 🇨🇿 CZ [grpc] | 109.248.17.252
+  - 🇭🇰 HK [R] | 138.249.210.11
   - 🇳🇱 NL  | 171.22.183.167
-  - 🇫🇮 FI [ws] | 77.232.140.7
+  - 🇵🇱 PL [ws] | x55cf8ug.devcdn.icu
+  - 🇺🇸 US [ws] | 5.101.117.253
+  - 🇺🇸 US [ws] | 194.163.154.147
+  - 🇺🇸 US [ws] | 185.232.204.31
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -523,34 +402,26 @@ proxy-groups:
   - 🇳🇱 NL [R][grpc] | 51.250.35.127
   - 🇭🇰 HK [R] | 170.168.32.125
   - 🇸🇨 SC [R] | 179.255.176.73
-  - 🇪🇸 ES [R] | 179.255.189.18
-  - 🇭🇰 HK [R] | 138.249.210.11
   - 🇵🇱 PL [R] | 45.142.212.191
-  - 🇫🇷 FR [xhttp] | 45.67.215.204
-  - 🇨🇿 CZ [grpc] | 109.248.17.252
+  - 🇭🇰 HK [R] | 138.249.210.11
   - 🇳🇱 NL  | 171.22.183.167
-  - 🇫🇮 FI [ws] | 77.232.140.7
-  - 🇺🇸 US [ws] | 194.156.26.20
-  - 🇺🇸 US [ws] | 194.156.26.4
+  - 🇵🇱 PL [ws] | x55cf8ug.devcdn.icu
+  - 🇺🇸 US [ws] | 5.101.117.253
   - 🇺🇸 US [ws] | 194.163.154.147
   - 🇺🇸 US [ws] | 185.232.204.31
-  - 🇯🇵 JP [ws] | 185.222.43.175
   - 🇩🇪 DE  | 176.98.176.60
-  - 🇨🇾 CY [ws] | 194.76.146.25
-  - 🇸🇪 SE [ws] | 185.58.115.45
-  - 🇩🇪 DE [ws] | 95.140.154.46
-  - 🇩🇪 DE [ws] | sw-api.telemetryapi.org
-  - 🇩🇪 DE [ws] | 95.129.236.239
-  - 🇩🇪 DE [ws] | files-qzgs.login.opendns.stream
+  - 🇺🇸 US [ws] | 188.225.33.67
   - 🇵🇱 PL [ws] | 46.243.232.149
+  - 🇩🇪 DE [ws] | 95.129.236.239
   - 🇩🇪 DE [ws] | 185.178.208.167
-  - 🇵🇱 PL [ws] | 46.243.232.149 (2)
   - 🇵🇱 PL [ws] | 46.243.232.78
+  - 🇵🇱 PL [ws] | 46.243.232.149 (2)
   - 🇵🇱 PL [ws] | 46.243.232.149 (3)
-  - 🇺🇸 US [ws] | 185.247.224.206
   - 🇳🇱 NL  | 171.22.183.167 (2)
-  - 🇺🇸 US [ws] | 147.45.126.206
+  - 🇵🇱 PL [ws] | devcdn.icu
+  - 🇺🇸 US [ws] | 185.247.224.206
   - 🇺🇸 US [ws] | e2.cdnwh.icu
+  - 🇺🇸 US [ws] | 147.45.126.206
 - name: 🎯 Direct
   type: select
   proxies:
