@@ -69,33 +69,7 @@ proxies:
     short-id: d52d3ecf49447c2a
   servername: sun9-37.userapi.com
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇩🇪 DE [grpc] | marigold.gerqix.online
-  type: vless
-  server: marigold.gerqix.online
-  port: 443
-  uuid: 749b1c56-e658-4bf5-94bd-5c3286a4aed1
-  udp: true
-  skip-cert-verify: true
-  network: grpc
-  encryption: none
-  tls: true
-  servername: marigold.gerqix.online
-  client-fingerprint: firefox
-  grpc-opts:
-    grpc-service-name: glush.de5.v1
-- name: 🇩🇪 DE [xhttp] | prairie.moltex.click
-  type: vless
-  server: prairie.moltex.click
-  port: 443
-  uuid: 749b1c56-e658-4bf5-94bd-5c3286a4aed1
-  udp: true
-  skip-cert-verify: true
-  network: xhttp
-  encryption: none
-  tls: true
-  servername: alderpond.moltex.click
-  client-fingerprint: firefox
+  client-fingerprint: qq
 - name: 🇩🇪 DE [grpc] | copperleaf.gerqix.online
   type: vless
   server: copperleaf.gerqix.online
@@ -110,6 +84,18 @@ proxies:
   client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: glush.de4.v1
+- name: 🇩🇪 DE [xhttp] | prairie.moltex.click
+  type: vless
+  server: prairie.moltex.click
+  port: 443
+  uuid: 749b1c56-e658-4bf5-94bd-5c3286a4aed1
+  udp: true
+  skip-cert-verify: true
+  network: xhttp
+  encryption: none
+  tls: true
+  servername: alderpond.moltex.click
+  client-fingerprint: firefox
 - name: 🇳🇱 NL  | 171.22.183.167
   type: vless
   server: 171.22.183.167
@@ -122,21 +108,6 @@ proxies:
   tls: true
   servername: 171.22.183.167
   flow: xtls-rprx-vision
-- name: 🇯🇵 JP [ws] | 185.222.43.175
-  type: vless
-  server: 185.222.43.175
-  port: 443
-  uuid: 4e4f1f70-5e56-4a76-bb9d-db087f4690c4
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: jp3.yohototo.top
-  ws-opts:
-    path: /tyxyws
-    headers:
-      Host: jp3.yohototo.top
 - name: 🇩🇪 DE  | 176.98.176.60
   type: vless
   server: 176.98.176.60
@@ -149,42 +120,10 @@ proxies:
   tls: true
   servername: mosaic.topp-con.xyz
   flow: xtls-rprx-vision
-  client-fingerprint: firefox
-- name: 🇺🇸 US [ws] | 188.225.33.67
+  client-fingerprint: chrome
+- name: 🇩🇪 DE [ws] | sw-api.telemetryapi.org
   type: vless
-  server: 188.225.33.67
-  port: 443
-  uuid: b432a23a-acff-425c-bf69-70480cd6ed09
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: e2.cdnwh.icu
-  client-fingerprint: firefox
-  ws-opts:
-    path: /stream/segment/3078a41dd7eb/
-    headers:
-      Host: e2.cdnwh.icu
-- name: 🇺🇸 US [ws] | e2.cdnwh.icu
-  type: vless
-  server: e2.cdnwh.icu
-  port: 443
-  uuid: b432a23a-acff-425c-bf69-70480cd6ed09
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: e2.cdnwh.icu
-  client-fingerprint: firefox
-  ws-opts:
-    path: /stream/segment/3078a41dd7eb/
-    headers:
-      Host: e2.cdnwh.icu
-- name: 🇩🇪 DE [ws] | 185.178.208.167
-  type: vless
-  server: 185.178.208.167
+  server: sw-api.telemetryapi.org
   port: 443
   uuid: 6bd1d88f-0a26-4d21-b325-15d85120b883
   udp: true
@@ -198,38 +137,22 @@ proxies:
     path: /api/v2/client/session/connect
     headers:
       Host: sw-api.telemetryapi.org
-- name: 🇵🇱 PL [ws] | 188.225.33.67
+- name: 🇩🇪 DE [ws] | 185.178.208.167
   type: vless
-  server: 188.225.33.67
+  server: 185.178.208.167
   port: 443
-  uuid: b432a23a-acff-425c-bf69-70480cd6ed09
+  uuid: 6bd1d88f-0a26-4d21-b325-15d85120b883
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: devcdn.icu
+  servername: sw-api.telemetryapi.org
   client-fingerprint: chrome
   ws-opts:
-    path: /edge/chunk/b2265efffa29/
+    path: /api/v2/client/session/connect
     headers:
-      Host: devcdn.icu
-- name: 🇵🇱 PL [ws] | 188.225.33.67 (2)
-  type: vless
-  server: 188.225.33.67
-  port: 443
-  uuid: b432a23a-acff-425c-bf69-70480cd6ed09
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  encryption: none
-  tls: true
-  servername: x55cf8ug.devcdn.icu
-  client-fingerprint: firefox
-  ws-opts:
-    path: /edge/chunk/b2265efffa29/
-    headers:
-      Host: x55cf8ug.devcdn.icu
+      Host: sw-api.telemetryapi.org
 - name: 🇸🇪 SE  | 188.225.77.71
   type: vless
   server: 188.225.77.71
@@ -250,13 +173,13 @@ proxy-groups:
   - 🇳🇱 NL [R][grpc] | 51.250.35.127
   - 🇭🇰 HK [R] | 170.168.32.125
   - 🇫🇮 FI [R] | 2.27.122.255
-  - 🇩🇪 DE [grpc] | marigold.gerqix.online
-  - 🇩🇪 DE [xhttp] | prairie.moltex.click
   - 🇩🇪 DE [grpc] | copperleaf.gerqix.online
+  - 🇩🇪 DE [xhttp] | prairie.moltex.click
   - 🇳🇱 NL  | 171.22.183.167
-  - 🇯🇵 JP [ws] | 185.222.43.175
   - 🇩🇪 DE  | 176.98.176.60
-  - 🇺🇸 US [ws] | 188.225.33.67
+  - 🇩🇪 DE [ws] | sw-api.telemetryapi.org
+  - 🇩🇪 DE [ws] | 185.178.208.167
+  - 🇸🇪 SE  | 188.225.77.71
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -267,17 +190,12 @@ proxy-groups:
   - 🇳🇱 NL [R][grpc] | 51.250.35.127
   - 🇭🇰 HK [R] | 170.168.32.125
   - 🇫🇮 FI [R] | 2.27.122.255
-  - 🇩🇪 DE [grpc] | marigold.gerqix.online
-  - 🇩🇪 DE [xhttp] | prairie.moltex.click
   - 🇩🇪 DE [grpc] | copperleaf.gerqix.online
+  - 🇩🇪 DE [xhttp] | prairie.moltex.click
   - 🇳🇱 NL  | 171.22.183.167
-  - 🇯🇵 JP [ws] | 185.222.43.175
   - 🇩🇪 DE  | 176.98.176.60
-  - 🇺🇸 US [ws] | 188.225.33.67
-  - 🇺🇸 US [ws] | e2.cdnwh.icu
+  - 🇩🇪 DE [ws] | sw-api.telemetryapi.org
   - 🇩🇪 DE [ws] | 185.178.208.167
-  - 🇵🇱 PL [ws] | 188.225.33.67
-  - 🇵🇱 PL [ws] | 188.225.33.67 (2)
   - 🇸🇪 SE  | 188.225.77.71
 - name: 🎯 Direct
   type: select
