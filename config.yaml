@@ -69,7 +69,7 @@ proxies:
     short-id: d52d3ecf49447c2a
   servername: sun9-37.userapi.com
   flow: xtls-rprx-vision
-  client-fingerprint: qq
+  client-fingerprint: firefox
 - name: 🇩🇪 DE [grpc] | copperleaf.gerqix.online
   type: vless
   server: copperleaf.gerqix.online
@@ -84,18 +84,20 @@ proxies:
   client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: glush.de4.v1
-- name: 🇩🇪 DE [xhttp] | prairie.moltex.click
+- name: 🇩🇪 DE [grpc] | marigold.gerqix.online
   type: vless
-  server: prairie.moltex.click
+  server: marigold.gerqix.online
   port: 443
   uuid: 749b1c56-e658-4bf5-94bd-5c3286a4aed1
   udp: true
   skip-cert-verify: true
-  network: xhttp
+  network: grpc
   encryption: none
   tls: true
-  servername: alderpond.moltex.click
+  servername: marigold.gerqix.online
   client-fingerprint: firefox
+  grpc-opts:
+    grpc-service-name: glush.de5.v1
 - name: 🇳🇱 NL  | 171.22.183.167
   type: vless
   server: 171.22.183.167
@@ -108,19 +110,84 @@ proxies:
   tls: true
   servername: 171.22.183.167
   flow: xtls-rprx-vision
-- name: 🇩🇪 DE  | 176.98.176.60
+- name: 🇫🇮 FI [ws] | 77.232.140.7
   type: vless
-  server: 176.98.176.60
+  server: 77.232.140.7
   port: 443
-  uuid: 7ad63b26-bf70-4872-8fab-ebaf73a1e19d
+  uuid: 50414e45-4c5f-5a45-5553-5a447647929f
   udp: true
   skip-cert-verify: true
-  network: tcp
+  network: ws
   encryption: none
   tls: true
-  servername: mosaic.topp-con.xyz
-  flow: xtls-rprx-vision
-  client-fingerprint: chrome
+  servername: bbz1x6eau6gs.88bahpu62r.workers.dev
+  ws-opts:
+    path: /stream/PANEL_ZEUS/5a447647929f
+    headers:
+      Host: bbz1x6eau6gs.88bahpu62r.workers.dev
+- name: 🇺🇸 US [ws] | 194.156.26.20
+  type: vless
+  server: 194.156.26.20
+  port: 443
+  uuid: 50414e45-4c5f-5a45-5553-d617da6e0a54
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: qzzw7gegux3s.ersg587gatdd.workers.dev
+  client-fingerprint: firefox
+  ws-opts:
+    path: /stream/PANEL_ZEUS/d617da6e0a54
+    headers:
+      Host: qzzw7gegux3s.ersg587gatdd.workers.dev
+- name: 🇺🇸 US [ws] | 194.156.26.4
+  type: vless
+  server: 194.156.26.4
+  port: 443
+  uuid: 50414e45-4c5f-5a45-5553-d498006b6113
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: 4kzs98enuqus.gametyrhewr06.workers.dev
+  client-fingerprint: firefox
+  ws-opts:
+    path: /stream/PANEL_ZEUS/d498006b6113
+    headers:
+      Host: 4kzs98enuqus.gametyrhewr06.workers.dev
+- name: 🇯🇵 JP [ws] | 185.222.43.175
+  type: vless
+  server: 185.222.43.175
+  port: 443
+  uuid: 4e4f1f70-5e56-4a76-bb9d-db087f4690c4
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: jp3.yohototo.top
+  ws-opts:
+    path: /tyxyws
+    headers:
+      Host: jp3.yohototo.top
+- name: 🇩🇪 DE [ws] | 185.178.208.167
+  type: vless
+  server: 185.178.208.167
+  port: 443
+  uuid: 6bd1d88f-0a26-4d21-b325-15d85120b883
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: sw-api.telemetryapi.org
+  client-fingerprint: qq
+  ws-opts:
+    path: /api/v2/client/session/connect
+    headers:
+      Host: sw-api.telemetryapi.org
 - name: 🇩🇪 DE [ws] | sw-api.telemetryapi.org
   type: vless
   server: sw-api.telemetryapi.org
@@ -137,22 +204,22 @@ proxies:
     path: /api/v2/client/session/connect
     headers:
       Host: sw-api.telemetryapi.org
-- name: 🇩🇪 DE [ws] | 185.178.208.167
+- name: 🇩🇪 DE [ws] | 95.129.236.239
   type: vless
-  server: 185.178.208.167
+  server: 95.129.236.239
   port: 443
-  uuid: 6bd1d88f-0a26-4d21-b325-15d85120b883
+  uuid: a71d6c6d-c95e-4ec1-a892-22e21733bf09
   udp: true
   skip-cert-verify: true
   network: ws
   encryption: none
   tls: true
-  servername: sw-api.telemetryapi.org
+  servername: files-qzgs.login.opendns.stream
   client-fingerprint: chrome
   ws-opts:
-    path: /api/v2/client/session/connect
+    path: /origin/246825491/fetch
     headers:
-      Host: sw-api.telemetryapi.org
+      Host: files-qzgs.login.opendns.stream
 - name: 🇸🇪 SE  | 188.225.77.71
   type: vless
   server: 188.225.77.71
@@ -166,6 +233,22 @@ proxies:
   servername: spb2.b2ai.top
   flow: xtls-rprx-vision-udp443
   client-fingerprint: firefox
+- name: 🇲🇩 MD [ws] | 194.180.191.200
+  type: vless
+  server: 194.180.191.200
+  port: 443
+  uuid: 5d7b401c-78fa-4254-872e-6d42bf7e75ec
+  udp: true
+  skip-cert-verify: true
+  network: ws
+  encryption: none
+  tls: true
+  servername: v2n5.11676767.xyz
+  client-fingerprint: chrome
+  ws-opts:
+    path: /doujin/channels/cb
+    headers:
+      Host: v2n5.11676767.xyz
 proxy-groups:
 - name: 🚀 Auto
   type: url-test
@@ -174,12 +257,12 @@ proxy-groups:
   - 🇭🇰 HK [R] | 170.168.32.125
   - 🇫🇮 FI [R] | 2.27.122.255
   - 🇩🇪 DE [grpc] | copperleaf.gerqix.online
-  - 🇩🇪 DE [xhttp] | prairie.moltex.click
+  - 🇩🇪 DE [grpc] | marigold.gerqix.online
   - 🇳🇱 NL  | 171.22.183.167
-  - 🇩🇪 DE  | 176.98.176.60
-  - 🇩🇪 DE [ws] | sw-api.telemetryapi.org
-  - 🇩🇪 DE [ws] | 185.178.208.167
-  - 🇸🇪 SE  | 188.225.77.71
+  - 🇫🇮 FI [ws] | 77.232.140.7
+  - 🇺🇸 US [ws] | 194.156.26.20
+  - 🇺🇸 US [ws] | 194.156.26.4
+  - 🇯🇵 JP [ws] | 185.222.43.175
   url: https://www.google.com/generate_204
   interval: 300
   tolerance: 50
@@ -191,12 +274,17 @@ proxy-groups:
   - 🇭🇰 HK [R] | 170.168.32.125
   - 🇫🇮 FI [R] | 2.27.122.255
   - 🇩🇪 DE [grpc] | copperleaf.gerqix.online
-  - 🇩🇪 DE [xhttp] | prairie.moltex.click
+  - 🇩🇪 DE [grpc] | marigold.gerqix.online
   - 🇳🇱 NL  | 171.22.183.167
-  - 🇩🇪 DE  | 176.98.176.60
-  - 🇩🇪 DE [ws] | sw-api.telemetryapi.org
+  - 🇫🇮 FI [ws] | 77.232.140.7
+  - 🇺🇸 US [ws] | 194.156.26.20
+  - 🇺🇸 US [ws] | 194.156.26.4
+  - 🇯🇵 JP [ws] | 185.222.43.175
   - 🇩🇪 DE [ws] | 185.178.208.167
+  - 🇩🇪 DE [ws] | sw-api.telemetryapi.org
+  - 🇩🇪 DE [ws] | 95.129.236.239
   - 🇸🇪 SE  | 188.225.77.71
+  - 🇲🇩 MD [ws] | 194.180.191.200
 - name: 🎯 Direct
   type: select
   proxies:
